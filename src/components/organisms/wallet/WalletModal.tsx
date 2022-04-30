@@ -15,38 +15,28 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 /* import managers */
 import { useWallet } from '../../../context/WalletManager'
 
 /* import components */
-import { Card, CardContainer } from '../../atoms/Card'
-import { ModalCell } from '../../atoms/Modal'
-import { Text } from '../../atoms/Typography'
 import { Modal } from '../../molecules/Modal'
-import { Flex } from '../../atoms/Layout'
 import { Button, ButtonWrapper } from '../../atoms/Button'
 import { Scrollable } from '../../atoms/Layout'
-import { LedgerDerivationPathModal } from './LedgerDerivationPathModal'
 
 /* import constants */
 import { Z_MODAL } from '../../../constants'
 
 /* import wallets */
-import { SUPPORTED_WALLETS } from '../../../wallet/'
+import { WalletList } from '../../molecules/WalletList'
+import { useWeb3React } from '@web3-react/core'
+import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
+import usePrevious from '../../../hooks/internal/usePrevious'
 
 interface WalletModalProps {
   closeModal: () => void
   isOpen: boolean
-}
-
-type ConnectWalletModalState = {
-  showLedgerModal: boolean
-}
-
-const InitialState: ConnectWalletModalState = {
-  showLedgerModal: false,
 }
 
 export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) => {
@@ -55,8 +45,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
   hooks
 
   *************************************************************************************/
-  const { changeWallet, disconnect, activeWalletConnector } = useWallet()
-  const [state, setState] = useState<ConnectWalletModalState>(InitialState)
+  const { connector, active, error, account } = useWeb3React()
+  const { disconnect } = useWallet()
 
   /************************************************************************************* 
     
@@ -67,18 +57,16 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
     closeModal()
   }, [closeModal])
 
-  const connectWallet = useCallback(async (id: string) => {
-    const foundWalletConnector = SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === id)]
+  const activePrevious = usePrevious(active)
+  const connectorPrevious = usePrevious(connector)
 
-    if (foundWalletConnector.id === 'ledger') {
-      setState({
-        showLedgerModal: true,
-      })
-      return
+  // if the user is inactive, then became active
+  // or if the connector is different, close modal
+  useEffect(() => {
+    if ((active && !activePrevious) || (connector && connector !== connectorPrevious && !error)) {
+      handleClose()
     }
-
-    await changeWallet(foundWalletConnector)
-  }, [])
+  }, [active, activePrevious, handleClose, connector, connectorPrevious, error])
 
   return (
     <Modal
@@ -89,46 +77,15 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
       disableCloseButton={false}
     >
       <Scrollable maxMobileHeight={60}>
-        <CardContainer cardsPerRow={2}>
-          {SUPPORTED_WALLETS.map((wallet) => (
-            <Card
-              canHover
-              pt={5}
-              pb={5}
-              pl={30}
-              pr={30}
-              key={wallet.id}
-              onClick={() => connectWallet(wallet.id)}
-              glow={wallet.id == activeWalletConnector?.id}
-              color1={wallet.id == activeWalletConnector?.id}
-              jc={'center'}
-              style={{ display: 'flex' }}
-            >
-              <Flex stretch between>
-                <ModalCell p={10}>
-                  <img src={wallet.logo} alt={wallet.name} height={32} />
-                </ModalCell>
-                <ModalCell p={10}>
-                  <Text t4 bold light={wallet.id == activeWalletConnector?.id}>
-                    {wallet.name}
-                  </Text>
-                </ModalCell>
-              </Flex>
-            </Card>
-          ))}
-        </CardContainer>
+        <WalletList />
       </Scrollable>
-      {activeWalletConnector && (
+      {account && (
         <ButtonWrapper>
           <Button widthP={100} onClick={disconnect}>
             Disconnect Wallet
           </Button>
         </ButtonWrapper>
       )}
-      <LedgerDerivationPathModal
-        isOpen={state.showLedgerModal}
-        closeModal={() => setState({ showLedgerModal: false })}
-      />
     </Modal>
   )
 }

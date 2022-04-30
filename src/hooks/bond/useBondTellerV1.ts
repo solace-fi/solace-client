@@ -1,11 +1,8 @@
-import { BigNumber } from 'ethers'
-import { useCallback, useEffect, useState, useMemo, useRef } from 'react'
+import { BigNumber, Contract } from 'ethers'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { BondTellerDetails, TxResult, LocalTx } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
-import { getContract } from '../../utils'
 
-import { useWallet } from '../../context/WalletManager'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../../utils/contract'
 import { useProvider } from '../../context/ProviderManager'
@@ -13,9 +10,11 @@ import { usePriceSdk } from '../api/usePrice'
 import { useNetwork } from '../../context/NetworkManager'
 import { floatUnits, truncateValue } from '../../utils/formatting'
 import { BondTokenV1 } from '../../constants/types'
-import { useReadToken } from '../contract/useToken'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useCachedData } from '../../context/CachedDataManager'
+import { withBackoffRetries } from '../../utils/time'
+import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
+import { useWeb3React } from '@web3-react/core'
 
 export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()
@@ -28,17 +27,36 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
     func: FunctionName
   ): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
+    const estGas =
+      func == FunctionName.BOND_DEPOSIT_ERC20_V1
+        ? await selectedBondDetail.tellerData.teller.contract.estimateGas.deposit(
+            parsedAmount,
+            minAmountOut,
+            recipient,
+            stake
+          )
+        : func == FunctionName.BOND_DEPOSIT_ETH_V1
+        ? await selectedBondDetail.tellerData.teller.contract.estimateGas.depositEth(minAmountOut, recipient, stake)
+        : await selectedBondDetail.tellerData.teller.contract.estimateGas.depositWeth(
+            parsedAmount,
+            minAmountOut,
+            recipient,
+            stake
+          )
+    console.log('selectedBondDetail.tellerData.teller.contract.estimateGas.deposit', estGas.toString())
     const tx =
       func == FunctionName.BOND_DEPOSIT_ERC20_V1
         ? await selectedBondDetail.tellerData.teller.contract.deposit(parsedAmount, minAmountOut, recipient, stake, {
             ...gasConfig,
-            gasLimit: FunctionGasLimits['tellerErc20_v1.deposit'],
+            // gasLimit: FunctionGasLimits['tellerErc20_v1.deposit'],
+            gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
           })
         : func == FunctionName.BOND_DEPOSIT_ETH_V1
         ? await selectedBondDetail.tellerData.teller.contract.depositEth(minAmountOut, recipient, stake, {
             value: parsedAmount,
             ...gasConfig,
-            gasLimit: FunctionGasLimits['tellerEth_v1.depositEth'],
+            // gasLimit: FunctionGasLimits['tellerEth_v1.depositEth'],
+            gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
           })
         : await selectedBondDetail.tellerData.teller.contract.depositWeth(
             parsedAmount,
@@ -47,7 +65,8 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
             stake,
             {
               ...gasConfig,
-              gasLimit: FunctionGasLimits['tellerEth_v1.depositWeth'],
+              // gasLimit: FunctionGasLimits['tellerEth_v1.depositWeth'],
+              gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
             }
           )
     const localTx: LocalTx = {
@@ -60,9 +79,12 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
 
   const redeem = async (bondId: BigNumber): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
+    const estGas = await selectedBondDetail.tellerData.teller.contract.estimateGas.redeem(bondId)
+    console.log('selectedBondDetail.tellerData.teller.contract.estimateGas.redeem', estGas.toString())
     const tx = await selectedBondDetail.tellerData.teller.contract.redeem(bondId, {
       ...gasConfig,
-      gasLimit: FunctionGasLimits['teller_v1.redeem'],
+      // gasLimit: FunctionGasLimits['teller_v1.redeem'],
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -78,10 +100,9 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
 export const useBondTellerDetailsV1 = (
   canGetPrices: boolean
 ): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
-  const { library, account } = useWallet()
-  const { latestBlock } = useProvider()
+  const { latestBlock, provider, signer } = useProvider()
   const { tellers } = useContracts()
-  const { activeNetwork, networks } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
   const { getPriceSdkFunc } = usePriceSdk()
@@ -98,7 +119,6 @@ export const useBondTellerDetailsV1 = (
   useEffect(() => {
     const getPrices = async () => {
       if (
-        !library ||
         !canBondV1 ||
         !latestBlock ||
         !canGetPrices ||
@@ -107,11 +127,11 @@ export const useBondTellerDetailsV1 = (
       )
         return
       running.current = true
-      const solacePrice = truncateValue(tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()], 2)
+      const solacePrice = truncateValue(tokenPriceMapping['solace'], 2)
       try {
         const data: BondTellerDetails[] = await Promise.all(
           tellers
-            .filter((t) => t.version == 1)
+            .filter((t) => t.metadata.version == 1)
             .map(async (teller) => {
               const [
                 principalAddr,
@@ -121,41 +141,45 @@ export const useBondTellerDetailsV1 = (
                 maxPayout,
                 bondFeeBps,
               ] = await Promise.all([
-                teller.contract.principal(),
-                teller.contract.bondPrice(),
-                teller.contract.vestingTerm(),
-                teller.contract.capacity(),
-                teller.contract.maxPayout(),
-                teller.contract.bondFeeBps(),
+                withBackoffRetries(async () => teller.contract.principal()),
+                withBackoffRetries(async () => teller.contract.bondPrice()),
+                withBackoffRetries(async () => teller.contract.vestingTerm()),
+                withBackoffRetries(async () => teller.contract.capacity()),
+                withBackoffRetries(async () => teller.contract.maxPayout()),
+                withBackoffRetries(async () => teller.contract.bondFeeBps()),
               ])
 
-              const principalContract = getContract(principalAddr, teller.principalAbi, library, account ?? undefined)
+              const principalContract = new Contract(principalAddr, teller.metadata.principalAbi, signer ?? provider)
 
               const [decimals, name, symbol] = await Promise.all([
                 queryDecimals(principalContract),
-                queryName(principalContract, library),
-                querySymbol(principalContract, library),
+                queryName(principalContract, signer ?? provider),
+                querySymbol(principalContract, signer ?? provider),
               ])
 
               let lpData = {}
               let usdBondPrice = 0
 
-              const { getSdkTokenPrice, getSdkLpPrice } = getPriceSdkFunc(teller.sdk)
+              const { getSdkTokenPrice, getSdkLpPrice } = getPriceSdkFunc(teller.metadata.sdk)
 
               // get usdBondPrice
-              if (teller.isLp) {
-                const price = await getSdkLpPrice(principalContract, activeNetwork, library)
+              if (teller.metadata.isLp) {
+                const price = await getSdkLpPrice(principalContract, activeNetwork, signer ?? provider)
                 usdBondPrice = Math.max(price, 0) * floatUnits(bondPrice, decimals)
-                const [token0, token1] = await Promise.all([principalContract.token0(), principalContract.token1()])
+                const [token0, token1] = await Promise.all([
+                  withBackoffRetries(async () => principalContract.token0()),
+                  withBackoffRetries(async () => principalContract.token1()),
+                ])
                 lpData = {
                   token0,
                   token1,
                 }
               } else {
-                const key = teller.mainnetAddr == '' ? teller.tokenId.toLowerCase() : teller.mainnetAddr.toLowerCase()
+                const key =
+                  teller.metadata.mainnetAddr == '' ? teller.metadata.tokenId.toLowerCase() : symbol.toLowerCase()
                 usdBondPrice = tokenPriceMapping[key] * floatUnits(bondPrice, decimals)
                 if (usdBondPrice <= 0) {
-                  const price = await getSdkTokenPrice(principalContract, activeNetwork, library) // via sushiswap sdk
+                  const price = await getSdkTokenPrice(principalContract, activeNetwork, signer ?? provider) // via sushiswap sdk
                   usdBondPrice = price * floatUnits(bondPrice, decimals)
                 }
               }
@@ -167,8 +191,7 @@ export const useBondTellerDetailsV1 = (
 
               const d: BondTellerDetails = {
                 tellerData: {
-                  teller,
-                  principalAddr,
+                  teller: { contract: teller.contract, type: teller.type },
                   bondPrice,
                   usdBondPrice,
                   vestingTermInSeconds,
@@ -183,9 +206,11 @@ export const useBondTellerDetailsV1 = (
                     symbol,
                     decimals,
                     name,
+                    address: principalAddr,
                   },
                   ...lpData,
                 },
+                metadata: teller.metadata,
               }
               return d
             })
@@ -198,28 +223,27 @@ export const useBondTellerDetailsV1 = (
       running.current = false
     }
     getPrices()
-  }, [latestBlock, tellers, canBondV1, tokenPriceMapping, canGetPrices])
+  }, [latestBlock, tellers, canBondV1, tokenPriceMapping, canGetPrices, signer, provider])
 
   return { tellerDetails, mounting }
 }
 
 export const useUserBondDataV1 = () => {
-  const { keyContracts } = useContracts()
-  const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-  const readSolaceToken = useReadToken(solace)
-  const readXSolaceToken = useReadToken(xSolaceV1)
-
   const getUserBondDataV1 = async (selectedBondDetail: BondTellerDetails, account: string) => {
-    const ownedTokenIds: BigNumber[] = await selectedBondDetail.tellerData.teller.contract.listTokensOfOwner(account)
+    const ownedTokenIds: BigNumber[] = await withBackoffRetries(async () =>
+      selectedBondDetail.tellerData.teller.contract.listTokensOfOwner(account)
+    )
     const ownedBondData = await Promise.all(
-      ownedTokenIds.map(async (id) => await selectedBondDetail.tellerData.teller.contract.bonds(id))
+      ownedTokenIds.map(
+        async (id) => await withBackoffRetries(async () => selectedBondDetail.tellerData.teller.contract.bonds(id))
+      )
     )
     const ownedBonds: BondTokenV1[] = ownedTokenIds.map((id, idx) => {
       const payoutToken: string =
-        ownedBondData[idx].payoutToken == readSolaceToken.address
-          ? readSolaceToken.symbol
-          : ownedBondData[idx].payoutToken == readXSolaceToken.address
-          ? readXSolaceToken.symbol
+        ownedBondData[idx].payoutToken == SOLACE_TOKEN.address
+          ? SOLACE_TOKEN.constants.symbol
+          : ownedBondData[idx].payoutToken == XSOLACE_V1_TOKEN.address
+          ? XSOLACE_V1_TOKEN.constants.symbol
           : ''
       return {
         id,

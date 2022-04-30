@@ -86,7 +86,7 @@ export const BondOptionsV1: React.FC<BondOptionsV1Props> = ({
         )}
         <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake and receive xSOLACE'} />
       </Flex>
-      {!selectedBondDetail?.tellerData.teller.cannotBuy ? (
+      {!selectedBondDetail?.metadata.cannotBuy ? (
         <ButtonWrapper isColumn>
           {!approval && func != FunctionName.BOND_DEPOSIT_ETH_V1 && (
             <Button widthP={100} info disabled={!isAcceptableAmount || haveErrors} onClick={approve}>

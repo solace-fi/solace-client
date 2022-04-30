@@ -19,7 +19,6 @@ import React, { useMemo } from 'react'
 
 /* import managers */
 import { useContracts } from '../../../context/ContractsManager'
-import { useWallet } from '../../../context/WalletManager'
 import { useGeneral } from '../../../context/GeneralManager'
 
 /* import components */
@@ -42,6 +41,7 @@ import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions
 
 /* import utils */
 import { truncateValue } from '../../../utils/formatting'
+import { useWeb3React } from '@web3-react/core'
 
 interface CapitalProviderPoolProps {
   openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
@@ -55,7 +55,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
   *************************************************************************************/
 
   const { haveErrors } = useGeneral()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { width } = useWindowDimensions()
   const { keyContracts } = useContracts()
   const { cpFarm } = useMemo(() => keyContracts, [keyContracts])

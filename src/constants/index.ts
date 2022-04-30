@@ -57,3 +57,5 @@ export const MAX_BPS = 10000
 export const POLLING_INTERVAL = 12000
 
 export const WALLET_CONNECT_BRIDGE = 'https://bridge.walletconnect.org'
+
+export const MARKETING_SITE = 'https://solace.fi'

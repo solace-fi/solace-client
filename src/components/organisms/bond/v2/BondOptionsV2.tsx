@@ -44,7 +44,7 @@ interface BondOptionsV2Props {
   func: FunctionName
   isAcceptableAmount: boolean
   slippagePrct: string
-  bondRecipient: string | undefined
+  bondRecipient: string | null | undefined
   setIsStaking: React.Dispatch<React.SetStateAction<boolean>>
   setShouldUseNativeToken: React.Dispatch<React.SetStateAction<boolean>>
   approve: () => Promise<void>
@@ -90,7 +90,7 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
         )}
         <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake and create a safe'} />
       </Flex>
-      {!selectedBondDetail?.tellerData.teller.cannotBuy ? (
+      {!selectedBondDetail?.metadata.cannotBuy ? (
         <ButtonWrapper isColumn>
           {!approval && func != bondDepositFunctionName && (
             <Button widthP={100} info disabled={haveErrors} onClick={approve}>

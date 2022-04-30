@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import { Flex, ShadowDiv, Content, HeroContainer } from '../../components/atoms/Layout'
+import { Flex, ShadowDiv, Content } from '../../components/atoms/Layout'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { ADDRESS_ZERO, ZERO } from '../../constants'
 import {
@@ -8,17 +8,16 @@ import {
   usePortfolio,
   useTotalAccountBalance,
 } from '../../hooks/policy/useSolaceCoverProduct'
-import { useWallet } from '../../context/WalletManager'
 import { BigNumber, Contract } from 'ethers'
 import { useGeneral } from '../../context/GeneralManager'
 import { useInputAmount } from '../../hooks/internal/useInputAmount'
 import { parseUnits } from 'ethers/lib/utils'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useProvider } from '../../context/ProviderManager'
-import { DAI_ADDRESS, FRAX_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
+import { DAI_TOKEN, FRAX_TOKEN } from '../../constants/mappings/token'
 import { useNetwork } from '../../context/NetworkManager'
 import IERC20 from '../../constants/metadata/IERC20Metadata.json'
-import { queryBalance, queryDecimals } from '../../utils/contract'
+import { queryBalance } from '../../utils/contract'
 import useDebounce from '@rooks/use-debounce'
 import { useContracts } from '../../context/ContractsManager'
 import { useTokenAllowance } from '../../hooks/contract/useToken'
@@ -26,7 +25,6 @@ import { Loader } from '../../components/atoms/Loader'
 import { TextSpan, Text } from '../../components/atoms/Typography'
 import { Box, RaisedBox } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
-import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 
 import { PortfolioTable } from './PortfolioTable'
@@ -41,6 +39,10 @@ import Zapper from '../../resources/svg/zapper.svg'
 import ZapperDark from '../../resources/svg/zapper-dark.svg'
 import { CoveredChains } from './CoveredChains'
 import { CheckboxData } from '../stake/types/LockCheckbox'
+import { getContract } from '../../utils'
+import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
+import { ReadTokenData } from '../../constants/types'
+import { useWeb3React } from '@web3-react/core'
 
 export function Card({
   children,
@@ -129,9 +131,9 @@ enum FormStages {
 
 export default function Soteria(): JSX.Element {
   const { referralCode: referralCodeFromStorage, appTheme } = useGeneral()
-  const { account, library } = useWallet()
-  const { latestBlock, switchNetwork } = useProvider()
-  const { activeNetwork } = useNetwork()
+  const { account } = useWeb3React()
+  const { latestBlock, signer } = useProvider()
+  const { activeNetwork, changeNetwork } = useNetwork()
   const { version } = useCachedData()
   const canShowSoteria = useMemo(() => !activeNetwork.config.restrictedFeatures.noSoteria, [
     activeNetwork.config.restrictedFeatures.noSoteria,
@@ -178,24 +180,31 @@ export default function Soteria(): JSX.Element {
   const [codeIsValid, setCodeIsValid] = useState<boolean>(true)
   const [referrerIsActive, setIsReferrerIsActive] = useState<boolean>(true)
   const [referrerIsOther, setIsReferrerIsOther] = useState<boolean>(true)
-  const [checkingReferral, setCheckingReferral] = useState<boolean>(false)
   const [showExistingPolicyMessage, setShowExistingPolicyMessage] = useState<boolean>(true)
-  const [stableCoin, setStableCoin] = useState<string>(DAI_ADDRESS[activeNetwork.chainId])
+  const [stableCoin, setStableCoin] = useState<ReadTokenData>(DAI_TOKEN)
+  const stableCoinData = useMemo(() => {
+    return {
+      ...stableCoin.constants,
+      address: stableCoin.address[activeNetwork.chainId],
+    }
+  }, [stableCoin, activeNetwork.chainId])
 
   const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
 
   const [walletAssetBalance, setWalletAssetBalance] = useState<BigNumber>(ZERO)
-  const [walletAssetDecimals, setWalletAssetDecimals] = useState<number>(0)
 
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const spenderAddress = useMemo(() => (solaceCoverProduct ? solaceCoverProduct.address : null), [solaceCoverProduct])
   const approval = useTokenAllowance(
     contractForAllowance,
     spenderAddress,
-    amount && amount != '.' ? parseUnits(amount, walletAssetDecimals).toString() : '0'
+    amount && amount != '.' ? parseUnits(amount, stableCoinData.decimals).toString() : '0'
   )
 
   const [availableCoverCapacity, setAvailableCoverCapacity] = useState<BigNumber>(ZERO)
+
+  const [checkingReferral, setCheckingReferral] = useState<boolean>(false)
+  const [checkingMinReqAccBal, setCheckingMinReqAccBal] = useState<boolean>(false)
 
   const canPurchaseNewCover = useMemo(() => {
     if (newCoverageLimit.lte(currentCoverageLimit)) return true
@@ -203,9 +212,11 @@ export default function Soteria(): JSX.Element {
   }, [availableCoverCapacity, currentCoverageLimit, newCoverageLimit])
 
   const _checkMinReqAccountBal = useDebounce(async () => {
+    setCheckingMinReqAccBal(true)
     const minReqAccountBal = await getMinRequiredAccountBalance(newCoverageLimit)
     setMinReqAccBal(minReqAccountBal)
-  }, 300)
+    setCheckingMinReqAccBal(false)
+  }, 200)
 
   const _checkReferralCode = useDebounce(async () => {
     if (!referralCode || referralCode.length == 0 || !account) {
@@ -234,12 +245,10 @@ export default function Soteria(): JSX.Element {
   }, 300)
 
   const _getAvailableFunds = useDebounce(async () => {
-    if (!library || !account) return
-    const tokenContract = new Contract(stableCoin, IERC20.abi, library)
+    if (!signer || !account) return
+    const tokenContract = new Contract(stableCoinData.address, IERC20.abi, signer)
     const balance = await queryBalance(tokenContract, account)
-    const decimals = await queryDecimals(tokenContract)
     setWalletAssetBalance(balance)
-    setWalletAssetDecimals(decimals)
     setContractForAllowance(tokenContract)
   }, 300)
 
@@ -253,10 +262,10 @@ export default function Soteria(): JSX.Element {
     switch (activeNetwork.chainId) {
       case 80001:
       case 137:
-        setStableCoin(FRAX_ADDRESS[activeNetwork.chainId])
+        setStableCoin(FRAX_TOKEN)
         break
       default:
-        setStableCoin(DAI_ADDRESS[activeNetwork.chainId])
+        setStableCoin(DAI_TOKEN)
     }
   }, [activeNetwork.chainId])
 
@@ -268,7 +277,7 @@ export default function Soteria(): JSX.Element {
   useEffect(() => {
     _getAvailableFunds()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, activeNetwork.chainId, library, latestBlock])
+  }, [account, stableCoinData, signer, latestBlock])
 
   useEffect(() => {
     setCheckingReferral(true)
@@ -310,14 +319,7 @@ export default function Soteria(): JSX.Element {
 
   return (
     <>
-      {!account ? (
-        <HeroContainer>
-          <Text bold t1 textAlignCenter>
-            Please connect wallet to view dashboard
-          </Text>
-          <WalletConnectButton info welcome secondary />
-        </HeroContainer>
-      ) : canShowSoteria ? (
+      {canShowSoteria && account ? (
         <>
           {mounting || existingPolicy.loading ? (
             <Flex col gap={24} m={isMobile ? 20 : undefined}>
@@ -338,7 +340,13 @@ export default function Soteria(): JSX.Element {
                       </Text>
                     </Flex>
                     <ButtonWrapper isColumn={isMobile}>
-                      <Button info secondary pl={23} pr={23} onClick={() => switchNetwork(existingPolicy.network.name)}>
+                      <Button
+                        info
+                        secondary
+                        pl={23}
+                        pr={23}
+                        onClick={() => changeNetwork(existingPolicy.network.chainId)}
+                      >
                         Switch to {existingPolicy.network.name}
                       </Button>
                       <Button info pl={23} pr={23} onClick={() => setShowExistingPolicyMessage(false)}>
@@ -372,6 +380,7 @@ export default function Soteria(): JSX.Element {
                         >
                           <Card thinner>
                             <CoverageLimit
+                              stableCoinData={stableCoinData}
                               referralChecks={{
                                 codeIsUsable,
                                 codeIsValid,
@@ -381,6 +390,7 @@ export default function Soteria(): JSX.Element {
                               }}
                               balances={balances}
                               minReqAccBal={minReqAccBal}
+                              checkingMinReqAccBal={checkingMinReqAccBal}
                               currentCoverageLimit={currentCoverageLimit}
                               newCoverageLimit={newCoverageLimit}
                               setNewCoverageLimit={setNewCoverageLimit}
@@ -415,6 +425,7 @@ export default function Soteria(): JSX.Element {
                       ) : (
                         <Card thinner>
                           <CoverageLimit
+                            stableCoinData={stableCoinData}
                             referralChecks={{
                               codeIsUsable,
                               codeIsValid,
@@ -424,6 +435,7 @@ export default function Soteria(): JSX.Element {
                             }}
                             balances={balances}
                             minReqAccBal={minReqAccBal}
+                            checkingMinReqAccBal={checkingMinReqAccBal}
                             currentCoverageLimit={currentCoverageLimit}
                             newCoverageLimit={newCoverageLimit}
                             setNewCoverageLimit={setNewCoverageLimit}
@@ -445,7 +457,7 @@ export default function Soteria(): JSX.Element {
                             checkingReferral,
                             referrerIsOther,
                           }}
-                          stableCoin={stableCoin}
+                          stableCoinData={stableCoinData}
                           chainsChecked={chainsChecked}
                           balances={balances}
                           minReqAccBal={minReqAccBal}
@@ -454,7 +466,6 @@ export default function Soteria(): JSX.Element {
                           newCoverageLimit={newCoverageLimit}
                           referralCode={referralCode}
                           walletAssetBalance={walletAssetBalance}
-                          walletAssetDecimals={walletAssetDecimals}
                           approval={approval}
                           setReferralCode={setReferralCode}
                           inputProps={{
@@ -486,6 +497,7 @@ export default function Soteria(): JSX.Element {
                       >
                         <Card innerThinner noShadow>
                           <CoverageLimit
+                            stableCoinData={stableCoinData}
                             referralChecks={{
                               codeIsUsable,
                               codeIsValid,
@@ -495,6 +507,7 @@ export default function Soteria(): JSX.Element {
                             }}
                             balances={balances}
                             minReqAccBal={minReqAccBal}
+                            checkingMinReqAccBal={checkingMinReqAccBal}
                             currentCoverageLimit={currentCoverageLimit}
                             newCoverageLimit={newCoverageLimit}
                             setNewCoverageLimit={setNewCoverageLimit}
@@ -536,7 +549,7 @@ export default function Soteria(): JSX.Element {
                             checkingReferral,
                             referrerIsOther,
                           }}
-                          stableCoin={stableCoin}
+                          stableCoinData={stableCoinData}
                           chainsChecked={chainsChecked}
                           balances={balances}
                           minReqAccBal={minReqAccBal}
@@ -545,7 +558,6 @@ export default function Soteria(): JSX.Element {
                           newCoverageLimit={newCoverageLimit}
                           referralCode={referralCode}
                           walletAssetBalance={walletAssetBalance}
-                          walletAssetDecimals={walletAssetDecimals}
                           approval={approval}
                           setReferralCode={setReferralCode}
                           inputProps={{
@@ -608,7 +620,7 @@ export default function Soteria(): JSX.Element {
             </Flex>
           )}
         </>
-      ) : (
+      ) : account ? (
         <Content>
           <Box error pt={10} pb={10} pl={15} pr={15}>
             <TextSpan light textAlignLeft>
@@ -619,6 +631,8 @@ export default function Soteria(): JSX.Element {
             </Text>
           </Box>
         </Content>
+      ) : (
+        <PleaseConnectWallet />
       )}
     </>
   )

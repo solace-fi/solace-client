@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { useContracts } from '../../context/ContractsManager'
-import { useWallet } from '../../context/WalletManager'
 import { floatUnits } from '../../utils/formatting'
 import { ZERO } from '../../constants'
 import { useCachedData } from '../../context/CachedDataManager'
@@ -10,14 +9,15 @@ import { useNetwork } from '../../context/NetworkManager'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx, TxResult } from '../../constants/types'
 import { BigNumber } from 'ethers'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
+import { FunctionGasLimits } from '../../constants/mappings/gas'
 import { useProvider } from '../../context/ProviderManager'
 import { useGetFunctionGas } from '../provider/useGas'
+import { useWeb3React } from '@web3-react/core'
 
 export const useCapitalPoolSize = (): string => {
   const { keyContracts } = useContracts()
   const { vault } = useMemo(() => keyContracts, [keyContracts])
-  const { currencyDecimals } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
   const [capitalPoolSize, setCapitalPoolSize] = useState<string>('0')
 
@@ -26,14 +26,14 @@ export const useCapitalPoolSize = (): string => {
       if (!vault) return
       try {
         const size = await vault.totalAssets()
-        const formattedSize = formatUnits(size, currencyDecimals)
+        const formattedSize = formatUnits(size, activeNetwork.nativeCurrency.decimals)
         setCapitalPoolSize(formattedSize)
       } catch (err) {
         console.log('useCapitalPoolSize', err)
       }
     }
     getCapitalPoolSize()
-  }, [vault, latestBlock, currencyDecimals])
+  }, [vault, latestBlock, activeNetwork.nativeCurrency.decimals])
 
   return capitalPoolSize
 }
@@ -42,10 +42,10 @@ export const useUserVaultDetails = () => {
   const [userVaultAssets, setUserVaultAssets] = useState<string>('0')
   const [userVaultShare, setUserVaultShare] = useState<string>('0')
   const scpBalance = useScpBalance()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { keyContracts } = useContracts()
   const { vault, cpFarm } = useMemo(() => keyContracts, [keyContracts])
-  const { currencyDecimals } = useNetwork()
+  const { activeNetwork } = useNetwork()
 
   useEffect(() => {
     const getUserVaultShare = async () => {
@@ -53,12 +53,13 @@ export const useUserVaultDetails = () => {
       try {
         const totalSupply = await vault.totalSupply()
         const userStaked = cpFarm ? await cpFarm.userStaked(account) : ZERO
-        const cpBalance = parseUnits(scpBalance, currencyDecimals)
+        const cpBalance = parseUnits(scpBalance, activeNetwork.nativeCurrency.decimals)
         const userAssets = cpBalance.add(userStaked)
         const userShare = totalSupply.gt(ZERO)
-          ? floatUnits(userAssets.mul(100), currencyDecimals) / floatUnits(totalSupply, currencyDecimals)
+          ? floatUnits(userAssets.mul(100), activeNetwork.nativeCurrency.decimals) /
+            floatUnits(totalSupply, activeNetwork.nativeCurrency.decimals)
           : 0
-        const formattedUserAssets = formatUnits(userAssets, currencyDecimals)
+        const formattedUserAssets = formatUnits(userAssets, activeNetwork.nativeCurrency.decimals)
         setUserVaultAssets(formattedUserAssets)
         setUserVaultShare(userShare.toString())
       } catch (err) {
@@ -74,7 +75,7 @@ export const useUserVaultDetails = () => {
 export const useCooldown = () => {
   const { keyContracts } = useContracts()
   const { vault } = useMemo(() => keyContracts, [keyContracts])
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const [cooldownStarted, setCooldownStarted] = useState<boolean>(false)
   const [timeWaited, setTimeWaited] = useState<number>(0)
   const [canWithdrawEth, setCanWithdrawEth] = useState<boolean>(false)
@@ -156,7 +157,7 @@ export const useVault = () => {
   const { keyContracts } = useContracts()
   const { vault } = useMemo(() => keyContracts, [keyContracts])
   const { version } = useCachedData()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const [canTransfer, setCanTransfer] = useState<boolean>(true)
   const { gasConfig } = useGetFunctionGas()
 
@@ -177,9 +178,12 @@ export const useVault = () => {
 
   const withdrawEth = async (parsedAmount: BigNumber): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
+    const estGas = await vault.estimateGas.withdrawEth(parsedAmount)
+    console.log('vault.estimateGas.withdrawEth', estGas.toString())
     const tx = await vault.withdrawEth(parsedAmount, {
       ...gasConfig,
-      gasLimit: FunctionGasLimits['vault.withdrawEth'],
+      // gasLimit: FunctionGasLimits['vault.withdrawEth'],
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,

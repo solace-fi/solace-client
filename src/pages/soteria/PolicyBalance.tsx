@@ -1,10 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { Flex, HorizRule, VerticalSeparator } from '../../components/atoms/Layout'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
-// src/components/atoms/Button/index.ts
 import { Button } from '../../components/atoms/Button'
-// src/resources/svg/icons/usd.svg
-import DAI from '../../resources/svg/icons/dai.svg'
 import { StyledGrayBox } from '../../components/molecules/GrayBox'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 import { StyledSlider } from '../../components/atoms/Input'
@@ -13,9 +10,8 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
 import { useCooldownDetails, useFunctions } from '../../hooks/policy/useSolaceCoverProduct'
-import { useWallet } from '../../context/WalletManager'
-import { BigNumber } from 'ethers'
-import { LocalTx, SolaceRiskScore } from '../../constants/types'
+import { BigNumber, Contract } from 'ethers'
+import { LocalTx, ReadToken, SolaceRiskScore } from '../../constants/types'
 import {
   accurateMultiply,
   filterAmount,
@@ -39,19 +35,20 @@ import { TransactionReceipt, TransactionResponse } from '@ethersproject/provider
 import { Text } from '../../components/atoms/Typography'
 import { ModalCell } from '../../components/atoms/Modal'
 import { CheckboxData } from '../stake/types/LockCheckbox'
+import { useProvider } from '../../context/ProviderManager'
+import { useWeb3React } from '@web3-react/core'
 
 export function PolicyBalance({
   balances,
   referralChecks,
   chainsChecked,
-  stableCoin,
+  stableCoinData,
   minReqAccBal,
   portfolio,
   currentCoverageLimit,
   newCoverageLimit,
   referralCode,
   walletAssetBalance,
-  walletAssetDecimals,
   approval,
   inactive,
   inputProps,
@@ -71,14 +68,13 @@ export function PolicyBalance({
     referrerIsOther: boolean
   }
   chainsChecked: CheckboxData[]
-  stableCoin: string
+  stableCoinData: ReadToken
   minReqAccBal: BigNumber
   portfolio: SolaceRiskScore | undefined
   currentCoverageLimit: BigNumber
   newCoverageLimit: BigNumber
   referralCode: string | undefined
   walletAssetBalance: BigNumber
-  walletAssetDecimals: number
   approval: boolean
   inputProps: {
     amount: string
@@ -98,7 +94,8 @@ export function PolicyBalance({
   const [doesReachMinReqAccountBal, setDoesReachMinReqAccountBal] = useState(false)
 
   const { ifDesktop } = useWindowDimensions()
-  const { account, library } = useWallet()
+  const { account } = useWeb3React()
+  const { signer } = useProvider()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
@@ -118,8 +115,6 @@ export function PolicyBalance({
 
   const [rangeValue, setRangeValue] = useState<string>('0')
   const [isDepositing, setIsDepositing] = useState<boolean>(true)
-  const [stableCoinName, setStableCoinName] = useState<string>('')
-  const [stableCoinSymbol, setStableCoinSymbol] = useState<string>('')
 
   const usdBalanceSum = useMemo(
     () =>
@@ -158,9 +153,9 @@ export function PolicyBalance({
   }, [projectedDailyCost, balances.totalAccountBalance, inputProps.amount])
 
   const isAcceptableAmount = useMemo(
-    () => inputProps.isAppropriateAmount(inputProps.amount, walletAssetDecimals, walletAssetBalance),
+    () => inputProps.isAppropriateAmount(inputProps.amount, stableCoinData.decimals, walletAssetBalance),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [inputProps.amount, walletAssetBalance, walletAssetDecimals]
+    [inputProps.amount, walletAssetBalance, stableCoinData.decimals]
   )
 
   const referralValidation = useMemo(
@@ -174,8 +169,8 @@ export function PolicyBalance({
   )
 
   const unlimitedApprove = async () => {
-    if (!solaceCoverProduct || !account || !library) return
-    const stablecoinContract = getContract(stableCoin, IERC20.abi, library, account)
+    if (!solaceCoverProduct || !signer) return
+    const stablecoinContract = new Contract(stableCoinData.address, IERC20.abi, signer)
     try {
       const tx: TransactionResponse = await stablecoinContract.approve(solaceCoverProduct.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash
@@ -220,16 +215,16 @@ export function PolicyBalance({
   }
 
   const _handleInputChange = (_amount: string) => {
-    inputProps.handleInputChange(_amount, walletAssetDecimals)
+    inputProps.handleInputChange(_amount, stableCoinData.decimals)
     const filtered = filterAmount(_amount, inputProps.amount)
-    setRangeValue(accurateMultiply(filtered, walletAssetDecimals))
+    setRangeValue(accurateMultiply(filtered, stableCoinData.decimals))
   }
 
   const handleRangeChange = (rangeAmount: string, convertFromSciNota = true) => {
     inputProps.handleInputChange(
       formatUnits(
         BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(rangeAmount) : rangeAmount}`),
-        walletAssetDecimals
+        stableCoinData.decimals
       )
     )
     setRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(rangeAmount) : rangeAmount}`)
@@ -249,16 +244,6 @@ export function PolicyBalance({
     const bnAmount = BigNumber.from(accurateMultiply(inputProps.amount, 18))
     setDoesReachMinReqAccountBal(balances.personalBalance.add(bnAmount).gt(minReqAccBal))
   }, 300)
-
-  useEffect(() => {
-    const getStableCoinDetails = async () => {
-      const contract = getContract(stableCoin, IERC20.abi, library, account)
-      const [name, symbol] = await Promise.all([contract.name(), contract.symbol()])
-      setStableCoinName(name)
-      setStableCoinSymbol(symbol)
-    }
-    getStableCoinDetails()
-  }, [stableCoin])
 
   useEffect(() => {
     _checkMinReqAccountBal()
@@ -312,7 +297,7 @@ export function PolicyBalance({
                 <Text t4s bold>
                   {truncateValue(annualCost, 2)}{' '}
                   <Text t6s inline>
-                    DAI/Year
+                    {stableCoinData.symbol}/Year
                   </Text>
                 </Text>
               </Flex>
@@ -321,7 +306,7 @@ export function PolicyBalance({
                 <Text t4s bold>
                   {truncateValue(dailyCost, 2)}{' '}
                   <Text t6s inline>
-                    DAI/Day
+                    {stableCoinData.symbol}/Day
                   </Text>
                 </Text>
               </Flex>
@@ -343,7 +328,7 @@ export function PolicyBalance({
                 <Text t4s bold>
                   {truncateValue(annualCost, 2)}{' '}
                   <Text t6s inline>
-                    DAI/Year
+                    {stableCoinData.symbol}/Year
                   </Text>
                 </Text>
               </Flex>
@@ -352,7 +337,7 @@ export function PolicyBalance({
                 <Text t4s bold warning>
                   {truncateValue(projectedDailyCost, 2)}{' '}
                   <Text t6s inline>
-                    DAI/Day
+                    {stableCoinData.symbol}/Day
                   </Text>
                 </Text>
               </Flex>
@@ -383,7 +368,7 @@ export function PolicyBalance({
                   $
                   <Text t2s bold autoAlignVertical>
                     {commaNumber(
-                      truncateValue(formatUnits(balances.totalAccountBalance, walletAssetDecimals), 2, false)
+                      truncateValue(formatUnits(balances.totalAccountBalance, stableCoinData.decimals), 2, false)
                     )}
                   </Text>
                 </Flex>
@@ -402,8 +387,10 @@ export function PolicyBalance({
                     Personal
                   </Text>
                   <Text t4s bold info>
-                    {commaNumber(truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2, false))}{' '}
-                    DAI
+                    {commaNumber(
+                      truncateValue(formatUnits(balances.personalBalance, stableCoinData.decimals), 2, false)
+                    )}{' '}
+                    {stableCoinData.symbol}
                   </Text>
                 </Flex>
                 <Flex between>
@@ -411,7 +398,8 @@ export function PolicyBalance({
                     Bonus
                   </Text>
                   <Text t4s bold techygradient>
-                    {commaNumber(truncateValue(formatUnits(balances.earnedBalance, walletAssetDecimals), 2, false))} DAI
+                    {commaNumber(truncateValue(formatUnits(balances.earnedBalance, stableCoinData.decimals), 2, false))}{' '}
+                    {stableCoinData.symbol}
                   </Text>
                 </Flex>
               </Flex>
@@ -458,9 +446,9 @@ export function PolicyBalance({
             <>
               {inactive && <Text t4>Set the coverage limit and initial deposit for your policy</Text>}
               <GenericInputSection
-                icon={<img src={`https://assets.solace.fi/${stableCoinName.toLowerCase()}`} height={20} />}
+                icon={<img src={`https://assets.solace.fi/${stableCoinData.name.toLowerCase()}`} height={20} />}
                 onChange={(e) => _handleInputChange(e.target.value)}
-                text={stableCoinSymbol}
+                text={stableCoinData.symbol}
                 value={inputProps.amount}
                 disabled={false}
                 displayIconOnMobile
@@ -501,7 +489,7 @@ export function PolicyBalance({
                     <Text info t5s bold>
                       {!cooldownStart.isZero() && getTimeFromMillis(cooldownLeft.toNumber() * 1000) == '0'
                         ? commaNumber(
-                            truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2, false)
+                            truncateValue(formatUnits(balances.personalBalance, stableCoinData.decimals), 2, false)
                           )
                         : commaNumber(
                             truncateValue(
@@ -509,7 +497,7 @@ export function PolicyBalance({
                                 balances.personalBalance.gt(minReqAccBal)
                                   ? balances.personalBalance.sub(minReqAccBal)
                                   : ZERO,
-                                walletAssetDecimals
+                                stableCoinData.decimals
                               ),
                               2,
                               false
@@ -547,7 +535,7 @@ export function PolicyBalance({
                   {!doesReachMinReqAccountBal && (
                     <Text autoAlignHorizontal t4 error>
                       Insufficient deposit (Need at least over:{' '}
-                      {truncateValue(formatUnits(minReqAccBal, walletAssetDecimals), 2)})
+                      {truncateValue(formatUnits(minReqAccBal, stableCoinData.decimals), 2)})
                     </Text>
                   )}
                   {newCoverageLimit.eq(ZERO) && (
@@ -567,7 +555,7 @@ export function PolicyBalance({
                       !doesReachMinReqAccountBal ||
                       newCoverageLimit.eq(ZERO) ||
                       (inputProps.amount != '' &&
-                        parseUnits(inputProps.amount, walletAssetDecimals).gt(walletAssetBalance)) ||
+                        parseUnits(inputProps.amount, stableCoinData.decimals).gt(walletAssetBalance)) ||
                       noChainsSelected
                     }
                     onClick={callActivatePolicy}

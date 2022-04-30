@@ -5,30 +5,30 @@ import { hexValue } from '@ethersproject/bytes'
 import { NetworkConfig } from '../constants/types'
 
 /* core contract abi */
-import farmControllerABI from '../constants/abi/contracts/FarmController.sol/FarmController.json'
+import farmControllerABI from '../constants/metadata/FarmController.json'
 import farmRewardsABI from '../constants/metadata/FarmRewardsV2.json'
-import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
-import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
+import vaultABI from '../constants/metadata/Vault.json'
+import solaceABI from '../constants/metadata/SOLACE.json'
 import xSolaceABI from '../constants/metadata/xSOLACE.json'
-import xSolaceV1ABI from '../constants/abi/contracts/xSOLACE.sol/xSOLACE.json'
+import xSolaceV1ABI from '../constants/metadata/xSOLACEV1.json'
 import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
 import xSolaceMigratorABI from '../constants/metadata/xSolaceMigrator.json'
-import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
-import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
-import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
-import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
+import cpFarmABI from '../constants/metadata/CpFarm.json'
+import claimsEscrowABI from '../constants/metadata/ClaimsEscrow.json'
+import polMagABI from '../constants/metadata/PolicyManager.json'
+import riskManagerABI from '../constants/metadata/RiskManager.json'
 import solaceCoverProductABI from '../constants/metadata/SolaceCoverProduct.json'
 
 /* product contract abi */
-import aaveABI from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV2Product.json'
-import compABI from '../constants/abi/contracts/products/CompoundProduct.sol/CompoundProduct.json'
-import curveABI from '../constants/abi/contracts/products/CurveProduct.sol/CurveProduct.json'
-import liquityABI from '../constants/abi/contracts/products/LiquityProduct.sol/LiquityProduct.json'
-import sushiABI from '../constants/abi/contracts/products/SushiswapProduct.sol/SushiswapProduct.json'
-import uniV2ABI from '../constants/abi/contracts/products/UniswapV2Product.sol/UniswapV2Product.json'
-import uniV3ABI from '../constants/abi/contracts/products/UniswapV3Product.sol/UniswapV3Product.json'
-import yearnABI from '../constants/abi/contracts/products/YearnV2Product.sol/YearnV2Product.json'
+import aaveABI from '../constants/metadata/AaveV2Product.json'
+import compABI from '../constants/metadata/CompoundProduct.json'
+import curveABI from '../constants/metadata/CurveProduct.json'
+import liquityABI from '../constants/metadata/LiquityProduct.json'
+import sushiABI from '../constants/metadata/SushiswapProduct.json'
+import uniV2ABI from '../constants/metadata/UniswapV2Product.json'
+import uniV3ABI from '../constants/metadata/UniswapV3Product.json'
+import yearnABI from '../constants/metadata/YearnV2Product.json'
 
 /* product objects */
 import { AaveProduct } from '../products/aave'
@@ -41,7 +41,7 @@ import { UniswapV3Product } from '../products/uniswapV3'
 import { SushiswapProduct } from '../products/sushiswap'
 
 import { KEY_ADDRS, PRODUCT_ADDRS } from '../constants/addresses/mainnet'
-import { USDC_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
+import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/mainnet'
 
 /*
@@ -58,7 +58,7 @@ export const MainNetwork: NetworkConfig = {
   isTestnet: false,
   logo: EthereumLogo,
   supportedTxTypes: [0, 2],
-  nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
+  nativeCurrency: { mainnetReference: WETH9_TOKEN.address[1], symbol: Unit.ETH, decimals: 18 },
   rpc: {
     httpsUrl: `https://eth-mainnet.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
     pollingInterval: 12_000,
@@ -166,7 +166,7 @@ export const MainNetwork: NetworkConfig = {
     },
     restrictedFeatures: {},
     specialFeatures: {
-      solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
+      solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },
     specialContracts: {},
     underwritingPoolAddr: '0x5efc0d9ee3223229ce3b53e441016efc5ba83435',
@@ -188,7 +188,7 @@ export const MainNetwork: NetworkConfig = {
     chainId: hexValue(chainId),
     chainName: 'Ethereum Mainnet',
     nativeCurrency: { name: 'Ether', symbol: Unit.ETH, decimals: 18 },
-    rpcUrls: ['https://eth-mainnet.alchemyapi.io'],
+    rpcUrls: ['https://mainnet.infura.io/v3/'],
     blockExplorerUrls: ['https://etherscan.io'],
   },
   walletConfig: {

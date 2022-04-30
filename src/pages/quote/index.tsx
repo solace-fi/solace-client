@@ -25,6 +25,7 @@ import { WalletConnectButton } from '../../components/molecules/WalletConnectBut
 import { HeroContainer, Content } from '../../components/atoms/Layout'
 import { Box } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
+import { useWeb3React } from '@web3-react/core'
 
 function Quote(): any {
   /*************************************************************************************
@@ -32,10 +33,10 @@ function Quote(): any {
   hooks
 
   *************************************************************************************/
-  const { isActive, account } = useWallet()
+  const { active, account } = useWeb3React()
   const { activeNetwork } = useNetwork()
 
-  return !isActive || !account ? (
+  return !active || !account ? (
     <HeroContainer>
       <Text bold t1 textAlignCenter>
         Please connect your wallet to buy coverage

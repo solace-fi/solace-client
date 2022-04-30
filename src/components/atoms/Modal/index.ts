@@ -4,7 +4,7 @@ import { GeneralTextProps, GeneralTextCss } from '../Typography'
 import { BKPT_3, Z_MODAL } from '../../../constants'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 
-interface BaseModalProps {
+export interface BaseModalProps {
   zIndex?: number
   isOpen: boolean
 }
@@ -20,7 +20,7 @@ export interface ModalButtonProps extends ClickProps {
   hidden?: boolean
 }
 
-const FadeInAnimation = keyframes`  
+export const FadeInAnimation = keyframes`  
   from { opacity: 0; }
   to { opacity: 1; }
 `

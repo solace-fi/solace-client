@@ -51,7 +51,9 @@ import { ThemeButton } from '../molecules/ThemeButton'
 import { Flex, HorizRule } from '../atoms/Layout'
 import { MiniUserAccount, UserAccount } from '../molecules/Account'
 import { StyledNavTooltip } from '../molecules/Tooltip'
-import { AuditToast } from '../molecules/Toast'
+// import { AuditToast } from '../molecules/Toast'
+
+import defipulse from '../../resources/svg/defipulse.svg'
 
 /* import resources */
 
@@ -60,14 +62,6 @@ import AlchemyBadgeDark from '../../resources/svg/alchemy-badge-dark.svg'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
-// import styled from 'styled-components'
-
-// const NavbarWrapper = styled.div`
-//   &::-webkit-scrollbar {
-//     display: none;
-//   }
-// `
-
 interface Navbar {
   pages: PageInfo[]
 }
@@ -98,7 +92,6 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
         bottom: '0',
         display: 'flex',
         background: 'transparent',
-        // scrollbarWidth: 'thin',
       }}
     >
       <div
@@ -115,9 +108,9 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
           </>
         ) : (
           <>
-            <MiniLogo location={location} mb={35} />
+            <MiniLogo location={location} mb={35} style={{ margin: 'auto' }} />
             <StyledNavTooltip id={'mini-account-nav'} tip={'Account'}>
-              <MiniUserAccount light={lightText} width={40} />
+              <MiniUserAccount light={lightText} width={40} style={{ margin: 'auto' }} />
             </StyledNavTooltip>
           </>
         )}
@@ -221,6 +214,21 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
                   <StyledMedium size={20} />
                 </SidebarText>
               </HyperLink>
+              <HyperLink
+                href={'https://www.defipulse.com/defi-list'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ lineHeight: '0' }}
+              >
+                <SidebarText style={{ opacity: '0.8' }}>
+                  <img
+                    src={defipulse}
+                    width={16}
+                    height={16}
+                    style={{ filter: location.pathname == '/' || appTheme == 'dark' ? 'unset' : 'invert(.6)' }}
+                  />
+                </SidebarText>
+              </HyperLink>
             </ItemText>
           ) : (
             <ItemList>
@@ -280,6 +288,25 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
                   </HyperLink>
                 </ItemText>
               </StyledNavTooltip>
+              <StyledNavTooltip id={'defipulse-nav'} tip={'DefiPulse'}>
+                <ItemText>
+                  <HyperLink
+                    href={'https://www.defipulse.com/defi-list'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ lineHeight: '0', ...miniNavbarMarginSet }}
+                  >
+                    <SidebarText style={{ opacity: '0.8' }}>
+                      <img
+                        src={defipulse}
+                        width={16}
+                        height={16}
+                        style={{ filter: location.pathname == '/' || appTheme == 'dark' ? 'unset' : 'invert(.6)' }}
+                      />
+                    </SidebarText>
+                  </HyperLink>
+                </ItemText>
+              </StyledNavTooltip>
             </ItemList>
           )}
           <HorizRule location={location} />
@@ -332,21 +359,21 @@ export const TopNavbar: React.FC<Navbar> = ({ pages }) => {
 
   *************************************************************************************/
 
-  useEffect(() => {
-    if (location && location.pathname && location.pathname != '/' && location.pathname != '/terms') {
-      makeAppToast(
-        {
-          type: SystemNotice.AUDIT_NOTICE,
-          metadata: 'Audited',
-          uniqueId: `${SystemNotice.AUDIT_NOTICE}`,
-        },
-        SystemNotice.AUDIT_NOTICE,
-        <AuditToast />,
-        toastSettings.appNotice,
-        true
-      )
-    }
-  }, [location])
+  // useEffect(() => {
+  //   if (location && location.pathname && location.pathname != '/' && location.pathname != '/terms') {
+  //     makeAppToast(
+  //       {
+  //         type: SystemNotice.AUDIT_NOTICE,
+  //         metadata: 'Audited',
+  //         uniqueId: `${SystemNotice.AUDIT_NOTICE}`,
+  //       },
+  //       SystemNotice.AUDIT_NOTICE,
+  //       <AuditToast />,
+  //       toastSettings.appNotice,
+  //       true
+  //     )
+  //   }
+  // }, [location])
 
   return (
     <TopNav id="top-nav" isOpen={isOpen} style={{ overflowY: isOpen ? 'auto' : 'hidden' }}>
@@ -428,6 +455,16 @@ export const TopNavbar: React.FC<Navbar> = ({ pages }) => {
         >
           <SidebarText light>
             <StyledMedium size={20} />
+          </SidebarText>
+        </HyperLink>
+        <HyperLink
+          href={'https://www.defipulse.com/defi-list'}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ lineHeight: '0' }}
+        >
+          <SidebarText>
+            <img src={defipulse} width={16} height={16} />
           </SidebarText>
         </HyperLink>
       </ItemText>

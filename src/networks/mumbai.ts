@@ -4,7 +4,7 @@ import PolygonLogo from '../resources/svg/networks/polygon-matic-logo.svg'
 import { ALCHEMY_POLYGON_API_KEY, POLYGONSCAN_API_KEY } from '../constants'
 import { hexValue } from 'ethers/lib/utils'
 
-import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
+import solaceABI from '../constants/metadata/SOLACE.json'
 import xSolaceABI from '../constants/metadata/xSOLACE.json'
 import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
@@ -15,7 +15,7 @@ import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/mumbai'
 
 import ierc20Json from '../constants/metadata/IERC20Metadata.json'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/mumbai'
-import { FRAX_ADDRESS } from '../constants/mappings/tokenAddressMapping'
+import { FRAX_TOKEN } from '../constants/mappings/token'
 
 const chainId = 80001
 
@@ -71,7 +71,7 @@ export const MumbaiNetwork: NetworkConfig = {
     },
     specialFeatures: {
       unwrapBridgedSolace: true,
-      solaceBuyLink: `https://app.uniswap.org/#/swap?chain=polygon_mumbai&inputCurrency=${FRAX_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
+      solaceBuyLink: `https://app.uniswap.org/#/swap?chain=polygon_mumbai&inputCurrency=${FRAX_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },
     specialContracts: {
       bSolace: {
@@ -92,7 +92,7 @@ export const MumbaiNetwork: NetworkConfig = {
     chainId: hexValue(chainId),
     chainName: 'Mumbai Network',
     nativeCurrency: { name: 'Matic', symbol: Unit.MATIC, decimals: 18 },
-    rpcUrls: ['https://polygon-mumbai.g.alchemy.com'],
+    rpcUrls: ['https://rpc-mumbai.matic.today'],
     blockExplorerUrls: ['https://mumbai.polygonscan.com/'],
   },
   walletConfig: {

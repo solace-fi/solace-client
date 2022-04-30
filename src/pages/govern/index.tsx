@@ -11,10 +11,10 @@
 
 /* import packages */
 import React from 'react'
-import { Card, CardContainer } from '../../components/atoms/Card'
+import { Button } from '../../components/atoms/Button'
 
 /* import components */
-import { Content, HeroContainer } from '../../components/atoms/Layout'
+import { Content, Flex, HeroContainer } from '../../components/atoms/Layout'
 import { HyperLink } from '../../components/atoms/Link'
 import { Text } from '../../components/atoms/Typography'
 
@@ -22,31 +22,24 @@ function Govern(): any {
   return (
     <HeroContainer p={10} style={{ height: 'unset' }}>
       <Content>
-        <Text t1 textAlignCenter mb={20}>
+        <Text t1 textAlignCenter mb={20} bold>
           We are beginning the transition from a launch DAO to a community run DAO.
         </Text>
-        <Text t1 textAlignCenter mb={10}>
+        <Text t3 textAlignCenter mb={10}>
           $SOLACE stakers can participate formal discussion via our forums page, and in voting through our @SnapshotLabs
           page.
         </Text>
       </Content>
-      {/* <Text t2 textAlignCenter>
-        See our Medium blog post{' '}
-        <HyperLink
-          href={
-            'https://medium.com/solace-fi/solace-forms-a-launch-dao-to-deliver-its-defi-coverage-products-5137199369c2'
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-          info
-          t2
-        >
-          here
-        </HyperLink>{' '}
-        to learn more about our approach to governance.
-      </Text> */}
       <Content>
-        <CardContainer cardsPerRow={2}>
+        <Flex
+          gap={20}
+          style={{
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            display: 'grid',
+            gridTemplateColumns: `1fr 1fr 1fr`,
+          }}
+        >
           <HyperLink
             href={
               'https://medium.com/solace-fi/solace-forms-a-launch-dao-to-deliver-its-defi-coverage-products-5137199369c2'
@@ -56,21 +49,21 @@ function Govern(): any {
             info
             t2
           >
-            <Card canHover>
-              <Text textAlignCenter>Launch DAO Article</Text>
-            </Card>
+            <Button widthP={100} info secondary>
+              <Text textAlignCenter>Read DAO Article</Text>
+            </Button>
           </HyperLink>
           <HyperLink href={'https://forum.solace.fi/'} target="_blank" rel="noopener noreferrer" info t2>
-            <Card canHover>
-              <Text textAlignCenter>Forum</Text>
-            </Card>
+            <Button widthP={100} info secondary>
+              <Text textAlignCenter>Visit Forum</Text>
+            </Button>
           </HyperLink>
           <HyperLink href={'https://snapshot.org/#/solacefi.eth'} target="_blank" rel="noopener noreferrer" info t2>
-            <Card canHover>
-              <Text textAlignCenter>Snapshot</Text>
-            </Card>
+            <Button widthP={100} info secondary>
+              <Text textAlignCenter>Visit Snapshot</Text>
+            </Button>
           </HyperLink>
-        </CardContainer>
+        </Flex>
       </Content>
     </HeroContainer>
   )

@@ -19,11 +19,3 @@ export const AnalyticsReporter = (): null => {
   }, [location])
   return null
 }
-
-export const gtagEvent = (ACTION: string, category: string, label: string, value: string): void => {
-  window.gtag('event', ACTION, {
-    event_category: category,
-    event_label: label,
-    value: value,
-  })
-}

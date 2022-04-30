@@ -27,7 +27,6 @@ import { ExplorerscanApi } from '../../constants/enums'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
-import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { Modal } from '../molecules/Modal'
@@ -54,6 +53,9 @@ import { getExplorerItemUrl } from '../../utils/explorer'
 import { shortenAddress } from '../../utils/formatting'
 import { timeAgo } from '../../utils/time'
 import { decodeInput } from '../../utils/decoder'
+import { useENS } from '../../hooks/wallet/useENS'
+import { useWeb3React } from '@web3-react/core'
+import { SUPPORTED_WALLETS } from '../../wallet'
 
 interface AccountModalProps {
   closeModal: () => void
@@ -70,7 +72,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
   const { activeNetwork } = useNetwork()
   const { localTransactions } = useCachedData()
   const { contractSources } = useContracts()
-  const { account, activeWalletConnector, name } = useWallet()
+  const { account, connector } = useWeb3React()
+  const name = useENS()
   const { width } = useWindowDimensions()
   const { txHistory } = useTransactionDetails()
   /************************************************************************************* 
@@ -85,7 +88,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
   return (
     <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'Account'} disableCloseButton={false}>
       <CardContainer cardsPerRow={account ? 2 : 1} mb={10}>
-        {account && activeWalletConnector && (
+        {account && connector && (
           <Card color1>
             <Flex stretch between justifyCenter>
               <Text t2 bold light>
@@ -118,7 +121,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
             <BoxItem>
               <BoxItemTitle light>Wallet</BoxItemTitle>
               <Text light t2 bold nowrap>
-                {activeWalletConnector ? activeWalletConnector.name : 'Not Connected'}
+                {connector ? SUPPORTED_WALLETS.find((w) => w.connector === connector)?.name : 'Not Connected'}
               </Text>
             </BoxItem>
             <BoxItem>

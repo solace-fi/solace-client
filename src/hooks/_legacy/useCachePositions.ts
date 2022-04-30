@@ -10,7 +10,6 @@ import {
   SupportedProduct,
   Token,
 } from '../../constants/types'
-import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useSessionStorage } from 'react-use-storage'
 import { NetworkCache } from '../../constants/types'
@@ -18,9 +17,12 @@ import { PositionType } from '../../constants/enums'
 import { getTroveContract } from '../../products/liquity/positionGetter/getPositions'
 import { ZERO } from '../../constants'
 import { fetchTransferEventsOfUser } from '../../utils/explorer'
+import { useProvider } from '../../context/ProviderManager'
+import { useWeb3React } from '@web3-react/core'
 
 export const useCachePositions = () => {
-  const { library, account } = useWallet()
+  const { provider } = useProvider()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const [storedPosData, setStoredPosData] = useSessionStorage<NetworkCache[]>('sol_position_data', [])
   const [transferHistory, setTransferHistory] = useState<any>([])
@@ -43,7 +45,7 @@ export const useCachePositions = () => {
       switch (supportedProduct.positionsType) {
         case PositionType.TOKEN:
           if (typeof supportedProduct.getTokens !== 'undefined') {
-            const tokens: Token[] = await supportedProduct.getTokens[activeNetwork.chainId](library, activeNetwork, {
+            const tokens: Token[] = await supportedProduct.getTokens[activeNetwork.chainId](provider, activeNetwork, {
               user: account,
               transferHistory,
             }).catch((err) => {
@@ -77,7 +79,7 @@ export const useCachePositions = () => {
             break
           } else break
         case PositionType.LQTY:
-          const troveManagerContract = getTroveContract(library, activeNetwork.chainId)
+          const troveManagerContract = getTroveContract(provider, activeNetwork.chainId)
           const stabilityPoolAddr = await troveManagerContract.stabilityPool().catch((e: any) => {
             console.log(`useCachePositions: troveManagerContract.stabilityPool() failed`, e)
             return ''
@@ -156,7 +158,7 @@ export const useCachePositions = () => {
       const initializedPositionNames: PositionNamesCacheValue = _initializedPositionNames
       return { initializedPositions, initializedPositionNames }
     },
-    [activeNetwork, library, account, transferHistory]
+    [activeNetwork, provider, account, transferHistory]
   )
 
   // returns the networkCache if it exists, return a newly created one otherwise

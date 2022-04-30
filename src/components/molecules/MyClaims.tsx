@@ -40,7 +40,6 @@ import { Accordion } from '../atoms/Accordion'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { BKPT_3 } from '../../constants'
 import { ClaimDetails, LocalTx } from '../../constants/types'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 
 /* import hooks */
 import { useGetClaimsDetails } from '../../hooks/_legacy/useClaimsEscrow'
@@ -61,7 +60,7 @@ export const MyClaims: React.FC = () => {
   const { haveErrors } = useGeneral()
   const { keyContracts } = useContracts()
   const { claimsEscrow } = useMemo(() => keyContracts, [keyContracts])
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const claimsDetails = useGetClaimsDetails()
@@ -79,9 +78,12 @@ export const MyClaims: React.FC = () => {
     if (!claimsEscrow || !_claimId) return
     const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
     try {
+      const estGas = await claimsEscrow.estimateGas.withdrawClaimsPayout(_claimId)
+      console.log('claimsEscrow.estimateGas.withdrawClaimsPayout', estGas.toString())
       const tx: TransactionResponse = await claimsEscrow.withdrawClaimsPayout(_claimId, {
         ...gasConfig,
-        gasLimit: FunctionGasLimits['claimsEscrow.withdrawClaimsPayout'],
+        // gasLimit: FunctionGasLimits['claimsEscrow.withdrawClaimsPayout'],
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       const txHash = tx.hash
       const localTx: LocalTx = {
@@ -119,8 +121,10 @@ export const MyClaims: React.FC = () => {
         {claimsDetails.length > 0 ? (
           <CardContainer cardsPerRow={2} p={10}>
             {claimsDetails.map((claim: ClaimDetails) => {
-              const formattedBalance = formatUnits(claim.amount, currencyDecimals)
-              const isGreaterThanOrEqualTo1 = BigNumber.from(claim.amount).gte(accurateMultiply(1, currencyDecimals))
+              const formattedBalance = formatUnits(claim.amount, activeNetwork.nativeCurrency.decimals)
+              const isGreaterThanOrEqualTo1 = BigNumber.from(claim.amount).gte(
+                accurateMultiply(1, activeNetwork.nativeCurrency.decimals)
+              )
               const customDecimals = isGreaterThanOrEqualTo1 ? 2 : 6
               const remainingCooldown = getTimeFromMillis(parseInt(claim.cooldown) * 1000)
               return (
@@ -139,7 +143,10 @@ export const MyClaims: React.FC = () => {
                         Amount
                       </BoxItemTitle>
                       <Text t3 light>
-                        {truncateValue(formattedBalance, width > BKPT_3 ? currencyDecimals : customDecimals)}{' '}
+                        {truncateValue(
+                          formattedBalance,
+                          width > BKPT_3 ? activeNetwork.nativeCurrency.decimals : customDecimals
+                        )}{' '}
                         {activeNetwork.nativeCurrency.symbol}
                       </Text>
                     </BoxItem>

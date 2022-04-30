@@ -62,7 +62,7 @@ export const BondV2 = () => {
     activeNetwork.config.restrictedFeatures.noBondingV2,
   ])
 
-  const btd = useBondTellerDetailsV2(true)
+  const btd = useBondTellerDetailsV2()
 
   const currentTellerDetails = useMemo(() => btd.tellerDetails, [btd.tellerDetails])
 
@@ -126,7 +126,7 @@ export const BondV2 = () => {
                             <TableRow
                               key={i}
                               onClick={
-                                haveErrors || tellerDetail.tellerData.teller.isDisabled
+                                haveErrors || tellerDetail.metadata.isDisabled
                                   ? undefined
                                   : () => openModal(true, tellerDetail)
                               }
@@ -138,7 +138,7 @@ export const BondV2 = () => {
                                     <DeFiAssetImage noborder>
                                       <img
                                         src={`https://assets.solace.fi/${tellerDetail.principalData.principalProps.name.toLowerCase()}`}
-                                        alt={tellerDetail.tellerData.teller.name}
+                                        alt={tellerDetail.metadata.name}
                                       />
                                     </DeFiAssetImage>
                                   ) : (
@@ -146,7 +146,7 @@ export const BondV2 = () => {
                                   )}
                                 </Flex>
                               </TableData>
-                              <TableData>{tellerDetail.tellerData.teller.name}</TableData>
+                              <TableData>{tellerDetail.metadata.name}</TableData>
                               <TableData>
                                 <Text t3 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
                                   {tellerDetail.tellerData.usdBondPrice > 0
@@ -158,8 +158,8 @@ export const BondV2 = () => {
                                 <Text t3>{truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%</Text>
                               </TableData>
                               <TableData textAlignRight>
-                                <Button disabled={haveErrors || tellerDetail.tellerData.teller.isDisabled} info>
-                                  {tellerDetail.tellerData.teller.isDisabled ? 'Disabled' : 'Bond'}
+                                <Button disabled={haveErrors || tellerDetail.metadata.isDisabled} info>
+                                  {tellerDetail.metadata.isDisabled ? 'Disabled' : 'Bond'}
                                 </Button>
                               </TableData>
                             </TableRow>
@@ -175,8 +175,8 @@ export const BondV2 = () => {
                       <CardContainer cardsPerRow={2}>
                         {currentTellerDetails.map((tellerDetail, i) => (
                           <Card key={i} onClick={haveErrors ? undefined : () => openModal(true, tellerDetail)}>
-                            <Flex col style={{ alignItems: 'center' }}>
-                              <Flex stretch between mb={24}>
+                            <Flex col>
+                              <Flex justifyCenter mb={24}>
                                 <Flex>
                                   {tellerDetail.principalData ? (
                                     tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
@@ -195,10 +195,10 @@ export const BondV2 = () => {
                                         </DeFiAssetImage>
                                       </>
                                     ) : (
-                                      <DeFiAssetImage mr={10} noborder>
+                                      <DeFiAssetImage noborder>
                                         <img
                                           src={`https://assets.solace.fi/${tellerDetail.principalData.principalProps.name.toLowerCase()}`}
-                                          alt={tellerDetail.tellerData.teller.name}
+                                          alt={tellerDetail.metadata.name}
                                         />
                                       </DeFiAssetImage>
                                     )
@@ -207,10 +207,30 @@ export const BondV2 = () => {
                                   )}
                                 </Flex>
                               </Flex>
-                              <Flex style={{ alignItems: 'center' }}>
+                              <Flex justifyCenter>
                                 <Text t2 mb={20}>
-                                  {tellerDetail.tellerData.teller.name}
+                                  {tellerDetail.metadata.name}
                                 </Text>
+                              </Flex>
+                              <Flex between stretch>
+                                <Flex col>
+                                  <Text t2>Price</Text>
+                                </Flex>
+                                <Flex col>
+                                  <Text t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
+                                    {tellerDetail.tellerData.usdBondPrice > 0
+                                      ? `$${truncateValue(tellerDetail.tellerData.usdBondPrice, 4)}`
+                                      : `USD price not found`}
+                                  </Text>
+                                </Flex>
+                              </Flex>
+                              <Flex between stretch>
+                                <Flex col>
+                                  <Text t2>ROI</Text>
+                                </Flex>
+                                <Flex col>
+                                  <Text t2>{truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%</Text>
+                                </Flex>
                               </Flex>
                             </Flex>
                           </Card>

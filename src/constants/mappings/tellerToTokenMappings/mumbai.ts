@@ -1,14 +1,6 @@
 import { BondName } from '../../enums'
-import { TellerToken } from '../../types'
-import {
-  DAI_ADDRESS,
-  WETH9_ADDRESS,
-  USDC_ADDRESS,
-  USDT_ADDRESS,
-  WBTC_ADDRESS,
-  FRAX_ADDRESS,
-  WMATIC_ADDRESS,
-} from '../../mappings/tokenAddressMapping'
+import { TellerTokenMetadata } from '../../types'
+import { DAI_TOKEN, WETH9_TOKEN, USDC_TOKEN, USDT_TOKEN, WBTC_TOKEN, FRAX_TOKEN, WMATIC_TOKEN } from '../token'
 
 import { TELLER_ADDRS_V2 } from '../../addresses/mumbai'
 
@@ -21,14 +13,14 @@ import wmatic from '../../metadata/WMATIC.json'
 const chainId = 80001
 
 export const tellerToTokenMapping: {
-  [key: string]: TellerToken
+  [key: string]: TellerTokenMetadata
 } = {
   [TELLER_ADDRS_V2.DAI_TELLER]: {
     name: BondName.DAI,
-    addr: DAI_ADDRESS[chainId],
+    addr: DAI_TOKEN.address[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
-    mainnetAddr: DAI_ADDRESS[1],
+    mainnetAddr: DAI_TOKEN.address[1],
     tokenId: 'dai',
     isBondTellerErc20: true,
     isLp: false,
@@ -37,10 +29,10 @@ export const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.WETH_TELLER]: {
     name: BondName.WETH,
-    addr: WETH9_ADDRESS[chainId],
+    addr: WETH9_TOKEN.address[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
-    mainnetAddr: WETH9_ADDRESS[1],
+    mainnetAddr: WETH9_TOKEN.address[1],
     tokenId: 'ethereum',
     isBondTellerErc20: true,
     isLp: false,
@@ -49,10 +41,10 @@ export const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.MATIC_TELLER]: {
     name: BondName.MATIC,
-    addr: WMATIC_ADDRESS[chainId],
+    addr: WMATIC_TOKEN.address[chainId],
     principalAbi: wmatic.abi,
     tellerAbi: bondTellerMaticAbi.abi,
-    mainnetAddr: WMATIC_ADDRESS[1],
+    mainnetAddr: WMATIC_TOKEN.address[1],
     tokenId: 'matic-network',
     isBondTellerErc20: false,
     isLp: false,
@@ -61,10 +53,10 @@ export const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.USDC_TELLER]: {
     name: BondName.USDC,
-    addr: USDC_ADDRESS[chainId],
+    addr: USDC_TOKEN.address[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
-    mainnetAddr: USDC_ADDRESS[1],
+    mainnetAddr: USDC_TOKEN.address[1],
     tokenId: '',
     isBondTellerErc20: true,
     isLp: false,
@@ -73,10 +65,10 @@ export const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.WBTC_TELLER]: {
     name: BondName.WBTC,
-    addr: WBTC_ADDRESS[chainId],
+    addr: WBTC_TOKEN.address[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
-    mainnetAddr: WBTC_ADDRESS[1],
+    mainnetAddr: WBTC_TOKEN.address[1],
     tokenId: '',
     isBondTellerErc20: true,
     isLp: false,
@@ -85,10 +77,10 @@ export const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.USDT_TELLER]: {
     name: BondName.USDT,
-    addr: USDT_ADDRESS[chainId],
+    addr: USDT_TOKEN.address[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
-    mainnetAddr: USDT_ADDRESS[1],
+    mainnetAddr: USDT_TOKEN.address[1],
     tokenId: 'tether',
     isBondTellerErc20: true,
     isLp: false,
@@ -97,10 +89,10 @@ export const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.FRAX_TELLER]: {
     name: BondName.FRAX,
-    addr: FRAX_ADDRESS[chainId],
+    addr: FRAX_TOKEN.address[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
-    mainnetAddr: FRAX_ADDRESS[1],
+    mainnetAddr: FRAX_TOKEN.address[1],
     tokenId: 'frax',
     isBondTellerErc20: true,
     isLp: false,

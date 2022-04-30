@@ -1,17 +1,16 @@
 import { fetchExplorerTxHistoryByAddress } from '../../utils/explorer'
 import { useState, useEffect, useRef } from 'react'
 import { useCachedData } from '../../context/CachedDataManager'
-import { useWallet } from '../../context/WalletManager'
 import { FunctionName } from '../../constants/enums'
 import { Provider, Web3Provider } from '@ethersproject/providers'
-import { decodeInput } from '../../utils/decoder'
 // import { formatTransactionContent } from '../utils/formatting'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
+import { useWeb3React } from '@web3-react/core'
 
 export const useFetchTxHistoryByAddress = (): any => {
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { deleteLocalTransactions } = useCachedData()
   const { latestBlock } = useProvider()
@@ -28,6 +27,8 @@ export const useFetchTxHistoryByAddress = (): any => {
           const txList = result.result.filter((tx: any) => contractAddrs.includes(tx.to.toLowerCase()))
           deleteLocalTransactions(txList)
           setTxHistory(txList.slice(0, 30))
+        } else {
+          setTxHistory([])
         }
       })
       .catch((err) => console.log(err))
@@ -43,10 +44,8 @@ export const useFetchTxHistoryByAddress = (): any => {
 }
 
 export const useTransactionDetails = (): { txHistory: any; amounts: string[] } => {
-  const { library } = useWallet()
   const { activeNetwork } = useNetwork()
   const [amounts, setAmounts] = useState<string[]>([])
-  const { contractSources } = useContracts()
   const txHistory = useFetchTxHistoryByAddress()
 
   const getTransactionAmount = async (

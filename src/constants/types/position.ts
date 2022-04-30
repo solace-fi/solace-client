@@ -36,6 +36,11 @@ export type TokenData = {
   balance: BigNumber
 }
 
+export type ReadTokenData = {
+  constants: { name: string; symbol: string; decimals: number }
+  address: { [chainId: number]: string }
+}
+
 export type ReadToken = {
   address: string
   name: string

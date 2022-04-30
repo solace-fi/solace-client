@@ -21,9 +21,9 @@
 import React, { useMemo } from 'react'
 import makeBlockie from 'ethereum-blockies-base64'
 import { useLocation } from 'react-router'
+import { useWeb3React } from '@web3-react/core'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralManager'
@@ -35,6 +35,9 @@ import { Button, ButtonProps } from '../atoms/Button'
 import { Flex } from '../atoms/Layout'
 import { StyledWallet } from '../atoms/Icon'
 import { GeneralElementProps } from '../generalInterfaces'
+
+/* hooks */
+import { useENS } from '../../hooks/wallet/useENS'
 
 /* import utils */
 import { shortenAddress } from '../../utils/formatting'
@@ -48,7 +51,8 @@ export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) 
   const { appTheme } = useGeneral()
   const location = useLocation()
   const { activeNetwork } = useNetwork()
-  const { account, name } = useWallet()
+  const { account } = useWeb3React()
+  const name = useENS()
   const { openAccountModal } = useCachedData()
   const bgColor = useMemo(
     () => (location.pathname == '/' || appTheme == 'dark' ? 'rgba(0, 0, 0, 0.1)' : 'rgb(242, 242, 242)'),
@@ -108,7 +112,7 @@ export const MiniUserAccount: React.FC<ButtonProps & GeneralElementProps> = (pro
   *************************************************************************************/
   const { appTheme } = useGeneral()
   const location = useLocation()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { openAccountModal } = useCachedData()
   const bgColor = useMemo(
     () => (location.pathname == '/' || appTheme == 'dark' ? 'rgba(0, 0, 0, 0.1)' : 'rgb(242, 242, 242)'),

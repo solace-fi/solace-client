@@ -11,7 +11,7 @@ const SnapScroll = styled.div`
   scrollbar-width: none;
   & > * {
     scroll-snap-align: start;
-    height: calc(100vh - 100px);
+    height: calc(100vh - 200px);
   }
   &::-webkit-scrollbar {
     width: 0; /* Remove scrollbar space */

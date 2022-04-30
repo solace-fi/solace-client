@@ -25,7 +25,6 @@ import { BondTellerDetails, BondTokenV1 } from '../../../../constants/types'
 
 /* import managers */
 import { useGeneral } from '../../../../context/GeneralManager'
-import { useContracts } from '../../../../context/ContractsManager'
 import { useProvider } from '../../../../context/ProviderManager'
 
 /* import components */
@@ -34,11 +33,9 @@ import { Button } from '../../../atoms/Button'
 import { Card, CardContainer } from '../../../atoms/Card'
 import { Scrollable, HeroContainer, Flex } from '../../../atoms/Layout'
 
-/* import hooks */
-import { useReadToken } from '../../../../hooks/contract/useToken'
-
 /* import utils */
 import { getTimeFromMillis } from '../../../../utils/time'
+import { SOLACE_TOKEN } from '../../../../constants/mappings/token'
 
 interface OwnedBondListV1Props {
   ownedBondTokens: BondTokenV1[]
@@ -57,12 +54,9 @@ export const OwnedBondListV1: React.FC<OwnedBondListV1Props> = ({
   
   */
   const { haveErrors } = useGeneral()
-  const { keyContracts } = useContracts()
   const { latestBlock } = useProvider()
 
   const [timestamp, setTimestamp] = useState<number>(0)
-  const { solace } = useMemo(() => keyContracts, [keyContracts])
-  const readSolaceToken = useReadToken(solace)
 
   const pncplDecimals = useMemo(() => selectedBondDetail?.principalData.principalProps.decimals, [
     selectedBondDetail?.principalData.principalProps.decimals,
@@ -96,7 +90,7 @@ export const OwnedBondListV1: React.FC<OwnedBondListV1Props> = ({
                 <Flex stretch between mb={10}>
                   <Text>Payout</Text>
                   <Text textAlignRight>
-                    {`${formatUnits(token.payoutAmount, readSolaceToken.decimals)} ${token.payoutToken}`}
+                    {`${formatUnits(token.payoutAmount, SOLACE_TOKEN.constants.decimals)} ${token.payoutToken}`}
                   </Text>
                 </Flex>
                 {token.maturation.toNumber() > timestamp ? (

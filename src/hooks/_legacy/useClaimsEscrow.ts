@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../../context/ContractsManager'
 import { ClaimDetails } from '../../constants/types'
-import { useWallet } from '../../context/WalletManager'
 import { useProvider } from '../../context/ProviderManager'
+import { withBackoffRetries } from '../../utils/time'
+import { useWeb3React } from '@web3-react/core'
 
 export const useGetClaimsDetails = (): ClaimDetails[] => {
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { keyContracts } = useContracts()
   const { claimsEscrow } = useMemo(() => keyContracts, [keyContracts])
   const [claimsDetails, setClaimsDetails] = useState<ClaimDetails[]>([])
@@ -16,13 +17,13 @@ export const useGetClaimsDetails = (): ClaimDetails[] => {
     const getClaimDetails = async () => {
       if (!claimsEscrow || !account) return
       try {
-        const claimIds: BigNumber[] = await claimsEscrow.listTokensOfOwner(account)
+        const claimIds: BigNumber[] = await withBackoffRetries(async () => claimsEscrow.listTokensOfOwner(account))
         const claimsDetails = await Promise.all(
           claimIds.map(async (claimId) => {
             const [cooldown, canWithdraw, claim] = await Promise.all([
-              claimsEscrow.timeLeft(claimId),
-              claimsEscrow.isWithdrawable(claimId),
-              claimsEscrow.claim(claimId),
+              withBackoffRetries(async () => claimsEscrow.timeLeft(claimId)),
+              withBackoffRetries(async () => claimsEscrow.isWithdrawable(claimId)),
+              withBackoffRetries(async () => claimsEscrow.claim(claimId)),
             ])
             const amount = claim.amount
             const claimsDetail = { id: claimId.toString(), cooldown, canWithdraw, amount }
@@ -49,7 +50,7 @@ export const useGetCooldownPeriod = (): string => {
     const getCooldownPeriod = async () => {
       if (!claimsEscrow) return
       try {
-        const cooldown = await claimsEscrow.cooldownPeriod()
+        const cooldown = await withBackoffRetries(async () => claimsEscrow.cooldownPeriod())
         setCooldownPeriod(cooldown.toString())
       } catch (err) {
         console.log('getCooldownPeriod', err)

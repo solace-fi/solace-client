@@ -15,7 +15,6 @@ import {
 import { BigNumber } from 'ethers'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
-import { useWallet } from '../../../../context/WalletManager'
 import { FunctionName } from '../../../../constants/enums'
 import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
@@ -27,12 +26,13 @@ import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { BKPT_5 } from '../../../../constants'
 import { Text } from '../../../../components/atoms/Typography'
+import { useWeb3React } from '@web3-react/core'
 
 export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element {
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { withdrawFromLock } = useXSLocker()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { width } = useWindowDimensions()
 
   const [inputValue, setInputValue] = React.useState('0')

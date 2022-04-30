@@ -6,17 +6,21 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useFunctions } from '../../hooks/policy/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber } from 'ethers'
-import { LocalTx, SolaceRiskScore } from '../../constants/types'
+import { LocalTx, ReadToken, SolaceRiskScore } from '../../constants/types'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../constants/enums'
 import useDebounce from '@rooks/use-debounce'
 import { Text } from '../../components/atoms/Typography'
 import { CoverageLimitBasicForm } from './CoverageLimitBasicForm'
+import { truncateValue } from '../../utils/formatting'
+import { formatUnits } from 'ethers/lib/utils'
+import { useWeb3React } from '@web3-react/core'
 
 export function CoverageLimit({
   balances,
   referralChecks,
   minReqAccBal,
+  checkingMinReqAccBal,
   currentCoverageLimit,
   newCoverageLimit,
   isEditing,
@@ -27,6 +31,7 @@ export function CoverageLimit({
   setReferralCode,
   canPurchaseNewCover,
   inactive,
+  stableCoinData,
 }: {
   balances: {
     totalAccountBalance: BigNumber
@@ -41,6 +46,7 @@ export function CoverageLimit({
     referrerIsOther: boolean
   }
   minReqAccBal: BigNumber
+  checkingMinReqAccBal: boolean
   currentCoverageLimit: BigNumber
   newCoverageLimit: BigNumber
   isEditing: boolean
@@ -50,9 +56,10 @@ export function CoverageLimit({
   setIsEditing: (isEditing: boolean) => void
   setReferralCode: (referralCode: string | undefined) => void
   canPurchaseNewCover: boolean
+  stableCoinData: ReadToken
   inactive?: boolean
 }): JSX.Element {
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const startEditing = () => setIsEditing(true)
   const stopEditing = () => setIsEditing(false)
   const [doesReachMinReqAccountBal, setDoesReachMinReqAccountBal] = useState(false)
@@ -89,12 +96,12 @@ export function CoverageLimit({
 
   const _checkMinReqAccountBal = useDebounce(async () => {
     setDoesReachMinReqAccountBal(balances.personalBalance.gt(minReqAccBal))
-  }, 300)
+  }, 200)
 
   useEffect(() => {
     _checkMinReqAccountBal()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [minReqAccBal, balances])
+  }, [minReqAccBal.toString(), balances.personalBalance.toString()])
 
   return (
     <Flex
@@ -127,6 +134,18 @@ export function CoverageLimit({
           setNewCoverageLimit={setNewCoverageLimit}
         />
       </Flex>
+      {!inactive &&
+        isEditing &&
+        (!canPurchaseNewCover ? (
+          <Text autoAlignHorizontal t4 error>
+            Cannot purchase new coverage
+          </Text>
+        ) : !doesReachMinReqAccountBal ? (
+          <Text autoAlignHorizontal t4 error>
+            This coverage limit requires a higher personal balance (Need at least over:{' '}
+            {truncateValue(formatUnits(minReqAccBal, stableCoinData.decimals), 2)})
+          </Text>
+        ) : null)}
       <Flex justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined} pt={10} pb={10}>
         {inactive ? null : !isEditing ? (
           <Button
@@ -155,9 +174,9 @@ export function CoverageLimit({
               pb={8}
               style={{ fontWeight: 600, flex: 1, transition: '0s' }}
               onClick={callUpdateCoverLimit}
-              disabled={!doesReachMinReqAccountBal || !canPurchaseNewCover}
+              disabled={!doesReachMinReqAccountBal || !canPurchaseNewCover || checkingMinReqAccBal}
             >
-              Save
+              {!checkingMinReqAccBal ? `Save` : `Checking`}
             </Button>
           </>
         )}

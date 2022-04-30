@@ -2,7 +2,7 @@ import { ContractSources } from './contract'
 import { Position } from './position'
 import { SupportedProduct } from './product'
 import { Unit } from '../enums'
-import { TellerToken } from '.'
+import { TellerTokenMetadata } from '.'
 
 export type NetworkConfig = {
   name: string
@@ -52,7 +52,7 @@ export type NetworkConfig = {
   cache: {
     supportedProducts: SupportedProduct[]
     tellerToTokenMapping: {
-      [key: string]: TellerToken
+      [key: string]: TellerTokenMetadata
     }
   }
   metamaskChain?: MetamaskAddEthereumChain
@@ -69,19 +69,6 @@ export type MetamaskAddEthereumChain = {
   }
   rpcUrls: string[]
   blockExplorerUrls: string[]
-}
-
-export type MetamaskSwitchEthereumChain = {
-  chainId: string
-}
-
-export type MetamaskWatchAsset = {
-  type: string
-  options: {
-    address: string
-    symbol: string
-    decimals: number
-  }
 }
 
 export type NetworkCache = {
