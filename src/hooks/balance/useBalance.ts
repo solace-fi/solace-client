@@ -15,7 +15,7 @@ import { useWeb3React } from '@web3-react/core'
 import { NetworkConfig } from '../../constants/types'
 
 export const useNativeTokenBalance = (): string => {
-  const { library } = useProvider()
+  const { provider } = useProvider()
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { version } = useCachedData()
@@ -24,10 +24,10 @@ export const useNativeTokenBalance = (): string => {
 
   useEffect(() => {
     const getNativeTokenBalance = async () => {
-      if (!library || !account || running.current) return
+      if (!account || running.current) return
       try {
         running.current = true
-        const balance = await library.getBalance(account)
+        const balance = await provider.getBalance(account)
         const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
         setBalance(formattedBalance)
         running.current = false
@@ -224,10 +224,10 @@ export const useCrossChainUnderwritingPoolBalance = () => {
     const getBalance = async () => {
       const uwpUSDBals = new UnderwritingPoolUSDBalances()
       const countedNetworks = networks.filter((n) => !n.isTestnet)
-      const rpcUrlMapping: { [key: string]: string } = countedNetworks.reduce(
+      const rpcUrlMapping: { [key: number]: string } = countedNetworks.reduce(
         (urls: any, network: NetworkConfig) => ({
           ...urls,
-          [String(network.chainId)]: network.rpc.httpsUrl,
+          [network.chainId]: network.rpc.httpsUrl,
         }),
         {}
       )

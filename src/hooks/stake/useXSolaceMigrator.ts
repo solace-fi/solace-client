@@ -12,16 +12,16 @@ import { useProvider } from '../../context/ProviderManager'
 export const useXSolaceMigrator = () => {
   const { keyContracts } = useContracts()
   const { xSolaceMigrator, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-  const { library } = useProvider()
+  const { signer } = useProvider()
   const { activeNetwork } = useNetwork()
   const { gasConfig } = useGetFunctionGas()
 
   const migrate = async (account: string, end: BigNumber, amount: BigNumber) => {
-    if (!xSolaceMigrator || !xSolaceV1) return { tx: null, localTx: null }
+    if (!xSolaceMigrator || !xSolaceV1 || !signer) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(
       account,
       activeNetwork.chainId,
-      library,
+      signer,
       xSolaceMigrator.address,
       xSolaceV1,
       amount

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { getContract, isAddress } from '../../utils'
+import { isAddress } from '../../utils'
 import { Contract } from '@ethersproject/contracts'
 import {
   BondTellerContractData,
@@ -9,69 +9,68 @@ import {
   TellerTokenMetadata,
 } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
-import { useWeb3React } from '@web3-react/core'
 import { useProvider } from '../../context/ProviderManager'
+import { AddressZero } from '@ethersproject/constants'
 
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
-  const { account } = useWeb3React()
-  const { library } = useProvider()
+  const { provider, signer } = useProvider()
 
   return useMemo(() => {
-    if (!source || !library) return null
+    if (!source) return null
     if (!source.addr || !isAddress(source.addr) || !source.abi) return null
     try {
-      const contract = getContract(source.addr, source.abi, library, hasSigner && account ? account : undefined)
+      if (!isAddress(source.addr) || source.addr === AddressZero) {
+        throw Error(`Invalid 'address' parameter '${source.addr}'.`)
+      }
+
+      if (source.abi == null || source.abi == undefined) {
+        throw Error(`ABI parameter invalid: ${source.abi}`)
+      }
+
+      const contract = new Contract(source.addr, source.abi, hasSigner ? signer ?? provider : provider)
       return contract
     } catch (error) {
       console.error('Failed to get contract', error)
       return null
     }
-  }, [source, library, hasSigner, account])
+  }, [source, hasSigner, provider, signer])
 }
 
 export function useGetProductContracts(): ProductContract[] {
-  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
-  const { library } = useProvider()
+  const { provider, signer } = useProvider()
 
   return useMemo(() => {
     const config = activeNetwork.config
     const cache = activeNetwork.cache
-    if (!library || !cache) return []
+    if (!cache) return []
     const productContracts: ProductContract[] = []
     cache.supportedProducts.map((product: SupportedProduct) => {
       const name = product.name
       const productContractSources = config.productContracts[name]
-      const contract = getContract(
-        productContractSources.addr,
-        productContractSources.abi,
-        library,
-        account ? account : undefined
-      )
+      const contract = new Contract(productContractSources.addr, productContractSources.abi, signer ?? provider)
       productContracts.push({
         name,
         contract,
       })
     })
     return productContracts
-  }, [library, account, activeNetwork])
+  }, [provider, signer, activeNetwork])
 }
 
 export function useGetBondTellerContracts(): (BondTellerContractData & {
   metadata: TellerTokenMetadata
 })[] {
-  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
-  const { library } = useProvider()
-
+  const { provider, signer } = useProvider()
   return useMemo(() => {
     const cache = activeNetwork.cache
-    if (!library) return []
+    if (!cache) return []
     const bondTellerContracts: (BondTellerContractData & { metadata: TellerTokenMetadata })[] = []
     Object.keys(cache.tellerToTokenMapping).forEach((key) => {
       const mapping = cache.tellerToTokenMapping[key]
       const tellerAbi = mapping.tellerAbi
-      const contract = getContract(key, tellerAbi, library, account ? account : undefined)
+      const contract = new Contract(key, tellerAbi, signer ?? provider)
       const type = mapping.isBondTellerErc20 ? 'erc20' : mapping.name == 'ETH' ? 'eth' : 'matic'
       const cntct: BondTellerContractData & { metadata: TellerTokenMetadata } = {
         contract,
@@ -81,7 +80,7 @@ export function useGetBondTellerContracts(): (BondTellerContractData & {
       bondTellerContracts.push(cntct)
     })
     return bondTellerContracts
-  }, [library, account, activeNetwork])
+  }, [provider, signer, activeNetwork])
 }
 
 export function useContractArray(): ContractSources[] {

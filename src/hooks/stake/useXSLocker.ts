@@ -16,7 +16,7 @@ import { useProvider } from '../../context/ProviderManager'
 export const useXSLocker = () => {
   const { keyContracts } = useContracts()
   const { xsLocker, solace } = useMemo(() => keyContracts, [keyContracts])
-  const { library, latestBlock } = useProvider()
+  const { signer, provider } = useProvider()
   const { activeNetwork } = useNetwork()
   const { gasConfig } = useGetFunctionGas()
 
@@ -66,11 +66,11 @@ export const useXSLocker = () => {
   }
 
   const createLock = async (recipient: string, amount: BigNumber, end: BigNumber) => {
-    if (!xsLocker || !solace) return { tx: null, localTx: null }
+    if (!xsLocker || !solace || !signer) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(
       recipient,
       activeNetwork.chainId,
-      library,
+      signer,
       xsLocker.address,
       solace,
       amount
@@ -91,11 +91,11 @@ export const useXSLocker = () => {
   }
 
   const increaseLockAmount = async (recipient: string, xsLockID: BigNumber, amount: BigNumber) => {
-    if (!xsLocker || !solace) return { tx: null, localTx: null }
+    if (!xsLocker || !solace || !signer) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(
       recipient,
       activeNetwork.chainId,
-      library,
+      signer,
       xsLocker.address,
       solace,
       amount
@@ -173,9 +173,16 @@ export const useXSLocker = () => {
   }
 
   const getUserLockerBalances = async (account: string) => {
-    const lock = new Lock(activeNetwork.chainId, library)
-    const userLockerBalances = await lock.getUserLockerBalances(account)
-    return userLockerBalances
+    if (provider) {
+      const lock = new Lock(activeNetwork.chainId, provider)
+      const userLockerBalances = await lock.getUserLockerBalances(account)
+      return userLockerBalances
+    }
+    return {
+      stakedBalance: '0',
+      lockedBalance: '0',
+      unlockedBalance: '0',
+    }
   }
 
   return {
@@ -193,12 +200,26 @@ export const useXSLocker = () => {
 
 export const useUserLockData = () => {
   const { activeNetwork } = useNetwork()
-  const { library } = useProvider()
+  const { provider } = useProvider()
 
   const getUserLocks = async (user: string): Promise<UserLocksData> => {
-    const lock = new Lock(activeNetwork.chainId, library)
-    const userLocks = await lock.getUserLocks(user)
-    return userLocks
+    if (provider) {
+      const lock = new Lock(activeNetwork.chainId, provider)
+      const userLocks = await lock.getUserLocks(user)
+      return userLocks
+    }
+    return {
+      user: {
+        pendingRewards: BigNumber.from(0),
+        stakedBalance: BigNumber.from(0),
+        lockedBalance: BigNumber.from(0),
+        unlockedBalance: BigNumber.from(0),
+        yearlyReturns: BigNumber.from(0),
+        apr: BigNumber.from(0),
+      },
+      locks: [],
+      successfulFetch: false,
+    }
   }
 
   return { getUserLocks }

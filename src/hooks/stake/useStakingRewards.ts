@@ -16,7 +16,7 @@ import { Lock, Staker } from '@solace-fi/sdk-nightly'
 
 export const useStakingRewards = () => {
   // const { account } = useWeb3React()
-  const { library } = useProvider()
+  const { provider } = useProvider()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { stakingRewards, xsLocker } = useMemo(() => keyContracts, [keyContracts])
@@ -66,9 +66,19 @@ export const useStakingRewards = () => {
   }
 
   const getGlobalLockStats = async (): Promise<GlobalLockInfo> => {
-    const lock = new Lock(activeNetwork.chainId, library)
-    const stats = await lock.getGlobalLockStats()
-    return stats
+    if (provider) {
+      const lock = new Lock(activeNetwork.chainId, provider)
+      const stats = await lock.getGlobalLockStats()
+      return stats
+    }
+    return {
+      solaceStaked: '0',
+      valueStaked: '0',
+      numLocks: '0',
+      rewardPerSecond: '0',
+      apr: '0',
+      successfulFetch: false,
+    }
   }
 
   const harvestLockRewards = async (xsLockIDs: BigNumber[]) => {

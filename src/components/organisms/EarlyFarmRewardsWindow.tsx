@@ -60,7 +60,7 @@ import { useGetFunctionGas } from '../../hooks/provider/useGas'
 import { getDateStringWithMonthName, withBackoffRetries } from '../../utils/time'
 import { queryBalance } from '../../utils/contract'
 import { truncateValue } from '../../utils/formatting'
-import { getContract, isAddress } from '../../utils'
+import { isAddress } from '../../utils'
 import { useProvider } from '../../context/ProviderManager'
 import { useWeb3React } from '@web3-react/core'
 
@@ -74,7 +74,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   const { keyContracts } = useContracts()
   const { farmRewards } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWeb3React()
-  const { library } = useProvider()
+  const { signer } = useProvider()
   const { activeNetwork } = useNetwork()
   const { makeTxToast } = useNotifications()
   const { reload } = useCachedData()
@@ -140,8 +140,8 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   */
 
   const unlimitedApprove = async () => {
-    if (!farmRewards || !account || !isAddress(stablecoinPayment.value) || !library) return
-    const stablecoinContract = getContract(stablecoinPayment.value, IERC20.abi, library, account)
+    if (!farmRewards || !isAddress(stablecoinPayment.value) || !signer) return
+    const stablecoinContract = new Contract(stablecoinPayment.value, IERC20.abi, signer)
     try {
       const tx: TransactionResponse = await stablecoinContract.approve(farmRewards.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash
@@ -159,9 +159,9 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   }
 
   const callRedeem = async () => {
-    if (!farmRewards || !account || !isAddress(stablecoinPayment.value) || !library) return
+    if (!farmRewards || !isAddress(stablecoinPayment.value) || !signer) return
     try {
-      const stablecoinContract = getContract(stablecoinPayment.value, IERC20.abi, library, account)
+      const stablecoinContract = new Contract(stablecoinPayment.value, IERC20.abi, signer)
       const estGas = await farmRewards.estimateGas.redeem(
         stablecoinContract.address,
         parseUnits(amount, userStablecoinDecimals)
@@ -201,14 +201,14 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   }
 
   const _getBalance = useDebounce(async () => {
-    if (!library || !account) return
+    if (!signer || !account) return
     if (!isAddress(stablecoinPayment.value)) {
       setUserStablecoinDecimals(0)
       setUserStablecoinBalance(ZERO)
       setStablecoinUnsupported(true)
       return
     }
-    const stablecoinContract = getContract(stablecoinPayment.value, IERC20.abi, library, account)
+    const stablecoinContract = new Contract(stablecoinPayment.value, IERC20.abi, signer)
     const balance = await queryBalance(stablecoinContract, account)
     setUserStablecoinDecimals(stablecoinPayment.decimals)
     setUserStablecoinBalance(balance)
@@ -245,7 +245,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   useEffect(() => {
     _getBalance()
     resetAmount()
-  }, [stablecoinPayment, library, account])
+  }, [stablecoinPayment, account])
 
   useEffect(() => {
     _checkAmount()

@@ -1,14 +1,13 @@
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { BondTellerDetails, TxResult, LocalTx } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
-import { getContract } from '../../utils'
 
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../../utils/contract'
 import { useProvider } from '../../context/ProviderManager'
 import { usePriceSdk } from '../api/usePrice'
-import { useNetwork, networks } from '../../context/NetworkManager'
+import { useNetwork } from '../../context/NetworkManager'
 import { floatUnits, truncateValue } from '../../utils/formatting'
 import { BondTokenV1 } from '../../constants/types'
 import { useGetFunctionGas } from '../provider/useGas'
@@ -101,8 +100,7 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
 export const useBondTellerDetailsV1 = (
   canGetPrices: boolean
 ): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
-  const { account } = useWeb3React()
-  const { latestBlock, library } = useProvider()
+  const { latestBlock, provider, signer } = useProvider()
   const { tellers } = useContracts()
   const { activeNetwork } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
@@ -121,7 +119,6 @@ export const useBondTellerDetailsV1 = (
   useEffect(() => {
     const getPrices = async () => {
       if (
-        !library ||
         !canBondV1 ||
         !latestBlock ||
         !canGetPrices ||
@@ -152,17 +149,12 @@ export const useBondTellerDetailsV1 = (
                 withBackoffRetries(async () => teller.contract.bondFeeBps()),
               ])
 
-              const principalContract = getContract(
-                principalAddr,
-                teller.metadata.principalAbi,
-                library,
-                account ?? undefined
-              )
+              const principalContract = new Contract(principalAddr, teller.metadata.principalAbi, signer ?? provider)
 
               const [decimals, name, symbol] = await Promise.all([
                 queryDecimals(principalContract),
-                queryName(principalContract, library),
-                querySymbol(principalContract, library),
+                queryName(principalContract, signer ?? provider),
+                querySymbol(principalContract, signer ?? provider),
               ])
 
               let lpData = {}
@@ -172,7 +164,7 @@ export const useBondTellerDetailsV1 = (
 
               // get usdBondPrice
               if (teller.metadata.isLp) {
-                const price = await getSdkLpPrice(principalContract, activeNetwork, library)
+                const price = await getSdkLpPrice(principalContract, activeNetwork, signer ?? provider)
                 usdBondPrice = Math.max(price, 0) * floatUnits(bondPrice, decimals)
                 const [token0, token1] = await Promise.all([
                   withBackoffRetries(async () => principalContract.token0()),
@@ -187,7 +179,7 @@ export const useBondTellerDetailsV1 = (
                   teller.metadata.mainnetAddr == '' ? teller.metadata.tokenId.toLowerCase() : symbol.toLowerCase()
                 usdBondPrice = tokenPriceMapping[key] * floatUnits(bondPrice, decimals)
                 if (usdBondPrice <= 0) {
-                  const price = await getSdkTokenPrice(principalContract, activeNetwork, library) // via sushiswap sdk
+                  const price = await getSdkTokenPrice(principalContract, activeNetwork, signer ?? provider) // via sushiswap sdk
                   usdBondPrice = price * floatUnits(bondPrice, decimals)
                 }
               }
@@ -231,7 +223,7 @@ export const useBondTellerDetailsV1 = (
       running.current = false
     }
     getPrices()
-  }, [latestBlock, tellers, canBondV1, tokenPriceMapping, canGetPrices])
+  }, [latestBlock, tellers, canBondV1, tokenPriceMapping, canGetPrices, signer, provider])
 
   return { tellerDetails, mounting }
 }

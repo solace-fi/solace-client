@@ -1,10 +1,8 @@
 import { fetchExplorerTxHistoryByAddress } from '../../utils/explorer'
 import { useState, useEffect, useRef } from 'react'
 import { useCachedData } from '../../context/CachedDataManager'
-import { useWallet } from '../../context/WalletManager'
 import { FunctionName } from '../../constants/enums'
 import { Provider, Web3Provider } from '@ethersproject/providers'
-import { decodeInput } from '../../utils/decoder'
 // import { formatTransactionContent } from '../utils/formatting'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
@@ -46,10 +44,8 @@ export const useFetchTxHistoryByAddress = (): any => {
 }
 
 export const useTransactionDetails = (): { txHistory: any; amounts: string[] } => {
-  const { library } = useProvider()
   const { activeNetwork } = useNetwork()
   const [amounts, setAmounts] = useState<string[]>([])
-  const { contractSources } = useContracts()
   const txHistory = useFetchTxHistoryByAddress()
 
   const getTransactionAmount = async (

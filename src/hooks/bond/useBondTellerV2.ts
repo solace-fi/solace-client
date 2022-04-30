@@ -107,7 +107,7 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
 }
 
 export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
-  const { latestBlock, library } = useProvider()
+  const { latestBlock, signer, provider } = useProvider()
   const { tellers } = useContracts()
   const { activeNetwork } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
@@ -125,7 +125,6 @@ export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; 
   useEffect(() => {
     const getPrices = async () => {
       if (
-        !library ||
         !canBondV2 ||
         !latestBlock ||
         running.current ||
@@ -133,7 +132,7 @@ export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; 
       )
         return
       running.current = true
-      const bond = new Bond(activeNetwork.chainId, library)
+      const bond = new Bond(activeNetwork.chainId, signer ?? provider)
       const fetchedTellerData = await bond.getBondTellerData(tokenPriceMapping)
 
       const metadataMapping = tellers.reduce(
@@ -162,19 +161,22 @@ export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; 
       return setTellerDetails(adjustedTellerDetails)
     }
     getPrices()
-  }, [latestBlock, library, tellers, canBondV2, tokenPriceMapping, activeNetwork])
+  }, [latestBlock, signer, tellers, canBondV2, tokenPriceMapping, activeNetwork, provider])
 
   return { tellerDetails, mounting }
 }
 
 export const useUserBondDataV2 = () => {
-  const { library } = useProvider()
+  const { provider } = useProvider()
   const { activeNetwork } = useNetwork()
 
   const getUserBondDataV2 = async (bondTellerContractAddress: string, account: string) => {
-    const bond = new Bond(activeNetwork.chainId, library)
-    const ownedBonds = await bond.getUserBondData(bondTellerContractAddress, account)
-    return ownedBonds
+    if (provider) {
+      const bond = new Bond(activeNetwork.chainId, provider)
+      const ownedBonds = await bond.getUserBondData(bondTellerContractAddress, account)
+      return ownedBonds
+    }
+    return []
   }
 
   return { getUserBondDataV2 }
