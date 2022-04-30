@@ -405,7 +405,7 @@ export default function Stake(): JSX.Element {
     const _getUserLocks = async () => {
       if (!account) return
       await getUserLocks(account).then((userLockData: UserLocksData) => {
-        if (userLockData.goodFetch) {
+        if (userLockData.successfulFetch) {
           setLocks(userLockData.locks)
           setLocksChecked(updateLocksChecked(userLockData.locks, locksChecked))
           setUserLockInfo(userLockData.user)

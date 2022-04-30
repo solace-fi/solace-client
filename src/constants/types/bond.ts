@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
-import { BondTellerContract } from './contract'
+import { BondTellerContractData } from './contract'
 
 export type BondTokenV1 = {
   id: BigNumber
@@ -22,10 +22,11 @@ export type BondTokenV2 = {
 export type BondTellerDetails = {
   tellerData: BondTellerData
   principalData: BondPrincipalData
+  metadata: TellerTokenMetadata
 }
 
 export type BondTellerData = {
-  teller: BondTellerContract
+  teller: BondTellerContractData
   bondPrice: BigNumber
   usdBondPrice: number
   vestingTermInSeconds: number
@@ -47,7 +48,7 @@ export type BondPrincipalData = {
   token1?: string
 }
 
-export type TellerToken = {
+export type TellerTokenMetadata = {
   name: string
   addr: string
   tellerAbi: any

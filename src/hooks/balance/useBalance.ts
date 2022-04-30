@@ -3,22 +3,19 @@ import { useContracts } from '../../context/ContractsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useState, useEffect, useRef } from 'react'
 import { formatUnits } from '@ethersproject/units'
-import { Contract } from 'ethers'
-import { queryBalance, queryDecimals } from '../../utils/contract'
-import { useNetwork, networks } from '../../context/NetworkManager'
-
-import { usePriceSdk } from '../api/usePrice'
-import { floatUnits } from '../../utils/formatting'
+import { queryBalance } from '../../utils/contract'
+import { networks, useNetwork } from '../../context/NetworkManager'
 // import SafeServiceClient from '@gnosis.pm/safe-service-client'
 import { useProvider } from '../../context/ProviderManager'
 import { useBridge } from './useBridge'
-import { JsonRpcProvider } from '@ethersproject/providers'
 import { withBackoffRetries } from '../../utils/time'
 import { SOLACE_TOKEN, XSOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
+import { UnderwritingPoolUSDBalances } from '@solace-fi/sdk-nightly'
 import { useWeb3React } from '@web3-react/core'
+import { NetworkConfig } from '../../constants/types'
 
 export const useNativeTokenBalance = (): string => {
-  const { library } = useProvider()
+  const { provider } = useProvider()
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { version } = useCachedData()
@@ -27,10 +24,10 @@ export const useNativeTokenBalance = (): string => {
 
   useEffect(() => {
     const getNativeTokenBalance = async () => {
-      if (!library || !account || running.current) return
+      if (!account || running.current) return
       try {
         running.current = true
-        const balance = await library.getBalance(account)
+        const balance = await provider.getBalance(account)
         const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
         setBalance(formattedBalance)
         running.current = false
@@ -221,62 +218,21 @@ export const useXSolaceV1Balance = (): { xSolaceV1Balance: string; v1StakedSolac
 
 export const useCrossChainUnderwritingPoolBalance = () => {
   const { latestBlock } = useProvider()
-  const { tokenPriceMapping } = useCachedData()
   const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<string>('-')
-  const { getPriceSdkFunc } = usePriceSdk()
 
   useEffect(() => {
     const getBalance = async () => {
-      if ((Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object) || !latestBlock)
-        return
+      const uwpUSDBals = new UnderwritingPoolUSDBalances()
       const countedNetworks = networks.filter((n) => !n.isTestnet)
-      let totalUsdcBalance = 0
-      for (let i = 0; i < countedNetworks.length; i++) {
-        const activeNetwork = countedNetworks[i]
-        const multiSig = activeNetwork.config.underwritingPoolAddr
-        if (!multiSig) continue
-        const provider = new JsonRpcProvider(activeNetwork.rpc.httpsUrl)
-        const tellerData = activeNetwork.cache.tellerToTokenMapping
-        let usdcBalanceForNetwork = 0
-        Object.keys(tellerData).forEach(async (key) => {
-          const t = tellerData[key]
-          const contract = new Contract(t.addr, t.principalAbi, provider)
-          const balance = await queryBalance(contract, multiSig)
-          const { getSdkTokenPrice, getSdkLpPrice } = getPriceSdkFunc(t.sdk)
-          if (t.isLp) {
-            const multiplied = await getSdkLpPrice(contract, activeNetwork, provider, balance)
-            usdcBalanceForNetwork += multiplied
-          } else {
-            const key = t.mainnetAddr == '' ? t.tokenId.toLowerCase() : t.mainnetAddr.toLowerCase()
-            let price = tokenPriceMapping[key]
-            if (price <= 0 || !price) {
-              const sdkPrice = await getSdkTokenPrice(contract, activeNetwork, provider)
-              price = sdkPrice
-            }
-            const principalDecimals = await queryDecimals(contract)
-            const formattedBalance = floatUnits(balance, principalDecimals)
-            const balanceMultipliedByPrice = price * formattedBalance
-            usdcBalanceForNetwork += balanceMultipliedByPrice
-          }
-        })
-
-        // add USDC of native balance
-        const nativeBalance = await provider.getBalance(multiSig)
-        const formattedBalance = floatUnits(nativeBalance, activeNetwork.nativeCurrency.decimals)
-        const coinGeckoNativePrice = tokenPriceMapping[activeNetwork.nativeCurrency.mainnetReference.toLowerCase()]
-        const nativeBalanceMultipliedByPrice = coinGeckoNativePrice * formattedBalance
-        usdcBalanceForNetwork += nativeBalanceMultipliedByPrice
-
-        const solaceSource = activeNetwork.config.keyContracts.solace
-        const solace = new Contract(solaceSource.addr, solaceSource.abi, provider)
-        const solaceDecimals = await queryDecimals(solace)
-        const solaceBalance = await queryBalance(solace, multiSig)
-        const solacePrice = tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()]
-        const solaceBalanceMultipliedByPrice = solacePrice * floatUnits(solaceBalance, solaceDecimals)
-        usdcBalanceForNetwork += solaceBalanceMultipliedByPrice
-
-        totalUsdcBalance += usdcBalanceForNetwork
-      }
+      const rpcUrlMapping: { [key: number]: string } = countedNetworks.reduce(
+        (urls: any, network: NetworkConfig) => ({
+          ...urls,
+          [network.chainId]: network.rpc.httpsUrl,
+        }),
+        {}
+      )
+      const usdBalData = await uwpUSDBals.getUSDBalances_All(rpcUrlMapping)
+      const totalUsdcBalance = usdBalData.total
       setUnderwritingPoolBalance(totalUsdcBalance.toString())
     }
     getBalance()

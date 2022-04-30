@@ -20,16 +20,16 @@ export const useXSolaceV1 = () => {
   const { keyContracts } = useContracts()
   const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWeb3React()
-  const { library } = useProvider()
+  const { signer } = useProvider()
   const { activeNetwork } = useNetwork()
   const { gasConfig } = useGetFunctionGas()
 
   const stake_v1 = async (parsedAmount: BigNumber) => {
-    if (!solace || !xSolaceV1 || !account) return { tx: null, localTx: null }
+    if (!solace || !xSolaceV1 || !account || !signer) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(
       account,
       activeNetwork.chainId,
-      library,
+      signer,
       xSolaceV1.address,
       solace,
       parsedAmount

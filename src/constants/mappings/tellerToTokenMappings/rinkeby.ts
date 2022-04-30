@@ -1,5 +1,5 @@
 import { BondName } from '../../enums'
-import { TellerToken } from '../../types'
+import { TellerTokenMetadata } from '../../types'
 import { TELLER_ADDRS_V1, TELLER_ADDRS_V2 } from '../../addresses/rinkeby'
 import {
   DAI_TOKEN,
@@ -23,7 +23,7 @@ import sushiswapLpAbi from '../../metadata/ISushiswapMetadataAlt.json'
 const chainId = 4
 
 export const tellerToTokenMapping: {
-  [key: string]: TellerToken
+  [key: string]: TellerTokenMetadata
 } = {
   [TELLER_ADDRS_V1.DAI_TELLER]: {
     name: BondName.DAI,

@@ -133,7 +133,7 @@ enum FormStages {
 export default function Soteria(): JSX.Element {
   const { referralCode: referralCodeFromStorage, appTheme } = useGeneral()
   const { account } = useWeb3React()
-  const { latestBlock, library } = useProvider()
+  const { latestBlock, signer } = useProvider()
   const { activeNetwork, changeNetwork } = useNetwork()
   const { version } = useCachedData()
   const canShowSoteria = useMemo(() => !activeNetwork.config.restrictedFeatures.noSoteria, [
@@ -246,8 +246,8 @@ export default function Soteria(): JSX.Element {
   }, 300)
 
   const _getAvailableFunds = useDebounce(async () => {
-    if (!library || !account) return
-    const tokenContract = getContract(stableCoinData.address, IERC20.abi, library)
+    if (!signer || !account) return
+    const tokenContract = new Contract(stableCoinData.address, IERC20.abi, signer)
     const balance = await queryBalance(tokenContract, account)
     setWalletAssetBalance(balance)
     setContractForAllowance(tokenContract)
@@ -278,7 +278,7 @@ export default function Soteria(): JSX.Element {
   useEffect(() => {
     _getAvailableFunds()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, stableCoinData, library, latestBlock])
+  }, [account, stableCoinData, signer, latestBlock])
 
   useEffect(() => {
     setCheckingReferral(true)

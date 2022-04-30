@@ -18,7 +18,6 @@ export const usePolicyGetter = (
   allPolicies: Policy[]
   setCanGetAssessments: (toggle: boolean) => void
 } => {
-  // const { library, latestBlock } = useProvider()
   // const { activeNetwork, findNetworkByChainId } = useNetwork()
   // const { keyContracts } = useContracts()
   // const { policyManager } = useMemo(() => keyContracts, [keyContracts])

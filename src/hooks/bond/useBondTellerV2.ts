@@ -1,21 +1,22 @@
-import { BondTellerDetails, BondTokenV2, TxResult, LocalTx } from '../../constants/types'
+import {
+  BondTellerDetails,
+  BondTokenV2,
+  TxResult,
+  LocalTx,
+  BondTellerContractData,
+  TellerTokenMetadata,
+} from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
-import { listTokensOfOwner } from '../../utils/contract'
 
 import { BigNumber } from 'ethers'
 import { useEffect, useState, useMemo, useRef } from 'react'
-import { getContract } from '../../utils'
 
 import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { queryDecimals, queryName, querySymbol } from '../../utils/contract'
 import { useProvider } from '../../context/ProviderManager'
-import { usePriceSdk } from '../api/usePrice'
-import { useNetwork, networks } from '../../context/NetworkManager'
-import { floatUnits } from '../../utils/formatting'
+import { useNetwork } from '../../context/NetworkManager'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useCachedData } from '../../context/CachedDataManager'
-import { withBackoffRetries } from '../../utils/time'
-import { useWeb3React } from '@web3-react/core'
+import { Bond } from '@solace-fi/sdk-nightly'
 
 export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()
@@ -105,16 +106,12 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
   return { deposit, claimPayout }
 }
 
-export const useBondTellerDetailsV2 = (
-  canGetPrices: boolean
-): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
-  const { account } = useWeb3React()
-  const { latestBlock, library } = useProvider()
+export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
+  const { latestBlock, signer, provider } = useProvider()
   const { tellers } = useContracts()
   const { activeNetwork } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
-  const { getPriceSdkFunc } = usePriceSdk()
   const canBondV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noBondingV2, [
     activeNetwork.config.restrictedFeatures.noBondingV2,
   ])
@@ -128,103 +125,58 @@ export const useBondTellerDetailsV2 = (
   useEffect(() => {
     const getPrices = async () => {
       if (
-        !library ||
         !canBondV2 ||
         !latestBlock ||
-        !canGetPrices ||
         running.current ||
         (Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object)
       )
         return
       running.current = true
-      const solacePrice = tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()]
-      try {
-        const data: BondTellerDetails[] = await Promise.all(
-          tellers
-            .filter((t) => t.version == 2)
-            .map(async (teller) => {
-              const [principalAddr, bondPrice, vestingTermInSeconds, capacity, maxPayout] = await Promise.all([
-                withBackoffRetries(async () => teller.contract.principal()),
-                withBackoffRetries(async () => teller.contract.bondPrice()),
-                withBackoffRetries(async () => teller.contract.globalVestingTerm()),
-                withBackoffRetries(async () => teller.contract.capacity()),
-                withBackoffRetries(async () => teller.contract.maxPayout()),
-              ])
-              const principalContract = getContract(principalAddr, teller.principalAbi, library, account ?? undefined)
+      const bond = new Bond(activeNetwork.chainId, signer ?? provider)
+      const fetchedTellerData = await bond.getBondTellerData(tokenPriceMapping)
 
-              const [decimals, name, symbol] = await Promise.all([
-                queryDecimals(principalContract),
-                queryName(principalContract, library),
-                querySymbol(principalContract, library),
-              ])
+      const metadataMapping = tellers.reduce(
+        (
+          metadata: any,
+          teller: BondTellerContractData & {
+            metadata: TellerTokenMetadata
+          }
+        ) => ({
+          ...metadata,
+          [teller.contract.address.toLowerCase()]: teller.metadata,
+        }),
+        {}
+      )
 
-              let usdBondPrice = 0
-              const { getSdkTokenPrice } = getPriceSdkFunc(teller.sdk)
+      const adjustedTellerDetails = fetchedTellerData.map((t) => {
+        return {
+          ...t,
+          metadata: metadataMapping[t.tellerData.teller.contract.address.toLowerCase()],
+        }
+      })
 
-              const key = teller.mainnetAddr == '' ? teller.tokenId.toLowerCase() : teller.mainnetAddr.toLowerCase()
-              usdBondPrice = tokenPriceMapping[key] * floatUnits(bondPrice, decimals)
-              if (usdBondPrice <= 0) {
-                const price = await getSdkTokenPrice(principalContract, activeNetwork, library)
-                usdBondPrice = price * floatUnits(bondPrice, decimals)
-              }
-
-              const bondRoi = usdBondPrice > 0 ? ((solacePrice - usdBondPrice) * 100) / usdBondPrice : 0
-
-              const d: BondTellerDetails = {
-                tellerData: {
-                  teller,
-                  bondPrice,
-                  usdBondPrice,
-                  vestingTermInSeconds,
-                  capacity,
-                  maxPayout,
-                  bondRoi,
-                },
-                principalData: {
-                  principal: principalContract,
-                  principalProps: {
-                    symbol,
-                    decimals,
-                    name,
-                    address: principalAddr,
-                  },
-                },
-              }
-              return d
-            })
-        )
-        setMounting(false)
-        setTellerDetails(data)
-      } catch (e) {
-        console.log('getBondTellerDetailsV2', e)
-      }
+      setMounting(false)
       running.current = false
+
+      return setTellerDetails(adjustedTellerDetails)
     }
     getPrices()
-  }, [latestBlock, tellers, canBondV2, tokenPriceMapping, canGetPrices])
+  }, [latestBlock, signer, tellers, canBondV2, tokenPriceMapping, activeNetwork, provider])
 
   return { tellerDetails, mounting }
 }
 
 export const useUserBondDataV2 = () => {
-  const getUserBondDataV2 = async (selectedBondDetail: BondTellerDetails, account: string) => {
-    const ownedTokenIds: BigNumber[] = await listTokensOfOwner(selectedBondDetail.tellerData.teller.contract, account)
-    const ownedBondData = await Promise.all(
-      ownedTokenIds.map(
-        async (id) => await withBackoffRetries(async () => selectedBondDetail.tellerData.teller.contract.bonds(id))
-      )
-    )
-    const ownedBonds: BondTokenV2[] = ownedTokenIds.map((id, idx) => {
-      return {
-        id,
-        payoutAmount: ownedBondData[idx].payoutAmount,
-        payoutAlreadyClaimed: ownedBondData[idx].payoutAlreadyClaimed,
-        principalPaid: ownedBondData[idx].principalPaid,
-        vestingStart: ownedBondData[idx].vestingStart,
-        localVestingTerm: ownedBondData[idx].localVestingTerm,
-      }
-    })
-    return ownedBonds
+  const { provider } = useProvider()
+  const { activeNetwork } = useNetwork()
+
+  const getUserBondDataV2 = async (bondTellerContractAddress: string, account: string) => {
+    if (provider) {
+      const bond = new Bond(activeNetwork.chainId, provider)
+      const ownedBonds = await bond.getUserBondData(bondTellerContractAddress, account)
+      return ownedBonds
+    }
+    return []
   }
 
   return { getUserBondDataV2 }

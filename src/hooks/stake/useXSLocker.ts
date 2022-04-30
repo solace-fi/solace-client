@@ -7,18 +7,17 @@ import { LocalTx, LockData, UserLocksData, UserLocksInfo } from '../../constants
 import { getPermitErc20Signature } from '../../utils/signature'
 import { DEADLINE, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { useProvider } from '../../context/ProviderManager'
-import { rangeFrom0 } from '../../utils/numeric'
 import { useGetFunctionGas } from '../provider/useGas'
 import { withBackoffRetries } from '../../utils/time'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
+import { Lock } from '@solace-fi/sdk-nightly'
+import { useProvider } from '../../context/ProviderManager'
 
 export const useXSLocker = () => {
   const { keyContracts } = useContracts()
   const { xsLocker, solace } = useMemo(() => keyContracts, [keyContracts])
-  const { library } = useProvider()
+  const { signer, provider } = useProvider()
   const { activeNetwork } = useNetwork()
-  const { latestBlock } = useProvider()
   const { gasConfig } = useGetFunctionGas()
 
   const getLock = async (xsLockID: BigNumber) => {
@@ -67,11 +66,11 @@ export const useXSLocker = () => {
   }
 
   const createLock = async (recipient: string, amount: BigNumber, end: BigNumber) => {
-    if (!xsLocker || !solace) return { tx: null, localTx: null }
+    if (!xsLocker || !solace || !signer) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(
       recipient,
       activeNetwork.chainId,
-      library,
+      signer,
       xsLocker.address,
       solace,
       amount
@@ -92,11 +91,11 @@ export const useXSLocker = () => {
   }
 
   const increaseLockAmount = async (recipient: string, xsLockID: BigNumber, amount: BigNumber) => {
-    if (!xsLocker || !solace) return { tx: null, localTx: null }
+    if (!xsLocker || !solace || !signer) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(
       recipient,
       activeNetwork.chainId,
-      library,
+      signer,
       xsLocker.address,
       solace,
       amount
@@ -174,33 +173,15 @@ export const useXSLocker = () => {
   }
 
   const getUserLockerBalances = async (account: string) => {
-    if (!latestBlock || !xsLocker) return { stakedBalance: '0', lockedBalance: '0', unlockedBalance: '0' }
-    const timestamp: number = latestBlock.timestamp
-    let stakedBalance = ZERO // staked = locked + unlocked
-    let lockedBalance = ZERO
-    let unlockedBalance = ZERO
-    const numLocks = await withBackoffRetries(async () => xsLocker.balanceOf(account))
-    const indices = rangeFrom0(numLocks.toNumber())
-    const xsLockIDs = await Promise.all(
-      indices.map(async (index) => {
-        return await withBackoffRetries(async () => xsLocker.tokenOfOwnerByIndex(account, index))
-      })
-    )
-    const locks = await Promise.all(
-      xsLockIDs.map(async (xsLockID) => {
-        return await withBackoffRetries(async () => xsLocker.locks(xsLockID))
-      })
-    )
-    locks.forEach((lock) => {
-      stakedBalance = stakedBalance.add(lock.amount)
-      if (lock.end.gt(timestamp)) lockedBalance = lockedBalance.add(lock.amount)
-      else unlockedBalance = unlockedBalance.add(lock.amount)
-    })
-
+    if (provider) {
+      const lock = new Lock(activeNetwork.chainId, provider)
+      const userLockerBalances = await lock.getUserLockerBalances(account)
+      return userLockerBalances
+    }
     return {
-      stakedBalance: formatUnits(stakedBalance, SOLACE_TOKEN.constants.decimals),
-      lockedBalance: formatUnits(lockedBalance, SOLACE_TOKEN.constants.decimals),
-      unlockedBalance: formatUnits(unlockedBalance, SOLACE_TOKEN.constants.decimals),
+      stakedBalance: '0',
+      lockedBalance: '0',
+      unlockedBalance: '0',
     }
   }
 
@@ -218,88 +199,27 @@ export const useXSLocker = () => {
 }
 
 export const useUserLockData = () => {
-  const { latestBlock } = useProvider()
-  const { keyContracts } = useContracts()
-  const { xsLocker, stakingRewards } = useMemo(() => keyContracts, [keyContracts])
+  const { activeNetwork } = useNetwork()
+  const { provider } = useProvider()
 
   const getUserLocks = async (user: string): Promise<UserLocksData> => {
-    if (!latestBlock || !stakingRewards || !xsLocker)
-      return {
-        user: {
-          pendingRewards: ZERO,
-          stakedBalance: ZERO,
-          lockedBalance: ZERO,
-          unlockedBalance: ZERO,
-          yearlyReturns: ZERO,
-          apr: ZERO,
-        },
-        locks: [],
-        goodFetch: false,
-      }
-    const timestamp = latestBlock.timestamp
-    let stakedBalance = ZERO // staked = locked + unlocked
-    let lockedBalance = ZERO // measured in SOLACE
-    let unlockedBalance = ZERO
-    let pendingRewards = ZERO
-    let userValue = ZERO // measured in SOLACE * rewards multiplier
-    const [rewardPerSecond, valueStaked, numLocks] = await Promise.all([
-      withBackoffRetries(async () => stakingRewards.rewardPerSecond()), // across all locks
-      withBackoffRetries(async () => stakingRewards.valueStaked()), // across all locks from all users
-      withBackoffRetries(async () => xsLocker.balanceOf(user)),
-    ])
-    const indices = rangeFrom0(numLocks)
-    const xsLockIDs = await Promise.all(
-      indices.map(async (index) => {
-        return await withBackoffRetries(async () => xsLocker.tokenOfOwnerByIndex(user, index))
-      })
-    )
-    const locks: LockData[] = await Promise.all(
-      xsLockIDs.map(async (xsLockID) => {
-        const rewards: BigNumber = await withBackoffRetries(async () => stakingRewards.pendingRewardsOfLock(xsLockID))
-        const lock = await withBackoffRetries(async () => xsLocker.locks(xsLockID))
-        const timeLeft: BigNumber = lock.end.gt(timestamp) ? lock.end.sub(timestamp) : ZERO
-        const stakedLock = await withBackoffRetries(async () => stakingRewards.stakedLockInfo(xsLockID))
-        const yearlyReturns: BigNumber = valueStaked.gt(ZERO)
-          ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(stakedLock.value).div(valueStaked)
-          : ZERO
-        const apr: BigNumber = lock.amount.gt(ZERO) ? yearlyReturns.mul(100).div(lock.amount) : ZERO
-        const _lock: LockData = {
-          xsLockID: xsLockID,
-          unboostedAmount: lock.amount,
-          end: lock.end,
-          timeLeft: timeLeft,
-          boostedValue: stakedLock.value,
-          pendingRewards: rewards,
-          apr: apr,
-        }
-        return _lock
-      })
-    )
-    locks.forEach((lock) => {
-      pendingRewards = pendingRewards.add(lock.pendingRewards)
-      stakedBalance = stakedBalance.add(lock.unboostedAmount)
-      if (lock.end.gt(timestamp)) lockedBalance = lockedBalance.add(lock.unboostedAmount)
-      else unlockedBalance = unlockedBalance.add(lock.unboostedAmount)
-      userValue = userValue.add(lock.boostedValue)
-    })
-    const userYearlyReturns: BigNumber = valueStaked.gt(ZERO)
-      ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(userValue).div(valueStaked)
-      : ZERO
-    const userApr: BigNumber = stakedBalance.gt(ZERO) ? userYearlyReturns.mul(100).div(stakedBalance) : ZERO
-    const userInfo: UserLocksInfo = {
-      pendingRewards: pendingRewards,
-      stakedBalance: stakedBalance,
-      lockedBalance: lockedBalance,
-      unlockedBalance: unlockedBalance,
-      yearlyReturns: userYearlyReturns,
-      apr: userApr,
+    if (provider) {
+      const lock = new Lock(activeNetwork.chainId, provider)
+      const userLocks = await lock.getUserLocks(user)
+      return userLocks
     }
-    const data = {
-      user: userInfo,
-      locks: locks,
-      goodFetch: true,
+    return {
+      user: {
+        pendingRewards: BigNumber.from(0),
+        stakedBalance: BigNumber.from(0),
+        lockedBalance: BigNumber.from(0),
+        unlockedBalance: BigNumber.from(0),
+        yearlyReturns: BigNumber.from(0),
+        apr: BigNumber.from(0),
+      },
+      locks: [],
+      successfulFetch: false,
     }
-    return data
   }
 
   return { getUserLocks }

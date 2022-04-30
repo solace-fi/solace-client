@@ -1,5 +1,5 @@
 import { BondName } from '../../enums'
-import { TellerToken } from '../../types'
+import { TellerTokenMetadata } from '../../types'
 import { DAI_TOKEN, WETH9_TOKEN, USDC_TOKEN, USDT_TOKEN, WBTC_TOKEN, FRAX_TOKEN, WMATIC_TOKEN } from '../token'
 
 import { TELLER_ADDRS_V2 } from '../../addresses/polygon'
@@ -13,7 +13,7 @@ import wmatic from '../../metadata/WMATIC.json'
 const chainId = 137
 
 export const tellerToTokenMapping: {
-  [key: string]: TellerToken
+  [key: string]: TellerTokenMetadata
 } = {
   [TELLER_ADDRS_V2.DAI_TELLER]: {
     name: BondName.DAI,

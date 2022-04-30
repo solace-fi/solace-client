@@ -47,7 +47,6 @@ export const useGetPolicyPrice = (policyId: number): string => {
 export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber => {
   // const { activeNetwork } = useNetwork()
   // const { account } = useWeb3React()
-  // const { library, latestBlock } = useProvider()
   // const { getProtocolByName } = useContracts()
   // const { userPolicyData } = useCachedData()
   const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
