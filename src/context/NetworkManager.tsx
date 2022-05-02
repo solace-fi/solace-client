@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo } from 'react'
 import { NetworkConfig } from '../constants/types'
 
 /* networks */
@@ -47,7 +47,7 @@ const NetworkContext = createContext<NetworkContextType>({
 })
 
 const NetworkManager: React.FC = (props) => {
-  const { chainId, library } = useWeb3React()
+  const { chainId, library, account } = useWeb3React()
   const [unconnectedChainId, setUnconnectedChainId] = React.useState<number | undefined>(undefined)
 
   const findNetworkByChainId = useCallback((chainId: number | undefined): NetworkConfig | undefined => {
@@ -71,10 +71,12 @@ const NetworkManager: React.FC = (props) => {
 
         const formattedChainId = hexStripZeros(BigNumber.from(targetChain).toHexString())
         try {
-          await library.provider.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: formattedChainId }],
-          })
+          await library.provider
+            .request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: formattedChainId }],
+            })
+            .then(() => setUnconnectedChainId(undefined))
         } catch (error: any) {
           // 4902 is the error code for attempting to switch to an unrecognized chainId
           if (error.code === 4902) {
@@ -89,10 +91,12 @@ const NetworkManager: React.FC = (props) => {
             // the second call is done here because that behavior is not a part of the spec and cannot be relied upon in the future
             // metamask's behavior when switching to the current network is just to return null (a no-op)
             try {
-              await library.provider.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: formattedChainId }],
-              })
+              await library.provider
+                .request({
+                  method: 'wallet_switchEthereumChain',
+                  params: [{ chainId: formattedChainId }],
+                })
+                .then(() => setUnconnectedChainId(undefined))
             } catch (error) {
               console.debug('Added network but could not switch chains', error)
             }
@@ -108,6 +112,10 @@ const NetworkManager: React.FC = (props) => {
     },
     [findNetworkByChainId, library]
   )
+
+  useEffect(() => {
+    if (account) setUnconnectedChainId(undefined)
+  }, [account])
 
   const value = useMemo<NetworkContextType>(
     () => ({
