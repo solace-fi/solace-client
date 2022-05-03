@@ -37,6 +37,7 @@ import { ModalCell } from '../../components/atoms/Modal'
 import { CheckboxData } from '../stake/types/LockCheckbox'
 import { useProvider } from '../../context/ProviderManager'
 import { useWeb3React } from '@web3-react/core'
+import { useGeneral } from '../../context/GeneralManager'
 
 export function PolicyBalance({
   balances,
@@ -94,6 +95,7 @@ export function PolicyBalance({
   const [doesReachMinReqAccountBal, setDoesReachMinReqAccountBal] = useState(false)
 
   const { ifDesktop } = useWindowDimensions()
+  const { appTheme } = useGeneral()
   const { account } = useWeb3React()
   const { signer } = useProvider()
   const { activeNetwork } = useNetwork()
@@ -265,7 +267,7 @@ export function PolicyBalance({
       }}
     >
       <Flex between itemsCenter>
-        <Text t2 bold techygradient>
+        <Text t2 bold techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
           Policy Balance
         </Text>
         <StyledTooltip
@@ -394,10 +396,10 @@ export function PolicyBalance({
                   </Text>
                 </Flex>
                 <Flex between>
-                  <Text t4s bold techygradient>
+                  <Text t4s bold techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                     Bonus
                   </Text>
-                  <Text t4s bold techygradient>
+                  <Text t4s bold techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                     {commaNumber(truncateValue(formatUnits(balances.earnedBalance, stableCoinData.decimals), 2, false))}{' '}
                     {stableCoinData.symbol}
                   </Text>

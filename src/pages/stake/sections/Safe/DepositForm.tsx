@@ -23,8 +23,10 @@ import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { BKPT_5 } from '../../../../constants'
 import { Text } from '../../../../components/atoms/Typography'
 import { useWeb3React } from '@web3-react/core'
+import { useGeneral } from '../../../../context/GeneralManager'
 
 export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
+  const { appTheme } = useGeneral()
   const solaceBalance = useSolaceBalance()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -107,31 +109,31 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
               <Flex stretch column>
                 <Flex stretch gap={24}>
                   <Flex column gap={2}>
-                    <Text t5s techygradient mb={8}>
+                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                       APR
                     </Text>
                     <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
                       &nbsp;
                     </div>
-                    <Text t3s techygradient>
+                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                       <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
                     </Text>
                   </Flex>
                   <VerticalSeparator />
                   <Flex column gap={2}>
-                    <Text t5s techygradient mb={8}>
+                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                       Reward Multiplier
                     </Text>
-                    <Text t3s techygradient>
+                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                       {projectedMultiplier}x
                     </Text>
                   </Flex>
                   <VerticalSeparator />
                   <Flex column gap={2}>
-                    <Text t5s techygradient mb={8}>
+                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                       Yearly Return
                     </Text>
-                    <Text t3s techygradient>
+                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                       {truncateValue(formatUnits(projectedYearlyReturns, 18), 4, false)}
                     </Text>
                   </Flex>

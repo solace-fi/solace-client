@@ -38,6 +38,9 @@ export const WalletList = () => {
         >
           <Flex stretch between>
             <ModalCell p={10}>
+              <img src={SUPPORTED_WALLETS[0].logo} alt={SUPPORTED_WALLETS[0].name} height={32} />
+            </ModalCell>
+            <ModalCell p={10}>
               <Text t4 bold light={SUPPORTED_WALLETS[0].connector === connector}>
                 Browser Wallet
               </Text>

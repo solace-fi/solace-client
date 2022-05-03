@@ -60,21 +60,21 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
             {scrollPosition == 0 &&
               (account ? (
                 <Flex col around>
-                  <Text textAlignLeft t4>
+                  <Text textAlignLeft t4 dark techygradient>
                     {name ?? shortenAddress(account)}
                   </Text>
                   <Flex>
                     {activeNetwork.logo && (
                       <img src={activeNetwork.logo} width={20} height={20} style={{ marginRight: '2px' }} />
                     )}
-                    <Text t5s nowrap autoAlignVertical>
+                    <Text t5s nowrap autoAlignVertical dark>
                       {activeNetwork.name}
                     </Text>
                   </Flex>
                 </Flex>
               ) : (
                 <Flex col around>
-                  <Text textAlignLeft t5s>
+                  <Text textAlignLeft t5s dark>
                     Not connected
                   </Text>
                   <Text textAlignLeft t4>
@@ -82,7 +82,7 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
                       {activeNetwork.logo && (
                         <img src={activeNetwork.logo} width={20} height={20} style={{ marginRight: '2px' }} />
                       )}
-                      <Text t5s nowrap autoAlignVertical>
+                      <Text t5s nowrap autoAlignVertical dark>
                         {activeNetwork.name}
                       </Text>
                     </Flex>
