@@ -12,6 +12,7 @@ import { AuroraTestnetNetwork } from '../networks/auroraTestnet'
 import { useWeb3React } from '@web3-react/core'
 import { hexStripZeros } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
+import { useGeneral } from './GeneralManager'
 
 /*
 
@@ -37,16 +38,17 @@ export const networksMapping = networks.reduce((configs: any, networkConfig: Net
 type NetworkContextType = {
   activeNetwork: NetworkConfig
   findNetworkByChainId: (chainId: number | undefined) => NetworkConfig | undefined
-  changeNetwork: (targetChain: number) => void
+  changeNetwork: (targetChain: number) => Promise<void>
 }
 
 const NetworkContext = createContext<NetworkContextType>({
   activeNetwork: networks[0],
   findNetworkByChainId: () => undefined,
-  changeNetwork: () => undefined,
+  changeNetwork: () => Promise.reject(),
 })
 
 const NetworkManager: React.FC = (props) => {
+  const { setRightSidebar } = useGeneral()
   const { chainId, library, account } = useWeb3React()
   const [unconnectedChainId, setUnconnectedChainId] = React.useState<number | undefined>(undefined)
 
@@ -76,7 +78,10 @@ const NetworkManager: React.FC = (props) => {
               method: 'wallet_switchEthereumChain',
               params: [{ chainId: formattedChainId }],
             })
-            .then(() => setUnconnectedChainId(undefined))
+            .then(() => {
+              setUnconnectedChainId(undefined)
+              setRightSidebar(false)
+            })
         } catch (error: any) {
           // 4902 is the error code for attempting to switch to an unrecognized chainId
           if (error.code === 4902) {
@@ -96,7 +101,10 @@ const NetworkManager: React.FC = (props) => {
                   method: 'wallet_switchEthereumChain',
                   params: [{ chainId: formattedChainId }],
                 })
-                .then(() => setUnconnectedChainId(undefined))
+                .then(() => {
+                  setUnconnectedChainId(undefined)
+                  setRightSidebar(false)
+                })
             } catch (error) {
               console.debug('Added network but could not switch chains', error)
             }
