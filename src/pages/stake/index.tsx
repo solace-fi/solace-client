@@ -474,14 +474,13 @@ export default function Stake(): JSX.Element {
     const selectedLocks = getCheckedLocks(locks, locksChecked)
     const eligibleLocks = selectedLocks.filter((lock) => !lock.pendingRewards.isZero())
     const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
-    const type = eligibleIds.length > 1 ? FunctionName.COMPOUND_LOCKS : FunctionName.COMPOUND_LOCK
     setTargetLock(undefined)
-    await compoundLockRewards(eligibleIds, targetLock)
+    await compoundLockRewards(eligibleIds, true, targetLock)
       .then((res) => {
         setIsCompoundModalOpen(false)
         handleToast(res.tx, res.localTx)
       })
-      .catch((err) => handleContractCallError('handleBatchCompound', err, type))
+      .catch((err) => handleContractCallError('handleBatchCompound', err, FunctionName.COMPOUND_LOCKS))
   }
 
   return (
@@ -502,6 +501,10 @@ export default function Stake(): JSX.Element {
                   }}
                   modalTitle={'Select a safe to deposit your rewards'}
                 >
+                  <Flex stretch between mb={10}>
+                    <Text>Safes selected</Text>
+                    <Text>{getCheckedLocks(locks, locksChecked).length}</Text>
+                  </Flex>
                   <Flex stretch between mb={24}>
                     <Text>Rewards from selected safes</Text>
                     <Text>{formattedRewards}</Text>
@@ -724,13 +727,7 @@ export default function Stake(): JSX.Element {
                           noborder
                           pl={10}
                           pr={10}
-                          onClick={() => {
-                            if (getCheckedLocks(locks, locksChecked).length > 1) {
-                              setIsCompoundModalOpen(true)
-                            } else {
-                              handleBatchCompound()
-                            }
-                          }}
+                          onClick={() => setIsCompoundModalOpen(true)}
                           disabled={rewardsAreZero}
                         >
                           Compound Rewards
