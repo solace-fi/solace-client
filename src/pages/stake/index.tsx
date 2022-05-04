@@ -14,7 +14,7 @@
 */
 
 /* import packages */
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
@@ -359,8 +359,12 @@ export default function Stake(): JSX.Element {
   const [isBridgeModalOpen, setIsBridgeModalOpen] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
 
+  const fetchingLocks = useRef(false)
+
   const [targetLock, setTargetLock] = useState<BigNumber | undefined>(undefined)
   const [locksChecked, setLocksChecked] = useState<CheckboxData[]>([])
+  const locksCheckedRef = useRef(locksChecked)
+  locksCheckedRef.current = locksChecked
 
   const { account } = useWeb3React()
   const { latestBlock } = useProvider()
@@ -403,13 +407,15 @@ export default function Stake(): JSX.Element {
 
   useEffect(() => {
     const _getUserLocks = async () => {
-      if (!account) return
+      if (!account || fetchingLocks.current) return
+      fetchingLocks.current = true
       await getUserLocks(account).then((userLockData: UserLocksData) => {
         if (userLockData.successfulFetch) {
           setLocks(userLockData.locks)
-          setLocksChecked(updateLocksChecked(userLockData.locks, locksChecked))
+          setLocksChecked(updateLocksChecked(userLockData.locks, locksCheckedRef.current))
           setUserLockInfo(userLockData.user)
           setLoading(false)
+          fetchingLocks.current = false
         }
       })
     }
