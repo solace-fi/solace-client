@@ -11,13 +11,18 @@ import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import UserGradient from '../../resources/svg/user_gradient.svg'
 import { useWeb3React } from '@web3-react/core'
+import { shortenAddress } from '../../utils/formatting'
+import { useENS } from '../../hooks/wallet/useENS'
+import { useNetwork } from '../../context/NetworkManager'
 
 export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolean) => void }> = ({
   pages,
   setShow,
 }) => {
-  const { scrollPosition } = useWindowDimensions()
   const { account } = useWeb3React()
+  const name = useENS()
+  const { activeNetwork } = useNetwork()
+  const { scrollPosition } = useWindowDimensions()
   const location = useLocation()
   const title = useMemo(() => {
     const to = location.pathname
@@ -42,7 +47,7 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
           style={{ borderRadius: '28px', backgroundColor: '#fff', minWidth: 'unset' }}
           onClick={() => setShow(true)}
         >
-          <Flex>
+          <Flex between gap={5} itemsCenter>
             {account ? (
               <SolaceGradientCircle>
                 <UserImage style={{ width: '24px', height: '24px', margin: 'auto' }}>
@@ -52,11 +57,38 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
             ) : (
               <img src={UserGradient} />
             )}
-            {scrollPosition == 0 && (
-              <Text t4 bold techygradient autoAlignVertical ml={8}>
-                My Solace
-              </Text>
-            )}
+            {scrollPosition == 0 &&
+              (account ? (
+                <Flex col around>
+                  <Text textAlignLeft t4 dark techygradient>
+                    {name ?? shortenAddress(account)}
+                  </Text>
+                  <Flex>
+                    {activeNetwork.logo && (
+                      <img src={activeNetwork.logo} width={20} height={20} style={{ marginRight: '2px' }} />
+                    )}
+                    <Text t5s nowrap autoAlignVertical dark>
+                      {activeNetwork.name}
+                    </Text>
+                  </Flex>
+                </Flex>
+              ) : (
+                <Flex col around>
+                  <Text textAlignLeft t5s dark>
+                    Not connected
+                  </Text>
+                  <Text textAlignLeft t4>
+                    <Flex>
+                      {activeNetwork.logo && (
+                        <img src={activeNetwork.logo} width={20} height={20} style={{ marginRight: '2px' }} />
+                      )}
+                      <Text t5s nowrap autoAlignVertical dark>
+                        {activeNetwork.name}
+                      </Text>
+                    </Flex>
+                  </Text>
+                </Flex>
+              ))}
           </Flex>
         </Button>
       </ShadowDiv>

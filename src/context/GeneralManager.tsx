@@ -18,11 +18,15 @@ type GeneralContextType = {
   notices: string[]
   errors: string[]
   haveErrors: boolean
+  leftSidebar: boolean
+  rightSidebar: boolean
+  referralCode: string | undefined
   addNotices: (noticesToAdd: SystemNoticeData[]) => void
   removeNotices: (noticesToRemove: SystemNotice[]) => void
   addErrors: (errorsToAdd: ErrorData[]) => void
   removeErrors: (errorsToRemove: Error[]) => void
-  referralCode: string | undefined
+  setLeftSidebar: (leftSidebar: boolean) => void
+  setRightSidebar: (rightSidebar: boolean) => void
 }
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -31,11 +35,15 @@ const GeneralContext = createContext<GeneralContextType>({
   notices: [],
   errors: [],
   haveErrors: false,
+  leftSidebar: false,
+  rightSidebar: false,
+  referralCode: undefined,
   addNotices: () => undefined,
   removeNotices: () => undefined,
   addErrors: () => undefined,
   removeErrors: () => undefined,
-  referralCode: undefined,
+  setLeftSidebar: () => undefined,
+  setRightSidebar: () => undefined,
 })
 
 export function useGeneral(): GeneralContextType {
@@ -64,6 +72,9 @@ const GeneralProvider: React.FC = (props) => {
   const [notices, setNotices] = useState<string[]>([])
   const [errors, setErrors] = useState<string[]>([])
   const haveErrors = useRef(errors.length > 0)
+
+  const [rightSidebar, setRightSidebar] = useState(false)
+  const [leftSidebar, setLeftSidebar] = useState(false)
 
   const addNotices = useCallback((noticesToAdd: SystemNoticeData[]) => {
     if (noticesToAdd.length == 0) return
@@ -123,11 +134,15 @@ const GeneralProvider: React.FC = (props) => {
     notices,
     errors,
     haveErrors: haveErrors.current,
+    leftSidebar,
+    rightSidebar,
+    referralCode,
     addNotices,
     removeNotices,
     addErrors,
     removeErrors,
-    referralCode,
+    setLeftSidebar,
+    setRightSidebar,
   }
 
   return (
