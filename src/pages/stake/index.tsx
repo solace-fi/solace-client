@@ -14,7 +14,7 @@
 */
 
 /* import packages */
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
@@ -97,7 +97,7 @@ function Stake1(): any {
 
   *************************************************************************************/
 
-  const { haveErrors } = useGeneral()
+  const { haveErrors, appTheme } = useGeneral()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
@@ -269,31 +269,31 @@ function Stake1(): any {
                     <Flex stretch column>
                       <Flex stretch gap={24}>
                         <Flex column gap={2}>
-                          <Text t5s techygradient mb={8}>
+                          <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                             APR
                           </Text>
                           <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
                             &nbsp;
                           </div>
-                          <Text t3s techygradient>
+                          <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                             <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
                           </Text>
                         </Flex>
                         <VerticalSeparator />
                         <Flex column gap={2}>
-                          <Text t5s techygradient mb={8}>
+                          <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                             Reward Multiplier
                           </Text>
-                          <Text t3s techygradient>
+                          <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                             {projectedMultiplier}x
                           </Text>
                         </Flex>
                         <VerticalSeparator />
                         <Flex column gap={2}>
-                          <Text t5s techygradient mb={8}>
+                          <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                             Yearly Return
                           </Text>
-                          <Text t3s techygradient>
+                          <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                             {truncateValue(formatUnits(projectedYearlyReturns, 18), 4, false)}
                           </Text>
                         </Flex>
@@ -359,8 +359,12 @@ export default function Stake(): JSX.Element {
   const [isBridgeModalOpen, setIsBridgeModalOpen] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
 
+  const fetchingLocks = useRef(false)
+
   const [targetLock, setTargetLock] = useState<BigNumber | undefined>(undefined)
   const [locksChecked, setLocksChecked] = useState<CheckboxData[]>([])
+  const locksCheckedRef = useRef(locksChecked)
+  locksCheckedRef.current = locksChecked
 
   const { account } = useWeb3React()
   const { latestBlock } = useProvider()
@@ -403,13 +407,15 @@ export default function Stake(): JSX.Element {
 
   useEffect(() => {
     const _getUserLocks = async () => {
-      if (!account) return
+      if (!account || fetchingLocks.current) return
+      fetchingLocks.current = true
       await getUserLocks(account).then((userLockData: UserLocksData) => {
         if (userLockData.successfulFetch) {
           setLocks(userLockData.locks)
-          setLocksChecked(updateLocksChecked(userLockData.locks, locksChecked))
+          setLocksChecked(updateLocksChecked(userLockData.locks, locksCheckedRef.current))
           setUserLockInfo(userLockData.user)
           setLoading(false)
+          fetchingLocks.current = false
         }
       })
     }
@@ -468,14 +474,13 @@ export default function Stake(): JSX.Element {
     const selectedLocks = getCheckedLocks(locks, locksChecked)
     const eligibleLocks = selectedLocks.filter((lock) => !lock.pendingRewards.isZero())
     const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
-    const type = eligibleIds.length > 1 ? FunctionName.COMPOUND_LOCKS : FunctionName.COMPOUND_LOCK
     setTargetLock(undefined)
-    await compoundLockRewards(eligibleIds, targetLock)
+    await compoundLockRewards(eligibleIds, true, targetLock)
       .then((res) => {
         setIsCompoundModalOpen(false)
         handleToast(res.tx, res.localTx)
       })
-      .catch((err) => handleContractCallError('handleBatchCompound', err, type))
+      .catch((err) => handleContractCallError('handleBatchCompound', err, FunctionName.COMPOUND_LOCKS))
   }
 
   return (
@@ -496,6 +501,10 @@ export default function Stake(): JSX.Element {
                   }}
                   modalTitle={'Select a safe to deposit your rewards'}
                 >
+                  <Flex stretch between mb={10}>
+                    <Text>Safes selected</Text>
+                    <Text>{getCheckedLocks(locks, locksChecked).length}</Text>
+                  </Flex>
                   <Flex stretch between mb={24}>
                     <Text>Rewards from selected safes</Text>
                     <Text>{formattedRewards}</Text>
@@ -718,13 +727,7 @@ export default function Stake(): JSX.Element {
                           noborder
                           pl={10}
                           pr={10}
-                          onClick={() => {
-                            if (getCheckedLocks(locks, locksChecked).length > 1) {
-                              setIsCompoundModalOpen(true)
-                            } else {
-                              handleBatchCompound()
-                            }
-                          }}
+                          onClick={() => setIsCompoundModalOpen(true)}
                           disabled={rewardsAreZero}
                         >
                           Compound Rewards

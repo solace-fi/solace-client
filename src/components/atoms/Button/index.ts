@@ -24,6 +24,7 @@ export interface ButtonProps extends ClickProps {
   nohover?: boolean
   semibold?: boolean
   techygradient?: boolean
+  warmgradient?: boolean
 }
 
 interface ButtonWrapperProps {
@@ -99,6 +100,22 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
           to bottom right,
           ${theme.typography.techyGradientA},
           ${theme.typography.techyGradientB}
+        );
+        opacity: 1;
+        transform: scale(1);
+        &:hover {
+          ${!props.nohover && `opacity: 0.8;`}
+        }
+      `
+    }
+    if (props.warmgradient) {
+      return css`
+        color: ${theme.typography.lightText};
+        // gradient to bottom right, gradient is theme.typography.warmGradientA to theme.typography.warmGradientB
+        background-image: linear-gradient(
+          to bottom right,
+          ${theme.typography.warmGradientA},
+          ${theme.typography.warmGradientB}
         );
         opacity: 1;
         transform: scale(1);

@@ -7,6 +7,7 @@ import styled, { css } from 'styled-components'
 import { StakingVersion } from '../../../../constants/enums'
 import { BKPT_5 } from '../../../../constants'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
+import { useGeneral } from '../../../../context/GeneralManager'
 
 /*
           style={{
@@ -17,7 +18,8 @@ import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensi
 const StyledRaisedBox = styled(RaisedBox)<{
   theme: any
   width: number
-  techyGradient?: boolean
+  techygradient?: boolean
+  warmgradient?: boolean
 }>`
   /* width: ${({ width }) => (BKPT_5 > width ? '%' : '378px')}; */
   ${({ width }) => {
@@ -34,13 +36,23 @@ const StyledRaisedBox = styled(RaisedBox)<{
   /* margin auto if width under BKPT_5 */
   padding: 40px 24px;
   // techy-gradient
-  ${({ techyGradient }) =>
-    techyGradient &&
+  ${({ techygradient }) =>
+    techygradient &&
     css`
       background-image: linear-gradient(
         to bottom right,
         ${({ theme }) => theme.typography.techyGradientA},
         ${({ theme }) => theme.typography.techyGradientB}
+      );
+    `}
+
+  ${({ warmgradient }) =>
+    warmgradient &&
+    css`
+      background-image: linear-gradient(
+        to bottom right,
+        ${({ theme }) => theme.typography.warmGradientA},
+        ${({ theme }) => theme.typography.warmGradientB}
       );
     `}
 `
@@ -50,6 +62,7 @@ export default function DifferenceBoxes({
 }: {
   setStakingVersion: (tab: StakingVersion) => void
 }): JSX.Element {
+  const { appTheme } = useGeneral()
   const { width } = useWindowDimensions()
   return (
     <Flex center gap={BKPT_5 > width ? 20 : 100} column={BKPT_5 > width}>
@@ -73,7 +86,8 @@ export default function DifferenceBoxes({
               pr={23}
               pt={10}
               pb={10}
-              techygradient
+              techygradient={appTheme == 'light'}
+              warmgradient={appTheme == 'dark'}
               secondary
               noborder
               onClick={() => setStakingVersion(StakingVersion.v1)}
@@ -86,7 +100,7 @@ export default function DifferenceBoxes({
         </StyledRaisedBox>
       </ShadowDiv>
       <ShadowDiv>
-        <StyledRaisedBox width={width} techyGradient>
+        <StyledRaisedBox width={width} techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
           <Flex center column gap={40}>
             <Text t1 extrabold light>
               Staking V2

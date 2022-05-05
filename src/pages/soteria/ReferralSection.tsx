@@ -6,6 +6,7 @@ import { GenericInputSection } from '../../components/molecules/InputSection'
 import { Input } from '../../components/atoms/Input'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { shortenAddress } from '../../utils/formatting'
+import { useGeneral } from '../../context/GeneralManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useContracts } from '../../context/ContractsManager'
 import { Text } from '../../components/atoms/Typography'
@@ -29,6 +30,7 @@ export function ReferralSection({
   setReferralCode: (referralCode: string | undefined) => void
   userCanRefer: boolean
 }): JSX.Element {
+  const { appTheme } = useGeneral()
   const { keyContracts } = useContracts()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
   const { activeNetwork } = useNetwork()
@@ -89,7 +91,7 @@ export function ReferralSection({
         gap={userCanRefer ? 40 : 0}
       >
         <Flex between itemsCenter>
-          <Text t2 bold techygradient>
+          <Text t2 bold techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
             Bonuses
           </Text>
           <StyledTooltip
@@ -117,7 +119,8 @@ export function ReferralSection({
                     <Input
                       t4s
                       bold
-                      techygradient
+                      techygradient={appTheme == 'light'}
+                      warmgradient={appTheme == 'dark'}
                       widthP={100}
                       readOnly
                       value={shortenAddress(generatedReferralCode)}
@@ -141,7 +144,7 @@ export function ReferralSection({
           )}
           <Flex col gap={10} stretch>
             <Text t4s>
-              <Text t4s inline bold techygradient>
+              <Text t4s inline bold techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                 Got a referral code?
               </Text>{' '}
               Enter here to claim $50 bonus credit when you{' '}

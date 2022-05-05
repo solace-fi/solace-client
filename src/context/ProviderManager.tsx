@@ -78,6 +78,10 @@ const ProviderManager: React.FC = (props) => {
     setShowTestnets(activeNetwork.isTestnet)
   }, [activeNetwork])
 
+  useEffect(() => {
+    closeModal()
+  }, [activeNetwork.chainId])
+
   const value = React.useMemo(
     () => ({
       provider,

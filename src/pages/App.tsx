@@ -56,21 +56,14 @@ import Archive from './archive'
 import { AppMenu } from '../components/organisms/RightNavbar'
 import { InfoSideNavbar, MobileInfoSideNavbar } from '../components/organisms/LeftNavbar'
 import { AppMenuHeader } from '../components/organisms/AppMenuHeader'
+import { useGeneral } from '../context/GeneralManager'
 
 export default function App(): any {
+  const { leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar } = useGeneral()
   const location = useLocation()
   const { width } = useWindowDimensions()
 
-  const [rightSidebar, setRightSidebar] = useState(false)
-  const [leftSidebar, setLeftSidebar] = useState(false)
-
   const pages: PageInfo[] = [
-    // {
-    //   name: 'Dashboard',
-    //   to: '/dashboard',
-    //   icon: <StyledDashboard size={30} />,
-    //   component: Dashboard,
-    // },
     {
       name: 'My Coverage',
       title: 'My Policy',
@@ -78,12 +71,6 @@ export default function App(): any {
       icon: <StyledDashboard size={30} />,
       component: Soteria,
     },
-    // {
-    //   name: 'Buy Cover',
-    //   to: '/quote',
-    //   icon: <StyledFileShield size={30} />,
-    //   component: Quote,
-    // },
     {
       name: 'Bond',
       title: 'My Bonding',

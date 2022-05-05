@@ -107,7 +107,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   } = useTellerConfig(activeNetwork)
   const [func, setFunc] = useState<FunctionName>(bondDepositFunctionName)
   const [principalBalance, setPrincipalBalance] = useState<string>('0')
-  const [slippagePrct, setSlippagePrct] = useState<string>('20')
+  const [slippagePrct, setSlippagePrct] = useState<string>('100')
 
   const pncplDecimals = useMemo(() => selectedBondDetail?.principalData.principalProps.decimals, [
     selectedBondDetail?.principalData.principalProps.decimals,
@@ -214,7 +214,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
     setIsBonding(true)
     setIsStaking(false)
     setShouldUseNativeToken(true)
-    setSlippagePrct('0.5')
+    setSlippagePrct('100')
 
     setModalLoading(false)
     resetAmount()

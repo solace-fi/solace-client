@@ -12,7 +12,7 @@ export const AnalyticsReporter = (): null => {
   useEffect(() => {
     if (typeof window == 'undefined') return
     hotjar.stateChange(location.pathname)
-    window.gtag('config', String(process.env.REACT_APP_GOOGLE_ANALYTICS_ID), {
+    window.gtag('config', String('G-F3S8CKE1PE'), {
       page_title: location.pathname,
       page_path: location.pathname,
     })

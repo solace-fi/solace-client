@@ -19,7 +19,7 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
   }
 
   const callCompoundLockRewards = async () => {
-    await compoundLockRewards([lock.xsLockID])
+    await compoundLockRewards([lock.xsLockID], false)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callCompoundLockRewards', err, FunctionName.COMPOUND_LOCK))
   }
