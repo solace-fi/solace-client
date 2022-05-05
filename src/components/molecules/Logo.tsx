@@ -17,7 +17,6 @@ import React from 'react'
 /* import components */
 import { LogoBase } from '../atoms/Logo'
 import { GeneralElementProps } from '../generalInterfaces'
-import { StyledNavLink } from '../atoms/Link'
 
 /* import resources */
 import coloredLogo from '../../resources/svg/solace-logo-color.svg'

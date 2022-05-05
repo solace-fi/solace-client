@@ -83,20 +83,5 @@ export const useGetFunctionGas = () => {
 
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
 
-  // this function is used for getting the gas limit for a transaction with a supported product
-  const getSupportedProductGasLimit = useCallback(
-    (productName: string, txType: FunctionName): number => {
-      let callingGasLimit = GAS_LIMIT
-      const supportedProduct = activeNetwork.cache.supportedProducts.find((p) => p.name == productName)
-      if (supportedProduct) {
-        const gasLimits = supportedProduct.gasLimits
-        if (gasLimits && gasLimits[activeNetwork.chainId] && gasLimits[activeNetwork.chainId][txType])
-          callingGasLimit = gasLimits[activeNetwork.chainId][txType]
-      }
-      return callingGasLimit
-    },
-    [activeNetwork]
-  )
-
-  return { gasConfig, getGasConfig, getAutoGasConfig, getSupportedProductGasLimit }
+  return { gasConfig, getGasConfig, getAutoGasConfig }
 }

@@ -70,19 +70,6 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
       <Text bold t1 mb={0} warning>
         V1 Options Farming Pool
       </Text>
-      <Text t4 pt={10} pb={10}>
-        This pool rewards coverage underwriters with $SOLACE token call options.
-        <HyperLink
-          t4
-          href={'https://medium.com/solace-fi/solace-options-rewards-d4bd64902b4'}
-          target="_blank"
-          rel="noopener noreferrer"
-          info
-        >
-          {' '}
-          More information here.
-        </HyperLink>
-      </Text>
       {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>

@@ -1,6 +1,6 @@
 import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 import { ETHERSCAN_API_KEY, ALCHEMY_ETHEREUM_API_KEY } from '../constants'
-import { ProductName, Unit } from '../constants/enums'
+import { Unit } from '../constants/enums'
 import { hexValue } from '@ethersproject/bytes'
 import { NetworkConfig } from '../constants/types'
 
@@ -15,32 +15,9 @@ import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
 import xSolaceMigratorABI from '../constants/metadata/xSolaceMigrator.json'
 import cpFarmABI from '../constants/metadata/CpFarm.json'
-import claimsEscrowABI from '../constants/metadata/ClaimsEscrow.json'
-import polMagABI from '../constants/metadata/PolicyManager.json'
-import riskManagerABI from '../constants/metadata/RiskManager.json'
 import solaceCoverProductABI from '../constants/metadata/SolaceCoverProduct.json'
 
-/* product contract abi */
-import aaveABI from '../constants/metadata/AaveV2Product.json'
-import compABI from '../constants/metadata/CompoundProduct.json'
-import curveABI from '../constants/metadata/CurveProduct.json'
-import liquityABI from '../constants/metadata/LiquityProduct.json'
-import sushiABI from '../constants/metadata/SushiswapProduct.json'
-import uniV2ABI from '../constants/metadata/UniswapV2Product.json'
-import uniV3ABI from '../constants/metadata/UniswapV3Product.json'
-import yearnABI from '../constants/metadata/YearnV2Product.json'
-
-/* product objects */
-import { AaveProduct } from '../products/aave'
-import { CompoundProduct } from '../products/compound'
-import { LiquityProduct } from '../products/liquity'
-import { YearnProduct } from '../products/yearn'
-import { CurveProduct } from '../products/curve'
-import { UniswapV2Product } from '../products/uniswapV2'
-import { UniswapV3Product } from '../products/uniswapV3'
-import { SushiswapProduct } from '../products/sushiswap'
-
-import { KEY_ADDRS, PRODUCT_ADDRS } from '../constants/addresses/mainnet'
+import { KEY_ADDRS } from '../constants/addresses/mainnet'
 import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/mainnet'
 
@@ -113,55 +90,9 @@ export const MainNetwork: NetworkConfig = {
         addr: KEY_ADDRS.CPFARM,
         abi: cpFarmABI,
       },
-      claimsEscrow: {
-        addr: KEY_ADDRS.CLAIMS_ESCROW,
-        abi: claimsEscrowABI,
-      },
-      policyManager: {
-        addr: KEY_ADDRS.POLICY_MANAGER,
-        abi: polMagABI,
-      },
-      riskManager: {
-        addr: KEY_ADDRS.RISK_MANAGER,
-        abi: riskManagerABI,
-      },
       solaceCoverProduct: {
         addr: KEY_ADDRS.SOLACE_COVER_PRODUCT,
         abi: solaceCoverProductABI.abi,
-      },
-    },
-    productContracts: {
-      [ProductName.AAVE]: {
-        addr: PRODUCT_ADDRS.AAVE_PRODUCT,
-        abi: aaveABI,
-      },
-      [ProductName.COMPOUND]: {
-        addr: PRODUCT_ADDRS.COMPOUND_PRODUCT,
-        abi: compABI,
-      },
-      [ProductName.CURVE]: {
-        addr: PRODUCT_ADDRS.CURVE_PRODUCT,
-        abi: curveABI,
-      },
-      [ProductName.LIQUITY]: {
-        addr: PRODUCT_ADDRS.LIQUITY_PRODUCT,
-        abi: liquityABI,
-      },
-      [ProductName.SUSHISWAP]: {
-        addr: PRODUCT_ADDRS.SUSHISWAP_PRODUCT,
-        abi: sushiABI,
-      },
-      [ProductName.UNISWAP_V2]: {
-        addr: PRODUCT_ADDRS.UNISWAPV2_PRODUCT,
-        abi: uniV2ABI,
-      },
-      [ProductName.UNISWAP_V3]: {
-        addr: PRODUCT_ADDRS.UNISWAPV3_PRODUCT,
-        abi: uniV3ABI,
-      },
-      [ProductName.YEARN]: {
-        addr: PRODUCT_ADDRS.YEARN_PRODUCT,
-        abi: yearnABI,
       },
     },
     restrictedFeatures: {},
@@ -172,16 +103,6 @@ export const MainNetwork: NetworkConfig = {
     underwritingPoolAddr: '0x5efc0d9ee3223229ce3b53e441016efc5ba83435',
   },
   cache: {
-    supportedProducts: [
-      AaveProduct,
-      CompoundProduct,
-      LiquityProduct,
-      YearnProduct,
-      CurveProduct,
-      UniswapV2Product,
-      UniswapV3Product,
-      SushiswapProduct,
-    ],
     tellerToTokenMapping,
   },
   metamaskChain: {
