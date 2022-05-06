@@ -11,6 +11,7 @@ import { SolaceRiskScore } from '../../constants/types'
 import { accurateMultiply, filterAmount, floatUnits, truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { Text } from '../../components/atoms/Typography'
+import { useGeneral } from '../../context/GeneralManager'
 
 enum ChosenLimit {
   Custom,
@@ -35,6 +36,7 @@ export function CoverageLimitBasicForm({
   isEditing: boolean
   setNewCoverageLimit: (newCoverageLimit: BigNumber) => void
 }): JSX.Element {
+  const { appTheme } = useGeneral()
   const [chosenLimit, setChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
 
   const highestPosition = useMemo(
@@ -112,9 +114,9 @@ export function CoverageLimitBasicForm({
             }}
           >
             <Flex center>
-              <Text techygradient t2 bold>
+              <Text techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} t2 bold>
                 {commaNumber(truncateValue(floatUnits(currentCoverageLimit, 18), 2, false))}{' '}
-                <Text techygradient t4 bold inline>
+                <Text techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} t4 bold inline>
                   USD
                 </Text>
               </Text>

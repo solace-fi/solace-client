@@ -204,27 +204,6 @@ export const Statistics: React.FC = () => {
             </Text>
           </Flex>
         )}
-        {/* {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
-          <>
-            <Flex stretch between mb={24}>
-              <Text light>Active Cover Amount</Text>
-                <Text t2 nowrap light>
-                  {totalActiveCoverAmount !== '-'
-                    ? `${truncateValue(totalActiveCoverAmount, 2)} `
-                    : `${totalActiveCoverAmount} `}
-                  <TextSpan t4 light>
-                    {activeNetwork.nativeCurrency.symbol}
-                  </TextSpan>
-              </Text>
-            </Flex>
-            <Flex stretch between mb={24}>
-              <Text light>Total Active Policies</Text>
-                <Text t2 nowrap light>
-                  {totalActivePolicies}
-                </Text>
-            </Flex>
-          </>
-        )} */}
         {!activeNetwork.config.restrictedFeatures.noSoteria && (
           <>
             <Flex stretch between mb={24}>

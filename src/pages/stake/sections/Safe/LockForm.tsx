@@ -19,12 +19,14 @@ import { StyledForm } from '../../atoms/StyledForm'
 import { truncateValue } from '../../../../utils/formatting'
 import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import InfoPair, { Label } from '../../molecules/InfoPair'
+import { Label } from '../../molecules/InfoPair'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
-import { parseUnits, formatUnits } from 'ethers/lib/utils'
+import { formatUnits } from 'ethers/lib/utils'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
+import { useGeneral } from '../../../../context/GeneralManager'
 
 export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
+  const { appTheme } = useGeneral()
   const { latestBlock } = useProvider()
   const { extendLock } = useXSLocker()
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -41,7 +43,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
     const seconds = latestBlock.timestamp + parseInt(inputValue) * 86400
     await extendLock(lock.xsLockID, BigNumber.from(seconds))
       .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callExtendLock', err, FunctionName.INCREASE_LOCK_AMOUNT))
+      .catch((err) => handleContractCallError('callExtendLock', err, FunctionName.EXTEND_LOCK))
   }
 
   const inputOnChange = (value: string) => {
@@ -92,31 +94,31 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
               <Flex stretch column>
                 <Flex stretch gap={24}>
                   <Flex column gap={2}>
-                    <Text t5s techygradient mb={8}>
+                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                       APR
                     </Text>
                     <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
                       &nbsp;
                     </div>
-                    <Text t3s techygradient>
+                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                       <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
                     </Text>
                   </Flex>
                   <VerticalSeparator />
                   <Flex column gap={2}>
-                    <Text t5s techygradient mb={8}>
+                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                       Reward Multiplier
                     </Text>
-                    <Text t3s techygradient>
+                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                       {projectedMultiplier}x
                     </Text>
                   </Flex>
                   <VerticalSeparator />
                   <Flex column gap={2}>
-                    <Text t5s techygradient mb={8}>
+                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                       Yearly Return
                     </Text>
-                    <Text t3s techygradient>
+                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                       {truncateValue(formatUnits(projectedYearlyReturns, 18), 4, false)}
                     </Text>
                   </Flex>

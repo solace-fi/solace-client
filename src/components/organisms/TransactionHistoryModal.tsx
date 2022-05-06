@@ -37,7 +37,7 @@ import { Table, TableHead, TableHeader, TableRow, TableBody, TableData } from '.
 import { Text } from '../atoms/Typography'
 
 /* import hooks */
-import { useTransactionDetails } from '../../hooks/api/useTransactionHistory'
+import { useFetchTxHistoryByAddress } from '../../hooks/api/useTransactionHistory'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 /* import utils */
@@ -64,7 +64,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
   const { contractSources } = useContracts()
   const { account } = useWeb3React()
   const { width } = useWindowDimensions()
-  const { txHistory } = useTransactionDetails()
+  const txHistory = useFetchTxHistoryByAddress()
   /************************************************************************************* 
     
   local functions

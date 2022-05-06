@@ -31,14 +31,13 @@ import { Loader } from '../atoms/Loader'
 import { HyperLink } from '../atoms/Link'
 import { Button } from '../atoms/Button'
 import { ToastWrapper, FlexedToastMessage } from '../atoms/Message'
-import { StyledCheckmark, StyledWarning, StyledInfo } from '../atoms/Icon'
+import { StyledCheckmark, StyledWarning } from '../atoms/Icon'
 import { Text, TextSpan } from '../atoms/Typography'
 
 /* import utils */
 import { getExplorerItemUrl } from '../../utils/explorer'
 
 /* import resources */
-import quantstampPdf from '../../resources/pdf/Solace-Quantstamp-Report.pdf'
 import { CopyButton } from './CopyButton'
 
 interface AppToastProps {

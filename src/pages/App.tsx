@@ -14,22 +14,19 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useState } from 'react'
+import React, { Fragment } from 'react'
 import { Route, Switch, useLocation } from 'react-router-dom'
 /* import managers */
 
 /* import pages */
 import About from './about'
-import Dashboard from './dashboard'
 import Invest from './invest'
 import Stake from './stake'
 import Bond from './bond'
-import Quote from './quote'
 import Govern from './govern'
 import Terms from './terms'
 
 /* import components */
-import { SideNavbar, TopNavbar } from '../components/organisms/Navbar'
 import { MenusTopNavBar } from '../components/organisms/MenusTopNavbar'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent } from '../components/atoms/Layout'
 import { MainContent } from '../components/molecules/MainContent'
@@ -56,21 +53,14 @@ import Archive from './archive'
 import { AppMenu } from '../components/organisms/RightNavbar'
 import { InfoSideNavbar, MobileInfoSideNavbar } from '../components/organisms/LeftNavbar'
 import { AppMenuHeader } from '../components/organisms/AppMenuHeader'
+import { useGeneral } from '../context/GeneralManager'
 
 export default function App(): any {
+  const { leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar } = useGeneral()
   const location = useLocation()
   const { width } = useWindowDimensions()
 
-  const [rightSidebar, setRightSidebar] = useState(false)
-  const [leftSidebar, setLeftSidebar] = useState(false)
-
   const pages: PageInfo[] = [
-    // {
-    //   name: 'Dashboard',
-    //   to: '/dashboard',
-    //   icon: <StyledDashboard size={30} />,
-    //   component: Dashboard,
-    // },
     {
       name: 'My Coverage',
       title: 'My Policy',
@@ -78,12 +68,6 @@ export default function App(): any {
       icon: <StyledDashboard size={30} />,
       component: Soteria,
     },
-    // {
-    //   name: 'Buy Cover',
-    //   to: '/quote',
-    //   icon: <StyledFileShield size={30} />,
-    //   component: Quote,
-    // },
     {
       name: 'Bond',
       title: 'My Bonding',

@@ -31,7 +31,6 @@ import { Z_MODAL } from '../../../constants'
 /* import wallets */
 import { WalletList } from '../../molecules/WalletList'
 import { useWeb3React } from '@web3-react/core'
-import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import usePrevious from '../../../hooks/internal/usePrevious'
 
 interface WalletModalProps {

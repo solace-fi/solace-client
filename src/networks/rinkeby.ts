@@ -1,4 +1,4 @@
-import { ProductName, Unit } from '../constants/enums'
+import { Unit } from '../constants/enums'
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY, ALCHEMY_ETHEREUM_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
@@ -15,30 +15,11 @@ import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
 import xSolaceMigratorABI from '../constants/metadata/xSolaceMigrator.json'
 import cpFarmABI from '../constants/metadata/CpFarm.json'
-import claimsEscrowABI from '../constants/metadata/ClaimsEscrow.json'
-import polMagABI from '../constants/metadata/PolicyManager.json'
-import riskManagerABI from '../constants/metadata/RiskManager.json'
 import solaceCoverProductABI from '../constants/metadata/SolaceCoverProduct.json'
 
-/* product contract abi */
-import liquityProductABI from '../constants/metadata/LiquityProduct.json'
-import compABI from '../constants/metadata/CompoundProductRinkeby.json'
-import waaveABI from '../constants/metadata/WaaveProduct.json'
-
-/* product objects */
-import { CompoundProduct } from '../products/compound'
-import { WaaveProduct } from '../products/waave'
-import { LiquityProduct } from '../products/liquity'
-
-import { KEY_ADDRS, PRODUCT_ADDRS } from '../constants/addresses/rinkeby'
+import { KEY_ADDRS } from '../constants/addresses/rinkeby'
 import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/rinkeby'
-
-/*
-
-When adding new products, please add into productContracts, functions, and cache
-
-*/
 
 const chainId = 4
 
@@ -103,35 +84,9 @@ export const RinkebyNetwork: NetworkConfig = {
         addr: KEY_ADDRS.CPFARM,
         abi: cpFarmABI,
       },
-      claimsEscrow: {
-        addr: KEY_ADDRS.CLAIMS_ESCROW,
-        abi: claimsEscrowABI,
-      },
-      policyManager: {
-        addr: KEY_ADDRS.POLICY_MANAGER,
-        abi: polMagABI,
-      },
-      riskManager: {
-        addr: KEY_ADDRS.RISK_MANAGER,
-        abi: riskManagerABI,
-      },
       solaceCoverProduct: {
         addr: KEY_ADDRS.SOLACE_COVER_PRODUCT,
         abi: solaceCoverProductABI.abi,
-      },
-    },
-    productContracts: {
-      [ProductName.COMPOUND]: {
-        addr: PRODUCT_ADDRS.COMPOUND_PRODUCT,
-        abi: compABI,
-      },
-      [ProductName.WAAVE]: {
-        addr: PRODUCT_ADDRS.WAAVE_PRODUCT,
-        abi: waaveABI,
-      },
-      [ProductName.LIQUITY]: {
-        addr: PRODUCT_ADDRS.LIQUITY_PRODUCT,
-        abi: liquityProductABI,
       },
     },
     restrictedFeatures: {},
@@ -141,7 +96,6 @@ export const RinkebyNetwork: NetworkConfig = {
     specialContracts: {},
   },
   cache: {
-    supportedProducts: [CompoundProduct, WaaveProduct, LiquityProduct],
     tellerToTokenMapping,
   },
   metamaskChain: {

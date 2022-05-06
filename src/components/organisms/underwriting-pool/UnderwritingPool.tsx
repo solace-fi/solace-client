@@ -61,9 +61,6 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
       <Text bold t1 mb={0} warning>
         V1 Underwriting Pool
       </Text>
-      <Text t4 pt={10} pb={10}>
-        This capital is utilized to back the risk of V1 coverage policies and earns revenue from policy sales.
-      </Text>
       {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>

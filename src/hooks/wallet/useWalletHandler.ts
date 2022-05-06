@@ -30,7 +30,7 @@ export const useWalletHandler = (
   connect: (walletConnector: WalletConnector) => Promise<void>
   disconnect: () => void
 } => {
-  const { addErrors, removeErrors } = useGeneral()
+  const { setRightSidebar, addErrors, removeErrors } = useGeneral()
   const { connector, activate, deactivate } = useWeb3React()
 
   const connect = useCallback(
@@ -48,6 +48,7 @@ export const useWalletHandler = (
         removeErrors(ContextErrors)
         setSelectedProvider(walletConnector.id)
         setManuallyDisconnected(false)
+        setRightSidebar(false)
       }
 
       function onError(error: Error) {

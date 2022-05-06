@@ -18,6 +18,7 @@ import lockIsChecked from '../stake/utils/stake/batchActions/checkboxes/lockIsCh
 import { Loader } from '../../components/atoms/Loader'
 import { FixedHeightGrayBox } from '../../components/molecules/GrayBox'
 import { useWeb3React } from '@web3-react/core'
+import { useGeneral } from '../../context/GeneralManager'
 
 export function CoveredChains({
   coverageActivity: { status, mounting },
@@ -40,6 +41,7 @@ export function CoveredChains({
   setIsEditing: (isEditing: boolean) => void
 }): JSX.Element {
   const { ifDesktop } = useWindowDimensions()
+  const { appTheme } = useGeneral()
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -94,7 +96,7 @@ export function CoveredChains({
       }}
     >
       <Flex between itemsCenter>
-        <Text t2 bold techygradient>
+        <Text t2 bold techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
           Covered Chains
         </Text>
         <StyledTooltip

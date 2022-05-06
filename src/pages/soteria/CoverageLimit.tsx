@@ -15,6 +15,7 @@ import { CoverageLimitBasicForm } from './CoverageLimitBasicForm'
 import { truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { useWeb3React } from '@web3-react/core'
+import { useGeneral } from '../../context/GeneralManager'
 
 export function CoverageLimit({
   balances,
@@ -60,6 +61,7 @@ export function CoverageLimit({
   inactive?: boolean
 }): JSX.Element {
   const { account } = useWeb3React()
+  const { appTheme } = useGeneral()
   const startEditing = () => setIsEditing(true)
   const stopEditing = () => setIsEditing(false)
   const [doesReachMinReqAccountBal, setDoesReachMinReqAccountBal] = useState(false)
@@ -114,7 +116,7 @@ export function CoverageLimit({
     >
       <Flex col stretch gap={30} flex1>
         <Flex itemsCenter between>
-          <Text t2 bold techygradient>
+          <Text t2 bold techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
             Coverage Limit
           </Text>
           <StyledTooltip

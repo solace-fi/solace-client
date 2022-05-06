@@ -111,11 +111,11 @@ export const useStakingRewards = () => {
     return { tx, localTx }
   }
 
-  const compoundLockRewards = async (xsLockIDs: BigNumber[], targetXsLockID?: BigNumber) => {
+  const compoundLockRewards = async (xsLockIDs: BigNumber[], multipleLocks: boolean, targetXsLockID?: BigNumber) => {
     if (!stakingRewards || xsLockIDs.length == 0) return { tx: null, localTx: null }
     let tx = null
     let type = FunctionName.COMPOUND_LOCK
-    if (xsLockIDs.length > 1 && targetXsLockID) {
+    if (xsLockIDs.length > 1 && targetXsLockID && multipleLocks) {
       const estGas = await stakingRewards.estimateGas.compoundLocks(xsLockIDs, targetXsLockID)
       console.log('stakingRewards.estimateGas.compoundLocks', estGas.toString())
       tx = await stakingRewards.compoundLocks(xsLockIDs, targetXsLockID, {

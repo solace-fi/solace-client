@@ -1,5 +1,5 @@
 import React from 'react'
-import { Content, Flex, HeroContainer } from '../atoms/Layout'
+import { Content, Flex } from '../atoms/Layout'
 import { Text } from '../atoms/Typography'
 import { WalletList } from './WalletList'
 

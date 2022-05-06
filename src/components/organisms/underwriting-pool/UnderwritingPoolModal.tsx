@@ -38,12 +38,10 @@ import { Modal } from '../../molecules/Modal'
 import { Button, ButtonWrapper } from '../../atoms/Button'
 import { Loader } from '../../atoms/Loader'
 import { Text } from '../../atoms/Typography'
-import { GasRadioGroup } from '../../molecules/GasRadioGroup'
 import { CheckboxOption, PoolModalProps } from '../PoolModalRouter'
 import { Box, BoxItem, BoxItemTitle } from '../../atoms/Box'
 import { Input } from '../../atoms/Input'
 import { ModalRow, ModalCell } from '../../atoms/Modal'
-import { SourceContract } from '../SourceContract'
 
 /* import hooks */
 import { useNativeTokenBalance } from '../../../hooks/balance/useBalance'
@@ -375,7 +373,6 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
           </Button>
         </ButtonWrapper>
       )}
-      {vault && <SourceContract contract={vault} />}
     </Modal>
   )
 }

@@ -63,10 +63,8 @@ export const PolygonNetwork: NetworkConfig = {
         additionalInfo: 'v2',
       },
     },
-    productContracts: {},
     restrictedFeatures: {
       noBondingV1: true,
-      noCoverProducts: true,
       noFarmingV1: true,
       noStakingV1: true,
     },
@@ -89,7 +87,6 @@ export const PolygonNetwork: NetworkConfig = {
     underwritingPoolAddr: '0xd1108a800363C262774B990e9DF75a4287d5c075',
   },
   cache: {
-    supportedProducts: [],
     tellerToTokenMapping,
   },
   metamaskChain: {
