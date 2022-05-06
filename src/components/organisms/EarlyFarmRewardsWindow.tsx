@@ -48,7 +48,6 @@ import { StyledSelect } from '../molecules/Select'
 import { Box, BoxItem, BoxItemTitle, SmallBox } from '../atoms/Box'
 import { Text } from '../atoms/Typography'
 import { Loader } from '../atoms/Loader'
-import { SourceContract } from './SourceContract'
 
 /* import hooks */
 import { useInputAmount, useTransactionExecution } from '../../hooks/internal/useInputAmount'
@@ -385,7 +384,6 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
             )}
           </ButtonWrapper>
         )}
-        {farmRewards && <SourceContract contract={farmRewards} />}
       </Card>
     </Flex>
   )

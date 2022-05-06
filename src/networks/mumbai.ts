@@ -62,10 +62,8 @@ export const MumbaiNetwork: NetworkConfig = {
         additionalInfo: 'v2',
       },
     },
-    productContracts: {},
     restrictedFeatures: {
       noBondingV1: true,
-      noCoverProducts: true,
       noFarmingV1: true,
       noStakingV1: true,
     },
@@ -85,7 +83,6 @@ export const MumbaiNetwork: NetworkConfig = {
     },
   },
   cache: {
-    supportedProducts: [],
     tellerToTokenMapping,
   },
   metamaskChain: {

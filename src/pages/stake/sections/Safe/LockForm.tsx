@@ -19,9 +19,9 @@ import { StyledForm } from '../../atoms/StyledForm'
 import { truncateValue } from '../../../../utils/formatting'
 import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import InfoPair, { Label } from '../../molecules/InfoPair'
+import { Label } from '../../molecules/InfoPair'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
-import { parseUnits, formatUnits } from 'ethers/lib/utils'
+import { formatUnits } from 'ethers/lib/utils'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { useGeneral } from '../../../../context/GeneralManager'
 
@@ -43,7 +43,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
     const seconds = latestBlock.timestamp + parseInt(inputValue) * 86400
     await extendLock(lock.xsLockID, BigNumber.from(seconds))
       .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callExtendLock', err, FunctionName.INCREASE_LOCK_AMOUNT))
+      .catch((err) => handleContractCallError('callExtendLock', err, FunctionName.EXTEND_LOCK))
   }
 
   const inputOnChange = (value: string) => {

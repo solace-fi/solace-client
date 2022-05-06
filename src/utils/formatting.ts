@@ -199,17 +199,7 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
       return Unit.X_SOLACE
     case FunctionName.DEPOSIT_LP_SIGNED:
     case FunctionName.WITHDRAW_LP:
-    case FunctionName.MULTI_CALL:
       return Unit.LP
-    case FunctionName.BUY_POLICY:
-    case FunctionName.CANCEL_POLICY:
-    case FunctionName.EXTEND_POLICY_PERIOD:
-    case FunctionName.UPDATE_POLICY_AMOUNT:
-    case FunctionName.UPDATE_POLICY:
-    case FunctionName.SUBMIT_CLAIM:
-      return Unit.POLICY
-    case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
-      return Unit.CLAIM
     case FunctionName.BOND_DEPOSIT_ERC20_V1:
     case FunctionName.BOND_DEPOSIT_WETH_V1:
     case FunctionName.BOND_DEPOSIT_ETH_V1:
@@ -228,53 +218,6 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
       return Unit._
   }
 }
-
-// export const formatTransactionContent = (
-//   function_name: string,
-//   activeNetwork: NetworkConfig,
-//   amount: string,
-//   toAddr?: string
-// ): string => {
-//   if (amount == '') return 'N/A'
-//   const unit = getUnit(function_name, activeNetwork)
-//   switch (function_name) {
-//     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
-//     case FunctionName.BUY_POLICY:
-//     case FunctionName.EXTEND_POLICY_PERIOD:
-//     case FunctionName.UPDATE_POLICY:
-//     case FunctionName.UPDATE_POLICY_AMOUNT:
-//     case FunctionName.CANCEL_POLICY:
-//     case FunctionName.SUBMIT_CLAIM:
-//     case FunctionName.BOND_DEPOSIT_ERC20_V1:
-//     case FunctionName.BOND_DEPOSIT_WETH_V1:
-//     case FunctionName.BOND_REDEEM_V1:
-//       return `${unit} #${BigNumber.from(amount)}`
-//     case FunctionName.WITHDRAW_LP:
-//       return `#${BigNumber.from(amount)} ${Unit.LP}`
-//     case FunctionName.DEPOSIT_ETH:
-//       if (toAddr && activeNetwork.cache.tellerToTokenMapping[toAddr]) {
-//         return `Bond #${BigNumber.from(amount)}`
-//       }
-//       return `${truncateValue(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
-//     case FunctionName.DEPOSIT_CP:
-//     case FunctionName.WITHDRAW_CP:
-//     case FunctionName.WITHDRAW_REWARDS:
-//     case FunctionName.APPROVE:
-//     case FunctionName.STAKE_V1:
-//     case FunctionName.UNSTAKE_V1:
-//     case FunctionName.WITHDRAW_ETH:
-//       return `${truncateValue(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
-//     case FunctionName.DEPOSIT_LP_SIGNED:
-//     case FunctionName.WITHDRAW_LP:
-//       return `#${BigNumber.from(amount)} ${unit}`
-//     case FunctionName.START_COOLDOWN:
-//       return `Thaw started`
-//     case FunctionName.STOP_COOLDOWN:
-//       return `Thaw stopped`
-//     default:
-//       return `${amount} ${unit}`
-//   }
-// }
 
 export const capitalizeFirstLetter = (str: string): string => str.charAt(0).toUpperCase().concat(str.slice(1))
 

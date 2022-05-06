@@ -21,7 +21,7 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useSolaceBalance } from '../../hooks/balance/useBalance'
 import { useXSLocker } from '../../hooks/stake/useXSLocker'
 import { useContracts } from '../../context/ContractsManager'
-import { useTransactionDetails } from '../../hooks/api/useTransactionHistory'
+import { useFetchTxHistoryByAddress } from '../../hooks/api/useTransactionHistory'
 import { decodeInput } from '../../utils/decoder'
 import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
 import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
@@ -103,7 +103,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
   const name = useENS()
   const { openWalletModal } = useWallet()
   const { activeNetwork } = useNetwork()
-  const { txHistory } = useTransactionDetails()
+  const txHistory = useFetchTxHistoryByAddress()
   const [showTxHistory, setShowTxHistory] = useState(false)
   const [showWalletSettings, setShowWalletSettings] = useState(false)
 

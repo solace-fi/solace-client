@@ -1,13 +1,7 @@
 import { useMemo } from 'react'
 import { isAddress } from '../../utils'
 import { Contract } from '@ethersproject/contracts'
-import {
-  BondTellerContractData,
-  ContractSources,
-  ProductContract,
-  SupportedProduct,
-  TellerTokenMetadata,
-} from '../../constants/types'
+import { BondTellerContractData, ContractSources, TellerTokenMetadata } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { AddressZero } from '@ethersproject/constants'
@@ -34,28 +28,6 @@ export function useGetContract(source: ContractSources | undefined, hasSigner = 
       return null
     }
   }, [source, hasSigner, provider, signer])
-}
-
-export function useGetProductContracts(): ProductContract[] {
-  const { activeNetwork } = useNetwork()
-  const { provider, signer } = useProvider()
-
-  return useMemo(() => {
-    const config = activeNetwork.config
-    const cache = activeNetwork.cache
-    if (!cache) return []
-    const productContracts: ProductContract[] = []
-    cache.supportedProducts.map((product: SupportedProduct) => {
-      const name = product.name
-      const productContractSources = config.productContracts[name]
-      const contract = new Contract(productContractSources.addr, productContractSources.abi, signer ?? provider)
-      productContracts.push({
-        name,
-        contract,
-      })
-    })
-    return productContracts
-  }, [provider, signer, activeNetwork])
 }
 
 export function useGetBondTellerContracts(): (BondTellerContractData & {
@@ -97,14 +69,6 @@ export function useContractArray(): ContractSources[] {
         contractSources.push({
           addr: config.keyContracts[key].addr.toLowerCase(),
           abi: config.keyContracts[key].abi,
-        })
-      }
-    })
-    Object.keys(config.productContracts).forEach((key) => {
-      if (!excludedContractAddrs.includes(config.productContracts[key].addr)) {
-        contractSources.push({
-          addr: config.productContracts[key].addr.toLowerCase(),
-          abi: config.productContracts[key].abi,
         })
       }
     })

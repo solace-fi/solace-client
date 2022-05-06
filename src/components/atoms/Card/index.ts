@@ -55,36 +55,3 @@ export const Card = styled.div<CardProps>`
   ${CardCss}
   ${GeneralElementCss}
 `
-
-export const InvestmentCard = styled.div<CardProps>`
-  display: grid;
-  align-content: start;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  ${CardCss}
-`
-
-export const PositionCard = styled.div<CardProps>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  ${(props) =>
-    props.fade
-      ? null
-      : `&:hover { background-color: ${props.theme.card.hover_color}; transition: background-color 200ms linear; }`}
-  ${CardCss}
-`
-
-export const CardHeader = styled.div<GeneralTextProps>`
-  ${GeneralTextCss}
-  grid-column: 1/3;
-`
-
-export const CardTitle = styled.div<GeneralTextProps>`
-  ${GeneralTextCss}
-  margin-bottom: 6px;
-`
-
-export const CardBlock = styled.div``
