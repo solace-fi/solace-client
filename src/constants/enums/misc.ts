@@ -5,8 +5,6 @@ export enum Unit {
   SOLACE = 'SOLACE',
   X_SOLACE = 'xSolace',
   LP = 'LP Token',
-  POLICY = 'Policy',
-  CLAIM = 'Claim',
   BOND = 'Bond',
   _ = 'Unknown',
 }

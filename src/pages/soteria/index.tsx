@@ -38,8 +38,6 @@ import { useExistingPolicy, useGetPolicyChains } from '../../hooks/policy/usePol
 import Zapper from '../../resources/svg/zapper.svg'
 import ZapperDark from '../../resources/svg/zapper-dark.svg'
 import { CoveredChains } from './CoveredChains'
-import { CheckboxData } from '../stake/types/LockCheckbox'
-import { getContract } from '../../utils'
 import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
 import { ReadTokenData } from '../../constants/types'
 import { useWeb3React } from '@web3-react/core'

@@ -38,10 +38,8 @@ import { LocalTx } from '../../../constants/types'
 import { Modal } from '../../molecules/Modal'
 import { Button, ButtonWrapper } from '../../atoms/Button'
 import { Loader } from '../../atoms/Loader'
-import { GasRadioGroup } from '../../molecules/GasRadioGroup'
 import { Erc20InputPanel, PoolModalProps } from '../PoolModalRouter'
 import { Text } from '../../atoms/Typography'
-import { SourceContract } from '../SourceContract'
 
 /* import hooks */
 import { useUserStakedValue } from '../../../hooks/_legacy/useFarm'
@@ -265,7 +263,6 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
           </Button>
         </ButtonWrapper>
       )}
-      {cpFarm && <SourceContract contract={cpFarm} />}
     </Modal>
   )
 }

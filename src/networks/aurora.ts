@@ -54,11 +54,9 @@ export const AuroraNetwork: NetworkConfig = {
         abi: stakingRewardsABI.abi,
       },
     },
-    productContracts: {},
     restrictedFeatures: {
       noSoteria: true,
       noBondingV1: true,
-      noCoverProducts: true,
       noFarmingV1: true,
       noStakingV1: true,
     },
@@ -80,7 +78,6 @@ export const AuroraNetwork: NetworkConfig = {
     underwritingPoolAddr: '0x501ace27a074471f099fffec008bd1b151c7f7de',
   },
   cache: {
-    supportedProducts: [],
     tellerToTokenMapping,
   },
   metamaskChain: {

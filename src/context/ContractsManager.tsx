@@ -1,13 +1,8 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import React, { createContext, useContext, useMemo } from 'react'
 import { Contract } from '@ethersproject/contracts'
 
-import {
-  useContractArray,
-  useGetBondTellerContracts,
-  useGetContract,
-  useGetProductContracts,
-} from '../hooks/contract/useContract'
-import { BondTellerContractData, ContractSources, ProductContract, TellerTokenMetadata } from '../constants/types'
+import { useContractArray, useGetBondTellerContracts, useGetContract } from '../hooks/contract/useContract'
+import { BondTellerContractData, ContractSources, TellerTokenMetadata } from '../constants/types'
 import { useNetwork } from './NetworkManager'
 
 /*
@@ -29,19 +24,12 @@ type Contracts = {
     stakingRewards?: Contract | null
     xSolaceMigrator?: Contract | null
     cpFarm?: Contract | null
-    claimsEscrow?: Contract | null
-    policyManager?: Contract | null
-    riskManager?: Contract | null
     solaceCoverProduct?: Contract | null
   }
-  products: ProductContract[]
   tellers: (BondTellerContractData & {
     metadata: TellerTokenMetadata
   })[]
   contractSources: ContractSources[]
-  selectedProtocol: Contract | undefined
-  getProtocolByName: (productName: string) => Contract | undefined
-  setSelectedProtocolByName: (productName: string) => void
 }
 
 const ContractsContext = createContext<Contracts>({
@@ -56,21 +44,13 @@ const ContractsContext = createContext<Contracts>({
     stakingRewards: undefined,
     xSolaceMigrator: undefined,
     cpFarm: undefined,
-    claimsEscrow: undefined,
-    policyManager: undefined,
-    riskManager: undefined,
     solaceCoverProduct: undefined,
   },
-  products: [],
   tellers: [],
   contractSources: [],
-  selectedProtocol: undefined,
-  getProtocolByName: () => undefined,
-  setSelectedProtocolByName: () => undefined,
 })
 
 const ContractsProvider: React.FC = (props) => {
-  const [selectedProtocol, setSelectedProtocol] = useState<Contract | undefined>(undefined)
   const { activeNetwork } = useNetwork()
   const contractSources = useContractArray()
   const keyContracts = useMemo(() => activeNetwork.config.keyContracts, [activeNetwork])
@@ -85,28 +65,8 @@ const ContractsProvider: React.FC = (props) => {
   const stakingRewards = useGetContract(keyContracts.stakingRewards)
   const xSolaceMigrator = useGetContract(keyContracts.xSolaceMigrator)
   const cpFarm = useGetContract(keyContracts.cpFarm)
-  const claimsEscrow = useGetContract(keyContracts.claimsEscrow)
-  const policyManager = useGetContract(keyContracts.policyManager)
-  const riskManager = useGetContract(keyContracts.riskManager)
   const solaceCoverProduct = useGetContract(keyContracts.solaceCoverProduct)
-  const products = useGetProductContracts()
   const tellers = useGetBondTellerContracts()
-
-  const getProtocolByName = useCallback(
-    (productName: string): Contract | undefined => {
-      const foundProduct = products.filter((product) => product.name == productName)
-      if (foundProduct.length > 0) return foundProduct[0].contract
-      return undefined
-    },
-    [products]
-  )
-
-  const setSelectedProtocolByName = useCallback(
-    (productName: string) => {
-      setSelectedProtocol(getProtocolByName(productName))
-    },
-    [getProtocolByName]
-  )
 
   const value = useMemo<Contracts>(
     () => ({
@@ -121,17 +81,10 @@ const ContractsProvider: React.FC = (props) => {
         stakingRewards,
         xSolaceMigrator,
         cpFarm,
-        claimsEscrow,
-        policyManager,
-        riskManager,
         solaceCoverProduct,
       },
-      products,
       tellers,
       contractSources,
-      selectedProtocol,
-      getProtocolByName,
-      setSelectedProtocolByName,
     }),
     [
       farmController,
@@ -144,16 +97,9 @@ const ContractsProvider: React.FC = (props) => {
       stakingRewards,
       xSolaceMigrator,
       cpFarm,
-      claimsEscrow,
-      policyManager,
-      riskManager,
       solaceCoverProduct,
-      products,
       tellers,
       contractSources,
-      selectedProtocol,
-      setSelectedProtocolByName,
-      getProtocolByName,
     ]
   )
 

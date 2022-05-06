@@ -1,22 +1,5 @@
 export enum FunctionName {
   APPROVE = 'Approve',
-  BUY_POLICY = 'BuyPolicy',
-  CANCEL_POLICY = 'CancelPolicy',
-  DEPOSIT_ETH = 'DepositEth',
-  DEPOSIT_CP = 'DepositCp',
-  DEPOSIT_LP_SIGNED = 'DepositLpSigned',
-  EXTEND_POLICY_PERIOD = 'ExtendPolicy',
-  UPDATE_POLICY_AMOUNT = 'UpdateCoverAmount',
-  UPDATE_POLICY = 'UpdatePolicy',
-  SUBMIT_CLAIM = 'SubmitClaim',
-  WITHDRAW_ETH = 'WithdrawEth',
-  WITHDRAW_CP = 'WithdrawCp',
-  WITHDRAW_LP = 'WithdrawLp',
-  WITHDRAW_CLAIMS_PAYOUT = 'WithdrawClaimsPayout',
-  WITHDRAW_REWARDS = 'WithdrawRewards',
-  MULTI_CALL = 'Multicall',
-  START_COOLDOWN = 'StartCooldown',
-  STOP_COOLDOWN = 'StopCooldown',
 
   STAKING_MIGRATE = 'MigrateSigned',
 
@@ -67,7 +50,15 @@ export enum FunctionName {
   STAKE_V1 = 'StakeSigned',
   UNSTAKE_V1 = 'Unstake',
 
-  // discontinued
-  EXERCISE_OPTION = 'ExerciseOption',
-  FARM_OPTION_MULTI = 'FarmOptionMulti',
+  // v1 pools
+  DEPOSIT_ETH = 'DepositEth',
+  DEPOSIT_CP = 'DepositCp',
+  DEPOSIT_LP_SIGNED = 'DepositLpSigned',
+
+  WITHDRAW_ETH = 'WithdrawEth',
+  WITHDRAW_CP = 'WithdrawCp',
+  WITHDRAW_LP = 'WithdrawLp',
+  WITHDRAW_REWARDS = 'WithdrawRewards',
+  START_COOLDOWN = 'StartCooldown',
+  STOP_COOLDOWN = 'StopCooldown',
 }

@@ -1,6 +1,4 @@
 import { ContractSources } from './contract'
-import { Position } from './position'
-import { SupportedProduct } from './product'
 import { Unit } from '../enums'
 import { TellerTokenMetadata } from '.'
 
@@ -29,12 +27,10 @@ export type NetworkConfig = {
   }
   config: {
     keyContracts: { [key: string]: ContractSources }
-    productContracts: { [key: string]: ContractSources }
     specialContracts: { [key: string]: ContractSources }
     restrictedFeatures: {
       noBondingV1?: boolean
       noBondingV2?: boolean
-      noCoverProducts?: boolean
       noFarmingV1?: boolean
       noSoteria?: boolean
       noStakingV1?: boolean
@@ -50,7 +46,6 @@ export type NetworkConfig = {
     underwritingPoolAddr?: string
   }
   cache: {
-    supportedProducts: SupportedProduct[]
     tellerToTokenMapping: {
       [key: string]: TellerTokenMetadata
     }
@@ -69,23 +64,4 @@ export type MetamaskAddEthereumChain = {
   }
   rpcUrls: string[]
   blockExplorerUrls: string[]
-}
-
-export type NetworkCache = {
-  chainId: number
-  positionsCache: PositionsCache
-  positionNamesCache: PositionNamesCache
-}
-
-export type PositionsCache = { [key: string]: PositionsCacheValue }
-
-export type PositionNamesCache = {
-  [key: string]: PositionNamesCacheValue
-}
-
-export type PositionsCacheValue = { positions: Position[] }
-
-export type PositionNamesCacheValue = {
-  positionNames: { [key: string]: string }
-  underlyingPositionNames: { [key: string]: string[] }
 }
