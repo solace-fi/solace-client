@@ -13,6 +13,7 @@ import { useWeb3React } from '@web3-react/core'
 import { hexStripZeros } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import { useGeneral } from './GeneralManager'
+import { Error } from '../constants/enums'
 
 /*
 
@@ -48,7 +49,7 @@ const NetworkContext = createContext<NetworkContextType>({
 })
 
 const NetworkManager: React.FC = (props) => {
-  const { setRightSidebar } = useGeneral()
+  const { setRightSidebar, addErrors, removeErrors } = useGeneral()
   const { chainId, library, account } = useWeb3React()
   const [unconnectedChainId, setUnconnectedChainId] = React.useState<number | undefined>(undefined)
 
@@ -124,6 +125,22 @@ const NetworkManager: React.FC = (props) => {
   useEffect(() => {
     if (account) setUnconnectedChainId(undefined)
   }, [account])
+
+  useEffect(() => {
+    if (chainId) {
+      if (findNetworkByChainId(chainId)) {
+        removeErrors([Error.UNSUPPORTED_NETWORK])
+      } else {
+        addErrors([
+          {
+            type: Error.UNSUPPORTED_NETWORK,
+            metadata: `not supported`,
+            uniqueId: `${Error.UNSUPPORTED_NETWORK}`,
+          },
+        ])
+      }
+    }
+  }, [chainId])
 
   const value = useMemo<NetworkContextType>(
     () => ({
