@@ -48,7 +48,7 @@ export const useEagerConnect = (
 
 // in case eager connect did not connect the user's wallet, react to logins on a potential injected provider
 export const useInactiveListener = (
-  suppress = false,
+  canListen = true,
   connect: (walletConnector: WalletConnector) => Promise<void>
 ): void => {
   const { active, error } = useWeb3React()
@@ -56,7 +56,7 @@ export const useInactiveListener = (
     const ethereum = (window as any).ethereum
 
     // if web3 is inactive
-    if (!suppress && !active && !error && ethereum && ethereum.on) {
+    if (canListen && !active && !error && ethereum && ethereum.on) {
       const handleConnect = () => {
         console.log("Handling 'connect' event")
         connect(MetaMaskConnector)
@@ -98,5 +98,5 @@ export const useInactiveListener = (
     }
 
     return undefined
-  }, [active, error, suppress, connect])
+  }, [active, error, canListen, connect])
 }
