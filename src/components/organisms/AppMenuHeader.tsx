@@ -14,11 +14,13 @@ import { useWeb3React } from '@web3-react/core'
 import { shortenAddress } from '../../utils/formatting'
 import { useENS } from '../../hooks/wallet/useENS'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralManager'
 
 export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolean) => void }> = ({
   pages,
   setShow,
 }) => {
+  const { rightSidebar } = useGeneral()
   const { account } = useWeb3React()
   const name = useENS()
   const { activeNetwork } = useNetwork()
@@ -38,7 +40,9 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
       <Text bold big2>
         {title}
       </Text>
-      <ShadowDiv style={{ borderRadius: '28px', position: 'fixed', right: '50px' }}>
+      <ShadowDiv
+        style={{ transition: '350ms', borderRadius: '28px', position: 'fixed', right: rightSidebar ? '425px' : '50px' }}
+      >
         <Button
           secondary
           nohover

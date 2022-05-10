@@ -35,10 +35,9 @@ const AppNav = styled.div<{ shouldShow: boolean }>`
   width: 375px;
   position: fixed;
   top: 0;
-  right: -100%;
-  transition: 850ms;
   z-index: ${Z_NAV};
-  ${(props) => props.shouldShow && `right: 0; transition: 350ms;`};
+  ${(props) => (props.shouldShow ? `right: 0%;` : `right: -100%;`)};
+  transition: 350ms;
 `
 
 const AppNavGradient = styled.div<{ showSettings: boolean }>`

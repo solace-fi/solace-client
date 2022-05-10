@@ -85,7 +85,7 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
           </>
         ) : (
           <>
-            <MiniLogo location={location} mb={33} style={{ margin: 'auto' }} />
+            <MiniLogo location={location} mb={33} style={{ marginLeft: 'auto', marginRight: 'auto' }} />
           </>
         )}
         <ItemList>
