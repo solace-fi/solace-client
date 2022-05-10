@@ -383,6 +383,7 @@ export default function Stake(): JSX.Element {
   const canStakeV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noStakingV2, [
     activeNetwork.config.restrictedFeatures.noStakingV2,
   ])
+  const { xSolaceV1Balance } = useXSolaceV1Balance()
   const { getUserLocks } = useUserLockData()
   const { withdrawFromLock } = useXSLocker()
   const { harvestLockRewards, compoundLockRewards } = useStakingRewards()
@@ -489,7 +490,9 @@ export default function Stake(): JSX.Element {
         <PleaseConnectWallet />
       ) : (
         <Content>
-          <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
+          {parseUnits(xSolaceV1Balance, XSOLACE_V1_TOKEN.constants.decimals).gt(ZERO) && (
+            <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
+          )}
           {StakingVersion.v2 === stakingVersion &&
             (canStakeV2 ? (
               <>
