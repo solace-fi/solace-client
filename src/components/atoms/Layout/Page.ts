@@ -80,11 +80,11 @@ export const Flex = styled.div<FlexProps>`
   ${({ flex1 })         => flex1         && css`flex: 1;`}
 `
 
-export const GridOrRow = styled(Flex)`
+export const GridOrRow = styled(Flex)<{ preferredWidth?: number }>`
   display: flex;
   /* gap: 80px; */
   align-items: stretch;
-  @media screen and (max-width: ${BKPT_6}px) {
+  @media screen and (max-width: ${(props) => props.preferredWidth ?? BKPT_6}px) {
     margin-left: auto;
     margin-right: auto;
     display: grid;

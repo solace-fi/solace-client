@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { BKPT_5 } from '../../constants'
+import { BKPT_5, BKPT_6 } from '../../constants'
 import { WindowDimensions } from '../../constants/types'
+import { useGeneral } from '../../context/GeneralManager'
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window
@@ -11,11 +12,12 @@ function getWindowDimensions() {
 }
 
 export const useWindowDimensions = (): WindowDimensions => {
+  const { rightSidebar } = useGeneral()
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions())
   const [scrollPosition, setScrollPosition] = useState(0)
 
   const { width } = windowDimensions
-  const isDesktop = width > BKPT_5
+  const isDesktop = width > (rightSidebar ? BKPT_6 : BKPT_5)
   const isMobile = !isDesktop
   const ifDesktop = function <T, V>(desktopArg: T, mobileArg?: V): T | V | undefined {
     return isMobile ? mobileArg : desktopArg

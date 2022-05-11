@@ -17,16 +17,17 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { formatUnits } from '@ethersproject/units'
 
 /* import constants */
-import { BKPT_3, ZERO } from '../../constants'
+import { BKPT_3, BKPT_4, ZERO } from '../../constants'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { GlobalLockInfo, UserLocksInfo } from '../../constants/types'
 
 /* import managers */
 import { useNetwork, networks } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useCachedData } from '../../context/CachedDataManager'
 
@@ -56,6 +57,7 @@ export const Statistics: React.FC = () => {
   hooks
 
   *************************************************************************************/
+  const { rightSidebar } = useGeneral()
   const { active, account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
@@ -83,6 +85,8 @@ export const Statistics: React.FC = () => {
     apr: '0',
     successfulFetch: false,
   })
+
+  const widthThreshold = useMemo(() => width > (rightSidebar ? BKPT_4 : BKPT_3), [width, rightSidebar])
 
   /*************************************************************************************
 
@@ -226,7 +230,7 @@ export const Statistics: React.FC = () => {
 
   return (
     <>
-      {width > BKPT_3 ? (
+      {widthThreshold ? (
         <BoxRow>
           <Box>
             {active && account ? (

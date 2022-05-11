@@ -8,14 +8,16 @@ import { UserLocksInfo } from '../../../constants/types'
 import { truncateValue } from '../../../utils/formatting'
 import { formatUnits } from '@ethersproject/units'
 import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
-import { BKPT_6 } from '../../../constants'
+import { BKPT_6, BKPT_7 } from '../../../constants'
 import { Card } from '../../../components/atoms/Card'
+import { useGeneral } from '../../../context/GeneralManager'
 
 export default function AggregatedStakeData({ stakeData }: { stakeData: UserLocksInfo }): JSX.Element {
+  const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
   return (
     <>
-      {width > BKPT_6 ? (
+      {width > (rightSidebar ? BKPT_7 : BKPT_6) ? (
         <RaisedBox>
           <Flex stretch gap={91} wrap mb={20} p={24}>
             <Flex gap={91}>
@@ -50,10 +52,10 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
                 </InfoPair>
               </div>
             </Flex>
-            <Flex col={BKPT_6 > width} gap={91} stretch>
-              <Separator horizontal={BKPT_6 > width} />
+            <Flex col={(rightSidebar ? BKPT_7 : BKPT_6) > width} gap={91} stretch>
+              <Separator horizontal={(rightSidebar ? BKPT_7 : BKPT_6) > width} />
               <div>
-                <InfoPair importance="secondary" label="APR" horizontal={BKPT_6 > width}>
+                <InfoPair importance="secondary" label="APR" horizontal={(rightSidebar ? BKPT_7 : BKPT_6) > width}>
                   <Text bold style={{ fontSize: '16px' }}>
                     {truncateValue(stakeData.apr.toString(), 1)}%
                   </Text>

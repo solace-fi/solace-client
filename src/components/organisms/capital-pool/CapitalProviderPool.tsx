@@ -31,7 +31,7 @@ import { Flex } from '../../atoms/Layout'
 import { HyperLink } from '../../atoms/Link'
 
 /* import constants */
-import { BKPT_4, BKPT_6 } from '../../../constants'
+import { BKPT_6, BKPT_7 } from '../../../constants'
 import { FunctionName } from '../../../constants/enums'
 
 /* import hooks */
@@ -54,7 +54,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
 
   *************************************************************************************/
 
-  const { haveErrors } = useGeneral()
+  const { haveErrors, rightSidebar } = useGeneral()
   const { account } = useWeb3React()
   const { width } = useWindowDimensions()
   const { keyContracts } = useContracts()
@@ -70,7 +70,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
       <Text bold t1 mb={0} warning>
         V1 Options Farming Pool
       </Text>
-      {width > BKPT_6 ? (
+      {width > (rightSidebar ? BKPT_7 : BKPT_6) ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
@@ -152,7 +152,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
             </Text>
           </Flex>
           {account && (
-            <ButtonWrapper isColumn={width <= BKPT_4}>
+            <ButtonWrapper>
               <Button
                 widthP={100}
                 disabled={haveErrors}

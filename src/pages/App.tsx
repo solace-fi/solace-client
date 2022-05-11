@@ -40,7 +40,7 @@ import {
 } from '../components/atoms/Icon'
 
 /* import constants */
-import { BKPT_NAVBAR, MARKETING_SITE } from '../constants'
+import { BKPT_2, BKPT_NAVBAR, MARKETING_SITE } from '../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../hooks/internal/useWindowDimensions'
@@ -153,9 +153,15 @@ export default function App(): any {
           <SideNavContent mobileWidth={6}>
             <InfoSideNavbar tabs={tabs} />
           </SideNavContent>
-          <MobileInfoSideNavbar show={leftSidebar && width < BKPT_NAVBAR} setShow={setLeftSidebar} tabs={tabs} />
+          <MobileInfoSideNavbar
+            show={leftSidebar && width < (rightSidebar ? BKPT_2 : BKPT_NAVBAR)}
+            setShow={setLeftSidebar}
+            tabs={tabs}
+          />
           <LayoutContent>
-            {width >= BKPT_NAVBAR && <AppMenuHeader pages={pages} setShow={setRightSidebar} />}
+            {width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR) && (
+              <AppMenuHeader pages={pages} setShow={setRightSidebar} />
+            )}
             <Flex>
               <div style={{ transition: '350ms', width: rightSidebar ? 'calc(100% - 375px)' : '100%' }}>
                 {/* {location.pathname !== '/quote' && location.pathname !== '/terms' && location.pathname !== '/' && (
