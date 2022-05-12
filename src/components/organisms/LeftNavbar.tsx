@@ -369,7 +369,6 @@ export const MobileInfoSideNavbar: React.FC<
   const location = useLocation()
   const { width } = useWindowDimensions()
   const [openTab, setOpenTab] = useState<string>('')
-  const lightText = useMemo(() => location.pathname == '/', [location])
 
   const widthThreshold = useMemo(() => (rightSidebar ? width > BKPT_4 : width > BKPT_3), [width, rightSidebar])
 
@@ -384,7 +383,7 @@ export const MobileInfoSideNavbar: React.FC<
                   <svg width="30" height="40" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                       d="M18.5351 3.30802C19.1823 2.6609 19.1823 1.61172 18.5351 0.964604C17.888 0.317488 16.8388 0.317488 16.1917 0.964604L9.99894 7.15739L3.80678 0.965226C3.15966 0.31811 2.11048 0.31811 1.46336 0.965226C0.816248 1.61234 0.816248 2.66152 1.46336 3.30864L7.65553 9.5008L1.46496 15.6914C0.817846 16.3385 0.817845 17.3877 1.46496 18.0348C2.11208 18.6819 3.16126 18.6819 3.80838 18.0348L9.99894 11.8442L16.1901 18.0354C16.8372 18.6825 17.8864 18.6825 18.5335 18.0354C19.1807 17.3883 19.1807 16.3391 18.5335 15.692L12.3424 9.5008L18.5351 3.30802Z"
-                      fill={appTheme == 'dark' || lightText ? 'rgb(250, 250, 250)' : 'rgb(94, 94, 94)'}
+                      fill={'rgb(250, 250, 250)'}
                     />
                   </svg>
                 </div>
@@ -404,7 +403,7 @@ export const MobileInfoSideNavbar: React.FC<
                       style={{ cursor: 'pointer', justifyContent: widthThreshold ? 'left' : 'center' }}
                       onClick={() => setOpenTab(openTab != t.collapsibleName ? t.collapsibleName : '')}
                     >
-                      <Text t3 light={lightText}>
+                      <Text t3 light>
                         {t.collapsibleName}
                       </Text>
                     </Button>
@@ -422,7 +421,7 @@ export const MobileInfoSideNavbar: React.FC<
                           style={{ height: '25px', justifyContent: widthThreshold ? 'inherit' : 'center' }}
                         >
                           <HyperLink href={p.to} target="_blank" rel="noopener noreferrer">
-                            <TextSpan t4 light={lightText}>
+                            <TextSpan t4 light>
                               {p.pageName}
                             </TextSpan>
                           </HyperLink>
@@ -439,14 +438,14 @@ export const MobileInfoSideNavbar: React.FC<
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <TextSpan t3s light={lightText} bold>
+                    <TextSpan t3s light bold>
                       {`We\'re hiring!`}
                     </TextSpan>
                   </HyperLink>
                 </ItemText>
                 <ItemText style={{ height: '25px', justifyContent: 'center' }}>
                   <NavLink to={'/terms'} onClick={() => setShow(false)}>
-                    <TextSpan t3s light={lightText}>
+                    <TextSpan t3s light>
                       {'Terms & Conditions'}
                     </TextSpan>
                   </NavLink>
