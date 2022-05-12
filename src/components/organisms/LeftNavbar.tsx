@@ -457,7 +457,7 @@ export const MobileInfoSideNavbar: React.FC<
                     rel="noopener noreferrer"
                     style={{ lineHeight: '0' }}
                   >
-                    <Text style={{ opacity: '0.8' }} light={location.pathname == '/'}>
+                    <Text style={{ opacity: '0.8' }} light>
                       <StyledDiscord size={20} />
                     </Text>
                   </HyperLink>
@@ -467,7 +467,7 @@ export const MobileInfoSideNavbar: React.FC<
                     rel="noopener noreferrer"
                     style={{ lineHeight: '0' }}
                   >
-                    <Text style={{ opacity: '0.8' }} light={location.pathname == '/'}>
+                    <Text style={{ opacity: '0.8' }} light>
                       <StyledTwitter size={20} />
                     </Text>
                   </HyperLink>
@@ -477,7 +477,7 @@ export const MobileInfoSideNavbar: React.FC<
                     rel="noopener noreferrer"
                     style={{ lineHeight: '0' }}
                   >
-                    <Text style={{ opacity: '0.8' }} light={location.pathname == '/'}>
+                    <Text style={{ opacity: '0.8' }} light>
                       <StyledGithub size={20} />
                     </Text>
                   </HyperLink>
@@ -487,7 +487,7 @@ export const MobileInfoSideNavbar: React.FC<
                     rel="noopener noreferrer"
                     style={{ lineHeight: '0' }}
                   >
-                    <Text style={{ opacity: '0.8' }} light={location.pathname == '/'}>
+                    <Text style={{ opacity: '0.8' }} light>
                       <StyledMedium size={20} />
                     </Text>
                   </HyperLink>
@@ -498,12 +498,7 @@ export const MobileInfoSideNavbar: React.FC<
                     style={{ lineHeight: '0' }}
                   >
                     <Text style={{ opacity: '0.8' }}>
-                      <img
-                        src={defipulse}
-                        width={16}
-                        height={16}
-                        style={{ filter: location.pathname == '/' || appTheme == 'dark' ? 'unset' : 'invert(.6)' }}
-                      />
+                      <img src={defipulse} width={16} height={16} />
                     </Text>
                   </HyperLink>
                 </ItemText>
