@@ -28,7 +28,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { BKPT_1, BKPT_5, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
+import { BKPT_1, BKPT_5, BKPT_6, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
 import { LockData, UserLocksData, UserLocksInfo } from '../../constants/types'
 import { CheckboxData } from './types/LockCheckbox'
 import { Tab, StakingVersion } from '../../constants/enums'
@@ -97,7 +97,7 @@ function Stake1(): any {
 
   *************************************************************************************/
 
-  const { haveErrors, appTheme } = useGeneral()
+  const { haveErrors, appTheme, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
@@ -261,7 +261,7 @@ function Stake1(): any {
                     </SmallBox>
                   }
                 </Flex>
-                <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
+                <Flex column stretch w={(rightSidebar ? BKPT_6 : BKPT_5) > width ? 300 : 521}>
                   <Label importance="quaternary" style={{ marginBottom: '8px' }}>
                     Projected benefits when migrated
                   </Label>
@@ -272,7 +272,13 @@ function Stake1(): any {
                           <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                             APR
                           </Text>
-                          <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
+                          <div
+                            style={
+                              (rightSidebar ? BKPT_6 : BKPT_5) > width
+                                ? { margin: '-4px 0', display: 'block' }
+                                : { display: 'none' }
+                            }
+                          >
                             &nbsp;
                           </div>
                           <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
@@ -351,6 +357,7 @@ function Stake1(): any {
  */
 
 export default function Stake(): JSX.Element {
+  const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
   // account usewallet
   const [newSafeIsOpen, setNewSafeIsOpen] = useState(false)
@@ -643,7 +650,7 @@ export default function Stake(): JSX.Element {
                   mt={20}
                   mb={20}
                   style={
-                    width < BKPT_5 && batchActionsIsEnabled
+                    width < (rightSidebar ? BKPT_6 : BKPT_5) && batchActionsIsEnabled
                       ? {
                           flexDirection: 'column-reverse',
                           gap: '30px',
@@ -664,7 +671,11 @@ export default function Stake(): JSX.Element {
                     )
                   ) : (
                     <>
-                      <Flex gap={15} style={{ marginTop: 'auto', marginBottom: 'auto' }} between={width < BKPT_5}>
+                      <Flex
+                        gap={15}
+                        style={{ marginTop: 'auto', marginBottom: 'auto' }}
+                        between={width < (rightSidebar ? BKPT_6 : BKPT_5)}
+                      >
                         <Flex
                           center
                           gap={5}
@@ -683,7 +694,7 @@ export default function Stake(): JSX.Element {
                           <Flex
                             gap={15}
                             style={
-                              width < BKPT_5
+                              width < (rightSidebar ? BKPT_6 : BKPT_5)
                                 ? {
                                     flexDirection: 'column',
                                     alignItems: 'flex-end',
@@ -710,7 +721,7 @@ export default function Stake(): JSX.Element {
                       </Flex>
                     </>
                   )}
-                  <Flex center gap={15} column={width < BKPT_5}>
+                  <Flex center gap={15} column={width < (rightSidebar ? BKPT_6 : BKPT_5)}>
                     {batchActionsIsEnabled && (
                       <Flex gap={15}>
                         <Button

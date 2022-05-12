@@ -28,8 +28,7 @@ import Terms from './terms'
 
 /* import components */
 import { MenusTopNavBar } from '../components/organisms/MenusTopNavbar'
-import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent } from '../components/atoms/Layout'
-import { MainContent } from '../components/molecules/MainContent'
+import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent, Flex } from '../components/atoms/Layout'
 import { Statistics } from '../components/organisms/Statistics'
 import {
   StyledDashboard,
@@ -41,7 +40,7 @@ import {
 } from '../components/atoms/Icon'
 
 /* import constants */
-import { BKPT_NAVBAR, MARKETING_SITE } from '../constants'
+import { BKPT_2, BKPT_NAVBAR, MARKETING_SITE } from '../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../hooks/internal/useWindowDimensions'
@@ -154,28 +153,37 @@ export default function App(): any {
           <SideNavContent mobileWidth={6}>
             <InfoSideNavbar tabs={tabs} />
           </SideNavContent>
-          <MobileInfoSideNavbar show={leftSidebar && width < BKPT_NAVBAR} setShow={setLeftSidebar} tabs={tabs} />
+          <MobileInfoSideNavbar
+            show={leftSidebar && width < (rightSidebar ? BKPT_2 : BKPT_NAVBAR)}
+            setShow={setLeftSidebar}
+            tabs={tabs}
+          />
           <LayoutContent>
-            {width >= BKPT_NAVBAR && <AppMenuHeader pages={pages} setShow={setRightSidebar} />}
-            <MainContent>
-              {/* {location.pathname !== '/quote' && location.pathname !== '/terms' && location.pathname !== '/' && (
+            {width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR) && (
+              <AppMenuHeader pages={pages} setShow={setRightSidebar} />
+            )}
+            <Flex>
+              <div style={{ transition: '350ms', width: rightSidebar ? 'calc(100% - 375px)' : '100%' }}>
+                {/* {location.pathname !== '/quote' && location.pathname !== '/terms' && location.pathname !== '/' && (
                 <Statistics />
               )} */}
-              <Switch>
-                <Route
-                  exact
-                  path="/"
-                  component={() => {
-                    window.location.href = MARKETING_SITE
-                    return null
-                  }}
-                />
-                {pages.map((p) => (
-                  <Route exact key={p.to} path={p.to} component={p.component} />
-                ))}
-                <Route exact path="/terms" component={Terms} />
-              </Switch>
-            </MainContent>
+                <Switch>
+                  <Route
+                    exact
+                    path="/"
+                    component={() => {
+                      window.location.href = MARKETING_SITE
+                      return null
+                    }}
+                  />
+                  {pages.map((p) => (
+                    <Route exact key={p.to} path={p.to} component={p.component} />
+                  ))}
+                  <Route exact path="/terms" component={Terms} />
+                </Switch>
+              </div>
+              <SideNavContent desktopWidth={8}></SideNavContent>
+            </Flex>
           </LayoutContent>
         </ContentContainer>
       </Layout>

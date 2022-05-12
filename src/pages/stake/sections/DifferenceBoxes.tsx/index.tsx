@@ -5,7 +5,7 @@ import { Text } from '../../../../components/atoms/Typography'
 import { Button } from '../../../../components/atoms/Button'
 import styled, { css } from 'styled-components'
 import { StakingVersion } from '../../../../constants/enums'
-import { BKPT_5 } from '../../../../constants'
+import { BKPT_5, BKPT_6 } from '../../../../constants'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { useGeneral } from '../../../../context/GeneralManager'
 
@@ -62,10 +62,14 @@ export default function DifferenceBoxes({
 }: {
   setStakingVersion: (tab: StakingVersion) => void
 }): JSX.Element {
-  const { appTheme } = useGeneral()
+  const { appTheme, rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
   return (
-    <Flex center gap={BKPT_5 > width ? 20 : 100} column={BKPT_5 > width}>
+    <Flex
+      center
+      gap={(rightSidebar ? BKPT_6 : BKPT_5) > width ? 20 : 100}
+      column={(rightSidebar ? BKPT_6 : BKPT_5) > width}
+    >
       <ShadowDiv>
         <StyledRaisedBox width={width}>
           <Flex center column gap={40}>

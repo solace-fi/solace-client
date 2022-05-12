@@ -35,10 +35,8 @@ const AppNav = styled.div<{ shouldShow: boolean }>`
   width: 375px;
   position: fixed;
   top: 0;
-  right: -100%;
-  transition: 850ms;
   z-index: ${Z_NAV};
-  ${(props) => props.shouldShow && `right: 0; transition: 350ms;`};
+  ${(props) => (props.shouldShow ? `right: 0%; transition: 350ms;` : `right: -100%; transition: 350ms;`)};
 `
 
 const AppNavGradient = styled.div<{ showSettings: boolean }>`
@@ -97,7 +95,7 @@ const data = [
 export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: boolean) => void }) => {
   const location = useLocation()
   const { appTheme, toggleTheme } = useGeneral()
-  const { width } = useWindowDimensions()
+  const { width, isMobile } = useWindowDimensions()
   const { openNetworkModal, latestBlock } = useProvider()
   const { account } = useWeb3React()
   const name = useENS()
@@ -129,6 +127,10 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
   }, [account, latestBlock])
 
   useEffect(() => {
+    if (!show) setShowWalletSettings(false)
+  }, [show])
+
+  useEffect(() => {
     if (!account) setShowWalletSettings(false)
   }, [account])
 
@@ -138,7 +140,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
       <AppNav ref={wrapperRef} shouldShow={show} style={{ width: `${Math.min(width, 375)}px` }}>
         <ShadowDiv>
           <AppNavGradient showSettings={showWalletSettings}>
-            <Flex between p={30}>
+            <Flex between pt={60} pl={30} pr={30} pb={30}>
               <ShadowDiv style={{ borderRadius: '28px' }}>
                 <AppButton
                   nohover
@@ -192,13 +194,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                   </Flex>
                 </AppButton>
               </ShadowDiv>
-              <div
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  setShow(false)
-                  setShowWalletSettings(false)
-                }}
-              >
+              <div style={{ cursor: 'pointer' }} onClick={() => setShow(false)}>
                 <svg width="30" height="40" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M18.5351 3.30802C19.1823 2.6609 19.1823 1.61172 18.5351 0.964604C17.888 0.317488 16.8388 0.317488 16.1917 0.964604L9.99894 7.15739L3.80678 0.965226C3.15966 0.31811 2.11048 0.31811 1.46336 0.965226C0.816248 1.61234 0.816248 2.66152 1.46336 3.30864L7.65553 9.5008L1.46496 15.6914C0.817846 16.3385 0.817845 17.3877 1.46496 18.0348C2.11208 18.6819 3.16126 18.6819 3.80838 18.0348L9.99894 11.8442L16.1901 18.0354C16.8372 18.6825 17.8864 18.6825 18.5335 18.0354C19.1807 17.3883 19.1807 16.3391 18.5335 15.692L12.3424 9.5008L18.5351 3.30802Z"
@@ -256,7 +252,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                   </AppNavItemList>
                 </Flex>
                 <div style={{ flex: '1 1' }}></div>
-                <Flex col mt={30} mb={50}>
+                <Flex col mt={30} mb={isMobile ? 80 : 50}>
                   <Flex center>
                     <Button
                       nohover

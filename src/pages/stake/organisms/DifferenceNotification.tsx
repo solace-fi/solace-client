@@ -4,7 +4,8 @@ import { GeneralElementProps } from '../../../components/generalInterfaces'
 import { StakingVersion } from '../../../constants/enums'
 import React from 'react'
 import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
-import { BKPT_4 } from '../../../constants'
+import { BKPT_4, BKPT_5 } from '../../../constants'
+import { useGeneral } from '../../../context/GeneralManager'
 // text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200
 const StyledText = styled.div`
   font-size: 0.875rem;
@@ -113,10 +114,11 @@ export default function DifferenceNotification({
   version: StakingVersion
   setVersion: Dispatch<SetStateAction<StakingVersion>>
 }): JSX.Element {
+  const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
 
   return (
-    <Notification style={{ flexDirection: width > BKPT_4 ? 'row' : 'column' }}>
+    <Notification style={{ flexDirection: width > (rightSidebar ? BKPT_5 : BKPT_4) ? 'row' : 'column' }}>
       <Typography.Notice>
         We have updated our staking mechanism to a new version <Typography.Emphasis>STAKING V2</Typography.Emphasis>{' '}
         which is a part of our <Typography.Emphasis>Governance system</Typography.Emphasis>. New staking is available

@@ -21,7 +21,7 @@ import React from 'react'
 import { useGeneral } from '../../../context/GeneralManager'
 
 /* import constants */
-import { BKPT_4, BKPT_6 } from '../../../constants'
+import { BKPT_6, BKPT_7 } from '../../../constants'
 import { FunctionName } from '../../../constants/enums'
 
 /* import components */
@@ -50,7 +50,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
 
   *************************************************************************************/
 
-  const { haveErrors } = useGeneral()
+  const { rightSidebar, haveErrors } = useGeneral()
   const { account } = useWeb3React()
   const { userVaultAssets, userVaultShare } = useUserVaultDetails()
   const capitalPoolSize = useCapitalPoolSize()
@@ -61,7 +61,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
       <Text bold t1 mb={0} warning>
         V1 Underwriting Pool
       </Text>
-      {width > BKPT_6 ? (
+      {width > (rightSidebar ? BKPT_7 : BKPT_6) ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
@@ -127,7 +127,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
             </Flex>
           )}
           {account && (
-            <ButtonWrapper isColumn={width <= BKPT_4}>
+            <ButtonWrapper>
               <Button
                 widthP={100}
                 disabled={haveErrors}

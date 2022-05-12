@@ -6,7 +6,7 @@ import { useLocation } from 'react-router'
 import { useGeneral } from '../../context/GeneralManager'
 
 /* import constants */
-import { BKPT_3, Z_NAV } from '../../constants'
+import { BKPT_3, BKPT_4, Z_NAV } from '../../constants'
 
 /* import components */
 import { ItemText, ItemList } from '../atoms/Navbar'
@@ -55,11 +55,13 @@ interface CollapsibleNavbar {
 }
 
 export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
-  const { appTheme } = useGeneral()
+  const { appTheme, rightSidebar } = useGeneral()
   const location = useLocation()
   const { width } = useWindowDimensions()
   const lightText = useMemo(() => location.pathname == '/', [location])
   const [openTab, setOpenTab] = useState<string>('')
+
+  const widthThreshold = useMemo(() => width > (rightSidebar ? BKPT_4 : BKPT_3), [width, rightSidebar])
 
   return (
     <div
@@ -79,13 +81,13 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
           flexDirection: 'column',
         }}
       >
-        {width > BKPT_3 ? (
+        {widthThreshold ? (
           <>
             <Logo location={location} mb={33} />
           </>
         ) : (
           <>
-            <MiniLogo location={location} mb={33} style={{ margin: 'auto' }} />
+            <MiniLogo location={location} mb={33} style={{ marginLeft: 'auto', marginRight: 'auto' }} />
           </>
         )}
         <ItemList>
@@ -95,7 +97,7 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
                 p={0}
                 nohover
                 noborder
-                style={{ cursor: 'pointer', justifyContent: width > BKPT_3 ? 'left' : 'center', minHeight: 'unset' }}
+                style={{ cursor: 'pointer', justifyContent: widthThreshold ? 'left' : 'center', minHeight: 'unset' }}
                 onClick={() => setOpenTab(openTab != t.collapsibleName ? t.collapsibleName : '')}
               >
                 <Flex>
@@ -119,7 +121,7 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
                 closeSpeed={0}
               >
                 {t.pages.map((p, i) => (
-                  <ItemText key={i} style={{ height: '25px', justifyContent: width > BKPT_3 ? 'inherit' : 'center' }}>
+                  <ItemText key={i} style={{ height: '25px', justifyContent: widthThreshold ? 'inherit' : 'center' }}>
                     {p.newTab ? (
                       <HyperLink href={p.to} target="_blank" rel="noopener noreferrer">
                         <TextSpan t4 light={lightText}>
@@ -148,27 +150,27 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
               rel="noopener noreferrer"
             >
               <TextSpan t3s light={lightText} bold>
-                {width > BKPT_3 ? `We\'re hiring!` : <StyledWork size={30} />}
+                {widthThreshold ? `We\'re hiring!` : <StyledWork size={30} />}
               </TextSpan>
             </HyperLink>
           </StyledNavTooltip>
           <StyledNavTooltip id={'help-nav'} tip={`Help & Support`}>
             <HyperLink href={'https://discord.gg/7v8qsyepfu'} target="_blank" rel="noopener noreferrer">
               <TextSpan t3s light={lightText}>
-                {width > BKPT_3 ? `Help & Support` : <StyledHelpCircle size={30} />}
+                {widthThreshold ? `Help & Support` : <StyledHelpCircle size={30} />}
               </TextSpan>
             </HyperLink>
           </StyledNavTooltip>
           <StyledNavTooltip id={'terms-nav'} tip={'Terms & Conditions'}>
             <NavLink to={'/terms'}>
               <TextSpan t3s light={lightText}>
-                {width > BKPT_3 ? 'Terms & Conditions' : <StyledLockFile size={30} />}
+                {widthThreshold ? 'Terms & Conditions' : <StyledLockFile size={30} />}
               </TextSpan>
             </NavLink>
           </StyledNavTooltip>
         </Flex>
         <Flex col marginAuto gap={10}>
-          {width > BKPT_3 ? (
+          {widthThreshold ? (
             <ItemText jc={'space-between'} style={{ padding: '4px 0' }}>
               <HyperLink
                 href={'https://discord.gg/7v8qsyepfu'}
@@ -305,7 +307,7 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
               </StyledNavTooltip>
             </ItemList>
           )}
-          {width > BKPT_3 && (
+          {widthThreshold && (
             <>
               {appTheme == 'light' && (
                 <Flex justifyCenter>
@@ -363,11 +365,13 @@ export const MenuGradientBg = styled.div<BaseModalProps>`
 export const MobileInfoSideNavbar: React.FC<
   CollapsibleNavbar & { show: boolean; setShow: (show: boolean) => void }
 > = ({ show, setShow, tabs }) => {
-  const { appTheme } = useGeneral()
+  const { appTheme, rightSidebar } = useGeneral()
   const location = useLocation()
   const { width } = useWindowDimensions()
   const [openTab, setOpenTab] = useState<string>('')
   const lightText = useMemo(() => location.pathname == '/', [location])
+
+  const widthThreshold = useMemo(() => (rightSidebar ? width > BKPT_4 : width > BKPT_3), [width, rightSidebar])
 
   return (
     <>
@@ -397,7 +401,7 @@ export const MobileInfoSideNavbar: React.FC<
                       p={0}
                       nohover
                       noborder
-                      style={{ cursor: 'pointer', justifyContent: width > BKPT_3 ? 'left' : 'center' }}
+                      style={{ cursor: 'pointer', justifyContent: widthThreshold ? 'left' : 'center' }}
                       onClick={() => setOpenTab(openTab != t.collapsibleName ? t.collapsibleName : '')}
                     >
                       <Text t3 light={lightText}>
@@ -415,7 +419,7 @@ export const MobileInfoSideNavbar: React.FC<
                       {t.pages.map((p, i) => (
                         <ItemText
                           key={i}
-                          style={{ height: '25px', justifyContent: width > BKPT_3 ? 'inherit' : 'center' }}
+                          style={{ height: '25px', justifyContent: widthThreshold ? 'inherit' : 'center' }}
                         >
                           <HyperLink href={p.to} target="_blank" rel="noopener noreferrer">
                             <TextSpan t4 light={lightText}>
@@ -428,7 +432,7 @@ export const MobileInfoSideNavbar: React.FC<
                   </Flex>
                 ))}
               </ItemList>
-              <Flex col style={{ margin: '0 auto' }}>
+              <Flex col style={{ margin: '0 auto 30px' }}>
                 <ItemText style={{ height: '25px', justifyContent: 'center' }}>
                   <HyperLink
                     href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}

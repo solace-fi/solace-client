@@ -16,10 +16,11 @@ import { LockData } from '../../../../constants/types'
 import { getDateStringWithMonthName, getTimeFromMillis } from '../../../../utils/time'
 import { truncateValue } from '../../../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
-import { BKPT_5 } from '../../../../constants'
+import { BKPT_6, BKPT_5, BKPT_7 } from '../../../../constants'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { Checkbox } from '../../../../components/atoms/Input'
 import { StyledTooltip } from '../../../../components/molecules/Tooltip'
+import { useGeneral } from '../../../../context/GeneralManager'
 
 export default function Safe({
   lock,
@@ -34,6 +35,7 @@ export default function Safe({
   onCheck: (index: number) => void
   index: number
 }): JSX.Element {
+  const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
   const [isOpen, setIsOpen] = useState(false)
   const openSafe = () => setIsOpen(true)
@@ -63,17 +65,17 @@ export default function Safe({
 				                      TOP SECTION
 				******************************************************/}
         <Flex between stretch p={24} gap={24}>
-          <Flex center hidden={!batchActionsIsEnabled || width < BKPT_5}>
+          <Flex center hidden={!batchActionsIsEnabled || width < (rightSidebar ? BKPT_6 : BKPT_5)}>
             {batchActionsIsEnabled && <Checkbox type="checkbox" checked={isChecked} onChange={() => onCheck(index)} />}
           </Flex>
-          <GridOrRow>
+          <GridOrRow preferredWidth={rightSidebar ? BKPT_7 : BKPT_6}>
             {/* <Flex stretch gap={90}> */}
             <InfoPair
               isSafePreview
               batch={batchActionsIsEnabled}
               importance="tertiary"
               label="Amount"
-              desktop={width > BKPT_5}
+              desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
             >
               <CardSectionValue highlight={true} annotation="SOLACE">
                 {truncateValue(unboostedAmount, 4)}
@@ -84,7 +86,7 @@ export default function Safe({
               batch={batchActionsIsEnabled}
               importance="tertiary"
               label="Status"
-              desktop={width > BKPT_5}
+              desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
             >
               <CardSectionValue>{safeStatus}</CardSectionValue>
             </InfoPair>
@@ -98,7 +100,7 @@ export default function Safe({
                 batch={batchActionsIsEnabled}
                 importance="tertiary"
                 label="Lock time left"
-                desktop={width > BKPT_5}
+                desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
               >
                 <CardSectionValue>{lockTimeLeft}</CardSectionValue>
               </InfoPair>
@@ -108,7 +110,7 @@ export default function Safe({
               batch={batchActionsIsEnabled}
               importance="tertiary"
               label="Multiplier"
-              desktop={width > BKPT_5}
+              desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
             >
               <CardSectionValue highlight={multiplier > 1}>{stringifiedMultiplier}x</CardSectionValue>
             </InfoPair>
@@ -117,7 +119,7 @@ export default function Safe({
               batch={batchActionsIsEnabled}
               importance="tertiary"
               label="APR"
-              desktop={width > BKPT_5}
+              desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
             >
               <CardSectionValue highlight={true}>{truncateValue(lock.apr.toString(), 1)}%</CardSectionValue>
             </InfoPair>
@@ -126,7 +128,7 @@ export default function Safe({
               batch={batchActionsIsEnabled}
               importance="tertiary"
               label="Rewards"
-              desktop={width > BKPT_5}
+              desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
             >
               <CardSectionValue highlight={parseFloat(pendingRewards) > 0} annotation="SOLACE">
                 {truncateValue(pendingRewards, 4)}
@@ -167,7 +169,7 @@ export default function Safe({
             <Flex column gap={30} p={24} stretch>
               <Flex between stretch>
                 {/* 4 tab switchers, just normal text with underline offset 8px: deposit, extend lock/lock, withdraw, rewards */}
-                <Flex gap={BKPT_5 < width ? 40 : 21.66}>
+                <Flex gap={(rightSidebar ? BKPT_6 : BKPT_5) < width ? 40 : 21.66}>
                   <Label
                     importance={activeTab === Tab.DEPOSIT ? 'primary' : 'secondary'}
                     clickable
