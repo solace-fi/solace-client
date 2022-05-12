@@ -41,7 +41,13 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
         {title}
       </Text>
       <ShadowDiv
-        style={{ transition: '350ms', borderRadius: '28px', position: 'fixed', right: rightSidebar ? '425px' : '50px' }}
+        style={{
+          transition: '350ms',
+          borderRadius: '28px',
+          position: 'fixed',
+          right: rightSidebar ? '425px' : '50px',
+          opacity: rightSidebar ? '0' : '1',
+        }}
       >
         <Button
           secondary
