@@ -432,7 +432,7 @@ export const MobileInfoSideNavbar: React.FC<
                   </Flex>
                 ))}
               </ItemList>
-              <Flex col style={{ margin: '0 auto' }}>
+              <Flex col style={{ margin: '0 auto 30px' }}>
                 <ItemText style={{ height: '25px', justifyContent: 'center' }}>
                   <HyperLink
                     href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}

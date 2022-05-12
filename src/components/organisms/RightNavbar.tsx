@@ -95,7 +95,7 @@ const data = [
 export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: boolean) => void }) => {
   const location = useLocation()
   const { appTheme, toggleTheme } = useGeneral()
-  const { width } = useWindowDimensions()
+  const { width, isMobile } = useWindowDimensions()
   const { openNetworkModal, latestBlock } = useProvider()
   const { account } = useWeb3React()
   const name = useENS()
@@ -140,7 +140,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
       <AppNav ref={wrapperRef} shouldShow={show} style={{ width: `${Math.min(width, 375)}px` }}>
         <ShadowDiv>
           <AppNavGradient showSettings={showWalletSettings}>
-            <Flex between p={30}>
+            <Flex between pt={60} pl={30} pr={30} pb={30}>
               <ShadowDiv style={{ borderRadius: '28px' }}>
                 <AppButton
                   nohover
@@ -252,7 +252,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                   </AppNavItemList>
                 </Flex>
                 <div style={{ flex: '1 1' }}></div>
-                <Flex col mt={30} mb={50}>
+                <Flex col mt={30} mb={isMobile ? 80 : 50}>
                   <Flex center>
                     <Button
                       nohover
