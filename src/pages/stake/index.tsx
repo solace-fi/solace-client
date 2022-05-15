@@ -65,7 +65,7 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useProjectedBenefits, useStakingRewards } from '../../hooks/stake/useStakingRewards'
 
 /* import utils */
-import { accurateMultiply, formatAmount, truncateValue } from '../../utils/formatting'
+import { accurateMultiply, floatUnits, formatAmount, truncateValue } from '../../utils/formatting'
 import calculateTotalWithdrawable from './utils/stake/batchActions/actions/calculateTotalWithdrawable'
 import calculateTotalHarvest from './utils/stake/batchActions/actions/calculateTotalHarvest'
 import { formatShort } from './utils/stake/batchActions/formatShort'
@@ -419,7 +419,11 @@ export default function Stake(): JSX.Element {
       fetchingLocks.current = true
       await getUserLocks(account).then((userLockData: UserLocksData) => {
         if (userLockData.successfulFetch) {
-          setLocks(userLockData.locks)
+          setLocks(
+            userLockData.locks.sort((a, b) => {
+              return floatUnits(b.unboostedAmount.sub(a.unboostedAmount), 18)
+            })
+          )
           setLocksChecked(updateLocksChecked(userLockData.locks, locksCheckedRef.current))
           setUserLockInfo(userLockData.user)
           setLoading(false)
