@@ -1,7 +1,7 @@
-import React, { useRef, useState, useEffect, useMemo } from 'react'
+import React, { useRef, useState, useEffect, useCallback } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { BKPT_3, BKPT_5, ZERO, Z_NAV, Z_TABLE } from '../../constants'
+import { Z_NAV } from '../../constants'
 import { Text, TextSpan } from '../atoms/Typography'
 import { Flex, ShadowDiv, VerticalSeparator } from '../atoms/Layout'
 import makeBlockie from 'ethereum-blockies-base64'
@@ -9,6 +9,7 @@ import { UserImage } from '../atoms/User'
 import { StyledMoon, StyledSun } from '../atoms/Icon'
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useCachedData } from '../../context/CachedDataManager'
 import { shortenAddress, truncateValue } from '../../utils/formatting'
 import { useGeneral } from '../../context/GeneralManager'
 import { Button } from '../atoms/Button'
@@ -95,6 +96,7 @@ const data = [
 export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: boolean) => void }) => {
   const location = useLocation()
   const { appTheme, toggleTheme } = useGeneral()
+  const { version } = useCachedData()
   const { width, isMobile } = useWindowDimensions()
   const { openNetworkModal, latestBlock } = useProvider()
   const { account } = useWeb3React()
@@ -104,6 +106,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
   const txHistory = useFetchTxHistoryByAddress()
   const [showTxHistory, setShowTxHistory] = useState(false)
   const [showWalletSettings, setShowWalletSettings] = useState(false)
+  const fetching = useRef(false)
 
   const wrapperRef = useRef(null)
   const { contractSources } = useContracts()
@@ -115,16 +118,25 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
     stakedBalance: '0',
     lockedBalance: '0',
     unlockedBalance: '0',
+    successfulFetch: true,
   })
 
+  const _getUserLocks = useCallback(async () => {
+    if (!account || fetching.current) return
+    fetching.current = true
+    const userLockData = await getUserLockerBalances(account)
+    setUserLockInfo(userLockData)
+    fetching.current = false
+  }, [account])
+
   useEffect(() => {
-    const _getUserLocks = async () => {
-      if (!account) return
-      const userLockData = await getUserLockerBalances(account)
-      setUserLockInfo(userLockData)
-    }
     _getUserLocks()
-  }, [account, latestBlock])
+  }, [account, version, _getUserLocks])
+
+  useEffect(() => {
+    if (userLockInfo.successfulFetch) return
+    _getUserLocks()
+  }, [latestBlock, userLockInfo.successfulFetch, _getUserLocks])
 
   useEffect(() => {
     if (!show) setShowWalletSettings(false)

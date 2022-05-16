@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Token, Pair, Price } from '@sushiswap/sdk'
+import { Token, Pair } from '@sushiswap/sdk'
 
-import { networks } from '../../context/NetworkManager'
 import { floatUnits } from '../../utils/formatting'
 import { queryDecimals } from '../../utils/contract'
 import { Contract } from '@ethersproject/contracts'
@@ -13,7 +12,6 @@ import { withBackoffRetries } from '../../utils/time'
 import sushiswapLpAbi from '../../constants/metadata/ISushiswapMetadataAlt.json'
 import { Unit } from '../../constants/enums'
 import { NetworkConfig, TokenToPriceMapping } from '../../constants/types'
-import { useProvider } from '../../context/ProviderManager'
 import { BigNumber } from 'ethers'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { Price as PriceApi } from '@solace-fi/sdk-nightly'
@@ -141,10 +139,9 @@ export const useGetPriceFromSushiSwap = () => {
   return { getPriceFromSushiswap, getPriceFromSushiswapLp }
 }
 
-export const useGetCrossTokenPricesFromCoingecko = () => {
+export const useGetCrossTokenPricesFromCoingecko = (minute: number): { tokenPriceMapping: TokenToPriceMapping } => {
   const [tokenPriceMapping, setTokenPriceMapping] = useState<TokenToPriceMapping>({})
   const gettingPrices = useRef(false)
-  const { latestBlock } = useProvider()
 
   useEffect(() => {
     const getPrices = async () => {
@@ -157,7 +154,7 @@ export const useGetCrossTokenPricesFromCoingecko = () => {
       gettingPrices.current = false
     }
     getPrices()
-  }, [latestBlock])
+  }, [minute])
 
   return { tokenPriceMapping }
 }

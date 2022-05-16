@@ -217,7 +217,7 @@ export const useXSolaceV1Balance = (): { xSolaceV1Balance: string; v1StakedSolac
 }
 
 export const useCrossChainUnderwritingPoolBalance = () => {
-  const { latestBlock } = useProvider()
+  const { minute } = useCachedData()
   const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<string>('-')
 
   useEffect(() => {
@@ -236,7 +236,7 @@ export const useCrossChainUnderwritingPoolBalance = () => {
       setUnderwritingPoolBalance(totalUsdcBalance.toString())
     }
     getBalance()
-  }, [latestBlock])
+  }, [minute])
 
   return { underwritingPoolBalance }
 }

@@ -25,6 +25,7 @@ type CachedData = {
   localTransactions: LocalTx[]
   tokenPriceMapping: TokenToPriceMapping
   version: number
+  minute: number
   gasData: GasData | undefined
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
@@ -35,6 +36,7 @@ const CachedDataContext = createContext<CachedData>({
   localTransactions: [],
   tokenPriceMapping: {},
   version: 0,
+  minute: 0,
   gasData: undefined,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
@@ -45,9 +47,10 @@ const CachedDataProvider: React.FC = (props) => {
   const { account } = useWeb3React()
   const { disconnect } = useWallet()
   const { activeNetwork } = useNetwork()
-  const { tokenPriceMapping } = useGetCrossTokenPricesFromCoingecko()
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
   const [reload, version] = useReload()
+  const [minReload, minute] = useReload()
+  const { tokenPriceMapping } = useGetCrossTokenPricesFromCoingecko(minute)
   const gasData = useFetchGasData()
 
   const addLocalTransactions = (txToAdd: LocalTx) => {
@@ -64,6 +67,13 @@ const CachedDataProvider: React.FC = (props) => {
   }
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      minReload()
+    }, 60000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
     const clearLocalTransactions = () => {
       setLocalTxs([])
     }
@@ -75,12 +85,13 @@ const CachedDataProvider: React.FC = (props) => {
       localTransactions: localTxs,
       tokenPriceMapping,
       version,
+      minute,
       gasData,
       addLocalTransactions,
       deleteLocalTransactions,
       reload,
     }),
-    [localTxs, tokenPriceMapping, addLocalTransactions, deleteLocalTransactions, version, gasData]
+    [minute, localTxs, tokenPriceMapping, addLocalTransactions, deleteLocalTransactions, reload, version, gasData]
   )
 
   return <CachedDataContext.Provider value={value}>{props.children}</CachedDataContext.Provider>
