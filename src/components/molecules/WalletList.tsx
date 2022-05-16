@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import { useWallet } from '../../context/WalletManager'
 import { SUPPORTED_WALLETS } from '../../wallet'
 import { Flex } from '../atoms/Layout'

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useEffect, useState, useRef } from 'react'
+import React, { createContext, useContext, useMemo, useEffect, useState, useRef, useCallback } from 'react'
 import { toast } from 'react-toastify'
 
 import 'animate.css/animate.min.css'
@@ -91,7 +91,7 @@ const ToastsProvider: React.FC = (props) => {
     className: 'error-toast',
   }
 
-  const makeTxToast = (txType: string, condition: TransactionCondition, txHash?: string, errObj?: any) => {
+  const makeTxToast = useCallback((txType: string, condition: TransactionCondition, txHash?: string, errObj?: any) => {
     const TxToast = (txType: string) => (
       <NotificationToast txType={txType} condition={condition} txHash={txHash} errObj={errObj} />
     )
@@ -144,36 +144,39 @@ const ToastsProvider: React.FC = (props) => {
           ...txError,
         })
     }
-  }
+  }, [])
 
   const appToast = (message: string, icon: any) => <AppToast message={message} icon={icon} />
 
-  const makeAppToast = (
-    parsedData: SystemNoticeData | ErrorData,
-    id: SystemNotice | Error,
-    appToast: JSX.Element,
-    toastConfig: any,
-    isNotice: boolean
-  ) => {
-    if (isNotice) {
-      if (noticeMap.get(parsedData.type) == parsedData.metadata.concat(parsedData.uniqueId)) return
-      setNoticeMap(new Map(noticeMap.set(parsedData.type, parsedData.metadata.concat(parsedData.uniqueId))))
-    } else {
-      if (errorMap.get(parsedData.type) == parsedData.metadata.concat(parsedData.uniqueId)) return
-      setErrorMap(new Map(errorMap.set(parsedData.type, parsedData.metadata.concat(parsedData.uniqueId))))
-    }
-    if (toast.isActive(id)) {
-      toast.update(id, {
-        render: appToast,
-        ...toastConfig,
-      })
-    } else {
-      toast(appToast, {
-        toastId: id,
-        ...toastConfig,
-      })
-    }
-  }
+  const makeAppToast = useCallback(
+    (
+      parsedData: SystemNoticeData | ErrorData,
+      id: SystemNotice | Error,
+      appToast: JSX.Element,
+      toastConfig: any,
+      isNotice: boolean
+    ) => {
+      if (isNotice) {
+        if (noticeMap.get(parsedData.type) == parsedData.metadata.concat(parsedData.uniqueId)) return
+        setNoticeMap(new Map(noticeMap.set(parsedData.type, parsedData.metadata.concat(parsedData.uniqueId))))
+      } else {
+        if (errorMap.get(parsedData.type) == parsedData.metadata.concat(parsedData.uniqueId)) return
+        setErrorMap(new Map(errorMap.set(parsedData.type, parsedData.metadata.concat(parsedData.uniqueId))))
+      }
+      if (toast.isActive(id)) {
+        toast.update(id, {
+          render: appToast,
+          ...toastConfig,
+        })
+      } else {
+        toast(appToast, {
+          toastId: id,
+          ...toastConfig,
+        })
+      }
+    },
+    [noticeMap, errorMap]
+  )
 
   // Removes toasts from display on chainId or account change
   useEffect(() => {

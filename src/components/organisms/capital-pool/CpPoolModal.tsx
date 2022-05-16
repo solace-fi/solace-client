@@ -170,10 +170,10 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     )
   }
 
-  const handleCallbackFunc = async () => {
+  const handleCallbackFunc = useCallback(async () => {
     if (func == FunctionName.DEPOSIT_CP) await callDepositCp()
     if (func == FunctionName.WITHDRAW_CP) await callWithdrawCp()
-  }
+  }, [func])
 
   const handleClose = useCallback(() => {
     resetAmount()

@@ -53,18 +53,24 @@ const CachedDataProvider: React.FC = (props) => {
   const { tokenPriceMapping } = useGetCrossTokenPricesFromCoingecko(minute)
   const gasData = useFetchGasData()
 
-  const addLocalTransactions = (txToAdd: LocalTx) => {
-    setLocalTxs([txToAdd, ...localTxs])
-  }
+  const addLocalTransactions = useCallback(
+    (txToAdd: LocalTx) => {
+      setLocalTxs([txToAdd, ...localTxs])
+    },
+    [localTxs]
+  )
 
-  const deleteLocalTransactions = (txsToDelete: LocalTx[]) => {
-    if (txsToDelete.length == 0) return
-    const formattedTxsToDelete = txsToDelete.map((tx) => tx.hash.toLowerCase())
-    const passedLocalTxs = localTxs.filter(
-      (tx: LocalTx) => !formattedTxsToDelete.includes(tx.hash.toLowerCase()) && tx.status !== 'Complete'
-    )
-    setLocalTxs(passedLocalTxs)
-  }
+  const deleteLocalTransactions = useCallback(
+    (txsToDelete: LocalTx[]) => {
+      if (txsToDelete.length == 0) return
+      const formattedTxsToDelete = txsToDelete.map((tx) => tx.hash.toLowerCase())
+      const passedLocalTxs = localTxs.filter(
+        (tx: LocalTx) => !formattedTxsToDelete.includes(tx.hash.toLowerCase()) && tx.status !== 'Complete'
+      )
+      setLocalTxs(passedLocalTxs)
+    },
+    [localTxs]
+  )
 
   useEffect(() => {
     const interval = setInterval(() => {
