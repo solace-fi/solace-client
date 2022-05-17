@@ -28,13 +28,12 @@ import { useNetwork } from '../../context/NetworkManager'
 import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 import useDebounce from '@rooks/use-debounce'
 import { formatUnits } from 'ethers/lib/utils'
-import { getContract } from '../../utils'
+import { CheckboxData } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { useNotifications } from '../../context/NotificationsManager'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { Text } from '../../components/atoms/Typography'
 import { ModalCell } from '../../components/atoms/Modal'
-import { CheckboxData } from '../stake/types/LockCheckbox'
 import { useProvider } from '../../context/ProviderManager'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../context/GeneralManager'
@@ -204,7 +203,7 @@ export function PolicyBalance({
   const callActivatePolicy = async () => {
     if (!account) return
     const amount_ = inputProps.amount.length > 0 ? inputProps.amount : '0'
-    const selectedChains = chainsChecked.filter((c) => c.checked).map((c) => c.id)
+    const selectedChains = chainsChecked.filter((c) => c.checked).map((c) => BigNumber.from(c.id))
     await activatePolicy(
       account,
       newCoverageLimit,

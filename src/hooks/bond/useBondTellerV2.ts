@@ -107,7 +107,7 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
 }
 
 export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
-  const { latestBlock, signer, provider } = useProvider()
+  const { signer, provider } = useProvider()
   const { tellers } = useContracts()
   const { activeNetwork } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
@@ -126,7 +126,6 @@ export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; 
     const getPrices = async () => {
       if (
         !canBondV2 ||
-        !latestBlock ||
         running.current ||
         (Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object)
       )
@@ -161,7 +160,7 @@ export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; 
       return setTellerDetails(adjustedTellerDetails)
     }
     getPrices()
-  }, [latestBlock, signer, tellers, canBondV2, tokenPriceMapping, activeNetwork, provider])
+  }, [signer, tellers, canBondV2, tokenPriceMapping, activeNetwork, provider])
 
   return { tellerDetails, mounting }
 }

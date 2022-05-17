@@ -15,22 +15,21 @@ import {
 import { BigNumber } from 'ethers'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
-import { FunctionName } from '../../../../constants/enums'
+import { FunctionName, InfoBoxType } from '../../../../constants/enums'
 import InformationBox from '../../components/InformationBox'
-import { InfoBoxType } from '../../types/InfoBoxType'
 import { StyledForm } from '../../atoms/StyledForm'
 import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import InfoPair, { Label } from '../../molecules/InfoPair'
+import { Label } from '../../molecules/InfoPair'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
-import { BKPT_5 } from '../../../../constants'
+import { BKPT_7, BKPT_5 } from '../../../../constants'
 import { Text } from '../../../../components/atoms/Typography'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
 
 export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element {
-  const { appTheme } = useGeneral()
+  const { appTheme, rightSidebar } = useGeneral()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { withdrawFromLock } = useXSLocker()
@@ -87,7 +86,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
         text="Withdrawal is available only when the lockup period ends. Withdrawing harvests rewards for you."
       />
       <StyledForm>
-        <Flex column={BKPT_5 > width} gap={24}>
+        <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
           <Flex column gap={24}>
             <InputSection
               tab={Tab.WITHDRAW}
@@ -102,7 +101,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
               max={lock.unboostedAmount.toString()}
             />
           </Flex>
-          <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
+          <Flex column stretch w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
             <Label importance="quaternary" style={{ marginBottom: '8px' }}>
               Projected benefits
             </Label>
@@ -113,7 +112,13 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
                     <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                       APR
                     </Text>
-                    <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
+                    <div
+                      style={
+                        (rightSidebar ? BKPT_7 : BKPT_5) > width
+                          ? { margin: '-4px 0', display: 'block' }
+                          : { display: 'none' }
+                      }
+                    >
                       &nbsp;
                     </div>
                     <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>

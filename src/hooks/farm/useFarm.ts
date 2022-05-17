@@ -1,17 +1,17 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
-import { useProvider } from '../../context/ProviderManager'
 import { BigNumber } from 'ethers'
 import { ZERO } from '../../constants'
 import { earlyFarmRewards } from '../../constants/mappings/earlyFarmRewards'
 import { useWeb3React } from '@web3-react/core'
+import { useCachedData } from '../../context/CachedDataManager'
 
 export const useEarlyFarmRewards = () => {
   const { account } = useWeb3React()
   const { keyContracts } = useContracts()
   const { farmRewards, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-  const { latestBlock } = useProvider()
+  const { minute } = useCachedData()
   const { activeNetwork } = useNetwork()
 
   const [totalEarnedSolaceRewards, setTotalEarnedSolaceRewards] = useState<BigNumber>(ZERO)
@@ -30,7 +30,7 @@ export const useEarlyFarmRewards = () => {
       setPurchaseableSolace(purchaseableSolace)
     }
     populateRewardsInfo()
-  }, [account, farmRewards, latestBlock, xSolaceV1, activeNetwork.nativeCurrency.decimals])
+  }, [account, farmRewards, minute, xSolaceV1, activeNetwork.nativeCurrency.decimals])
 
   return {
     totalEarnedSolaceRewards,

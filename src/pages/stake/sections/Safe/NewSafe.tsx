@@ -5,15 +5,7 @@ import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import { useSolaceBalance } from '../../../../hooks/balance/useBalance'
-import {
-  accurateMultiply,
-  convertSciNotaToPrecise,
-  filterAmount,
-  formatAmount,
-  truncateValue,
-} from '../../../../utils/formatting'
-import InformationBox from '../../components/InformationBox'
-import { InfoBoxType } from '../../types/InfoBoxType'
+import { accurateMultiply, convertSciNotaToPrecise, filterAmount, truncateValue } from '../../../../utils/formatting'
 import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
@@ -21,10 +13,10 @@ import { FunctionName } from '../../../../constants/enums'
 import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 import { SmallBox } from '../../../../components/atoms/Box'
 import { Text } from '../../../../components/atoms/Typography'
-import { BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
+import { BKPT_7, BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
 import { RaisedBox } from '../../../../components/atoms/Box'
-import InfoPair, { Label } from '../../molecules/InfoPair'
+import { Label } from '../../molecules/InfoPair'
 import { Flex, ShadowDiv, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { Accordion } from '../../../../components/atoms/Accordion'
@@ -46,7 +38,7 @@ const StyledForm = styled.div`
 `
 
 export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
-  const { appTheme } = useGeneral()
+  const { appTheme, rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
   const { account } = useWeb3React()
   const { latestBlock } = useProvider()
@@ -114,7 +106,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
         <RaisedBox>
           <StyledForm>
             <Flex column p={24} gap={30}>
-              <Flex column={BKPT_5 > width} gap={24}>
+              <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
                 <Flex column gap={24}>
                   <div>
                     <Label importance="quaternary" style={{ marginBottom: '8px' }}>
@@ -134,7 +126,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     max={parseUnits(solaceBalance, 18).toString()}
                   />
                 </Flex>
-                <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
+                <Flex column stretch w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
                   <Label importance="quaternary" style={{ marginBottom: '8px' }}>
                     Projected benefits
                   </Label>
@@ -145,7 +137,13 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                           <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                             APR
                           </Text>
-                          <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
+                          <div
+                            style={
+                              (rightSidebar ? BKPT_7 : BKPT_5) > width
+                                ? { margin: '-4px 0', display: 'block' }
+                                : { display: 'none' }
+                            }
+                          >
                             &nbsp;
                           </div>
                           <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
@@ -175,7 +173,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                   </GrayBox>
                 </Flex>
               </Flex>
-              <Flex column={BKPT_5 > width} gap={24}>
+              <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
                 <Flex column gap={24}>
                   <div>
                     <Label importance="quaternary" style={{ marginBottom: '8px' }}>
@@ -215,7 +213,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 forceExpand
               />
             </Flex> */}
-            <Flex pb={24} pl={24} w={BKPT_5 > width ? 333 : undefined}>
+            <Flex pb={24} pl={24} w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 333 : undefined}>
               <Button
                 secondary
                 info

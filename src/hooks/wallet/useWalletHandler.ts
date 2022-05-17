@@ -58,7 +58,11 @@ export const useWalletHandler = (
         if (error instanceof NoEthereumProviderError) {
           walletErrors.push({ type: AppError.NO_PROVIDER, metadata: 'n/a', uniqueId: `${AppError.NO_PROVIDER}` })
         } else if (error instanceof UnsupportedChainIdError) {
-          walletErrors.push({ type: AppError.UNSUPPORTED_NETWORK, metadata: `not supported`, uniqueId: `${date}` })
+          walletErrors.push({
+            type: AppError.UNSUPPORTED_NETWORK,
+            metadata: `not supported`,
+            uniqueId: `${AppError.UNSUPPORTED_NETWORK}`,
+          })
         } else if (
           error instanceof UserRejectedRequestErrorInjected ||
           error instanceof UserRejectedRequestErrorWalletConnect

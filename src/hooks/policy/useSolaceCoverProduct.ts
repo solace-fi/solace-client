@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState } from 'react'
+import { useMemo, useEffect, useState, useRef, useCallback } from 'react'
 import { BigNumber } from 'ethers'
 import { ADDRESS_ZERO, GAS_LIMIT, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
@@ -10,7 +10,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork, networks } from '../../context/NetworkManager'
 import { rangeFrom0 } from '../../utils/numeric'
 import { withBackoffRetries } from '../../utils/time'
-import { Risk, SolaceRiskBalance } from '@solace-fi/sdk-nightly'
+import { fetchCoingeckoTokenPricesByAddr, Risk, SolaceRiskBalance } from '@solace-fi/sdk-nightly'
 
 export const useFunctions = () => {
   const { keyContracts } = useContracts()
@@ -395,9 +395,12 @@ export const usePortfolio = (
   const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
   const { activeNetwork } = useNetwork()
   const [loading, setLoading] = useState(true)
+  const fetching = useRef(false)
 
   useEffect(() => {
     const getPortfolio = async () => {
+      if (fetching.current) return
+      fetching.current = true
       const risk = new Risk()
       const useV2 =
         activeNetwork.config.keyContracts.solaceCoverProduct &&
@@ -407,11 +410,13 @@ export const usePortfolio = (
       if (!balances) {
         console.log('balances do not exist from risk api')
         setLoading(false)
+        fetching.current = false
         return
       }
       const scores: SolaceRiskScore | undefined = await risk.getSolaceRiskScores(account, balances)
       if (scores) setScore(scores)
       setLoading(false)
+      fetching.current = false
     }
     getPortfolio()
   }, [account, activeNetwork, chainsLoading, chains])
@@ -509,24 +514,27 @@ export const useTotalAccountBalance = (account: string | null | undefined) => {
   const [totalAccountBalance, setTotalAccountBalance] = useState<BigNumber>(ZERO)
   const [personalBalance, setPersonalBalance] = useState<BigNumber>(ZERO)
   const [earnedBalance, setEarnedBalance] = useState<BigNumber>(ZERO)
+  const fetching = useRef(false)
+
+  const getBal = useCallback(async () => {
+    if (!account || !latestBlock) {
+      setTotalAccountBalance(ZERO)
+      setPersonalBalance(ZERO)
+      setEarnedBalance(ZERO)
+      return
+    }
+    if (fetching.current) return
+    fetching.current = true
+    const [accountBalance, rewardPoints] = await Promise.all([getAccountBalanceOf(account), getRewardPointsOf(account)])
+    setTotalAccountBalance(accountBalance.add(rewardPoints))
+    setPersonalBalance(accountBalance)
+    setEarnedBalance(rewardPoints)
+    fetching.current = false
+  }, [account])
 
   useEffect(() => {
-    const getBal = async () => {
-      if (!account || !latestBlock) {
-        setTotalAccountBalance(ZERO)
-        setPersonalBalance(ZERO)
-        setEarnedBalance(ZERO)
-        return
-      }
-      const accountBalance = await getAccountBalanceOf(account)
-      const rewardPoints = await getRewardPointsOf(account)
-      setTotalAccountBalance(accountBalance.add(rewardPoints))
-      setPersonalBalance(accountBalance)
-      setEarnedBalance(rewardPoints)
-    }
     getBal()
-  }, [account, latestBlock, version])
-
+  }, [account, version, latestBlock, getBal])
   return { totalAccountBalance, personalBalance, earnedBalance }
 }
 

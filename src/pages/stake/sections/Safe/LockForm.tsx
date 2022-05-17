@@ -2,11 +2,10 @@ import React from 'react'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import InformationBox from '../../components/InformationBox'
-import { InfoBoxType } from '../../types/InfoBoxType'
-import { Tab } from '../../../../constants/enums'
+import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { LockData } from '../../../../constants/types'
-import { BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
+import { BKPT_7, BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 import { useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
@@ -26,7 +25,7 @@ import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { useGeneral } from '../../../../context/GeneralManager'
 
 export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
-  const { appTheme } = useGeneral()
+  const { appTheme, rightSidebar } = useGeneral()
   const { latestBlock } = useProvider()
   const { extendLock } = useXSLocker()
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -71,7 +70,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
         text="The maximum lockup period is 4 years. Note that you cannot withdraw funds during a lockup period. Setting the lockup period harvests rewards for you."
       />
       <StyledForm>
-        <Flex column={BKPT_5 > width} gap={24}>
+        <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
           <Flex column gap={24}>
             <InputSection
               tab={Tab.LOCK}
@@ -86,7 +85,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
               max={DAYS_PER_YEAR * 4}
             />
           </Flex>
-          <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
+          <Flex column stretch w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
             <Label importance="quaternary" style={{ marginBottom: '8px' }}>
               Projected benefits
             </Label>
@@ -97,7 +96,13 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
                     <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                       APR
                     </Text>
-                    <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
+                    <div
+                      style={
+                        (rightSidebar ? BKPT_7 : BKPT_5) > width
+                          ? { margin: '-4px 0', display: 'block' }
+                          : { display: 'none' }
+                      }
+                    >
                       &nbsp;
                     </div>
                     <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>

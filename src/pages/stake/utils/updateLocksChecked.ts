@@ -1,5 +1,4 @@
-import { LockData } from '../../../../../../constants/types'
-import { CheckboxData } from '../../../../types/LockCheckbox'
+import { LockData, CheckboxData } from '../../../constants/types'
 
 /**
  * @name updateLocksChecked
@@ -11,16 +10,16 @@ import { CheckboxData } from '../../../../types/LockCheckbox'
  */
 const updateLocksChecked = (locks: LockData[], oldArray: CheckboxData[]): CheckboxData[] => {
   // if oldArray is empty (component was just rendered), return the new locks, all unchecked
-  if (oldArray.length === 0) return locks.map((lock) => ({ id: lock.xsLockID, checked: false }))
+  if (oldArray.length === 0) return locks.map((lock) => ({ id: lock.xsLockID.toString(), checked: false }))
   // we check which locks have already been loaded (they may be checked)
   return locks.map((lock) => {
     // we check if this lock is already in the array (it is already rendered on client-side)
-    const oldBox = oldArray.find((oldBox) => oldBox.id.eq(lock.xsLockID))
+    const oldBox = oldArray.find((oldBox) => oldBox.id === lock.xsLockID.toString())
     return oldBox
       ? // if it is, we return this lock's id with the same checked status so as not to disturb the user
-        { id: lock.xsLockID, checked: oldBox.checked }
+        { id: lock.xsLockID.toString(), checked: oldBox.checked }
       : // otherwise, we return a new lock with default unchecked status to allow the user to interact with it
-        { id: lock.xsLockID, checked: false }
+        { id: lock.xsLockID.toString(), checked: false }
   })
 }
 

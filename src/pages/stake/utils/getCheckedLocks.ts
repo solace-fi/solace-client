@@ -1,5 +1,4 @@
-import { LockData } from '../../../../../../constants/types'
-import { CheckboxData } from '../../../../types/LockCheckbox'
+import { LockData, CheckboxData } from '../../../constants/types'
 
 /**
  * @name getCheckedLocks
@@ -13,7 +12,7 @@ const getCheckedLocks = (lockArray: LockData[], checkboxArray: CheckboxData[]): 
   return lockArray.filter((lock) => {
     return checkboxArray.find((checkbox) => {
       if (checkbox.id === undefined) console.log('undefined ID lock', JSON.stringify(checkbox))
-      return checkbox.id.eq(lock.xsLockID) && checkbox.checked
+      return checkbox.id.toString() === lock.xsLockID.toString() && checkbox.checked
     })
   })
 }

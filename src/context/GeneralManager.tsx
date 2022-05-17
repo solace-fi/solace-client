@@ -82,7 +82,7 @@ const GeneralProvider: React.FC = (props) => {
     // convert input data into JSON string array
     const stringifiedNoticeData = noticesToAdd.map((notice) => JSON.stringify(notice))
 
-    setNotices([...stringifiedNoticeData, ...notices])
+    setNotices([...stringifiedNoticeData, ...notices].filter((v, i, s) => s.indexOf(v) === i))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -104,7 +104,7 @@ const GeneralProvider: React.FC = (props) => {
     // convert input data into JSON string array
     const stringifiedErrorData = errorsToAdd.map((error) => JSON.stringify(error))
 
-    setErrors([...stringifiedErrorData, ...errors])
+    setErrors([...stringifiedErrorData, ...errors].filter((v, i, s) => s.indexOf(v) === i))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

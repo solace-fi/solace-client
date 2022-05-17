@@ -13,6 +13,7 @@ import { withBackoffRetries } from '../../utils/time'
 import { useNetwork } from '../../context/NetworkManager'
 
 import { Lock, Staker } from '@solace-fi/sdk-nightly'
+import { useCachedData } from '../../context/CachedDataManager'
 
 export const useStakingRewards = () => {
   // const { account } = useWeb3React()
@@ -167,6 +168,7 @@ export const useProjectedBenefits = (
 } => {
   const { getGlobalLockStats } = useStakingRewards()
   const { latestBlock } = useProvider()
+  const { minute } = useCachedData()
 
   const [projectedMultiplier, setProjectedMultiplier] = useState<string>('0')
   const [projectedApr, setProjectedApr] = useState<BigNumber>(ZERO)
@@ -181,7 +183,6 @@ export const useProjectedBenefits = (
   })
 
   useEffect(() => {
-    if (!latestBlock) return
     const _getGlobalLockStats = async () => {
       const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
       setGlobalLockStats(globalLockStats)
@@ -189,7 +190,7 @@ export const useProjectedBenefits = (
     _getGlobalLockStats()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [latestBlock])
+  }, [minute])
 
   useEffect(() => {
     if (!latestBlock) return

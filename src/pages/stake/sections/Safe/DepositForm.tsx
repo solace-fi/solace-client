@@ -6,8 +6,7 @@ import { StyledSlider } from '../../../../components/atoms/Input'
 import { useSolaceBalance } from '../../../../hooks/balance/useBalance'
 import { accurateMultiply, convertSciNotaToPrecise, filterAmount, truncateValue } from '../../../../utils/formatting'
 import InformationBox from '../../components/InformationBox'
-import { InfoBoxType } from '../../types/InfoBoxType'
-import { Tab } from '../../../../constants/enums'
+import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { LockData } from '../../../../constants/types'
@@ -20,13 +19,13 @@ import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensi
 import { Label } from '../../molecules/InfoPair'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
-import { BKPT_5 } from '../../../../constants'
+import { BKPT_5, BKPT_7 } from '../../../../constants'
 import { Text } from '../../../../components/atoms/Typography'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
 
 export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
-  const { appTheme } = useGeneral()
+  const { appTheme, rightSidebar } = useGeneral()
   const solaceBalance = useSolaceBalance()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -78,7 +77,7 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
         text="Stake additional SOLACE to this safe. Staking harvests rewards for you."
       />
       <StyledForm>
-        <Flex column={BKPT_5 > width} gap={24}>
+        <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
           <Flex column gap={24}>
             <InputSection
               tab={Tab.DEPOSIT}
@@ -101,7 +100,7 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
               disabled={disabled}
             />
           </Flex>
-          <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
+          <Flex column stretch w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
             <Label importance="quaternary" style={{ marginBottom: '8px' }}>
               Projected benefits
             </Label>
@@ -112,7 +111,13 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
                     <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                       APR
                     </Text>
-                    <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
+                    <div
+                      style={
+                        (rightSidebar ? BKPT_7 : BKPT_5) > width
+                          ? { margin: '-4px 0', display: 'block' }
+                          : { display: 'none' }
+                      }
+                    >
                       &nbsp;
                     </div>
                     <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>

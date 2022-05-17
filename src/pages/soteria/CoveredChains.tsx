@@ -7,14 +7,12 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useFunctions } from '../../hooks/policy/useSolaceCoverProduct'
 import { BigNumber } from 'ethers'
-import { NetworkConfig } from '../../constants/types'
+import { NetworkConfig, CheckboxData } from '../../constants/types'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { Text } from '../../components/atoms/Typography'
-import { CheckboxData } from '../stake/types/LockCheckbox'
-import updateLockCheck from '../stake/utils/stake/batchActions/checkboxes/updateLockCheck'
-import lockIsChecked from '../stake/utils/stake/batchActions/checkboxes/lockIsChecked'
+import { updateBoxCheck, boxIsChecked } from '../../utils/checkbox'
 import { Loader } from '../../components/atoms/Loader'
 import { FixedHeightGrayBox } from '../../components/molecules/GrayBox'
 import { useWeb3React } from '@web3-react/core'
@@ -46,7 +44,7 @@ export function CoveredChains({
   const { activeNetwork } = useNetwork()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { updatePolicyChainInfo } = useFunctions()
-  const policyChains = useMemo(() => policyChainsChecked.filter((c) => c.checked).map((c) => c.id.toNumber()), [
+  const policyChains = useMemo(() => policyChainsChecked.filter((c) => c.checked).map((c) => parseInt(c.id)), [
     policyChainsChecked,
   ])
 
@@ -64,7 +62,7 @@ export function CoveredChains({
   )
 
   const checkedChainsMatchPolicyChains = useMemo(() => {
-    const selectedChains = chainsChecked.filter((c) => c.checked).map((c) => c.id.toNumber())
+    const selectedChains = chainsChecked.filter((c) => c.checked).map((c) => parseInt(c.id))
     return (
       selectedChains.every((item) => policyChains.includes(item)) &&
       policyChains.every((item) => selectedChains.includes(item))
@@ -73,7 +71,7 @@ export function CoveredChains({
 
   const callUpdatePolicyChainInfo = async () => {
     if (!account) return
-    const selectedChains = chainsChecked.filter((c) => c.checked).map((c) => c.id)
+    const selectedChains = chainsChecked.filter((c) => c.checked).map((c) => BigNumber.from(c.id))
     await updatePolicyChainInfo(selectedChains)
       .then((res) => handleToast(res.tx, res.localTx))
       .then(() => stopEditing())
@@ -81,8 +79,8 @@ export function CoveredChains({
   }
 
   const handleChainCheck = (id: BigNumber) => {
-    const checkboxStatus = lockIsChecked(chainsChecked, id)
-    const newArr = updateLockCheck(chainsChecked, id, !checkboxStatus)
+    const checkboxStatus = boxIsChecked(chainsChecked, id.toString())
+    const newArr = updateBoxCheck(chainsChecked, id.toString(), !checkboxStatus)
     setChainsChecked(newArr)
   }
 
@@ -156,7 +154,7 @@ export function CoveredChains({
                   <Flex key={n.chainId}>
                     <Checkbox
                       type="checkbox"
-                      checked={lockIsChecked(chainsChecked, BigNumber.from(n.chainId))}
+                      checked={boxIsChecked(chainsChecked, n.chainId.toString())}
                       onChange={() => handleChainCheck(BigNumber.from(n.chainId))}
                     />
                     <Flex ml={10}>

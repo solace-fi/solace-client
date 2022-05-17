@@ -1,7 +1,6 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
-import { InfoBoxType } from '../types/InfoBoxType'
-import Twiv from './Twiv'
+import { InfoBoxType } from '../../../constants/enums'
 import { StyledInfo } from '../../../components/atoms/Icon'
 import { BKPT_5 } from '../../../constants'
 
@@ -85,7 +84,7 @@ export default function InformationBox({
         <StyledStyledInfo />
       </InfoWrapper>
       {/* right text */}
-      <Twiv css="leading-5">{text}</Twiv>
+      <div className={'leading-5'}>{text}</div>
     </StyledInfoBox>
   )
 }

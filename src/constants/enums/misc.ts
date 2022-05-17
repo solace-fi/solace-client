@@ -8,3 +8,9 @@ export enum Unit {
   BOND = 'Bond',
   _ = 'Unknown',
 }
+
+export enum InfoBoxType {
+  info,
+  warning,
+  error,
+}

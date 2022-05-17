@@ -1,11 +1,10 @@
 import React from 'react'
 import { Button, ButtonWrapper } from '../../../../components/atoms/Button'
 import InformationBox from '../../components/InformationBox'
-import { InfoBoxType } from '../../types/InfoBoxType'
 import { LockData } from '../../../../constants/types'
 import { useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { useStakingRewards } from '../../../../hooks/stake/useStakingRewards'
-import { FunctionName } from '../../../../constants/enums'
+import { FunctionName, InfoBoxType } from '../../../../constants/enums'
 import { StyledForm } from '../../atoms/StyledForm'
 
 export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {

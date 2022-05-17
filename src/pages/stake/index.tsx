@@ -28,9 +28,8 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { BKPT_1, BKPT_5, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
-import { LockData, UserLocksData, UserLocksInfo } from '../../constants/types'
-import { CheckboxData } from './types/LockCheckbox'
+import { BKPT_1, BKPT_5, BKPT_6, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
+import { LockData, UserLocksData, UserLocksInfo, CheckboxData } from '../../constants/types'
 import { Tab, StakingVersion } from '../../constants/enums'
 
 /* import components */
@@ -47,7 +46,7 @@ import DifferenceNotification from './organisms/DifferenceNotification'
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
-import DifferenceBoxes from './sections/DifferenceBoxes.tsx'
+import DifferenceBoxes from './sections/DifferenceBoxes'
 import CardSectionValue from './components/CardSectionValue'
 import { Label } from './molecules/InfoPair'
 import { InputSection } from '../../components/molecules/InputSection'
@@ -65,17 +64,12 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useProjectedBenefits, useStakingRewards } from '../../hooks/stake/useStakingRewards'
 
 /* import utils */
-import { accurateMultiply, formatAmount, truncateValue } from '../../utils/formatting'
-import calculateTotalWithdrawable from './utils/stake/batchActions/actions/calculateTotalWithdrawable'
-import calculateTotalHarvest from './utils/stake/batchActions/actions/calculateTotalHarvest'
-import { formatShort } from './utils/stake/batchActions/formatShort'
+import { accurateMultiply, floatUnits, formatAmount, truncateValue } from '../../utils/formatting'
 
-import updateLocksChecked from './utils/stake/batchActions/checkboxes/updateLocksChecked'
-import getCheckedLocks from './utils/stake/batchActions/checkboxes/getCheckedLocks'
-import lockIsChecked from './utils/stake/batchActions/checkboxes/lockIsChecked'
-import updateLockCheck from './utils/stake/batchActions/checkboxes/updateLockCheck'
-import somethingIsChecked from './utils/stake/batchActions/checkboxes/somethingIsChecked'
-import allLocksAreChecked from './utils/stake/batchActions/checkboxes/allLocksAreChecked'
+import updateLocksChecked from './utils/updateLocksChecked'
+import getCheckedLocks from './utils/getCheckedLocks'
+
+import { boxIsChecked, updateBoxCheck, somethingIsChecked, allBoxesAreChecked } from '../../utils/checkbox'
 
 import '../../styles/tailwind.min.css'
 
@@ -97,7 +91,7 @@ function Stake1(): any {
 
   *************************************************************************************/
 
-  const { haveErrors, appTheme } = useGeneral()
+  const { haveErrors, appTheme, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
@@ -261,7 +255,7 @@ function Stake1(): any {
                     </SmallBox>
                   }
                 </Flex>
-                <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
+                <Flex column stretch w={(rightSidebar ? BKPT_6 : BKPT_5) > width ? 300 : 521}>
                   <Label importance="quaternary" style={{ marginBottom: '8px' }}>
                     Projected benefits when migrated
                   </Label>
@@ -272,7 +266,13 @@ function Stake1(): any {
                           <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
                             APR
                           </Text>
-                          <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
+                          <div
+                            style={
+                              (rightSidebar ? BKPT_6 : BKPT_5) > width
+                                ? { margin: '-4px 0', display: 'block' }
+                                : { display: 'none' }
+                            }
+                          >
                             &nbsp;
                           </div>
                           <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
@@ -351,6 +351,7 @@ function Stake1(): any {
  */
 
 export default function Stake(): JSX.Element {
+  const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
   // account usewallet
   const [newSafeIsOpen, setNewSafeIsOpen] = useState(false)
@@ -383,10 +384,17 @@ export default function Stake(): JSX.Element {
   const canStakeV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noStakingV2, [
     activeNetwork.config.restrictedFeatures.noStakingV2,
   ])
+  const { xSolaceV1Balance } = useXSolaceV1Balance()
   const { getUserLocks } = useUserLockData()
   const { withdrawFromLock } = useXSLocker()
   const { harvestLockRewards, compoundLockRewards } = useStakingRewards()
   const { handleToast, handleContractCallError } = useTransactionExecution()
+
+  const calculateTotalHarvest = (locks: LockData[]): BigNumber =>
+    locks.reduce((acc, lock) => acc.add(lock.pendingRewards), ZERO)
+
+  const calculateTotalWithdrawable = (locks: LockData[]): BigNumber =>
+    locks.reduce((acc, lock) => (lock.timeLeft.isZero() ? acc.add(lock.unboostedAmount) : acc), ZERO)
 
   const rewardsAreZero = useMemo(() => calculateTotalHarvest(getCheckedLocks(locks, locksChecked)).isZero(), [
     locks,
@@ -396,12 +404,12 @@ export default function Stake(): JSX.Element {
     locks,
     locksChecked,
   ])
-  const formattedRewards = useMemo(() => formatShort(calculateTotalHarvest(getCheckedLocks(locks, locksChecked))), [
-    locks,
-    locksChecked,
-  ])
+  const formattedRewards = useMemo(
+    () => truncateValue(formatUnits(calculateTotalHarvest(getCheckedLocks(locks, locksChecked)), 18), 4),
+    [locks, locksChecked]
+  )
   const formattedWithdrawal = useMemo(
-    () => formatShort(calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked))),
+    () => truncateValue(formatUnits(calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked)), 18), 4),
     [locks, locksChecked]
   )
 
@@ -411,7 +419,11 @@ export default function Stake(): JSX.Element {
       fetchingLocks.current = true
       await getUserLocks(account).then((userLockData: UserLocksData) => {
         if (userLockData.successfulFetch) {
-          setLocks(userLockData.locks)
+          setLocks(
+            userLockData.locks.sort((a, b) => {
+              return floatUnits(b.unboostedAmount.sub(a.unboostedAmount), 18)
+            })
+          )
           setLocksChecked(updateLocksChecked(userLockData.locks, locksCheckedRef.current))
           setUserLockInfo(userLockData.user)
           setLoading(false)
@@ -435,13 +447,13 @@ export default function Stake(): JSX.Element {
   }
 
   const handleLockCheck = (lockId: BigNumber) => {
-    const checkboxStatus = lockIsChecked(locksChecked, lockId)
-    const newArr = updateLockCheck(locksChecked, lockId, !checkboxStatus)
+    const checkboxStatus = boxIsChecked(locksChecked, lockId.toString())
+    const newArr = updateBoxCheck(locksChecked, lockId.toString(), !checkboxStatus)
     setLocksChecked(newArr)
   }
 
   const handleLockCheckAll = () => {
-    if (allLocksAreChecked(locksChecked)) {
+    if (allBoxesAreChecked(locksChecked)) {
       setLocksChecked(locksChecked.map((lock) => ({ ...lock, checked: false })))
     } else {
       setLocksChecked(locksChecked.map((lock) => ({ ...lock, checked: true })))
@@ -489,7 +501,9 @@ export default function Stake(): JSX.Element {
         <PleaseConnectWallet />
       ) : (
         <Content>
-          <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
+          {parseUnits(xSolaceV1Balance, XSOLACE_V1_TOKEN.constants.decimals).gt(ZERO) && (
+            <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
+          )}
           {StakingVersion.v2 === stakingVersion &&
             (canStakeV2 ? (
               <>
@@ -640,7 +654,7 @@ export default function Stake(): JSX.Element {
                   mt={20}
                   mb={20}
                   style={
-                    width < BKPT_5 && batchActionsIsEnabled
+                    width < (rightSidebar ? BKPT_6 : BKPT_5) && batchActionsIsEnabled
                       ? {
                           flexDirection: 'column-reverse',
                           gap: '30px',
@@ -661,7 +675,11 @@ export default function Stake(): JSX.Element {
                     )
                   ) : (
                     <>
-                      <Flex gap={15} style={{ marginTop: 'auto', marginBottom: 'auto' }} between={width < BKPT_5}>
+                      <Flex
+                        gap={15}
+                        style={{ marginTop: 'auto', marginBottom: 'auto' }}
+                        between={width < (rightSidebar ? BKPT_6 : BKPT_5)}
+                      >
                         <Flex
                           center
                           gap={5}
@@ -671,7 +689,7 @@ export default function Stake(): JSX.Element {
                           }}
                           onClick={handleLockCheckAll}
                         >
-                          <Checkbox type="checkbox" checked={allLocksAreChecked(locksChecked)} />
+                          <Checkbox type="checkbox" checked={allBoxesAreChecked(locksChecked)} />
                           <Text bold t4 info>
                             Select all
                           </Text>
@@ -680,7 +698,7 @@ export default function Stake(): JSX.Element {
                           <Flex
                             gap={15}
                             style={
-                              width < BKPT_5
+                              width < (rightSidebar ? BKPT_6 : BKPT_5)
                                 ? {
                                     flexDirection: 'column',
                                     alignItems: 'flex-end',
@@ -707,7 +725,7 @@ export default function Stake(): JSX.Element {
                       </Flex>
                     </>
                   )}
-                  <Flex center gap={15} column={width < BKPT_5}>
+                  <Flex center gap={15} column={width < (rightSidebar ? BKPT_6 : BKPT_5)}>
                     {batchActionsIsEnabled && (
                       <Flex gap={15}>
                         <Button
@@ -764,7 +782,7 @@ export default function Stake(): JSX.Element {
                       key={lock.xsLockID.toNumber()}
                       lock={lock}
                       batchActionsIsEnabled={batchActionsIsEnabled}
-                      isChecked={lockIsChecked(locksChecked, lock.xsLockID)}
+                      isChecked={boxIsChecked(locksChecked, lock.xsLockID.toString())}
                       onCheck={() => handleLockCheck(lock.xsLockID)}
                       index={i}
                     />

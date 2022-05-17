@@ -173,16 +173,29 @@ export const useXSLocker = () => {
   }
 
   const getUserLockerBalances = async (account: string) => {
-    if (provider) {
-      const lock = new Lock(activeNetwork.chainId, provider)
-      const userLockerBalances = await lock.getUserLockerBalances(account)
-      return userLockerBalances
-    }
-    return {
+    const errorRes = {
       stakedBalance: '0',
       lockedBalance: '0',
       unlockedBalance: '0',
+      successfulFetch: false,
     }
+    if (provider) {
+      const lock = new Lock(activeNetwork.chainId, provider)
+      const userLockerBalances = await lock
+        .getUserLockerBalances(account)
+        .then((balances) => {
+          return {
+            ...balances,
+            successfulFetch: true,
+          }
+        })
+        .catch((err) => {
+          console.log('getUserLockerBalances', err)
+          return errorRes
+        })
+      return userLockerBalances
+    }
+    return errorRes
   }
 
   return {

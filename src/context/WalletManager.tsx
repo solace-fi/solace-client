@@ -39,7 +39,7 @@ const WalletManager: React.FC = (props) => {
 
   const { showWalletModal, openModal, closeModal } = useWalletModal(triedEagerRef.current)
 
-  useInactiveListener(!triedEager, connect)
+  useInactiveListener(triedEager && !manuallyDisconnected, connect)
 
   const value = useMemo<WalletContextType>(
     () => ({

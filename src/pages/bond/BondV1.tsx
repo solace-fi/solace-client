@@ -19,7 +19,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
 /* import constants */
-import { BKPT_4 } from '../../constants'
+import { BKPT_4, BKPT_5 } from '../../constants'
 import { BondTellerDetails } from '../../constants/types'
 
 /* import context */
@@ -48,7 +48,7 @@ export const BondV1 = () => {
   hooks
 
   */
-  const { haveErrors } = useGeneral()
+  const { haveErrors, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
   const [selectedBondDetail, setSelectedBondDetail] = useState<BondTellerDetails | undefined>(undefined)
   const { width } = useWindowDimensions()
@@ -105,7 +105,7 @@ export const BondV1 = () => {
           ) : (
             <>
               {canBond && currentTellerDetails.length > 0 ? (
-                width > BKPT_4 ? (
+                width > (rightSidebar ? BKPT_5 : BKPT_4) ? (
                   <Content>
                     <Text bold t1 mb={10} warning>
                       V1 Bonds
