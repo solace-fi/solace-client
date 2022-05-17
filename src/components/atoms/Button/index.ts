@@ -223,6 +223,8 @@ export const ButtonAppearanceCss = css<ButtonProps & GeneralElementProps>`
   ${(props) => props.pl !== undefined && 'padding-left: 16px;'}
   ${(props) => props.pr !== undefined && 'padding-right: 16px;'}
   ${(props) => props.width == undefined && 'min-width: 90px;'}
+  ${(props) => props.height == undefined && 'min-height: 34px;'}
+  ${Text4Css}
   ${GeneralElementCss}
 `
 
@@ -242,7 +244,6 @@ export const ButtonAppearance = styled.button<ButtonProps & GeneralElementProps>
 
 export const Button = styled.button<ButtonProps & GeneralElementProps>`
   ${ButtonBaseCss}
-  ${GeneralElementCss}
 `
 
 export const GraySquareButton = styled(Button)`
