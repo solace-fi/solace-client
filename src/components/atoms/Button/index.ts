@@ -16,6 +16,7 @@ export interface ButtonProps extends ClickProps {
   success?: boolean
   error?: boolean
   warning?: boolean
+  matchBg?: boolean
   glow?: boolean
   separator?: boolean
   hidden?: boolean
@@ -44,11 +45,12 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
     if (props.dark || props.info || props.success || props.warning || props.error) {
       textColor = `${theme.typography.lightText}`
     }
-    if (props.analogical) textColor = `${theme.typography.contrastText}`
+    if (props.analogical || props.matchBg) textColor = `${theme.typography.contrastText}`
     let bgColor = `${theme.typography.contrastText}`
     if (props.light) bgColor = `${theme.typography.lightText}`
     if (props.dark) bgColor = `${theme.typography.darkText}`
     if (props.analogical) bgColor = `${theme.typography.analogicalText}`
+    if (props.matchBg) bgColor = `${theme.body.bg_color}`
     if (props.info) bgColor = `${theme.typography.infoText}`
     if (props.success) bgColor = `${theme.typography.successText}`
     if (props.warning) bgColor = `${theme.typography.warningText}`
@@ -65,7 +67,7 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
     let textColor = `${theme.typography.contrastText}`
     if (props.light) textColor = `${theme.typography.lightText}`
     if (props.dark) textColor = `${theme.typography.darkText}`
-    if (props.analogical) textColor = `${theme.typography.analogicalText}`
+    if (props.analogical || props.matchBg) textColor = `${theme.typography.analogicalText}`
     if (props.info) textColor = `${theme.typography.infoText}`
     if (props.success) textColor = `${theme.typography.successText}`
     if (props.warning) textColor = `${theme.typography.warningText}`
@@ -84,9 +86,11 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
       textColor = `${theme.typography.lightText}`
     }
     if (props.analogical) textColor = `${theme.typography.contrastText}`
+    if (props.matchBg) textColor = `${theme.typography.contrastText}`
     let bgColor = `${theme.typography.contrastText}`
     if (props.light) bgColor = `${theme.typography.lightText}`
     if (props.dark) bgColor = `${theme.typography.darkText}`
+    if (props.matchBg) bgColor = `${theme.body.bg_color}`
     if (props.analogical) bgColor = `${theme.typography.analogicalText}`
     if (props.info) bgColor = `${theme.typography.infoText}`
     if (props.success) bgColor = `${theme.typography.successText}`
@@ -138,6 +142,7 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
 
   if (props.light) textColor = `${theme.typography.lightText}`
   if (props.dark) textColor = `${theme.typography.darkText}`
+  if (props.matchBg) textColor = `${theme.body.bg_color}`
   if (props.analogical) textColor = `${theme.typography.analogicalText}`
   if (props.info) textColor = `${theme.typography.infoText}`
   if (props.success) textColor = `${theme.typography.successText}`
@@ -151,6 +156,10 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
     if (props.dark) {
       hoverTextColor = `${theme.typography.lightText}`
       hoverBgColor = `${theme.typography.darkText}`
+    }
+    if (props.matchBg) {
+      hoverTextColor = `${theme.typography.contrastText}`
+      hoverBgColor = `${theme.body.bg_color}`
     }
     if (props.info) {
       hoverTextColor = `${theme.typography.lightText}`

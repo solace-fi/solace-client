@@ -1,9 +1,9 @@
 export const lightTheme = {
   typography: {
-    contrastText: 'rgb(94, 94, 94)', // text color that contrasts the general theme
+    contrastText: 'rgb(125, 125, 125)', // text color that contrasts the general theme
     analogicalText: 'rgb(250, 250, 250)', // text color that is relatively the same as the general theme
     lightText: 'rgb(250, 250, 250)',
-    darkText: 'rgb(94, 94, 94)',
+    darkText: 'rgb(125, 125, 125)',
     infoText: 'rgb(95, 93, 249)',
     errorText: 'rgb(255, 12, 28)',
     warningText: 'rgb(187, 136, 0)',
@@ -104,9 +104,9 @@ export const lightTheme = {
 export const darkTheme = {
   typography: {
     contrastText: 'rgb(250, 250, 250)', // text color that contrasts the general theme
-    analogicalText: 'rgb(94, 94, 94)', // text color that is relatively the same as the general theme
+    analogicalText: 'rgb(125, 125, 125)', // text color that is relatively the same as the general theme
     lightText: 'rgb(250, 250, 250)',
-    darkText: 'rgb(94, 94, 94)',
+    darkText: 'rgb(125, 125, 125)',
     infoText: '#6ec3ff',
     errorText: 'rgb(240, 77, 66)',
     warningText: 'rgb(245, 221, 83)',

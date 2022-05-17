@@ -19,6 +19,7 @@ import { Github } from '@styled-icons/boxicons-logos/Github'
 import { GraphDown } from '@styled-icons/bootstrap/GraphDown'
 import { History } from '@styled-icons/boxicons-regular/History'
 import { Info } from '@styled-icons/fluentui-system-regular/Info'
+import { Options } from '@styled-icons/fluentui-system-regular/Options'
 import { LinkExternal } from '@styled-icons/boxicons-regular/LinkExternal'
 import { Medium } from '@styled-icons/boxicons-logos/Medium'
 import { Menu } from '@styled-icons/boxicons-regular/Menu'
@@ -144,3 +145,5 @@ export const StyledTractor = styled(Tractor)``
 export const StyledFolderHistory = styled(FolderHistory)``
 
 export const StyledHelpCircle = styled(HelpCircle)``
+
+export const StyledOptions = styled(Options)``
