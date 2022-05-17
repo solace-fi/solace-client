@@ -398,14 +398,24 @@ export const usePortfolio = (
   const fetching = useRef(false)
 
   useEffect(() => {
+    setLoading(true)
+  }, [account])
+
+  useEffect(() => {
     const getPortfolio = async () => {
-      if (fetching.current) return
+      if (fetching.current) {
+        console.log('usePortfolio: already fetching')
+        return
+      }
       fetching.current = true
       const risk = new Risk()
       const useV2 =
         activeNetwork.config.keyContracts.solaceCoverProduct &&
         activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
-      if (!account || (useV2 && chains.length == 0) || chainsLoading) return
+      if (!account || (useV2 && chains.length == 0) || chainsLoading) {
+        console.log('usePortfolio: account not found, or chains are still loading (v2 only)')
+        return
+      }
       const balances: SolaceRiskBalance[] | undefined = await risk.getSolaceRiskBalances(account, useV2 ? chains : [1])
       if (!balances) {
         console.log('balances do not exist from risk api')
@@ -414,16 +424,15 @@ export const usePortfolio = (
         return
       }
       const scores: SolaceRiskScore | undefined = await risk.getSolaceRiskScores(account, balances)
-      if (scores) setScore(scores)
+      if (scores) {
+        console.log('scores not found from risk api')
+        setScore(scores)
+      }
       setLoading(false)
       fetching.current = false
     }
     getPortfolio()
   }, [account, activeNetwork, chainsLoading, chains])
-
-  useEffect(() => {
-    setLoading(true)
-  }, [account])
 
   return { portfolio: score, loading }
 }
