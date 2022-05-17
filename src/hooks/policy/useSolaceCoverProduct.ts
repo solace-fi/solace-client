@@ -424,10 +424,13 @@ export const usePortfolio = (
         return
       }
       const scores: SolaceRiskScore | undefined = await risk.getSolaceRiskScores(account, balances)
-      if (scores) {
+      if (!scores) {
         console.log('scores not found from risk api')
-        setScore(scores)
+        setLoading(false)
+        fetching.current = false
+        return
       }
+      setScore(scores)
       setLoading(false)
       fetching.current = false
     }
