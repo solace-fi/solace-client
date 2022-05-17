@@ -195,10 +195,7 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
   `
 }
 
-export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+export const ButtonAppearanceCss = css<ButtonProps & GeneralElementProps>`
   outline: none;
   border: 1px solid ${(props) => props.theme.typography.contrastText};
   ${(props) => props.analogical && `border: 1px solid ${props.theme.typography.analogicalText};`}
@@ -209,20 +206,10 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   ${(props) => props.warning && `border: 1px solid ${props.theme.typography.warningText};`}
   ${(props) => props.error && `border: 1px solid ${props.theme.typography.errorText};`}
   ${(props) => props.separator && `border: 1px solid ${props.theme.typography.separator};`}
-
   ${(props) => props.noborder && `border: none;`}
-
   ${(props) => !props.noradius && `border-radius: 10px;`}
-  font-weight: 500;
-  text-align: center;
   transition: all 0.2s, color 0.2s;
   cursor: pointer;
-  ${(props) => props.pt !== undefined && 'padding-top: 4px;'}
-  ${(props) => props.pb !== undefined && 'padding-bottom: 4px;'}
-  ${(props) => props.pl !== undefined && 'padding-left: 16px;'}
-  ${(props) => props.pr !== undefined && 'padding-right: 16px;'}
-  ${(props) => props.width == undefined && 'min-width: 90px;'}
-  ${(props) => props.height == undefined && 'min-height: 34px;'}
   visibility: ${(props) => (props.hidden ? 'hidden;' : 'visible;')};
   color: ${({ theme }) => theme.typography.contrastText};
 
@@ -231,7 +218,26 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   ${(props) => props.glow && `box-shadow: ${props.theme.button.glow};`}
   font-weight: ${(props) => (props.semibold ? '600' : '500')};
   font-family: 'Open Sans', sans-serif;
-  ${Text4Css}
+  ${(props) => props.pt !== undefined && 'padding-top: 4px;'}
+  ${(props) => props.pb !== undefined && 'padding-bottom: 4px;'}
+  ${(props) => props.pl !== undefined && 'padding-left: 16px;'}
+  ${(props) => props.pr !== undefined && 'padding-right: 16px;'}
+  ${(props) => props.width == undefined && 'min-width: 90px;'}
+  ${GeneralElementCss}
+`
+
+export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  text-align: center;
+
+  ${ButtonAppearanceCss}
+`
+
+export const ButtonAppearance = styled.button<ButtonProps & GeneralElementProps>`
+  ${ButtonAppearanceCss}
 `
 
 export const Button = styled.button<ButtonProps & GeneralElementProps>`
