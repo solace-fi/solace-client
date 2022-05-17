@@ -1,0 +1,6 @@
+export enum InterfaceState {
+  BUYING = 'BUYING',
+  EXTENDING = 'EXTENDING',
+  WITHDRAWING = 'WITHDRAWING',
+  LOADING = 'LOADING',
+}
