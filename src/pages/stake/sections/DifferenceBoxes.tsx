@@ -1,13 +1,13 @@
 import React from 'react'
-import { Flex, ShadowDiv } from '../../../../components/atoms/Layout'
-import { RaisedBox } from '../../../../components/atoms/Box'
-import { Text } from '../../../../components/atoms/Typography'
-import { Button } from '../../../../components/atoms/Button'
+import { Flex, ShadowDiv } from '../../../components/atoms/Layout'
+import { RaisedBox } from '../../../components/atoms/Box'
+import { Text } from '../../../components/atoms/Typography'
+import { Button } from '../../../components/atoms/Button'
 import styled, { css } from 'styled-components'
-import { StakingVersion } from '../../../../constants/enums'
-import { BKPT_5, BKPT_6 } from '../../../../constants'
-import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { useGeneral } from '../../../../context/GeneralManager'
+import { StakingVersion } from '../../../constants/enums'
+import { BKPT_5, BKPT_6 } from '../../../constants'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
+import { useGeneral } from '../../../context/GeneralManager'
 
 /*
           style={{

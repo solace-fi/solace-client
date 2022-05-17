@@ -1,5 +1,7 @@
 import { TransactionCondition, SystemNotice, Error } from '../enums'
 
+export type CheckboxData = { id: string; checked: boolean }
+
 export type WindowDimensions = {
   width: number
   height: number

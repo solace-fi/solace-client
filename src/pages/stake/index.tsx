@@ -29,8 +29,7 @@ import { useNetwork } from '../../context/NetworkManager'
 /* import constants */
 import { FunctionName } from '../../constants/enums'
 import { BKPT_1, BKPT_5, BKPT_6, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
-import { LockData, UserLocksData, UserLocksInfo } from '../../constants/types'
-import { CheckboxData } from './types/LockCheckbox'
+import { LockData, UserLocksData, UserLocksInfo, CheckboxData } from '../../constants/types'
 import { Tab, StakingVersion } from '../../constants/enums'
 
 /* import components */
@@ -47,7 +46,7 @@ import DifferenceNotification from './organisms/DifferenceNotification'
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
-import DifferenceBoxes from './sections/DifferenceBoxes.tsx'
+import DifferenceBoxes from './sections/DifferenceBoxes'
 import CardSectionValue from './components/CardSectionValue'
 import { Label } from './molecules/InfoPair'
 import { InputSection } from '../../components/molecules/InputSection'
@@ -66,16 +65,11 @@ import { useProjectedBenefits, useStakingRewards } from '../../hooks/stake/useSt
 
 /* import utils */
 import { accurateMultiply, floatUnits, formatAmount, truncateValue } from '../../utils/formatting'
-import calculateTotalWithdrawable from './utils/stake/batchActions/actions/calculateTotalWithdrawable'
-import calculateTotalHarvest from './utils/stake/batchActions/actions/calculateTotalHarvest'
-import { formatShort } from './utils/stake/batchActions/formatShort'
 
-import updateLocksChecked from './utils/stake/batchActions/checkboxes/updateLocksChecked'
-import getCheckedLocks from './utils/stake/batchActions/checkboxes/getCheckedLocks'
-import lockIsChecked from './utils/stake/batchActions/checkboxes/lockIsChecked'
-import updateLockCheck from './utils/stake/batchActions/checkboxes/updateLockCheck'
-import somethingIsChecked from './utils/stake/batchActions/checkboxes/somethingIsChecked'
-import allLocksAreChecked from './utils/stake/batchActions/checkboxes/allLocksAreChecked'
+import updateLocksChecked from './utils/updateLocksChecked'
+import getCheckedLocks from './utils/getCheckedLocks'
+
+import { boxIsChecked, updateBoxCheck, somethingIsChecked, allBoxesAreChecked } from '../../utils/checkbox'
 
 import '../../styles/tailwind.min.css'
 
@@ -396,6 +390,12 @@ export default function Stake(): JSX.Element {
   const { harvestLockRewards, compoundLockRewards } = useStakingRewards()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
+  const calculateTotalHarvest = (locks: LockData[]): BigNumber =>
+    locks.reduce((acc, lock) => acc.add(lock.pendingRewards), ZERO)
+
+  const calculateTotalWithdrawable = (locks: LockData[]): BigNumber =>
+    locks.reduce((acc, lock) => (lock.timeLeft.isZero() ? acc.add(lock.unboostedAmount) : acc), ZERO)
+
   const rewardsAreZero = useMemo(() => calculateTotalHarvest(getCheckedLocks(locks, locksChecked)).isZero(), [
     locks,
     locksChecked,
@@ -404,12 +404,12 @@ export default function Stake(): JSX.Element {
     locks,
     locksChecked,
   ])
-  const formattedRewards = useMemo(() => formatShort(calculateTotalHarvest(getCheckedLocks(locks, locksChecked))), [
-    locks,
-    locksChecked,
-  ])
+  const formattedRewards = useMemo(
+    () => truncateValue(formatUnits(calculateTotalHarvest(getCheckedLocks(locks, locksChecked)), 18), 4),
+    [locks, locksChecked]
+  )
   const formattedWithdrawal = useMemo(
-    () => formatShort(calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked))),
+    () => truncateValue(formatUnits(calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked)), 18), 4),
     [locks, locksChecked]
   )
 
@@ -447,13 +447,13 @@ export default function Stake(): JSX.Element {
   }
 
   const handleLockCheck = (lockId: BigNumber) => {
-    const checkboxStatus = lockIsChecked(locksChecked, lockId)
-    const newArr = updateLockCheck(locksChecked, lockId, !checkboxStatus)
+    const checkboxStatus = boxIsChecked(locksChecked, lockId.toString())
+    const newArr = updateBoxCheck(locksChecked, lockId.toString(), !checkboxStatus)
     setLocksChecked(newArr)
   }
 
   const handleLockCheckAll = () => {
-    if (allLocksAreChecked(locksChecked)) {
+    if (allBoxesAreChecked(locksChecked)) {
       setLocksChecked(locksChecked.map((lock) => ({ ...lock, checked: false })))
     } else {
       setLocksChecked(locksChecked.map((lock) => ({ ...lock, checked: true })))
@@ -689,7 +689,7 @@ export default function Stake(): JSX.Element {
                           }}
                           onClick={handleLockCheckAll}
                         >
-                          <Checkbox type="checkbox" checked={allLocksAreChecked(locksChecked)} />
+                          <Checkbox type="checkbox" checked={allBoxesAreChecked(locksChecked)} />
                           <Text bold t4 info>
                             Select all
                           </Text>
@@ -782,7 +782,7 @@ export default function Stake(): JSX.Element {
                       key={lock.xsLockID.toNumber()}
                       lock={lock}
                       batchActionsIsEnabled={batchActionsIsEnabled}
-                      isChecked={lockIsChecked(locksChecked, lock.xsLockID)}
+                      isChecked={boxIsChecked(locksChecked, lock.xsLockID.toString())}
                       onCheck={() => handleLockCheck(lock.xsLockID)}
                       index={i}
                     />

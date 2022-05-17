@@ -1,14 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 
-function isOneOf<T>(value: T, list: T[]) {
-  return list.indexOf(value) > -1
-}
-
-const Wrapper = styled.div`
-  font-weight: 600;
-`
-
 const Value = styled.span<{
   importance: 'primary' | 'secondary' | 'tertiary' | 'quaternary'
   smol?: boolean

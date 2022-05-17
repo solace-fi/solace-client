@@ -5,15 +5,7 @@ import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import { useSolaceBalance } from '../../../../hooks/balance/useBalance'
-import {
-  accurateMultiply,
-  convertSciNotaToPrecise,
-  filterAmount,
-  formatAmount,
-  truncateValue,
-} from '../../../../utils/formatting'
-import InformationBox from '../../components/InformationBox'
-import { InfoBoxType } from '../../types/InfoBoxType'
+import { accurateMultiply, convertSciNotaToPrecise, filterAmount, truncateValue } from '../../../../utils/formatting'
 import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
@@ -24,7 +16,7 @@ import { Text } from '../../../../components/atoms/Typography'
 import { BKPT_7, BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
 import { RaisedBox } from '../../../../components/atoms/Box'
-import InfoPair, { Label } from '../../molecules/InfoPair'
+import { Label } from '../../molecules/InfoPair'
 import { Flex, ShadowDiv, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { Accordion } from '../../../../components/atoms/Accordion'

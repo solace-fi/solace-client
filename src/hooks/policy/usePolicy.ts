@@ -3,12 +3,11 @@ import { formatUnits } from '@ethersproject/units'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ZERO } from '../../constants'
 import { useContracts } from '../../context/ContractsManager'
-import { NetworkConfig } from '../../constants/types'
+import { NetworkConfig, CheckboxData } from '../../constants/types'
 import { useNetwork, networks } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { numberAbbreviate, truncateValue } from '../../utils/formatting'
 import { useFunctions, useSupportedChains } from './useSolaceCoverProduct'
-import { CheckboxData } from '../../pages/stake/types/LockCheckbox'
 import { Policy } from '@solace-fi/sdk-nightly'
 import { useCachedData } from '../../context/CachedDataManager'
 
@@ -109,7 +108,7 @@ export const useGetPolicyChains = (policyId: number | undefined) => {
   const updateBoxChecked = (chains: CheckboxData[], oldArray: CheckboxData[]): CheckboxData[] => {
     if (oldArray.length === 0) return chains
     return chains.map((chain) => {
-      const oldBox = oldArray.find((oldBox) => oldBox.id.eq(chain.id))
+      const oldBox = oldArray.find((oldBox) => oldBox.id === chain.id)
       return oldBox ? { id: chain.id, checked: oldBox.checked } : { id: chain.id, checked: false }
     })
   }
@@ -133,8 +132,9 @@ export const useGetPolicyChains = (policyId: number | undefined) => {
 
     const numPolicyChains = _policyChains.map((c) => c.toNumber())
     const newArr = _coverableChains.map((c) => {
-      if (numPolicyChains.includes(c.toNumber()) || numPolicyChains.length == 0) return { id: c, checked: true }
-      return { id: c, checked: false }
+      if (numPolicyChains.includes(c.toNumber()) || numPolicyChains.length == 0)
+        return { id: c.toString(), checked: true }
+      return { id: c.toString(), checked: false }
     })
     setPolicyChainsChecked(newArr)
     if (shouldUpdateBoxchecked) {
