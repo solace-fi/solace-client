@@ -413,7 +413,8 @@ export const usePortfolio = (
         activeNetwork.config.keyContracts.solaceCoverProduct &&
         activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
       if (!account || (useV2 && chains.length == 0) || chainsLoading) {
-        console.log('usePortfolio: account not found, or chains are still loading (v2 only)')
+        console.log('usePortfolio: account not found, or chains are still loading (v2 only)', account, chainsLoading)
+        fetching.current = false
         return
       }
       const balances: SolaceRiskBalance[] | undefined = await risk.getSolaceRiskBalances(account, useV2 ? chains : [1])
