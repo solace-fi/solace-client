@@ -11,11 +11,13 @@ import { InterfaceState } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import CoverageManager, { useCoverageContext } from './CoverageContext'
 import { DropdownInputSection, DropdownOptions } from './Dropdown'
+import { PortfolioWindow } from './PortfolioWindow'
 
 function Cover(): JSX.Element {
   return (
     <CoverageManager>
-      <CoveragePage />
+      <PortfolioWindow />
+      {/* <CoveragePage /> */}
     </CoverageManager>
   )
 }
@@ -68,10 +70,10 @@ const CoverageContent = (): JSX.Element => {
   //   intrface.interfaceState,
   // ])
 
-  const buyCta = false
+  const buyCta = true
   const neutralCta = false
   const extendCta = false
-  const withdrawCta = true
+  const withdrawCta = false
 
   return (
     <Content>
@@ -267,9 +269,11 @@ const CoverageContent = (): JSX.Element => {
               </ButtonWrapper>
             </Flex>
           </TileCard>
-          <Button {...bigButtonStyle} error mt={16}>
-            Cancel Policy
-          </Button>
+          {(buyCta || extendCta || neutralCta) && (
+            <Button {...bigButtonStyle} error mt={16}>
+              Cancel Policy
+            </Button>
+          )}
         </div>
       </Flex>
     </Content>

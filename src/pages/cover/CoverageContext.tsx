@@ -1,8 +1,12 @@
-import React, { createContext, useContext, useMemo, useState } from 'react'
+import { SolaceRiskSeries } from '@solace-fi/sdk-nightly'
+import { useWeb3React } from '@web3-react/core'
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { BKPT_2, BKPT_NAVBAR } from '../../constants'
 import { InterfaceState } from '../../constants/enums'
+import { SolaceRiskScore } from '../../constants/types'
 import { useGeneral } from '../../context/GeneralManager'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
+import { usePortfolio, useRiskSeries } from '../../hooks/policy/useSolaceCoverProduct'
 
 type CoverageContextType = {
   intrface: {
@@ -28,6 +32,8 @@ type CoverageContextType = {
     bigButtonStyle: any
     gradientTextStyle: any
   }
+  portfolio?: SolaceRiskScore
+  series?: SolaceRiskSeries
 }
 
 const CoverageContext = createContext<CoverageContextType>({
@@ -54,15 +60,22 @@ const CoverageContext = createContext<CoverageContextType>({
     bigButtonStyle: {},
     gradientTextStyle: {},
   },
+  portfolio: undefined,
+  series: undefined,
 })
 
 const CoverageManager: React.FC = (props) => {
+  const { account } = useWeb3React()
   const { appTheme, rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
+  const { portfolio, loading: portfolioLoading } = usePortfolio(account, [1, 137], false)
+  const { series, loading: seriesLoading } = useRiskSeries()
   const navbarThreshold = useMemo(() => width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR), [rightSidebar, width])
   const [enteredDays, setEnteredDays] = useState<string | undefined>(undefined)
   const [enteredAmount, setEnteredAmount] = useState<string | undefined>(undefined)
-  const [interfaceState, setInterfaceState] = useState<InterfaceState>(InterfaceState.LOADING)
+  const [userState, setUserState] = useState<InterfaceState>(InterfaceState.BUYING)
+  const [loading, setLoading] = useState(false)
+  const [interfaceState, setInterfaceState] = useState<InterfaceState>(loading ? InterfaceState.LOADING : userState)
 
   const [daysOpen, setDaysOpen] = useState(false)
   const [coinsOpen, setCoinsOpen] = useState(false)
@@ -108,6 +121,10 @@ const CoverageManager: React.FC = (props) => {
     [appTheme]
   )
 
+  useEffect(() => {
+    setLoading(portfolioLoading || seriesLoading)
+  }, [portfolioLoading, seriesLoading])
+
   const value = useMemo<CoverageContextType>(
     () => ({
       navbarThreshold,
@@ -134,6 +151,8 @@ const CoverageManager: React.FC = (props) => {
         bigButtonStyle,
         gradientTextStyle,
       },
+      portfolio,
+      series,
     }),
     [
       navbarThreshold,
@@ -141,16 +160,18 @@ const CoverageManager: React.FC = (props) => {
       coinsOpen,
       enteredDays,
       enteredAmount,
-      setEnteredDays,
-      setEnteredAmount,
-      setDaysOpen,
-      setCoinsOpen,
       daysOptions,
       coinOptions,
       bigButtonStyle,
       gradientTextStyle,
       interfaceState,
-      setInterfaceState,
+      portfolio,
+      series,
+      // setEnteredDays,
+      // setEnteredAmount,
+      // setDaysOpen,
+      // setCoinsOpen,
+      // setInterfaceState,
     ]
   )
   return <CoverageContext.Provider value={value}>{props.children}</CoverageContext.Provider>

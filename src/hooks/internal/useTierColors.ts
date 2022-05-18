@@ -9,7 +9,7 @@ export const useTierColors = (tierList: number[] | undefined): string[] => {
 
   useEffect(() => {
     const getGreenToRedColors = (maxTier: number) => {
-      if (!tierList) return
+      if (!tierListLength) return
 
       // rgb settings: since we only want red to green colors, only values r and g will be adjusted
       const luminosityPercentage = appTheme == 'light' ? 0.7 : 0.8
@@ -59,7 +59,8 @@ export const useTierColors = (tierList: number[] | undefined): string[] => {
     if (maxTier) {
       getGreenToRedColors(maxTier)
     }
-  }, [tierListLength, appTheme, tierList])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tierListLength, appTheme])
 
   return tierColors
 }

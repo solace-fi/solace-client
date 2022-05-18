@@ -10,7 +10,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork, networks } from '../../context/NetworkManager'
 import { rangeFrom0 } from '../../utils/numeric'
 import { withBackoffRetries } from '../../utils/time'
-import { fetchCoingeckoTokenPricesByAddr, Risk, SolaceRiskBalance } from '@solace-fi/sdk-nightly'
+import { Risk, SolaceRiskBalance, SolaceRiskSeries } from '@solace-fi/sdk-nightly'
 
 export const useFunctions = () => {
   const { keyContracts } = useContracts()
@@ -413,7 +413,8 @@ export const usePortfolio = (
         activeNetwork.config.keyContracts.solaceCoverProduct &&
         activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
       if (!account || (useV2 && chains.length == 0) || chainsLoading) {
-        console.log('usePortfolio: account not found, or chains are still loading (v2 only)')
+        console.log('usePortfolio: account not found, or chains are still loading (v2 only)', account, chainsLoading)
+        fetching.current = false
         return
       }
       const balances: SolaceRiskBalance[] | undefined = await risk.getSolaceRiskBalances(account, useV2 ? chains : [1])
@@ -438,6 +439,41 @@ export const usePortfolio = (
   }, [account, activeNetwork, chainsLoading, chains])
 
   return { portfolio: score, loading }
+}
+
+export const useRiskSeries = () => {
+  const [series, setSeries] = useState<SolaceRiskSeries | undefined>(undefined)
+  const { activeNetwork } = useNetwork()
+  const [loading, setLoading] = useState(true)
+  const fetching = useRef(false)
+
+  useEffect(() => {
+    setLoading(true)
+  }, [])
+
+  useEffect(() => {
+    const getRiskSeries = async () => {
+      if (fetching.current) {
+        console.log('useRiskSeries: already fetching')
+        return
+      }
+      fetching.current = true
+      const risk = new Risk()
+      const series: any = await risk.getSolaceRiskSeries()
+      if (series.data.protocolMap) {
+        setSeries(series as SolaceRiskSeries)
+        setLoading(false)
+        fetching.current = false
+      } else {
+        console.log('series not found from risk api')
+        setLoading(false)
+        fetching.current = false
+      }
+    }
+    getRiskSeries()
+  }, [activeNetwork])
+
+  return { series, loading }
 }
 
 export const useCooldownDetails = (

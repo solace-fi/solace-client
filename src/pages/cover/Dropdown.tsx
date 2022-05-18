@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useCoverageContext } from './CoverageContext'
 import { Accordion } from '../../components/atoms/Accordion'
 import { Button, ButtonAppearance } from '../../components/atoms/Button'
@@ -6,6 +6,8 @@ import { InputSectionWrapper, StyledInput } from '../../components/atoms/Input'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
+import { Table, TableBody, TableHead, TableRow } from '../../components/atoms/Table'
+import { GenericInputSection } from '../../components/molecules/InputSection'
 
 export const DropdownInputSection = ({
   hasArrow,
@@ -59,17 +61,15 @@ export const DropdownInputSection = ({
           mt={12}
           ml={12}
           mb={12}
+          widthP={100}
           style={{
-            display: 'flex',
-            alignItems: 'center',
             justifyContent: 'center',
-            gap: '4px',
             height: '32px',
             backgroundColor: appTheme === 'light' ? '#FFFFFF' : '#2a2f3b',
           }}
           onClick={onClick ?? undefined}
         >
-          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+          <Flex center gap={4}>
             <Text>{icon}</Text>
             <Text t4 {...gradientTextStyle}>
               {text}
@@ -82,7 +82,7 @@ export const DropdownInputSection = ({
                 &#11206;
               </Text>
             )}
-          </div>
+          </Flex>
         </Button>
       )}
       <StyledInput
@@ -102,28 +102,56 @@ export const DropdownInputSection = ({
 export const DropdownOptions = ({
   list,
   isOpen,
+  searchFeature,
   onClick,
 }: {
-  list: { label: string; value: string }[]
+  list: { label: string; value: string; icon?: JSX.Element }[]
   isOpen: boolean
+  searchFeature?: boolean
   onClick: (value: string) => void
 }): JSX.Element => {
   const { styles } = useCoverageContext()
   const { bigButtonStyle, gradientTextStyle } = styles
 
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const activeList = useMemo(() => (searchTerm ? list.filter((item) => item.label.includes(searchTerm)) : list), [
+    searchTerm,
+    list,
+  ])
+
   return (
-    <Accordion isOpen={isOpen} style={{ marginTop: isOpen ? 12 : 0 }} customHeight={'380px'}>
-      <Flex col p={12} gap={8}>
-        {list.map((item) => (
-          <Flex key={item.label}>
-            <ButtonAppearance {...bigButtonStyle} matchBg secondary noborder onClick={() => onClick(item.value)}>
-              <Flex stretch between>
-                <Text {...gradientTextStyle}>{item.label}</Text>
-                <Text>{item.value}</Text>
-              </Flex>
-            </ButtonAppearance>
-          </Flex>
-        ))}
+    <Accordion isOpen={isOpen} style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }} customHeight={'380px'}>
+      <Flex pl={12} pr={12} pt={5} pb={5}>
+        <Table style={{ borderSpacing: '0px 8px' }}>
+          <TableHead sticky translation={8}>
+            {searchFeature && (
+              <TableRow>
+                <GenericInputSection
+                  placeholder={'Search Protocol'}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  h={40}
+                  style={{ marginTop: 10, marginBottom: 10 }}
+                />
+              </TableRow>
+            )}
+          </TableHead>
+          <TableBody>
+            {activeList.map((item) => (
+              <TableRow key={item.label}>
+                <ButtonAppearance {...bigButtonStyle} matchBg secondary noborder onClick={() => onClick(item.value)}>
+                  <Flex stretch between pl={16} pr={16}>
+                    <Flex gap={8} itemsCenter>
+                      {item.icon ?? <Text {...gradientTextStyle}>{item.label}</Text>}
+                    </Flex>
+                    <Text autoAlignVertical>{item.value}</Text>
+                  </Flex>
+                </ButtonAppearance>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </Flex>
     </Accordion>
   )

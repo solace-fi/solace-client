@@ -53,6 +53,7 @@ export const GenericInputSection = ({
   buttonDisabled,
   disabled,
   w,
+  h,
   style,
   displayIconOnMobile,
   buttonText,
@@ -68,6 +69,7 @@ export const GenericInputSection = ({
   buttonDisabled?: boolean
   disabled?: boolean
   w?: number
+  h?: number
   style?: React.CSSProperties
   displayIconOnMobile?: boolean
   buttonText?: string
@@ -80,7 +82,7 @@ export const GenericInputSection = ({
     ...style,
     // width: w ? w : '335px',
     width: w ? w : '100%',
-    height: '64px',
+    height: h ? h : '64px',
   }
   return (
     <InputSectionWrapper style={rawStyle}>
