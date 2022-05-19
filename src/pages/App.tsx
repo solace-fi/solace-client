@@ -148,12 +148,11 @@ export default function App(): any {
       <AnalyticsReporter />
       <GlobalStyle location={location} />
       <MenusTopNavBar setShowLeft={setLeftSidebar} setShowRight={setRightSidebar} />
+      <InfoSideNavbar show={width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR)} tabs={tabs} />
       <AppMenu show={rightSidebar} setShow={setRightSidebar} />
       <Layout>
         <ContentContainer>
-          <SideNavContent mobileWidth={6}>
-            <InfoSideNavbar tabs={tabs} />
-          </SideNavContent>
+          <SideNavContent mobileWidth={6}></SideNavContent>
           <MobileInfoSideNavbar
             show={leftSidebar && width < (rightSidebar ? BKPT_2 : BKPT_NAVBAR)}
             setShow={setLeftSidebar}

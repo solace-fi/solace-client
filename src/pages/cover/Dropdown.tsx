@@ -6,8 +6,7 @@ import { InputSectionWrapper, StyledInput } from '../../components/atoms/Input'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
-import { Table, TableBody, TableData, TableHead, TableRow } from '../../components/atoms/Table'
-import { GenericInputSection } from '../../components/molecules/InputSection'
+import { TableRow } from '../../components/atoms/Table'
 
 export const DropdownInputSection = ({
   hasArrow,
@@ -105,7 +104,6 @@ export const DropdownInputSection = ({
 export const DropdownOptions = ({
   list,
   isOpen,
-  searchFeature,
   noneText,
   onClick,
 }: {
@@ -118,55 +116,31 @@ export const DropdownOptions = ({
   const { styles } = useCoverageContext()
   const { bigButtonStyle, gradientTextStyle } = styles
 
-  const [searchTerm, setSearchTerm] = useState('')
-
-  const activeList = useMemo(() => (searchTerm ? list.filter((item) => item.label.includes(searchTerm)) : list), [
-    searchTerm,
-    list,
-  ])
-
   return (
     <Accordion isOpen={isOpen} style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }} customHeight={'380px'}>
-      <Flex pl={12} pr={12} pt={5} pb={5}>
-        <Table style={{ borderSpacing: '0px 8px' }}>
-          <TableHead sticky translation={8}>
-            {searchFeature && (
-              <TableRow>
-                <TableData p={0}>
-                  <GenericInputSection
-                    placeholder={'Search Protocol'}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ marginTop: 30, marginBottom: 30 }}
-                  />
-                </TableData>
-              </TableRow>
-            )}
-          </TableHead>
-          <TableBody>
-            {activeList.map((item) => (
-              <TableRow key={item.label}>
-                <TableData p={0}>
-                  <ButtonAppearance {...bigButtonStyle} matchBg secondary noborder onClick={() => onClick(item.value)}>
-                    <Flex stretch between pl={16} pr={16}>
-                      <Flex gap={8} itemsCenter>
-                        {item.icon ?? <Text {...gradientTextStyle}>{item.label}</Text>}
-                      </Flex>
-                      <Text autoAlignVertical>{item.value}</Text>
-                    </Flex>
-                  </ButtonAppearance>
-                </TableData>
-              </TableRow>
-            ))}
-            {activeList.length === 0 && (
-              <TableRow>
-                <Text t3 textAlignCenter bold>
-                  {noneText ?? 'No results found'}
-                </Text>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+      <Flex col gap={8} p={12}>
+        {list.map((item) => (
+          <ButtonAppearance
+            key={item.label}
+            {...bigButtonStyle}
+            matchBg
+            secondary
+            noborder
+            onClick={() => onClick(item.value)}
+          >
+            <Flex stretch between pl={16} pr={16}>
+              <Flex gap={8} itemsCenter>
+                {item.icon ?? <Text {...gradientTextStyle}>{item.label}</Text>}
+              </Flex>
+              <Text autoAlignVertical>{item.value}</Text>
+            </Flex>
+          </ButtonAppearance>
+        ))}
+        {list.length === 0 && (
+          <Text t3 textAlignCenter bold>
+            {noneText ?? 'No results found'}
+          </Text>
+        )}
       </Flex>
     </Accordion>
   )

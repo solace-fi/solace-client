@@ -16,8 +16,17 @@ import { PortfolioWindow } from './PortfolioWindow'
 function Cover(): JSX.Element {
   return (
     <CoverageManager>
-      <PortfolioWindow />
-      {/* <CoveragePage /> */}
+      <div
+        style={{
+          gridTemplateColumns: '1fr 2fr',
+          display: 'grid',
+          position: 'relative',
+          gap: '15px',
+        }}
+      >
+        <PortfolioWindow />
+        <CoveragePage />
+      </div>
     </CoverageManager>
   )
 }

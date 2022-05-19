@@ -391,11 +391,33 @@ export const usePortfolio = (
   account: string | null | undefined,
   chains: number[],
   chainsLoading: boolean
-): { portfolio: SolaceRiskScore | undefined; loading: boolean } => {
+): {
+  portfolio: SolaceRiskScore | undefined
+  riskBalances: (useV2: boolean) => Promise<SolaceRiskBalance[] | undefined>
+  riskScores: (balances: SolaceRiskBalance[]) => Promise<SolaceRiskScore | undefined>
+  loading: boolean
+} => {
   const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
   const { activeNetwork } = useNetwork()
   const [loading, setLoading] = useState(true)
   const fetching = useRef(false)
+  const risk = useMemo(() => new Risk(), [])
+
+  const riskBalances = useCallback(
+    async (useV2: boolean): Promise<SolaceRiskBalance[] | undefined> => {
+      if (!account) return undefined
+      return await risk.getSolaceRiskBalances(account, useV2 ? chains : [1])
+    },
+    [account, chains, risk]
+  )
+
+  const riskScores = useCallback(
+    async (balances: SolaceRiskBalance[]): Promise<SolaceRiskScore | undefined> => {
+      if (!account) return undefined
+      return await risk.getSolaceRiskScores(account, balances)
+    },
+    [account, risk]
+  )
 
   useEffect(() => {
     setLoading(true)
@@ -408,7 +430,6 @@ export const usePortfolio = (
         return
       }
       fetching.current = true
-      const risk = new Risk()
       const useV2 =
         activeNetwork.config.keyContracts.solaceCoverProduct &&
         activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
@@ -417,33 +438,34 @@ export const usePortfolio = (
         fetching.current = false
         return
       }
-      const balances: SolaceRiskBalance[] | undefined = await risk.getSolaceRiskBalances(account, useV2 ? chains : [1])
+      const balances: SolaceRiskBalance[] | undefined = await riskBalances(useV2)
       if (!balances) {
-        console.log('balances do not exist from risk api')
+        console.log('usePortfolio: balances do not exist from risk api')
         setLoading(false)
         fetching.current = false
         return
       }
-      const scores: SolaceRiskScore | undefined = await risk.getSolaceRiskScores(account, balances)
+      const scores: SolaceRiskScore | undefined = await riskScores(balances)
       if (!scores) {
-        console.log('scores not found from risk api')
+        console.log('usePortfolio: scores not found from risk api')
         setLoading(false)
         fetching.current = false
         return
       }
       setScore(scores)
+      console.log('usePortFolio: portfolio fetched successfully')
       setLoading(false)
       fetching.current = false
     }
     getPortfolio()
-  }, [account, activeNetwork, chainsLoading, chains])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, activeNetwork, chainsLoading, chains.toString()])
 
-  return { portfolio: score, loading }
+  return { portfolio: score, riskBalances, riskScores, loading }
 }
 
 export const useRiskSeries = () => {
   const [series, setSeries] = useState<SolaceRiskSeries | undefined>(undefined)
-  const { activeNetwork } = useNetwork()
   const [loading, setLoading] = useState(true)
   const fetching = useRef(false)
 
@@ -462,16 +484,17 @@ export const useRiskSeries = () => {
       const series: any = await risk.getSolaceRiskSeries()
       if (series.data.protocolMap) {
         setSeries(series as SolaceRiskSeries)
+        console.log('useRiskSeries: series fetched successfully')
         setLoading(false)
         fetching.current = false
       } else {
-        console.log('series not found from risk api')
+        console.log('useRiskSeries: series not found from risk api')
         setLoading(false)
         fetching.current = false
       }
     }
     getRiskSeries()
-  }, [activeNetwork])
+  }, [])
 
   return { series, loading }
 }

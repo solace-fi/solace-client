@@ -3,7 +3,7 @@ import { useWeb3React } from '@web3-react/core'
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { BKPT_2, BKPT_NAVBAR } from '../../constants'
 import { InterfaceState } from '../../constants/enums'
-import { SolaceRiskScore } from '../../constants/types'
+import { SolaceRiskBalance, SolaceRiskScore } from '../../constants/types'
 import { useGeneral } from '../../context/GeneralManager'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { usePortfolio, useRiskSeries } from '../../hooks/policy/useSolaceCoverProduct'
@@ -32,7 +32,10 @@ type CoverageContextType = {
     bigButtonStyle: any
     gradientTextStyle: any
   }
-  portfolio?: SolaceRiskScore
+  portfolioKit: {
+    portfolio?: SolaceRiskScore
+    riskScores: (balances: SolaceRiskBalance[]) => Promise<SolaceRiskScore | undefined>
+  }
   series?: SolaceRiskSeries
 }
 
@@ -60,7 +63,10 @@ const CoverageContext = createContext<CoverageContextType>({
     bigButtonStyle: {},
     gradientTextStyle: {},
   },
-  portfolio: undefined,
+  portfolioKit: {
+    portfolio: undefined,
+    riskScores: () => Promise.reject(),
+  },
   series: undefined,
 })
 
@@ -68,7 +74,7 @@ const CoverageManager: React.FC = (props) => {
   const { account } = useWeb3React()
   const { appTheme, rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
-  const { portfolio, loading: portfolioLoading } = usePortfolio(account, [1, 137], false)
+  const { portfolio, riskScores, loading: portfolioLoading } = usePortfolio(account, [1, 137], false)
   const { series, loading: seriesLoading } = useRiskSeries()
   const navbarThreshold = useMemo(() => width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR), [rightSidebar, width])
   const [enteredDays, setEnteredDays] = useState<string | undefined>(undefined)
@@ -151,7 +157,10 @@ const CoverageManager: React.FC = (props) => {
         bigButtonStyle,
         gradientTextStyle,
       },
-      portfolio,
+      portfolioKit: {
+        portfolio,
+        riskScores,
+      },
       series,
     }),
     [
@@ -167,6 +176,7 @@ const CoverageManager: React.FC = (props) => {
       interfaceState,
       portfolio,
       series,
+      riskScores,
       // setEnteredDays,
       // setEnteredAmount,
       // setDaysOpen,

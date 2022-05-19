@@ -5,3 +5,9 @@ export enum InterfaceState {
   NEUTRAL = 'NEUTRAL',
   LOADING = 'LOADING',
 }
+
+export enum ChosenLimit {
+  Custom,
+  MaxPosition,
+  Recommended,
+}

@@ -110,7 +110,7 @@ export const darkTheme = {
     infoText: '#6ec3ff',
     errorText: 'rgb(240, 77, 66)',
     warningText: 'rgb(245, 221, 83)',
-    successText: 'rgb(0, 255, 209)',
+    successText: 'rgb(74, 222, 128)',
     techyGradientA: 'rgb(212, 120, 216)',
     techyGradientB: 'rgb(95, 93, 249)',
     warmGradientA: 'rgba(243, 211, 126, 1)',

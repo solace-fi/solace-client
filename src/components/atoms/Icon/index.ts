@@ -5,6 +5,7 @@ import { Clock } from '@styled-icons/bootstrap/Clock'
 import { CoinStack } from '@styled-icons/boxicons-solid/CoinStack'
 import { Copy } from '@styled-icons/boxicons-regular/Copy'
 import { DarkMode } from '@styled-icons/material-outlined/DarkMode'
+import { ModelTraining } from '@styled-icons/material-outlined/ModelTraining'
 import { DarkTheme } from '@styled-icons/fluentui-system-regular/DarkTheme'
 import { Dashboard } from '@styled-icons/material/Dashboard'
 import { Discord } from '@styled-icons/simple-icons/Discord'
@@ -147,3 +148,5 @@ export const StyledFolderHistory = styled(FolderHistory)``
 export const StyledHelpCircle = styled(HelpCircle)``
 
 export const StyledOptions = styled(Options)``
+
+export const StyledModelTraining = styled(ModelTraining)``

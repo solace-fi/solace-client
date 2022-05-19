@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
@@ -9,7 +9,8 @@ import { Accordion } from '../../components/atoms/Accordion'
 import { TileCard } from '../../components/molecules/TileCard'
 import { DropdownInputSection, DropdownOptions } from './Dropdown'
 import { StyledHelpCircle } from '../../components/atoms/Icon'
-import { Loader } from '../../components/atoms/Loader'
+import { GenericInputSection } from '../../components/molecules/InputSection'
+import usePrevious from '../../hooks/internal/usePrevious'
 
 export const Protocol: React.FC<{
   protocol: SolaceRiskProtocol
@@ -18,16 +19,21 @@ export const Protocol: React.FC<{
   simulating: boolean
   deleteItem: (protocolAppId: string) => void
   editItem: (targetAppId: string, newAppId: string, newAmount: string) => void
-  runSimulation: () => void
-}> = ({ protocol, editableProtocols, simulating, riskColor, deleteItem, editItem, runSimulation }): JSX.Element => {
+}> = ({ protocol, editableProtocols, riskColor, simulating, deleteItem, editItem }): JSX.Element => {
   const { series, styles } = useCoverageContext()
   const { gradientTextStyle, bigButtonStyle } = styles
   const [enteredAmount, setEnteredAmount] = useState(protocol.balanceUSD.toString())
   const [enteredProtocolAppId, setEnteredProtocolAppId] = useState(protocol.appId)
 
+  const edited = useMemo(
+    () => enteredAmount !== protocol.balanceUSD.toString() || enteredProtocolAppId !== protocol.appId,
+    [enteredAmount, enteredProtocolAppId, protocol.appId, protocol.balanceUSD]
+  )
+
   const [isOpen, setIsOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [protocolsOpen, setProtocolsOpen] = useState(false)
+  const simulatingPrev = usePrevious(simulating)
 
   const isValidProtocol = useMemo(() => {
     if (!series) return false
@@ -62,8 +68,31 @@ export const Protocol: React.FC<{
     [series]
   )
 
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const activeList = useMemo(
+    () => (searchTerm ? protocolOptions.filter((item) => item.label.includes(searchTerm)) : protocolOptions),
+    [searchTerm, protocolOptions]
+  )
+
+  const close = () => {
+    setEnteredProtocolAppId(protocol.appId)
+    setEnteredAmount(protocol.balanceUSD.toString())
+    setIsOpen(false)
+    setIsEditing(false)
+    setProtocolsOpen(false)
+  }
+
+  useEffect(() => {
+    if (!simulatingPrev && simulating) close()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [simulatingPrev, simulating])
+
   return (
-    <div onClick={() => (!isOpen ? setIsOpen(!isOpen) : undefined)} style={{ cursor: !isOpen ? 'pointer' : 'unset' }}>
+    <div
+      onClick={() => (!isOpen && !simulating ? setIsOpen(!isOpen) : undefined)}
+      style={{ cursor: !isOpen ? 'pointer' : 'unset' }}
+    >
       <TileCard>
         <Button
           noborder
@@ -71,7 +100,7 @@ export const Protocol: React.FC<{
           style={{
             display: 'unset',
           }}
-          onClick={() => (isOpen ? setIsOpen(!isOpen) : undefined)}
+          onClick={isOpen ? () => close() : undefined}
         >
           <Flex col gap={8}>
             <Flex stretch between>
@@ -119,11 +148,20 @@ export const Protocol: React.FC<{
                     value={enteredAmount}
                     onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
                     onClick={() => setProtocolsOpen(!protocolsOpen)}
+                    style={{ marginBottom: 8 }}
                   />
+                  {protocolsOpen && (
+                    <GenericInputSection
+                      placeholder={'Search Protocol'}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      h={48}
+                    />
+                  )}
                   <DropdownOptions
                     searchFeature
                     isOpen={protocolsOpen}
-                    list={protocolOptions}
+                    list={activeList}
                     noneText={'No matching protocols found'}
                     onClick={(value: string) => {
                       setEnteredProtocolAppId(value)
@@ -131,39 +169,35 @@ export const Protocol: React.FC<{
                     }}
                   />
                 </div>
-                {simulating ? (
-                  <Loader />
-                ) : (
-                  <ButtonWrapper style={{ width: '100%' }} isColumn p={0}>
-                    <Button
-                      secondary
-                      separator
-                      {...bigButtonStyle}
-                      info
-                      onClick={() => {
-                        editItem(protocol.appId, enteredProtocolAppId, enteredAmount)
-                        setIsEditing(false)
-                        runSimulation()
-                      }}
-                      disabled={!isValidEnteredUniqueProtocol}
-                    >
-                      Save Changes
-                    </Button>
-                    <Button
-                      secondary
-                      separator
-                      {...bigButtonStyle}
-                      matchBg
-                      onClick={() => {
-                        setEnteredProtocolAppId(protocol.appId)
-                        setIsEditing(false)
-                        setIsOpen(false)
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </ButtonWrapper>
-                )}
+                <ButtonWrapper style={{ width: '100%' }} isColumn p={0}>
+                  <Button
+                    secondary
+                    separator
+                    {...bigButtonStyle}
+                    info
+                    onClick={() => {
+                      editItem(protocol.appId, enteredProtocolAppId, enteredAmount)
+                      setIsEditing(false)
+                    }}
+                    disabled={!isValidEnteredUniqueProtocol || !edited}
+                  >
+                    Save Changes
+                  </Button>
+                  <Button
+                    secondary
+                    separator
+                    {...bigButtonStyle}
+                    matchBg
+                    onClick={() => {
+                      setEnteredProtocolAppId(protocol.appId)
+                      setEnteredAmount(protocol.balanceUSD.toString())
+                      setIsEditing(false)
+                      setProtocolsOpen(false)
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </ButtonWrapper>
               </Flex>
             ) : (
               <ButtonWrapper style={{ width: '100%' }} isColumn p={0}>
