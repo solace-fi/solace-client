@@ -6,7 +6,7 @@ import { InputSectionWrapper, StyledInput } from '../../components/atoms/Input'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
-import { Table, TableBody, TableHead, TableRow } from '../../components/atoms/Table'
+import { Table, TableBody, TableData, TableHead, TableRow } from '../../components/atoms/Table'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 
 export const DropdownInputSection = ({
@@ -53,7 +53,7 @@ export const DropdownInputSection = ({
   )
   return (
     <InputSectionWrapper style={rawStyle}>
-      {icon && text && (
+      {(icon || text) && (
         <Button
           nohover
           noborder
@@ -70,12 +70,15 @@ export const DropdownInputSection = ({
           onClick={onClick ?? undefined}
         >
           <Flex center gap={4}>
-            <Text>{icon}</Text>
-            <Text t4 {...gradientTextStyle}>
-              {text}
-            </Text>
+            {icon && <Text autoAlignVertical>{icon}</Text>}
+            {text && (
+              <Text t4 {...gradientTextStyle}>
+                {text}
+              </Text>
+            )}
             {hasArrow && (
               <Text
+                autoAlignVertical
                 {...gradientTextStyle}
                 style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: '10px' }}
               >
@@ -103,11 +106,13 @@ export const DropdownOptions = ({
   list,
   isOpen,
   searchFeature,
+  noneText,
   onClick,
 }: {
   list: { label: string; value: string; icon?: JSX.Element }[]
   isOpen: boolean
   searchFeature?: boolean
+  noneText?: string
   onClick: (value: string) => void
 }): JSX.Element => {
   const { styles } = useCoverageContext()
@@ -127,29 +132,39 @@ export const DropdownOptions = ({
           <TableHead sticky translation={8}>
             {searchFeature && (
               <TableRow>
-                <GenericInputSection
-                  placeholder={'Search Protocol'}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  h={40}
-                  style={{ marginTop: 10, marginBottom: 10 }}
-                />
+                <TableData p={0}>
+                  <GenericInputSection
+                    placeholder={'Search Protocol'}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ marginTop: 30, marginBottom: 30 }}
+                  />
+                </TableData>
               </TableRow>
             )}
           </TableHead>
           <TableBody>
             {activeList.map((item) => (
               <TableRow key={item.label}>
-                <ButtonAppearance {...bigButtonStyle} matchBg secondary noborder onClick={() => onClick(item.value)}>
-                  <Flex stretch between pl={16} pr={16}>
-                    <Flex gap={8} itemsCenter>
-                      {item.icon ?? <Text {...gradientTextStyle}>{item.label}</Text>}
+                <TableData p={0}>
+                  <ButtonAppearance {...bigButtonStyle} matchBg secondary noborder onClick={() => onClick(item.value)}>
+                    <Flex stretch between pl={16} pr={16}>
+                      <Flex gap={8} itemsCenter>
+                        {item.icon ?? <Text {...gradientTextStyle}>{item.label}</Text>}
+                      </Flex>
+                      <Text autoAlignVertical>{item.value}</Text>
                     </Flex>
-                    <Text autoAlignVertical>{item.value}</Text>
-                  </Flex>
-                </ButtonAppearance>
+                  </ButtonAppearance>
+                </TableData>
               </TableRow>
             ))}
+            {activeList.length === 0 && (
+              <TableRow>
+                <Text t3 textAlignCenter bold>
+                  {noneText ?? 'No results found'}
+                </Text>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </Flex>

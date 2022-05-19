@@ -2,40 +2,45 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Content, Flex, VerticalSeparator } from '../../components/atoms/Layout'
 import { useCoverageContext } from './CoverageContext'
 import { Text, TextSpan } from '../../components/atoms/Typography'
-import { SolaceRiskProtocol } from '../../constants/types'
+import { SolaceRiskBalance, SolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
 import { Button } from '../../components/atoms/Button'
-import { useGeneral } from '../../context/GeneralManager'
-import { capitalizeFirstLetter, truncateValue } from '../../utils/formatting'
+import { formatAmount, truncateValue } from '../../utils/formatting'
 import { useTierColors } from '../../hooks/internal/useTierColors'
 import { Protocol } from './Protocol'
 import usePrevious from '../../hooks/internal/usePrevious'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
+import { Risk } from '@solace-fi/sdk-nightly'
+import { useWeb3React } from '@web3-react/core'
 
 export const PortfolioWindow = (): JSX.Element => {
-  const { appTheme } = useGeneral()
+  const { account } = useWeb3React()
   const { portfolio: portfolioScore, styles } = useCoverageContext()
   const { gradientTextStyle, bigButtonStyle } = styles
-  const [editableProtocols, setEditableProtocols] = useState<SolaceRiskProtocol[]>([])
+  const [fetchedProtocols, setFetchedProtocols] = useState<SolaceRiskProtocol[]>([])
+  const [customProtocols, setCustomProtocols] = useState<SolaceRiskProtocol[]>([])
+  const [simulatedPortfolioScore, setSimulatedPortfolioScore] = useState<SolaceRiskScore | undefined>(undefined)
+  const [simulating, setSimulating] = useState(false)
+
+  const scoreToUse = useMemo(() => simulatedPortfolioScore ?? portfolioScore, [portfolioScore, simulatedPortfolioScore])
+
+  const editableProtocols = useMemo(() => [...customProtocols, ...fetchedProtocols], [
+    customProtocols,
+    fetchedProtocols,
+  ])
 
   const usdBalanceSum = useMemo(
     () =>
-      portfolioScore && portfolioScore.protocols.length > 0
-        ? portfolioScore.protocols.reduce((total, protocol) => (total += protocol.balanceUSD), 0)
+      scoreToUse && scoreToUse.protocols.length > 0
+        ? scoreToUse.protocols.reduce((total, protocol) => (total += protocol.balanceUSD), 0)
         : 0,
-    [portfolioScore]
+    [scoreToUse]
   )
 
-  const annualRate = useMemo(() => (portfolioScore && portfolioScore.current_rate ? portfolioScore.current_rate : 0), [
-    portfolioScore,
-  ])
-
-  const annualCost = useMemo(() => (portfolioScore && portfolioScore.address_rp ? portfolioScore.address_rp : 0), [
-    portfolioScore,
-  ])
+  const annualRate = useMemo(() => (scoreToUse && scoreToUse.current_rate ? scoreToUse.current_rate : 0), [scoreToUse])
 
   const dailyRate = useMemo(() => annualRate / 365.25, [annualRate])
 
-  const portfolioPrev = usePrevious(portfolioScore)
+  const portfolioPrev = usePrevious(scoreToUse)
 
   const tierColors = useTierColors(editableProtocols.map((p) => p.tier))
 
@@ -48,15 +53,94 @@ export const PortfolioWindow = (): JSX.Element => {
     }
   }
 
+  const addItem = () => {
+    setCustomProtocols((prev) => [
+      ...prev,
+      {
+        appId: `Unknown ${Date.now().toString()}`,
+        balanceUSD: 0,
+        category: 'Unknown',
+        network: '',
+        riskLoad: 0,
+        rol: 0,
+        rrol: 0,
+        tier: 0,
+        'rp-usd': 0,
+        'risk-adj': 0,
+      },
+    ])
+  }
+
+  const editItem = (targetAppId: string, newAppId: string, newAmount: string) => {
+    const numberifiedNewAmount = parseFloat(formatAmount(newAmount))
+    const fetchedP = fetchedProtocols.find((p) => p.appId.toLowerCase() === targetAppId.toLowerCase())
+    if (fetchedP) {
+      setFetchedProtocols(
+        fetchedProtocols.map((p) => {
+          if (p.appId === targetAppId) {
+            return {
+              ...p,
+              appId: newAppId,
+              balanceUSD: numberifiedNewAmount,
+            }
+          } else {
+            return p
+          }
+        })
+      )
+      return
+    }
+    const customP = customProtocols.find((p) => p.appId.toLowerCase() === targetAppId.toLowerCase())
+    if (customP) {
+      setCustomProtocols(
+        customProtocols.map((p) => {
+          if (p.appId === targetAppId) {
+            return {
+              ...p,
+              appId: newAppId,
+              balanceUSD: numberifiedNewAmount,
+            }
+          } else {
+            return p
+          }
+        })
+      )
+    }
+  }
+
   const deleteItem = (protocolAppId: string) => {
-    const newEditableProtocols = editableProtocols.filter((p) => p.appId !== protocolAppId)
-    setEditableProtocols(newEditableProtocols)
+    const fetchedP = fetchedProtocols.find((p) => p.appId.toLowerCase() === protocolAppId.toLowerCase())
+    if (fetchedP) {
+      const newFetchedP = fetchedProtocols.filter((p) => p.appId !== protocolAppId)
+      setFetchedProtocols(newFetchedP)
+      return
+    }
+    const customP = customProtocols.find((p) => p.appId.toLowerCase() === protocolAppId.toLowerCase())
+    if (customP) {
+      const newCustomP = customProtocols.filter((p) => p.appId !== protocolAppId)
+      setCustomProtocols(newCustomP)
+    }
+  }
+
+  const runSimulation = async () => {
+    if (!account) return
+    setSimulating(true)
+    const riskBalances: SolaceRiskBalance[] = editableProtocols.map((p) => ({
+      appId: p.appId,
+      balanceUSD: p.balanceUSD,
+      network: p.network,
+    }))
+    const risk = new Risk()
+    const score = await risk.getSolaceRiskScores(account, riskBalances)
+    setSimulatedPortfolioScore(score)
+    setSimulating(false)
   }
 
   useEffect(() => {
     if (portfolioPrev == undefined && portfolioScore != undefined) {
-      setEditableProtocols(portfolioScore.protocols ?? [])
+      setFetchedProtocols([...portfolioScore.protocols])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portfolioScore, portfolioPrev])
 
   return (
@@ -102,7 +186,7 @@ export const PortfolioWindow = (): JSX.Element => {
             </Flex>
           </StyledTooltip>
         </Flex>
-        <Button info secondary {...bigButtonStyle}>
+        <Button info secondary {...bigButtonStyle} onClick={addItem}>
           + Add Asset
         </Button>
         {editableProtocols.map((protocol: SolaceRiskProtocol) => {
@@ -114,6 +198,9 @@ export const PortfolioWindow = (): JSX.Element => {
               editableProtocols={editableProtocols}
               riskColor={riskColor}
               deleteItem={deleteItem}
+              editItem={editItem}
+              runSimulation={runSimulation}
+              simulating={simulating}
             />
           )
         })}
