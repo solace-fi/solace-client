@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { Content, Flex } from '../../components/atoms/Layout'
 import { useCoverageContext } from './CoverageContext'
@@ -20,13 +20,14 @@ import { Z_NAV } from '../../constants'
 
 export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
   const { active } = useWeb3React()
-  const { portfolioKit, styles, series } = useCoverageContext()
+  const { portfolioKit, styles, seriesKit } = useCoverageContext()
+  const { series } = seriesKit
   const { portfolio: portfolioScore, loading: portfolioLoading, riskScores } = portfolioKit
   const { bigButtonStyle, gradientStyle } = styles
   const [simulatedPortfolioScore, setSimulatedPortfolioScore] = useState<SolaceRiskScore | undefined>(undefined)
   const [canSimulate, setCanSimulate] = useState(false)
   const [simCoverageLimit, setSimCoverageLimit] = useState<BigNumber>(BigNumber.from(0))
-
+  const [editingItem, setEditingItem] = useState<string | undefined>(undefined)
   const [simulating, setSimulating] = useState(false)
   const [compiling, setCompiling] = useState(false)
 
@@ -41,6 +42,8 @@ export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
     })
     return lookup
   }, [editableProtocols])
+
+  const editableProtocolAppIds = useMemo(() => editableProtocols.map((p) => p.appId.toLowerCase()), [editableProtocols])
 
   const portfolioPrev = usePrevious(scoreToUse)
 
@@ -57,120 +60,143 @@ export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
 
   const addItem = (index?: number) => {
     // if adding with out index, or index is last, add to end
+    const time = Date.now().toString()
+    const data = {
+      appId: `Empty ${time}`,
+      balanceUSD: 0,
+      category: 'Unknown',
+      network: '',
+      riskLoad: 0,
+      rol: 0,
+      rrol: 0,
+      tier: 0,
+      'rp-usd': 0,
+      'risk-adj': 0,
+    }
     if (index == undefined || index == editableProtocols.length - 1) {
       setEditableProtocols((prev) => [
         ...prev,
         {
-          appId: `Unknown ${Date.now().toString()}`,
-          balanceUSD: 0,
-          category: 'Unknown',
-          network: '',
-          riskLoad: 0,
-          rol: 0,
-          rrol: 0,
-          tier: 0,
-          'rp-usd': 0,
-          'risk-adj': 0,
+          ...data,
           index: prev.length,
         },
       ])
-    } else {
-      // if adding with index before the end, add insert into index, then reassign index numbers of all protocols
-      const temp = [
-        ...editableProtocols.slice(0, index + 1),
-        {
-          appId: `Unknown ${Date.now().toString()}`,
-          balanceUSD: 0,
-          category: 'Unknown',
-          network: '',
-          riskLoad: 0,
-          rol: 0,
-          rrol: 0,
-          tier: 0,
-          'rp-usd': 0,
-          'risk-adj': 0,
-          index: index + 1,
-        },
-        ...editableProtocols.slice(index + 1),
-      ]
+    } else if (index == -1) {
+      // if adding before the first item, add to start
+      const temp = [{ ...data, index: 0 }, ...editableProtocols]
       temp.forEach((protocol, i) => {
         protocol.index = i
       })
       setEditableProtocols(temp)
+    } else {
+      // if adding with index in the middle, add insert into index, then reassign index numbers of all protocols
+      const temp = [
+        ...editableProtocols.slice(0, index + 1),
+        {
+          ...data,
+          index: index + 1,
+        },
+        ...editableProtocols.slice(index + 1),
+      ]
+      const newTemp = [
+        ...temp.slice(0, index + 1),
+        ...temp.slice(index + 1).map((protocol, i) => ({ ...protocol, index: i + index + 1 })),
+      ]
+      setEditableProtocols(newTemp)
     }
   }
 
-  const editCoverageLimit = (newCoverageLimit: BigNumber) => {
-    if (simCoverageLimit.eq(newCoverageLimit)) return
-    setSimCoverageLimit(newCoverageLimit)
-  }
+  const editCoverageLimit = useCallback(
+    (newCoverageLimit: BigNumber) => {
+      if (simCoverageLimit.eq(newCoverageLimit)) return
+      setSimCoverageLimit(newCoverageLimit)
+    },
+    [simCoverageLimit]
+  )
 
-  const editId = (targetAppId: string, newAppId: string) => {
-    if (targetAppId === newAppId) return
-    const matchingProtocol = series?.data.protocolMap.find((p) => p.appId.toLowerCase() === newAppId.toLowerCase())
-    if (!matchingProtocol) return
-    let editedSomething = false
+  const editId = useCallback(
+    (targetAppId: string, newAppId: string) => {
+      if (targetAppId === newAppId) return
+      const matchingProtocol = series?.data.protocolMap.find((p) => p.appId.toLowerCase() === newAppId.toLowerCase())
+      if (!matchingProtocol) return
+      let editedSomething = false
 
-    const targetProtocol = editableProtocolLookup[targetAppId.toLowerCase()]
-    if (!targetProtocol) return
-    setCompiling(true)
-    setEditableProtocols(
-      editableProtocols.map((p) => {
-        if (p.appId === targetAppId) {
-          editedSomething = true
-          return {
-            ...p,
-            appId: newAppId,
-            category: matchingProtocol.category,
+      const targetProtocol = editableProtocolLookup[targetAppId.toLowerCase()]
+      if (!targetProtocol) return
+      setCompiling(true)
+      setEditableProtocols(
+        editableProtocols.map((p) => {
+          if (p.appId === targetAppId) {
+            editedSomething = true
+            return {
+              ...p,
+              appId: newAppId,
+              category: matchingProtocol.category,
 
-            tier: matchingProtocol.tier,
+              tier: matchingProtocol.tier,
+            }
+          } else {
+            return p
           }
-        } else {
-          return p
-        }
-      })
-    )
-    if (editedSomething) setCanSimulate(true)
-  }
+        })
+      )
+      if (editedSomething) setCanSimulate(true)
+    },
+    [editableProtocols, editableProtocolLookup, series]
+  )
 
-  const editAmount = (targetAppId: string, newAmount: string) => {
-    const numberifiedNewAmount = parseFloat(formatAmount(newAmount))
-    let editedSomething = false
+  const editAmount = useCallback(
+    (targetAppId: string, newAmount: string) => {
+      const numberifiedNewAmount = parseFloat(formatAmount(newAmount))
+      let editedSomething = false
 
-    const targetProtocol = editableProtocolLookup[targetAppId.toLowerCase()]
-    if (targetProtocol.balanceUSD.toString() === newAmount || !targetProtocol) return
-    setCompiling(true)
-    setEditableProtocols(
-      editableProtocols.map((p) => {
-        if (p.appId === targetAppId) {
-          editedSomething = true
-          return {
-            ...p,
-            balanceUSD: numberifiedNewAmount,
+      const targetProtocol = editableProtocolLookup[targetAppId.toLowerCase()]
+      if (!targetProtocol) return
+      if (targetProtocol.balanceUSD.toString() === newAmount || !targetProtocol) return
+      if (!targetAppId.includes('Empty')) setCompiling(true)
+      setEditableProtocols(
+        editableProtocols.map((p) => {
+          if (p.appId === targetAppId) {
+            editedSomething = true
+            return {
+              ...p,
+              balanceUSD: numberifiedNewAmount,
+            }
+          } else {
+            return p
           }
-        } else {
-          return p
-        }
-      })
-    )
-    if (editedSomething) setCanSimulate(true)
-  }
+        })
+      )
+      if (editedSomething && !targetAppId.includes('Empty')) setCanSimulate(true)
+    },
+    [editableProtocols, editableProtocolLookup]
+  )
 
-  const deleteItem = (targetAppId: string) => {
-    const targetProtocol = editableProtocolLookup[targetAppId.toLowerCase()]
-    if (!targetProtocol) return
-    setEditableProtocols(editableProtocols.filter((p) => p.appId !== targetAppId))
-    if (!targetProtocol.appId.includes('Unknown') || targetProtocol.balanceUSD == 0) {
-      setCanSimulate(true)
-    }
-  }
+  const deleteItem = useCallback(
+    (targetAppId: string) => {
+      const targetProtocol = editableProtocolLookup[targetAppId.toLowerCase()]
+      if (!targetProtocol) return
+      setEditableProtocols(
+        editableProtocols
+          .filter((p) => p.appId !== targetAppId)
+          .map((p) => ({
+            ...p,
+            index: targetProtocol.index < p.index ? p.index - 1 : p.index,
+          }))
+      )
+      if (!targetProtocol.appId.includes('Empty') && targetProtocol.balanceUSD >= 0) {
+        setCanSimulate(true)
+      }
+    },
+    [editableProtocols, editableProtocolLookup]
+  )
 
   // do not run this if the user has not touched anything here
-  const runSimulation = async () => {
+  const runSimulation = useCallback(async () => {
     if (portfolioLoading && active) return
     setSimulating(true)
     const riskBalances: SolaceRiskBalance[] = editableProtocols
-      .filter((p) => !p.appId.includes('Unknown'))
+      .filter((p) => !p.appId.includes('Empty'))
       .map((p) => ({
         appId: p.appId,
         network: p.network,
@@ -182,7 +208,11 @@ export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
     setCompiling(false)
     setCanSimulate(false)
     setSimulating(false)
-  }
+  }, [editableProtocols, portfolioLoading, active, riskScores])
+
+  const handleEditingItem = useCallback((appId: string | undefined) => {
+    setEditingItem(appId)
+  }, [])
 
   useEffect(() => {
     const handleSim = async () => {
@@ -208,7 +238,7 @@ export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
           <Projections portfolioScore={scoreToUse} coverageLimit={simCoverageLimit} />
         )}
         <TileCard>
-          <CoverageLimitSelector portfolio={portfolioScore} setNewCoverageLimit={editCoverageLimit} />
+          <CoverageLimitSelector portfolioScore={scoreToUse} setNewCoverageLimit={editCoverageLimit} />
         </TileCard>
         <Button
           {...gradientStyle}
@@ -226,12 +256,14 @@ export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
             <Protocol
               key={protocol.appId}
               protocol={protocol}
-              editableProtocols={editableProtocols}
+              editableProtocolAppIds={editableProtocolAppIds}
               riskColor={riskColor}
+              editingItem={editingItem}
               addItem={addItem}
               deleteItem={deleteItem}
               editId={editId}
               editAmount={editAmount}
+              handleEditingItem={handleEditingItem}
               simulating={simulating}
             />
           )

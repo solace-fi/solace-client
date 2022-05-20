@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useCoverageContext } from './CoverageContext'
 import { Accordion } from '../../components/atoms/Accordion'
 import { Button, ButtonAppearance } from '../../components/atoms/Button'
@@ -82,7 +82,7 @@ export const DropdownInputSection = ({
                 {...gradientStyle}
                 style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: '10px' }}
               >
-                &#11206;
+                ⯆
               </Text>
             )}
           </Flex>

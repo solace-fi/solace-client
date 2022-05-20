@@ -24,14 +24,14 @@ const CoverageContent = () => {
   return (
     <div
       style={{
-        gridTemplateColumns: '1fr 2fr',
+        gridTemplateColumns: '2fr 1fr',
         display: 'grid',
         position: 'relative',
         gap: '15px',
       }}
     >
-      <PortfolioWindow show={showPortfolio} />
       <CoveragePage />
+      <PortfolioWindow show={showPortfolio} />
     </div>
   )
 }

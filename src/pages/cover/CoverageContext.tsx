@@ -39,7 +39,10 @@ type CoverageContextType = {
     loading: boolean
     riskScores: (balances: SolaceRiskBalance[]) => Promise<SolaceRiskScore | undefined>
   }
-  series?: SolaceRiskSeries
+  seriesKit: {
+    series?: SolaceRiskSeries
+    seriesLogos: { label: string; value: string; icon: JSX.Element }[]
+  }
 }
 
 const CoverageContext = createContext<CoverageContextType>({
@@ -73,7 +76,10 @@ const CoverageContext = createContext<CoverageContextType>({
     loading: true,
     riskScores: () => Promise.reject(),
   },
-  series: undefined,
+  seriesKit: {
+    series: undefined,
+    seriesLogos: [],
+  },
 })
 
 const CoverageManager: React.FC = (props) => {
@@ -89,6 +95,20 @@ const CoverageManager: React.FC = (props) => {
   const [loading, setLoading] = useState(false)
   const [interfaceState, setInterfaceState] = useState<InterfaceState>(loading ? InterfaceState.LOADING : userState)
   const [showPortfolio, setShowPortfolio] = useState(false)
+
+  const seriesLogos = useMemo(
+    () =>
+      series
+        ? series.data.protocolMap.map((s) => {
+            return {
+              label: s.appId,
+              value: s.appId,
+              icon: <img src={`https://assets.solace.fi/zapperLogos/${s.appId}`} height={24} />,
+            }
+          })
+        : [],
+    [series]
+  )
 
   const [daysOpen, setDaysOpen] = useState(false)
   const [coinsOpen, setCoinsOpen] = useState(false)
@@ -171,7 +191,10 @@ const CoverageManager: React.FC = (props) => {
         loading: portfolioLoading,
         riskScores,
       },
-      series,
+      seriesKit: {
+        series,
+        seriesLogos,
+      },
     }),
     [
       navbarThreshold,
@@ -187,6 +210,7 @@ const CoverageManager: React.FC = (props) => {
       portfolio,
       portfolioLoading,
       series,
+      seriesLogos,
       showPortfolio,
       riskScores,
       // setEnteredDays,

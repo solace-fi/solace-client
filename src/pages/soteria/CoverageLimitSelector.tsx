@@ -24,10 +24,10 @@ const prevChosenLimit = (chosenLimit: ChosenLimit) =>
   ((chosenLimit - 1 + ChosenLimitLength) % ChosenLimitLength) as ChosenLimit
 
 export const CoverageLimitSelector = ({
-  portfolio,
+  portfolioScore,
   setNewCoverageLimit,
 }: {
-  portfolio?: SolaceRiskScore
+  portfolioScore?: SolaceRiskScore
   setNewCoverageLimit: (newCoverageLimit: BigNumber) => void
 }): JSX.Element => {
   const [chosenLimit, setChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
@@ -40,10 +40,10 @@ export const CoverageLimitSelector = ({
 
   const highestPosition = useMemo(
     () =>
-      portfolio && portfolio.protocols.length > 0
-        ? portfolio.protocols.reduce((pn, cn) => (cn.balanceUSD > pn.balanceUSD ? cn : pn))
+      portfolioScore && portfolioScore.protocols.length > 0
+        ? portfolioScore.protocols.reduce((pn, cn) => (cn.balanceUSD > pn.balanceUSD ? cn : pn))
         : undefined,
-    [portfolio]
+    [portfolioScore]
   )
 
   const handleInputChange = (input: string) => {

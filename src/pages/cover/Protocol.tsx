@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Flex } from '../../components/atoms/Layout'
-import { Text } from '../../components/atoms/Typography'
+import { Text, TextSpan } from '../../components/atoms/Typography'
 import { Button } from '../../components/atoms/Button'
 import { capitalizeFirstLetter, filterAmount } from '../../utils/formatting'
-import { LocalSolaceRiskProtocol, SolaceRiskProtocol } from '../../constants/types'
+import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { useCoverageContext } from './CoverageContext'
 import { Accordion } from '../../components/atoms/Accordion'
 import { TileCard } from '../../components/molecules/TileCard'
@@ -16,19 +16,36 @@ import useDebounce from '@rooks/use-debounce'
 
 export const Protocol: React.FC<{
   protocol: LocalSolaceRiskProtocol
-  editableProtocols: LocalSolaceRiskProtocol[]
+  editableProtocolAppIds: string[]
   riskColor: string
   simulating: boolean
+  editingItem: string | undefined
   addItem: (index?: number | undefined) => void
   deleteItem: (targetAppId: string) => void
   editId: (targetAppId: string, newAppId: string) => void
   editAmount: (targetAppId: string, newAmount: string) => void
-}> = ({ protocol, editableProtocols, riskColor, simulating, addItem, deleteItem, editId, editAmount }): JSX.Element => {
-  const { series, styles } = useCoverageContext()
+  handleEditingItem: (appId: string | undefined) => void
+}> = ({
+  protocol,
+  editableProtocolAppIds,
+  riskColor,
+  simulating,
+  editingItem,
+  addItem,
+  deleteItem,
+  editId,
+  editAmount,
+  handleEditingItem,
+}): JSX.Element => {
+  const { seriesKit, styles } = useCoverageContext()
+  const { series, seriesLogos } = seriesKit
   const { gradientStyle } = styles
 
   const [protocolsOpen, setProtocolsOpen] = useState(false)
-  const [enteredAmount, setEnteredAmount] = useState(protocol.balanceUSD.toString())
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [enteredAmount, setEnteredAmount] = useState(
+    protocol.balanceUSD.toString() == '0' ? '' : protocol.balanceUSD.toString()
+  )
   const [searchTerm, setSearchTerm] = useState('')
 
   const simulatingPrev = usePrevious(simulating)
@@ -38,23 +55,28 @@ export const Protocol: React.FC<{
     return series.data.protocolMap.find((p) => p.appId.toLowerCase() == protocol.appId.toLowerCase())
   }, [protocol, series])
 
-  const protocolOptions = useMemo(
-    () =>
-      series
-        ? series.data.protocolMap.map((s) => {
-            return {
-              label: s.appId,
-              value: s.appId,
-              icon: <img src={`https://assets.solace.fi/zapperLogos/${s.appId}`} height={24} />,
-            }
-          })
-        : [],
-    [series]
-  )
+  const protocolOptions = useMemo(() => seriesLogos, [seriesLogos])
 
   const activeList = useMemo(
     () => (searchTerm ? protocolOptions.filter((item) => item.label.includes(searchTerm)) : protocolOptions),
     [searchTerm, protocolOptions]
+  )
+
+  const cachedDropdownOptions = useMemo(
+    () => (
+      <DropdownOptionsUnique
+        comparingList={editableProtocolAppIds}
+        isOpen={dropdownOpen}
+        searchedList={activeList}
+        noneText={'No matching protocols found'}
+        onClick={(value: string) => {
+          editId(protocol.appId, value)
+          handleEditingItem(undefined)
+          setProtocolsOpen(false)
+        }}
+      />
+    ),
+    [editId, editableProtocolAppIds, handleEditingItem, dropdownOpen, protocol.appId, activeList]
   )
 
   const close = () => {
@@ -75,23 +97,81 @@ export const Protocol: React.FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enteredAmount])
 
+  useEffect(() => {
+    setEnteredAmount(protocol.balanceUSD.toString() == '0' ? '' : protocol.balanceUSD.toString())
+  }, [protocol.balanceUSD])
+
+  useEffect(() => {
+    if (!protocolsOpen) {
+      setTimeout(() => {
+        setDropdownOpen(false)
+      }, 100)
+    } else {
+      setDropdownOpen(true)
+    }
+  }, [protocolsOpen])
+
+  useEffect(() => {
+    if (!editingItem || (editingItem && editingItem.toString() !== protocol.appId.toString())) {
+      setProtocolsOpen(false)
+    }
+  }, [editingItem, protocol.appId])
+
   return (
     <div>
-      <TileCard>
-        <Flex col gap={8} style={{ position: 'relative' }}>
-          <Button
-            width={30}
-            height={30}
-            style={{ position: 'absolute', top: '-25px', right: '-25px' }}
-            noborder
-            error
-            onClick={() => deleteItem(protocol.appId)}
-          >
-            <StyledClose size={16} />
-          </Button>
+      <TileCard style={{ position: 'relative' }}>
+        <Button
+          {...gradientStyle}
+          width={30}
+          height={30}
+          onClick={() => addItem(protocol.index - 1)}
+          noborder
+          nohover
+          style={{ position: 'absolute', top: '0px', left: '0px' }}
+        >
+          <StyledAdd size={20} />
+        </Button>
+        <Button
+          {...gradientStyle}
+          width={30}
+          height={30}
+          onClick={() => addItem(protocol.index)}
+          noborder
+          nohover
+          style={{ position: 'absolute', bottom: '0px', left: '0px' }}
+        >
+          <StyledAdd size={20} />
+        </Button>
+        <Button
+          width={30}
+          height={30}
+          style={{ position: 'absolute', top: '0px', right: '0px' }}
+          noborder
+          nohover
+          error
+          onClick={() => deleteItem(protocol.appId)}
+        >
+          <StyledClose size={16} />
+        </Button>
+        <Flex between itemsCenter style={{ position: 'absolute', right: '30px', bottom: '5px' }} gap={20}>
+          <Flex col w={200}>
+            <Text t6 bold textAlignRight>
+              {capitalizeFirstLetter(protocol.category)}
+            </Text>
+          </Flex>
+          <Flex col w={100}>
+            <Text t6 bold textAlignRight>
+              Risk Level: <TextSpan style={{ color: riskColor }}>{protocol.tier}</TextSpan>
+            </Text>
+          </Flex>
+        </Flex>
+        <Flex col gap={8}>
           <Flex stretch between gap={10}>
             <div
-              onClick={() => setProtocolsOpen(!protocolsOpen)}
+              onClick={() => {
+                setProtocolsOpen(!protocolsOpen)
+                handleEditingItem(protocolsOpen ? undefined : protocol.appId)
+              }}
               style={{
                 width: '100%',
                 cursor: 'pointer',
@@ -113,7 +193,7 @@ export const Protocol: React.FC<{
                 <StyledInput
                   type="text"
                   className="py-3 lg:py-5 px-2 outline-none rounded-xl lg:border-0 lg:rounded-none"
-                  value={capitalizeFirstLetter(protocol.appId.includes('Unknown') ? 'Unknown' : protocol.appId)}
+                  value={capitalizeFirstLetter(protocol.appId.includes('Empty') ? 'Empty' : protocol.appId)}
                   onChange={() => undefined}
                   style={{
                     backgroundColor: 'inherit',
@@ -130,7 +210,7 @@ export const Protocol: React.FC<{
                   {...gradientStyle}
                   style={{ transform: protocolsOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: '12px' }}
                 >
-                  &#11206;
+                  ⯆
                 </Text>
               </InputSectionWrapper>
             </div>
@@ -154,50 +234,18 @@ export const Protocol: React.FC<{
               />
             </InputSectionWrapper>
           </Flex>
-          {!protocolsOpen && (
-            <Flex between itemsCenter>
-              <Flex col w={100}>
-                <Text t7 bold>
-                  Category:
-                </Text>
-                <Text t6>{capitalizeFirstLetter(protocol.category)}</Text>
-              </Flex>
-              <Flex col w={52}>
-                <Text t7 bold>
-                  Risk Level:
-                </Text>
-                <Text style={{ color: riskColor }} t6>
-                  {protocol.tier}
-                </Text>
-              </Flex>
-              <Button {...gradientStyle} width={50} secondary onClick={() => addItem(protocol.index)} noborder>
-                <StyledAdd size={20} />
-              </Button>
-            </Flex>
-          )}
         </Flex>
         <Accordion noScroll isOpen={protocolsOpen} style={{ backgroundColor: 'inherit' }}>
           <div style={{ padding: 8 }}>
             <Flex col gap={8}>
               <div>
-                {protocolsOpen && (
-                  <GenericInputSection
-                    placeholder={'Search Protocol'}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    h={48}
-                  />
-                )}
-                <DropdownOptionsUnique
-                  comparingList={editableProtocols.map((p) => p.appId.toLowerCase())}
-                  isOpen={protocolsOpen}
-                  searchedList={activeList}
-                  noneText={'No matching protocols found'}
-                  onClick={(value: string) => {
-                    editId(protocol.appId, value)
-                    setProtocolsOpen(false)
-                  }}
+                <GenericInputSection
+                  placeholder={'Search Protocol'}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  h={48}
                 />
+                {dropdownOpen && cachedDropdownOptions}
               </div>
             </Flex>
           </div>

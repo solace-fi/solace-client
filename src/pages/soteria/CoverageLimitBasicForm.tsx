@@ -61,7 +61,7 @@ export function CoverageLimitBasicForm({
             </Flex>
           </FixedHeightGrayBox>
         ) : (
-          <CoverageLimitSelector portfolio={portfolio} setNewCoverageLimit={setNewCoverageLimit} />
+          <CoverageLimitSelector portfolioScore={portfolio} setNewCoverageLimit={setNewCoverageLimit} />
         )}
         {portfolio && portfolio.protocols.length > 0 && (
           <Flex col stretch>
