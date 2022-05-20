@@ -1,9 +1,11 @@
+import useDebounce from '@rooks/use-debounce'
 import { useWeb3React } from '@web3-react/core'
-import React, { useMemo } from 'react'
+import { use } from 'chai'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Box } from '../../components/atoms/Box'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { StyledClock, StyledInfo, StyledOptions } from '../../components/atoms/Icon'
-import { Content, Flex, VerticalSeparator } from '../../components/atoms/Layout'
+import { Content, Flex, HeroContainer, Scrollable, VerticalSeparator } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
 import { TileCard } from '../../components/molecules/TileCard'
@@ -13,20 +15,31 @@ import CoverageManager, { useCoverageContext } from './CoverageContext'
 import { DropdownInputSection, DropdownOptions } from './Dropdown'
 import { PortfolioWindow } from './PortfolioWindow'
 
+const CoverageContent = () => {
+  const { intrface } = useCoverageContext()
+  const { showPortfolio, setShowPortfolio } = intrface
+
+  const portfolioRef = useRef<HTMLDivElement | null>(null)
+
+  return (
+    <div
+      style={{
+        gridTemplateColumns: '1fr 2fr',
+        display: 'grid',
+        position: 'relative',
+        gap: '15px',
+      }}
+    >
+      <PortfolioWindow show={showPortfolio} />
+      <CoveragePage />
+    </div>
+  )
+}
+
 function Cover(): JSX.Element {
   return (
     <CoverageManager>
-      <div
-        style={{
-          gridTemplateColumns: '1fr 2fr',
-          display: 'grid',
-          position: 'relative',
-          gap: '15px',
-        }}
-      >
-        <PortfolioWindow />
-        <CoveragePage />
-      </div>
+      <CoverageContent />
     </CoverageManager>
   )
 }
@@ -34,6 +47,9 @@ function Cover(): JSX.Element {
 const CoveragePage = (): JSX.Element => {
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
+  const { styles, intrface } = useCoverageContext()
+  const { setShowPortfolio } = intrface
+  const { gradientStyle } = styles
   // const canShowSoteria = useMemo(() => !activeNetwork.config.restrictedFeatures.noSoteria, [
   //   activeNetwork.config.restrictedFeatures.noSoteria,
   // ])
@@ -42,7 +58,7 @@ const CoveragePage = (): JSX.Element => {
   return (
     <>
       {canShowSoteria && account ? (
-        <CoverageContent />
+        <PolicyContent />
       ) : account ? (
         <Content>
           <Box error pt={10} pb={10} pl={15} pr={15}>
@@ -53,6 +69,13 @@ const CoveragePage = (): JSX.Element => {
               This dashboard is not supported on this network.
             </Text>
           </Box>
+          <Flex justifyCenter>
+            <HeroContainer>
+              <Button {...gradientStyle} secondary noborder p={20} onClick={() => setShowPortfolio(true)}>
+                <Text t2>Open Portfolio Editor</Text>
+              </Button>
+            </HeroContainer>
+          </Flex>
         </Content>
       ) : (
         <PleaseConnectWallet />
@@ -61,11 +84,16 @@ const CoveragePage = (): JSX.Element => {
   )
 }
 
-const CoverageContent = (): JSX.Element => {
+const PolicyContent = (): JSX.Element => {
   const { intrface, styles, input, dropdowns } = useCoverageContext()
   const { navbarThreshold } = intrface
-  const { bigButtonStyle, gradientTextStyle } = styles
-  const { enteredAmount, enteredDays, setEnteredAmount, setEnteredDays } = input
+  const { bigButtonStyle, gradientStyle } = styles
+  const {
+    enteredAmount: asyncEnteredAmount,
+    enteredDays: asyncEnteredDays,
+    setEnteredAmount: setAsyncEnteredAmount,
+    setEnteredDays: setAsyncEnteredDays,
+  } = input
   const { daysOptions, coinOptions, daysOpen, coinsOpen, setDaysOpen, setCoinsOpen } = dropdowns
 
   // const buyCta = useMemo(() => [InterfaceState.BUYING].includes(intrface.interfaceState), [intrface.interfaceState])
@@ -79,16 +107,37 @@ const CoverageContent = (): JSX.Element => {
   //   intrface.interfaceState,
   // ])
 
+  const [enteredDays, setEnteredDays] = useState(asyncEnteredDays)
+  const [enteredAmount, setEnteredAmount] = useState(asyncEnteredAmount)
+
   const buyCta = true
   const neutralCta = false
   const extendCta = false
   const withdrawCta = false
 
+  const _editDays = useDebounce(() => {
+    setAsyncEnteredDays(enteredDays ?? '')
+  }, 200)
+
+  const _editAmount = useDebounce(() => {
+    setAsyncEnteredAmount(enteredAmount ?? '')
+  }, 200)
+
+  useEffect(() => {
+    _editDays()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enteredDays])
+
+  useEffect(() => {
+    _editAmount()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enteredAmount])
+
   return (
     <Content>
       <Flex col gap={24}>
         <Flex col>
-          <Text mont {...gradientTextStyle} t2 textAlignCenter>
+          <Text mont {...gradientStyle} t2 textAlignCenter>
             Ready to protect your portfolio?
           </Text>
           <Text mont t3 textAlignCenter pt={8}>
@@ -112,7 +161,7 @@ const CoverageContent = (): JSX.Element => {
                   <StyledOptions size={20} />
                 </Text>
               </Flex>
-              <Text t3s bold {...gradientTextStyle} pt={8}>
+              <Text t3s bold {...gradientStyle} pt={8}>
                 $1
               </Text>
               <Flex pt={16}>??</Flex>
@@ -125,7 +174,7 @@ const CoverageContent = (): JSX.Element => {
                 </Text>
               </Flex>
               <Text pt={8}>
-                <TextSpan t3s bold {...gradientTextStyle}>
+                <TextSpan t3s bold {...gradientStyle}>
                   $1
                 </TextSpan>
                 <TextSpan t6 bold pl={5}>
@@ -148,7 +197,7 @@ const CoverageContent = (): JSX.Element => {
                 <Text bold t4>
                   My Balance
                 </Text>
-                <Text textAlignCenter bold t3 {...gradientTextStyle}>
+                <Text textAlignCenter bold t3 {...gradientStyle}>
                   $69
                 </Text>
               </Flex>
@@ -166,7 +215,7 @@ const CoverageContent = (): JSX.Element => {
                 <Text bold t4>
                   Est. Days
                 </Text>
-                <Text textAlignCenter bold t3 {...gradientTextStyle}>
+                <Text textAlignCenter bold t3 {...gradientStyle}>
                   365
                 </Text>
               </Flex>
@@ -195,7 +244,7 @@ const CoverageContent = (): JSX.Element => {
                     />
                     <DropdownOptions
                       isOpen={daysOpen}
-                      list={daysOptions}
+                      searchedList={daysOptions}
                       onClick={(value: string) => {
                         setEnteredDays(value)
                         setDaysOpen(false)
@@ -215,7 +264,7 @@ const CoverageContent = (): JSX.Element => {
                     />
                     <DropdownOptions
                       isOpen={coinsOpen}
-                      list={coinOptions}
+                      searchedList={coinOptions}
                       onClick={(value: string) => {
                         setEnteredAmount(value)
                         setCoinsOpen(false)
@@ -235,14 +284,14 @@ const CoverageContent = (): JSX.Element => {
               )}
               <ButtonWrapper isColumn p={0}>
                 {buyCta && (
-                  <Button {...gradientTextStyle} {...bigButtonStyle} secondary noborder>
+                  <Button {...gradientStyle} {...bigButtonStyle} secondary noborder>
                     <Text bold t4s>
                       Purchase Policy
                     </Text>
                   </Button>
                 )}
                 {neutralCta && (
-                  <Button {...gradientTextStyle} {...bigButtonStyle} secondary noborder>
+                  <Button {...gradientStyle} {...bigButtonStyle} secondary noborder>
                     <Text bold t4s>
                       Extend Policy
                     </Text>
@@ -260,7 +309,7 @@ const CoverageContent = (): JSX.Element => {
                     <Button pt={16} pb={16} separator>
                       Cancel
                     </Button>
-                    <Button {...bigButtonStyle} {...gradientTextStyle} secondary noborder>
+                    <Button {...bigButtonStyle} {...gradientStyle} secondary noborder>
                       Extend Policy
                     </Button>
                   </ButtonWrapper>
@@ -271,7 +320,7 @@ const CoverageContent = (): JSX.Element => {
                       Cancel
                     </Button>
                     <Button {...bigButtonStyle} matchBg secondary noborder>
-                      <Text {...gradientTextStyle}>Withdraw</Text>
+                      <Text {...gradientStyle}>Withdraw</Text>
                     </Button>
                   </ButtonWrapper>
                 )}

@@ -1,29 +1,15 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { Flex } from '../../components/atoms/Layout'
-import { GraySquareButton } from '../../components/atoms/Button'
 import { FixedHeightGrayBox } from '../../components/molecules/GrayBox'
-import { GenericInputSection } from '../../components/molecules/InputSection'
 import commaNumber from '../../utils/commaNumber'
 import { ZERO } from '../../constants'
 import { BigNumber } from 'ethers'
-import { StyledArrowIosBackOutline, StyledArrowIosForwardOutline } from '../../components/atoms/Icon'
 import { SolaceRiskScore } from '../../constants/types'
-import { accurateMultiply, filterAmount, floatUnits, truncateValue } from '../../utils/formatting'
+import { accurateMultiply, floatUnits, truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { Text } from '../../components/atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
-
-enum ChosenLimit {
-  Custom,
-  MaxPosition,
-  Recommended,
-}
-
-const ChosenLimitLength = Object.values(ChosenLimit).filter((x) => typeof x === 'number').length
-
-const nextChosenLimit = (chosenLimit: ChosenLimit) => ((chosenLimit + 1) % ChosenLimitLength) as ChosenLimit
-const prevChosenLimit = (chosenLimit: ChosenLimit) =>
-  ((chosenLimit - 1 + ChosenLimitLength) % ChosenLimitLength) as ChosenLimit
+import { CoverageLimitSelector } from './CoverageLimitSelector'
 
 export function CoverageLimitBasicForm({
   portfolio,
@@ -37,7 +23,6 @@ export function CoverageLimitBasicForm({
   setNewCoverageLimit: (newCoverageLimit: BigNumber) => void
 }): JSX.Element {
   const { appTheme } = useGeneral()
-  const [chosenLimit, setChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
 
   const highestPosition = useMemo(
     () =>
@@ -47,60 +32,13 @@ export function CoverageLimitBasicForm({
     [portfolio]
   )
 
-  // const usdBalanceSum = useMemo(
-  //   () =>
-  //     portfolio && portfolio.protocols.length > 0
-  //       ? portfolio.protocols.reduce((total, protocol) => (total += protocol.balanceUSD), 0)
-  //       : 0,
-  //   [portfolio]
-  // )
-
   const [highestAmount, setHighestAmount] = useState<BigNumber>(ZERO)
-  const [recommendedAmount, setRecommendedAmount] = useState<BigNumber>(ZERO)
-  const [customInputAmount, setCustomInputAmount] = useState<string>('')
-
-  const handleInputChange = (input: string) => {
-    // allow only numbers and decimals
-    const filtered = filterAmount(input, customInputAmount)
-
-    // if filtered is only "0." or "." or '', filtered becomes '0.0'
-    // const formatted = formatAmount(filtered)
-
-    // if number has more than max decimal places, do not update
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
-
-    // if number is greater than available cover capacity, do not update
-    // if (parseUnits(formatted, 18).gt(availableCoverCapacity)) return
-
-    const bnFiltered = BigNumber.from(accurateMultiply(filtered, 18))
-    setNewCoverageLimit(bnFiltered)
-    setCustomInputAmount(filtered)
-    if (!recommendedAmount.eq(bnFiltered) && !highestAmount.eq(bnFiltered)) {
-      setChosenLimit(ChosenLimit.Custom)
-    }
-  }
 
   useEffect(() => {
     if (!highestPosition) return
     /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(highestPosition.balanceUSD, 18))
-    /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
     setHighestAmount(bnBal)
-    setRecommendedAmount(bnHigherBal)
   }, [highestPosition])
-
-  useEffect(() => {
-    switch (chosenLimit) {
-      case ChosenLimit.Recommended:
-        setNewCoverageLimit(recommendedAmount)
-        setCustomInputAmount(formatUnits(recommendedAmount, 18))
-        break
-      case ChosenLimit.MaxPosition:
-        setNewCoverageLimit(highestAmount)
-        setCustomInputAmount(formatUnits(highestAmount, 18))
-        break
-    }
-  }, [chosenLimit, highestAmount, setNewCoverageLimit, recommendedAmount, customInputAmount])
-
   return (
     <>
       <Flex col justifyStart gap={30} stretch>
@@ -123,49 +61,7 @@ export function CoverageLimitBasicForm({
             </Flex>
           </FixedHeightGrayBox>
         ) : (
-          <Flex col stretch>
-            <Flex justifyCenter>
-              <Text t4s>Select Limit</Text>
-            </Flex>
-            <Flex between itemsCenter mt={10}>
-              <GraySquareButton onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}>
-                <StyledArrowIosBackOutline height={18} />
-              </GraySquareButton>
-              <Flex col itemsCenter>
-                <Text info t3 bold>
-                  {
-                    {
-                      [ChosenLimit.Recommended]: 'Recommended',
-                      [ChosenLimit.MaxPosition]: 'Base',
-                      [ChosenLimit.Custom]: 'Manual',
-                    }[chosenLimit]
-                  }
-                </Text>
-                <Text info t5s>
-                  {
-                    {
-                      [ChosenLimit.Recommended]: `120% of your highest position`,
-                      [ChosenLimit.MaxPosition]: `100% of your highest position`,
-                      [ChosenLimit.Custom]: `Enter custom amount below`,
-                    }[chosenLimit]
-                  }
-                </Text>
-              </Flex>
-              <GraySquareButton onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}>
-                <StyledArrowIosForwardOutline height={18} />
-              </GraySquareButton>
-            </Flex>
-            <GenericInputSection
-              onChange={(e) => handleInputChange(e.target.value)}
-              value={customInputAmount}
-              disabled={false}
-              style={{
-                marginTop: '20px',
-              }}
-              iconAndTextWidth={80}
-              displayIconOnMobile
-            />
-          </Flex>
+          <CoverageLimitSelector portfolio={portfolio} setNewCoverageLimit={setNewCoverageLimit} />
         )}
         {portfolio && portfolio.protocols.length > 0 && (
           <Flex col stretch>

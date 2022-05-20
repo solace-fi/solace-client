@@ -7,6 +7,7 @@ import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
 import { TableRow } from '../../components/atoms/Table'
+import { SolaceRiskProtocol } from '../../constants/types'
 
 export const DropdownInputSection = ({
   hasArrow,
@@ -45,7 +46,7 @@ export const DropdownInputSection = ({
     alignItems: 'center',
   }
 
-  const gradientTextStyle = useMemo(
+  const gradientStyle = useMemo(
     () =>
       appTheme == 'light' ? { techygradient: true, warmgradient: false } : { techygradient: false, warmgradient: true },
     [appTheme]
@@ -71,14 +72,14 @@ export const DropdownInputSection = ({
           <Flex center gap={4}>
             {icon && <Text autoAlignVertical>{icon}</Text>}
             {text && (
-              <Text t4 {...gradientTextStyle}>
+              <Text t4 {...gradientStyle}>
                 {text}
               </Text>
             )}
             {hasArrow && (
               <Text
                 autoAlignVertical
-                {...gradientTextStyle}
+                {...gradientStyle}
                 style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: '10px' }}
               >
                 &#11206;
@@ -88,11 +89,10 @@ export const DropdownInputSection = ({
         </Button>
       )}
       <StyledInput
-        key="mainInput"
         type="text"
         className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
         placeholder={placeholder ?? '0'}
-        value={value}
+        value={value ?? ''}
         onChange={onChange}
         style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: inputWidth ?? '100%' }}
         disabled={disabled}
@@ -102,24 +102,23 @@ export const DropdownInputSection = ({
 }
 
 export const DropdownOptions = ({
-  list,
+  searchedList,
   isOpen,
   noneText,
   onClick,
 }: {
-  list: { label: string; value: string; icon?: JSX.Element }[]
+  searchedList: { label: string; value: string; icon?: JSX.Element }[]
   isOpen: boolean
-  searchFeature?: boolean
   noneText?: string
   onClick: (value: string) => void
 }): JSX.Element => {
   const { styles } = useCoverageContext()
-  const { bigButtonStyle, gradientTextStyle } = styles
+  const { bigButtonStyle, gradientStyle } = styles
 
   return (
     <Accordion isOpen={isOpen} style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }} customHeight={'380px'}>
       <Flex col gap={8} p={12}>
-        {list.map((item) => (
+        {searchedList.map((item) => (
           <ButtonAppearance
             key={item.label}
             {...bigButtonStyle}
@@ -130,13 +129,60 @@ export const DropdownOptions = ({
           >
             <Flex stretch between pl={16} pr={16}>
               <Flex gap={8} itemsCenter>
-                {item.icon ?? <Text {...gradientTextStyle}>{item.label}</Text>}
+                {item.icon ?? <Text {...gradientStyle}>{item.label}</Text>}
               </Flex>
               <Text autoAlignVertical>{item.value}</Text>
             </Flex>
           </ButtonAppearance>
         ))}
-        {list.length === 0 && (
+        {searchedList.length === 0 && (
+          <Text t3 textAlignCenter bold>
+            {noneText ?? 'No results found'}
+          </Text>
+        )}
+      </Flex>
+    </Accordion>
+  )
+}
+
+export const DropdownOptionsUnique = ({
+  comparingList,
+  searchedList,
+  isOpen,
+  noneText,
+  onClick,
+}: {
+  comparingList: string[]
+  searchedList: { label: string; value: string; icon?: JSX.Element }[]
+  isOpen: boolean
+  noneText?: string
+  onClick: (value: string) => void
+}): JSX.Element => {
+  const { styles } = useCoverageContext()
+  const { bigButtonStyle, gradientStyle } = styles
+
+  return (
+    <Accordion isOpen={isOpen} style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }} customHeight={'280px'}>
+      <Flex col gap={8} p={12}>
+        {searchedList.map((item) => (
+          <ButtonAppearance
+            key={item.label}
+            {...bigButtonStyle}
+            matchBg
+            secondary
+            noborder
+            onClick={() => onClick(item.value)}
+            disabled={comparingList.includes(item.label)}
+          >
+            <Flex stretch between pl={16} pr={16}>
+              <Flex gap={8} itemsCenter>
+                {item.icon ?? <Text {...gradientStyle}>{item.label}</Text>}
+              </Flex>
+              <Text autoAlignVertical>{item.value}</Text>
+            </Flex>
+          </ButtonAppearance>
+        ))}
+        {searchedList.length === 0 && (
           <Text t3 textAlignCenter bold>
             {noneText ?? 'No results found'}
           </Text>

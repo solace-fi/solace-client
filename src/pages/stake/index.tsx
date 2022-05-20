@@ -523,7 +523,7 @@ export default function Stake(): JSX.Element {
                     <Text>Rewards from selected safes</Text>
                     <Text>{formattedRewards}</Text>
                   </Flex>
-                  <Scrollable maxMobileHeight={60}>
+                  <Scrollable maxMobileHeight={'60vh'}>
                     {width > BKPT_1 ? (
                       <Table>
                         <TableHead sticky zIndex={Z_TABLE + 1}>

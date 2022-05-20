@@ -1,58 +1,42 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Flex } from '../../components/atoms/Layout'
-import { Text, TextSpan } from '../../components/atoms/Typography'
-import { Button, ButtonWrapper } from '../../components/atoms/Button'
-import { capitalizeFirstLetter, filterAmount, truncateValue } from '../../utils/formatting'
-import { SolaceRiskProtocol } from '../../constants/types'
+import { Text } from '../../components/atoms/Typography'
+import { Button } from '../../components/atoms/Button'
+import { capitalizeFirstLetter, filterAmount } from '../../utils/formatting'
+import { LocalSolaceRiskProtocol, SolaceRiskProtocol } from '../../constants/types'
 import { useCoverageContext } from './CoverageContext'
 import { Accordion } from '../../components/atoms/Accordion'
 import { TileCard } from '../../components/molecules/TileCard'
-import { DropdownInputSection, DropdownOptions } from './Dropdown'
-import { StyledHelpCircle } from '../../components/atoms/Icon'
-import { GenericInputSection } from '../../components/molecules/InputSection'
+import { DropdownOptionsUnique } from './Dropdown'
+import { StyledAdd, StyledClose, StyledHelpCircle } from '../../components/atoms/Icon'
+import { GenericInputSection, StyledInput } from '../../components/molecules/InputSection'
 import usePrevious from '../../hooks/internal/usePrevious'
+import { InputSectionWrapper } from '../../components/atoms/Input'
+import useDebounce from '@rooks/use-debounce'
 
 export const Protocol: React.FC<{
-  protocol: SolaceRiskProtocol
-  editableProtocols: SolaceRiskProtocol[]
+  protocol: LocalSolaceRiskProtocol
+  editableProtocols: LocalSolaceRiskProtocol[]
   riskColor: string
   simulating: boolean
-  deleteItem: (protocolAppId: string) => void
-  editItem: (targetAppId: string, newAppId: string, newAmount: string) => void
-}> = ({ protocol, editableProtocols, riskColor, simulating, deleteItem, editItem }): JSX.Element => {
+  addItem: (index?: number | undefined) => void
+  deleteItem: (targetAppId: string) => void
+  editId: (targetAppId: string, newAppId: string) => void
+  editAmount: (targetAppId: string, newAmount: string) => void
+}> = ({ protocol, editableProtocols, riskColor, simulating, addItem, deleteItem, editId, editAmount }): JSX.Element => {
   const { series, styles } = useCoverageContext()
-  const { gradientTextStyle, bigButtonStyle } = styles
-  const [enteredAmount, setEnteredAmount] = useState(protocol.balanceUSD.toString())
-  const [enteredProtocolAppId, setEnteredProtocolAppId] = useState(protocol.appId)
+  const { gradientStyle } = styles
 
-  const edited = useMemo(
-    () => enteredAmount !== protocol.balanceUSD.toString() || enteredProtocolAppId !== protocol.appId,
-    [enteredAmount, enteredProtocolAppId, protocol.appId, protocol.balanceUSD]
-  )
-
-  const [isOpen, setIsOpen] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
   const [protocolsOpen, setProtocolsOpen] = useState(false)
+  const [enteredAmount, setEnteredAmount] = useState(protocol.balanceUSD.toString())
+  const [searchTerm, setSearchTerm] = useState('')
+
   const simulatingPrev = usePrevious(simulating)
 
   const isValidProtocol = useMemo(() => {
     if (!series) return false
     return series.data.protocolMap.find((p) => p.appId.toLowerCase() == protocol.appId.toLowerCase())
   }, [protocol, series])
-
-  const isValidEnteredProtocol = useMemo(() => {
-    if (!series) return false
-    return series.data.protocolMap.find((p) => p.appId.toLowerCase() == enteredProtocolAppId.toLowerCase())
-  }, [enteredProtocolAppId, series])
-
-  const isValidEnteredUniqueProtocol = useMemo(() => {
-    if (!series) return false
-    return (
-      (!editableProtocols.map((p) => p.appId.toLowerCase()).includes(enteredProtocolAppId.toLowerCase()) ||
-        protocol.appId.toLowerCase() === enteredProtocolAppId.toLowerCase()) &&
-      series.data.protocolMap.find((p) => p.appId.toLowerCase() == enteredProtocolAppId.toLowerCase())
-    )
-  }, [editableProtocols, enteredProtocolAppId, series, protocol.appId])
 
   const protocolOptions = useMemo(
     () =>
@@ -68,147 +52,154 @@ export const Protocol: React.FC<{
     [series]
   )
 
-  const [searchTerm, setSearchTerm] = useState('')
-
   const activeList = useMemo(
     () => (searchTerm ? protocolOptions.filter((item) => item.label.includes(searchTerm)) : protocolOptions),
     [searchTerm, protocolOptions]
   )
 
   const close = () => {
-    setEnteredProtocolAppId(protocol.appId)
-    setEnteredAmount(protocol.balanceUSD.toString())
-    setIsOpen(false)
-    setIsEditing(false)
     setProtocolsOpen(false)
   }
+
+  const _editAmount = useDebounce(() => {
+    editAmount(protocol.appId, enteredAmount)
+  }, 300)
 
   useEffect(() => {
     if (!simulatingPrev && simulating) close()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [simulatingPrev, simulating])
 
+  useEffect(() => {
+    _editAmount()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enteredAmount])
+
   return (
-    <div
-      onClick={() => (!isOpen && !simulating ? setIsOpen(!isOpen) : undefined)}
-      style={{ cursor: !isOpen ? 'pointer' : 'unset' }}
-    >
+    <div>
       <TileCard>
-        <Button
-          noborder
-          nohover
-          style={{
-            display: 'unset',
-          }}
-          onClick={isOpen ? () => close() : undefined}
-        >
-          <Flex col gap={8}>
-            <Flex stretch between>
-              <Text t3>
-                <Flex gap={8}>
+        <Flex col gap={8} style={{ position: 'relative' }}>
+          <Button
+            width={30}
+            height={30}
+            style={{ position: 'absolute', top: '-25px', right: '-25px' }}
+            noborder
+            error
+            onClick={() => deleteItem(protocol.appId)}
+          >
+            <StyledClose size={16} />
+          </Button>
+          <Flex stretch between gap={10}>
+            <div
+              onClick={() => setProtocolsOpen(!protocolsOpen)}
+              style={{
+                width: '100%',
+                cursor: 'pointer',
+              }}
+            >
+              <InputSectionWrapper
+                style={{
+                  width: '100%',
+                  height: '40px',
+                }}
+              >
+                <Text autoAlignVertical p={5}>
                   {isValidProtocol ? (
-                    <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={24} />
+                    <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={16} />
                   ) : (
-                    <StyledHelpCircle size={24} />
+                    <StyledHelpCircle size={16} />
                   )}
-                  {capitalizeFirstLetter(protocol.appId.includes('Unknown') ? 'Unknown' : protocol.appId)}
-                </Flex>
-              </Text>
-              <Text t3 bold {...gradientTextStyle}>
-                ${truncateValue(protocol.balanceUSD, 2)}
-              </Text>
-            </Flex>
-            <Flex stretch between>
-              <Text t4>
-                <TextSpan bold>Category:</TextSpan> {capitalizeFirstLetter(protocol.category)}
-              </Text>
-              <Text t4>
-                <TextSpan>Risk Level: </TextSpan>
-                <TextSpan style={{ color: riskColor }}>{protocol.tier}</TextSpan>
-              </Text>
-            </Flex>
+                </Text>
+                <StyledInput
+                  type="text"
+                  className="py-3 lg:py-5 px-2 outline-none rounded-xl lg:border-0 lg:rounded-none"
+                  value={capitalizeFirstLetter(protocol.appId.includes('Unknown') ? 'Unknown' : protocol.appId)}
+                  onChange={() => undefined}
+                  style={{
+                    backgroundColor: 'inherit',
+                    color: 'inherit',
+                    borderRadius: 'inherit',
+                    width: '100%',
+                    cursor: 'pointer',
+                  }}
+                  readOnly
+                />
+                <Text
+                  p={5}
+                  autoAlignVertical
+                  {...gradientStyle}
+                  style={{ transform: protocolsOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: '12px' }}
+                >
+                  &#11206;
+                </Text>
+              </InputSectionWrapper>
+            </div>
+            <InputSectionWrapper
+              style={{
+                width: '60%',
+                height: '40px',
+              }}
+            >
+              <StyledInput
+                type="text"
+                className="py-3 lg:py-5 px-3 outline-none rounded-xl lg:border-0 lg:rounded-none"
+                value={enteredAmount}
+                onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
+                style={{
+                  backgroundColor: 'inherit',
+                  color: 'inherit',
+                  borderRadius: 'inherit',
+                  width: '100%',
+                }}
+              />
+            </InputSectionWrapper>
           </Flex>
-        </Button>
-        <Accordion noScroll isOpen={isOpen} style={{ backgroundColor: 'inherit' }}>
-          <div style={{ padding: 8 }}>
-            {isEditing ? (
-              <Flex col gap={8}>
-                <div>
-                  <DropdownInputSection
-                    hasArrow
-                    placeholder={'Enter USD amount'}
-                    icon={
-                      isValidEnteredProtocol ? (
-                        <img src={`https://assets.solace.fi/zapperLogos/${enteredProtocolAppId}`} height={16} />
-                      ) : undefined
-                    }
-                    text={capitalizeFirstLetter(
-                      enteredProtocolAppId.includes('Unknown') ? 'Unknown' : enteredProtocolAppId
-                    )}
-                    value={enteredAmount}
-                    onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
-                    onClick={() => setProtocolsOpen(!protocolsOpen)}
-                    style={{ marginBottom: 8 }}
-                  />
-                  {protocolsOpen && (
-                    <GenericInputSection
-                      placeholder={'Search Protocol'}
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      h={48}
-                    />
-                  )}
-                  <DropdownOptions
-                    searchFeature
-                    isOpen={protocolsOpen}
-                    list={activeList}
-                    noneText={'No matching protocols found'}
-                    onClick={(value: string) => {
-                      setEnteredProtocolAppId(value)
-                      setProtocolsOpen(false)
-                    }}
-                  />
-                </div>
-                <ButtonWrapper style={{ width: '100%' }} isColumn p={0}>
-                  <Button
-                    secondary
-                    separator
-                    {...bigButtonStyle}
-                    info
-                    onClick={() => {
-                      editItem(protocol.appId, enteredProtocolAppId, enteredAmount)
-                      setIsEditing(false)
-                    }}
-                    disabled={!isValidEnteredUniqueProtocol || !edited}
-                  >
-                    Save Changes
-                  </Button>
-                  <Button
-                    secondary
-                    separator
-                    {...bigButtonStyle}
-                    matchBg
-                    onClick={() => {
-                      setEnteredProtocolAppId(protocol.appId)
-                      setEnteredAmount(protocol.balanceUSD.toString())
-                      setIsEditing(false)
-                      setProtocolsOpen(false)
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </ButtonWrapper>
+          {!protocolsOpen && (
+            <Flex between itemsCenter>
+              <Flex col w={100}>
+                <Text t7 bold>
+                  Category:
+                </Text>
+                <Text t6>{capitalizeFirstLetter(protocol.category)}</Text>
               </Flex>
-            ) : (
-              <ButtonWrapper style={{ width: '100%' }} isColumn p={0}>
-                <Button secondary {...bigButtonStyle} info onClick={() => setIsEditing(true)}>
-                  Edit
-                </Button>
-                <Button secondary {...bigButtonStyle} matchBg onClick={() => deleteItem(protocol.appId)}>
-                  Delete
-                </Button>
-              </ButtonWrapper>
-            )}
+              <Flex col w={52}>
+                <Text t7 bold>
+                  Risk Level:
+                </Text>
+                <Text style={{ color: riskColor }} t6>
+                  {protocol.tier}
+                </Text>
+              </Flex>
+              <Button {...gradientStyle} width={50} secondary onClick={() => addItem(protocol.index)} noborder>
+                <StyledAdd size={20} />
+              </Button>
+            </Flex>
+          )}
+        </Flex>
+        <Accordion noScroll isOpen={protocolsOpen} style={{ backgroundColor: 'inherit' }}>
+          <div style={{ padding: 8 }}>
+            <Flex col gap={8}>
+              <div>
+                {protocolsOpen && (
+                  <GenericInputSection
+                    placeholder={'Search Protocol'}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    h={48}
+                  />
+                )}
+                <DropdownOptionsUnique
+                  comparingList={editableProtocols.map((p) => p.appId.toLowerCase())}
+                  isOpen={protocolsOpen}
+                  searchedList={activeList}
+                  noneText={'No matching protocols found'}
+                  onClick={(value: string) => {
+                    editId(protocol.appId, value)
+                    setProtocolsOpen(false)
+                  }}
+                />
+              </div>
+            </Flex>
           </div>
         </Accordion>
       </TileCard>

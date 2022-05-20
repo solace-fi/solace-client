@@ -78,7 +78,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
     <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'My Recent Transactions'} disableCloseButton={false}>
       {account && (
         <>
-          <Scrollable style={{ padding: '0 10px 0 10px' }} maxDesktopHeight={60}>
+          <Scrollable style={{ padding: '0 10px 0 10px' }} maxDesktopHeight={'60vh'}>
             <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
               <TableHead sticky zIndex={Z_TABLE + 1}>
                 <TableRow>

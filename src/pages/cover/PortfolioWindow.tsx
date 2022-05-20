@@ -1,117 +1,46 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { BigNumber } from 'ethers'
-import { Content, Flex, VerticalSeparator } from '../../components/atoms/Layout'
+import { Content, Flex } from '../../components/atoms/Layout'
 import { useCoverageContext } from './CoverageContext'
-import { Text, TextSpan } from '../../components/atoms/Typography'
-import { SolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
-import { Button, GraySquareButton } from '../../components/atoms/Button'
-import { accurateMultiply, filterAmount, floatUnits, formatAmount, truncateValue } from '../../utils/formatting'
+import { LocalSolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
+import { Button } from '../../components/atoms/Button'
+import { formatAmount } from '../../utils/formatting'
 import { useTierColors } from '../../hooks/internal/useTierColors'
 import { Protocol } from './Protocol'
 import usePrevious from '../../hooks/internal/usePrevious'
-import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { SolaceRiskBalance } from '@solace-fi/sdk-nightly'
-import { useWeb3React } from '@web3-react/core'
-import {
-  StyledArrowIosBackOutline,
-  StyledArrowIosForwardOutline,
-  StyledModelTraining,
-} from '../../components/atoms/Icon'
-import { Loader } from '../../components/atoms/Loader'
-import { ChosenLimit } from '../../constants/enums'
-import { ZERO } from '../../constants'
-import { formatUnits } from 'ethers/lib/utils'
-import { GenericInputSection } from '../../components/molecules/InputSection'
 import { TileCard } from '../../components/molecules/TileCard'
+import { LoaderText } from '../../components/molecules/LoaderText'
+import { CoverageLimitSelector } from '../soteria/CoverageLimitSelector'
+import { Projections } from './Projections'
+import { useWeb3React } from '@web3-react/core'
+import { StyledAdd } from '../../components/atoms/Icon'
+import styled from 'styled-components'
+import { Z_NAV } from '../../constants'
 
-export const PortfolioWindow = (): JSX.Element => {
-  const { account } = useWeb3React()
+export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
+  const { active } = useWeb3React()
   const { portfolioKit, styles, series } = useCoverageContext()
-  const { portfolio: portfolioScore, riskScores } = portfolioKit
-  const { gradientTextStyle, bigButtonStyle } = styles
-  const [fetchedProtocols, setFetchedProtocols] = useState<SolaceRiskProtocol[]>([])
-  const [customProtocols, setCustomProtocols] = useState<SolaceRiskProtocol[]>([])
+  const { portfolio: portfolioScore, loading: portfolioLoading, riskScores } = portfolioKit
+  const { bigButtonStyle, gradientStyle } = styles
   const [simulatedPortfolioScore, setSimulatedPortfolioScore] = useState<SolaceRiskScore | undefined>(undefined)
   const [canSimulate, setCanSimulate] = useState(false)
   const [simCoverageLimit, setSimCoverageLimit] = useState<BigNumber>(BigNumber.from(0))
 
   const [simulating, setSimulating] = useState(false)
+  const [compiling, setCompiling] = useState(false)
 
   const scoreToUse = useMemo(() => simulatedPortfolioScore ?? portfolioScore, [portfolioScore, simulatedPortfolioScore])
 
-  const editableProtocols = useMemo(() => [...customProtocols, ...fetchedProtocols], [
-    customProtocols,
-    fetchedProtocols,
-  ])
+  const [editableProtocols, setEditableProtocols] = useState<LocalSolaceRiskProtocol[]>([])
 
-  const usdBalanceSum = useMemo(
-    () =>
-      scoreToUse && scoreToUse.protocols.length > 0
-        ? scoreToUse.protocols.reduce((total, protocol) => (total += protocol.balanceUSD), 0)
-        : 0,
-    [scoreToUse]
-  )
-
-  const annualRate = useMemo(() => (scoreToUse && scoreToUse.current_rate ? scoreToUse.current_rate : 0), [scoreToUse])
-
-  const dailyRate = useMemo(() => annualRate / 365.25, [annualRate])
-
-  const [chosenLimit, setChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
-  const ChosenLimitLength = Object.values(ChosenLimit).filter((x) => typeof x === 'number').length
-  const nextChosenLimit = useCallback(
-    (chosenLimit: ChosenLimit) => {
-      setCanSimulate(true)
-      return ((chosenLimit + 1) % ChosenLimitLength) as ChosenLimit
-    },
-    [ChosenLimitLength]
-  )
-  const prevChosenLimit = useCallback(
-    (chosenLimit: ChosenLimit) => {
-      setCanSimulate(true)
-      return ((chosenLimit - 1 + ChosenLimitLength) % ChosenLimitLength) as ChosenLimit
-    },
-    [ChosenLimitLength]
-  )
-
-  const highestSimPosition = useMemo(
-    () =>
-      scoreToUse && scoreToUse.protocols.length > 0
-        ? scoreToUse.protocols.reduce((pn, cn) => (cn.balanceUSD > pn.balanceUSD ? cn : pn))
-        : undefined,
-    [scoreToUse]
-  )
-
-  const [highestAmount, setHighestAmount] = useState<BigNumber>(ZERO)
-  const [recommendedAmount, setRecommendedAmount] = useState<BigNumber>(ZERO)
-  const [customInputAmount, setCustomInputAmount] = useState<string>('')
-
-  const handleInputChange = (input: string) => {
-    // allow only numbers and decimals
-    const filtered = filterAmount(input, customInputAmount)
-
-    // if filtered is only "0." or "." or '', filtered becomes '0.0'
-    // const formatted = formatAmount(filtered)
-
-    // if number has more than max decimal places, do not update
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
-
-    // if number is greater than available cover capacity, do not update
-    // if (parseUnits(formatted, 18).gt(availableCoverCapacity)) return
-
-    const bnFiltered = BigNumber.from(accurateMultiply(filtered, 18))
-    setSimCoverageLimit(bnFiltered)
-    setCustomInputAmount(filtered)
-    if (!recommendedAmount.eq(bnFiltered) && !highestAmount.eq(bnFiltered)) {
-      setChosenLimit(ChosenLimit.Custom)
-      setCanSimulate(true)
-    }
-  }
-
-  const dailyCost = useMemo(() => {
-    const numberifiedSimCoverageLimit = floatUnits(simCoverageLimit, 18)
-    if (usdBalanceSum < numberifiedSimCoverageLimit) return usdBalanceSum * dailyRate
-    return numberifiedSimCoverageLimit * dailyRate
-  }, [simCoverageLimit, dailyRate, usdBalanceSum])
+  const editableProtocolLookup = useMemo(() => {
+    const lookup: { [key: string]: LocalSolaceRiskProtocol } = {}
+    editableProtocols.forEach((protocol) => {
+      lookup[protocol.appId.toLowerCase()] = protocol
+    })
+    return lookup
+  }, [editableProtocols])
 
   const portfolioPrev = usePrevious(scoreToUse)
 
@@ -126,88 +55,119 @@ export const PortfolioWindow = (): JSX.Element => {
     }
   }
 
-  const addItem = () => {
-    setCustomProtocols((prev) => [
-      ...prev,
-      {
-        appId: `Unknown ${Date.now().toString()}`,
-        balanceUSD: 0,
-        category: 'Unknown',
-        network: '',
-        riskLoad: 0,
-        rol: 0,
-        rrol: 0,
-        tier: 0,
-        'rp-usd': 0,
-        'risk-adj': 0,
-      },
-    ])
+  const addItem = (index?: number) => {
+    // if adding with out index, or index is last, add to end
+    if (index == undefined || index == editableProtocols.length - 1) {
+      setEditableProtocols((prev) => [
+        ...prev,
+        {
+          appId: `Unknown ${Date.now().toString()}`,
+          balanceUSD: 0,
+          category: 'Unknown',
+          network: '',
+          riskLoad: 0,
+          rol: 0,
+          rrol: 0,
+          tier: 0,
+          'rp-usd': 0,
+          'risk-adj': 0,
+          index: prev.length,
+        },
+      ])
+    } else {
+      // if adding with index before the end, add insert into index, then reassign index numbers of all protocols
+      const temp = [
+        ...editableProtocols.slice(0, index + 1),
+        {
+          appId: `Unknown ${Date.now().toString()}`,
+          balanceUSD: 0,
+          category: 'Unknown',
+          network: '',
+          riskLoad: 0,
+          rol: 0,
+          rrol: 0,
+          tier: 0,
+          'rp-usd': 0,
+          'risk-adj': 0,
+          index: index + 1,
+        },
+        ...editableProtocols.slice(index + 1),
+      ]
+      temp.forEach((protocol, i) => {
+        protocol.index = i
+      })
+      setEditableProtocols(temp)
+    }
   }
 
-  const editItem = (targetAppId: string, newAppId: string, newAmount: string) => {
-    const numberifiedNewAmount = parseFloat(formatAmount(newAmount))
+  const editCoverageLimit = (newCoverageLimit: BigNumber) => {
+    if (simCoverageLimit.eq(newCoverageLimit)) return
+    setSimCoverageLimit(newCoverageLimit)
+  }
+
+  const editId = (targetAppId: string, newAppId: string) => {
+    if (targetAppId === newAppId) return
     const matchingProtocol = series?.data.protocolMap.find((p) => p.appId.toLowerCase() === newAppId.toLowerCase())
-    const fetchedP = fetchedProtocols.find((p) => p.appId.toLowerCase() === targetAppId.toLowerCase())
+    if (!matchingProtocol) return
     let editedSomething = false
-    if (fetchedP && matchingProtocol && !editedSomething) {
-      setFetchedProtocols(
-        fetchedProtocols.map((p) => {
-          if (p.appId === targetAppId) {
-            return {
-              ...p,
-              appId: newAppId,
-              balanceUSD: numberifiedNewAmount,
-              category: matchingProtocol.category,
-              tier: matchingProtocol.tier,
-            }
-          } else {
-            return p
+
+    const targetProtocol = editableProtocolLookup[targetAppId.toLowerCase()]
+    if (!targetProtocol) return
+    setCompiling(true)
+    setEditableProtocols(
+      editableProtocols.map((p) => {
+        if (p.appId === targetAppId) {
+          editedSomething = true
+          return {
+            ...p,
+            appId: newAppId,
+            category: matchingProtocol.category,
+
+            tier: matchingProtocol.tier,
           }
-        })
-      )
-      editedSomething = true
-    }
-    const customP = customProtocols.find((p) => p.appId.toLowerCase() === targetAppId.toLowerCase())
-    if (customP && matchingProtocol && !editedSomething) {
-      setCustomProtocols(
-        customProtocols.map((p) => {
-          if (p.appId === targetAppId) {
-            return {
-              ...p,
-              appId: newAppId,
-              balanceUSD: numberifiedNewAmount,
-              category: matchingProtocol.category,
-              tier: matchingProtocol.tier,
-            }
-          } else {
-            return p
-          }
-        })
-      )
-      editedSomething = true
-    }
+        } else {
+          return p
+        }
+      })
+    )
     if (editedSomething) setCanSimulate(true)
   }
 
-  const deleteItem = (protocolAppId: string) => {
-    const fetchedP = fetchedProtocols.find((p) => p.appId.toLowerCase() === protocolAppId.toLowerCase())
-    let deletedSomething = false
-    if (fetchedP && !deletedSomething) {
-      const newFetchedP = fetchedProtocols.filter((p) => p.appId !== protocolAppId)
-      setFetchedProtocols(newFetchedP)
-      deletedSomething = true
-    }
-    const customP = customProtocols.find((p) => p.appId.toLowerCase() === protocolAppId.toLowerCase())
-    if (customP && !deletedSomething) {
-      const newCustomP = customProtocols.filter((p) => p.appId !== protocolAppId)
-      setCustomProtocols(newCustomP)
-      deletedSomething = true
-    }
-    if (deletedSomething) setCanSimulate(true)
+  const editAmount = (targetAppId: string, newAmount: string) => {
+    const numberifiedNewAmount = parseFloat(formatAmount(newAmount))
+    let editedSomething = false
+
+    const targetProtocol = editableProtocolLookup[targetAppId.toLowerCase()]
+    if (targetProtocol.balanceUSD.toString() === newAmount || !targetProtocol) return
+    setCompiling(true)
+    setEditableProtocols(
+      editableProtocols.map((p) => {
+        if (p.appId === targetAppId) {
+          editedSomething = true
+          return {
+            ...p,
+            balanceUSD: numberifiedNewAmount,
+          }
+        } else {
+          return p
+        }
+      })
+    )
+    if (editedSomething) setCanSimulate(true)
   }
 
+  const deleteItem = (targetAppId: string) => {
+    const targetProtocol = editableProtocolLookup[targetAppId.toLowerCase()]
+    if (!targetProtocol) return
+    setEditableProtocols(editableProtocols.filter((p) => p.appId !== targetAppId))
+    if (!targetProtocol.appId.includes('Unknown') || targetProtocol.balanceUSD == 0) {
+      setCanSimulate(true)
+    }
+  }
+
+  // do not run this if the user has not touched anything here
   const runSimulation = async () => {
-    if (!account) return
+    if (portfolioLoading && active) return
     setSimulating(true)
     const riskBalances: SolaceRiskBalance[] = editableProtocols
       .filter((p) => !p.appId.includes('Unknown'))
@@ -219,131 +179,48 @@ export const PortfolioWindow = (): JSX.Element => {
     if (riskBalances.length === 0) return
     const score: SolaceRiskScore | undefined = await riskScores(riskBalances)
     setSimulatedPortfolioScore(score)
+    setCompiling(false)
     setCanSimulate(false)
     setSimulating(false)
   }
 
   useEffect(() => {
+    const handleSim = async () => {
+      if (canSimulate) await runSimulation()
+    }
+    handleSim()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canSimulate])
+
+  useEffect(() => {
     if (portfolioPrev == undefined && portfolioScore != undefined) {
-      setFetchedProtocols([...portfolioScore.protocols])
+      setEditableProtocols([...portfolioScore.protocols].map((p, i) => ({ ...p, index: i })))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portfolioScore, portfolioPrev])
 
-  useEffect(() => {
-    if (!highestSimPosition) return
-    /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(highestSimPosition.balanceUSD, 18))
-    /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
-    setHighestAmount(bnBal)
-    setRecommendedAmount(bnHigherBal)
-  }, [highestSimPosition])
-
-  useEffect(() => {
-    switch (chosenLimit) {
-      case ChosenLimit.Recommended:
-        setSimCoverageLimit(recommendedAmount)
-        setCustomInputAmount(formatUnits(recommendedAmount, 18))
-        break
-      case ChosenLimit.MaxPosition:
-        setSimCoverageLimit(highestAmount)
-        setCustomInputAmount(formatUnits(highestAmount, 18))
-        break
-    }
-  }, [chosenLimit, highestAmount, setSimCoverageLimit, recommendedAmount, customInputAmount])
-
   return (
     <Content style={{ transition: 'all 350ms ease 0s' }}>
       <Flex col gap={8}>
-        <Flex stretch evenly center pb={24}>
-          <Flex col>
-            <Text bold t2 textAlignCenter>
-              Total
-            </Text>
-            <Text textAlignCenter bold t1 {...gradientTextStyle}>
-              ${truncateValue(usdBalanceSum, 2)}
-            </Text>
-          </Flex>
-          <VerticalSeparator />
-          <StyledTooltip
-            id={`projected-premium`}
-            tip={`$${dailyCost * 365.25} / Year`}
-            alwaysShowChildren
-            disabled={dailyCost >= 0.01 || dailyCost == 0}
-          >
-            <Flex col>
-              <Text bold t2 textAlignCenter>
-                Daily Premium
-              </Text>
-              <Text textAlignCenter>
-                <TextSpan t1 bold {...gradientTextStyle}>
-                  ${truncateValue(dailyCost, 2)}
-                </TextSpan>
-                <TextSpan t5s bold pl={5}>
-                  / Day
-                </TextSpan>
-              </Text>
-            </Flex>
-          </StyledTooltip>
-        </Flex>
-        {simulating ? (
-          <Loader />
+        {(portfolioLoading && active) || compiling || simulating ? (
+          <LoaderText text={portfolioLoading && active ? 'Loading' : simulating ? 'Simulating' : 'Compiling'} t6 />
         ) : (
-          <>
-            <TileCard>
-              <Flex col stretch>
-                <Flex justifyCenter>
-                  <Text t4s>Coverage Limit: </Text>
-                </Flex>
-                <Flex between itemsCenter mt={10}>
-                  <GraySquareButton onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}>
-                    <StyledArrowIosBackOutline height={18} />
-                  </GraySquareButton>
-                  <Flex col itemsCenter>
-                    <Text info t3 bold>
-                      {
-                        {
-                          [ChosenLimit.Recommended]: 'Recommended',
-                          [ChosenLimit.MaxPosition]: 'Base',
-                          [ChosenLimit.Custom]: 'Manual',
-                        }[chosenLimit]
-                      }
-                    </Text>
-                    <Text info t5s>
-                      {
-                        {
-                          [ChosenLimit.Recommended]: `Highest Position + 20%`,
-                          [ChosenLimit.MaxPosition]: `Highest Position`,
-                          [ChosenLimit.Custom]: `Custom Amount`,
-                        }[chosenLimit]
-                      }
-                    </Text>
-                  </Flex>
-                  <GraySquareButton onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}>
-                    <StyledArrowIosForwardOutline height={18} />
-                  </GraySquareButton>
-                </Flex>
-                <GenericInputSection
-                  onChange={(e) => handleInputChange(e.target.value)}
-                  value={customInputAmount}
-                  disabled={false}
-                  style={{
-                    marginTop: '20px',
-                  }}
-                  iconAndTextWidth={80}
-                  displayIconOnMobile
-                />
-              </Flex>
-            </TileCard>
-            <Button success secondary {...bigButtonStyle} onClick={runSimulation} disabled={!canSimulate}>
-              <StyledModelTraining size={20} />
-              Simulate
-            </Button>
-            <Button info secondary {...bigButtonStyle} onClick={addItem}>
-              + Add Asset
-            </Button>
-          </>
+          <Projections portfolioScore={scoreToUse} coverageLimit={simCoverageLimit} />
         )}
-        {editableProtocols.map((protocol: SolaceRiskProtocol) => {
+        <TileCard>
+          <CoverageLimitSelector portfolio={portfolioScore} setNewCoverageLimit={editCoverageLimit} />
+        </TileCard>
+        <Button
+          {...gradientStyle}
+          secondary
+          {...bigButtonStyle}
+          onClick={addItem}
+          disabled={portfolioLoading && active}
+          noborder
+        >
+          <StyledAdd size={16} /> Add Custom Position
+        </Button>
+        {editableProtocols.map((protocol: LocalSolaceRiskProtocol) => {
           const riskColor = getColorByTier(protocol.tier)
           return (
             <Protocol
@@ -351,12 +228,26 @@ export const PortfolioWindow = (): JSX.Element => {
               protocol={protocol}
               editableProtocols={editableProtocols}
               riskColor={riskColor}
+              addItem={addItem}
               deleteItem={deleteItem}
-              editItem={editItem}
+              editId={editId}
+              editAmount={editAmount}
               simulating={simulating}
             />
           )
         })}
+        {editableProtocols.length > 8 && (
+          <Button
+            {...gradientStyle}
+            secondary
+            {...bigButtonStyle}
+            onClick={addItem}
+            disabled={portfolioLoading && active}
+            noborder
+          >
+            <StyledAdd size={16} /> Add Custom Position
+          </Button>
+        )}
       </Flex>
     </Content>
   )

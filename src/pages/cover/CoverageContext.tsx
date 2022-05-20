@@ -11,6 +11,8 @@ import { usePortfolio, useRiskSeries } from '../../hooks/policy/useSolaceCoverPr
 type CoverageContextType = {
   intrface: {
     navbarThreshold: boolean
+    showPortfolio: boolean
+    setShowPortfolio: (show: boolean) => void
     interfaceState: InterfaceState
     setInterfaceState: (state: InterfaceState) => void
   }
@@ -30,10 +32,11 @@ type CoverageContextType = {
   }
   styles: {
     bigButtonStyle: any
-    gradientTextStyle: any
+    gradientStyle: any
   }
   portfolioKit: {
     portfolio?: SolaceRiskScore
+    loading: boolean
     riskScores: (balances: SolaceRiskBalance[]) => Promise<SolaceRiskScore | undefined>
   }
   series?: SolaceRiskSeries
@@ -42,6 +45,8 @@ type CoverageContextType = {
 const CoverageContext = createContext<CoverageContextType>({
   intrface: {
     navbarThreshold: false,
+    showPortfolio: false,
+    setShowPortfolio: () => undefined,
     interfaceState: InterfaceState.LOADING,
     setInterfaceState: () => undefined,
   },
@@ -61,10 +66,11 @@ const CoverageContext = createContext<CoverageContextType>({
   },
   styles: {
     bigButtonStyle: {},
-    gradientTextStyle: {},
+    gradientStyle: {},
   },
   portfolioKit: {
     portfolio: undefined,
+    loading: true,
     riskScores: () => Promise.reject(),
   },
   series: undefined,
@@ -82,6 +88,7 @@ const CoverageManager: React.FC = (props) => {
   const [userState, setUserState] = useState<InterfaceState>(InterfaceState.BUYING)
   const [loading, setLoading] = useState(false)
   const [interfaceState, setInterfaceState] = useState<InterfaceState>(loading ? InterfaceState.LOADING : userState)
+  const [showPortfolio, setShowPortfolio] = useState(false)
 
   const [daysOpen, setDaysOpen] = useState(false)
   const [coinsOpen, setCoinsOpen] = useState(false)
@@ -121,7 +128,7 @@ const CoverageManager: React.FC = (props) => {
     }
   }, [])
 
-  const gradientTextStyle = useMemo(
+  const gradientStyle = useMemo(
     () =>
       appTheme == 'light' ? { techygradient: true, warmgradient: false } : { techygradient: false, warmgradient: true },
     [appTheme]
@@ -136,6 +143,8 @@ const CoverageManager: React.FC = (props) => {
       navbarThreshold,
       intrface: {
         navbarThreshold,
+        showPortfolio,
+        setShowPortfolio,
         interfaceState,
         setInterfaceState,
       },
@@ -155,10 +164,11 @@ const CoverageManager: React.FC = (props) => {
       },
       styles: {
         bigButtonStyle,
-        gradientTextStyle,
+        gradientStyle,
       },
       portfolioKit: {
         portfolio,
+        loading: portfolioLoading,
         riskScores,
       },
       series,
@@ -172,10 +182,12 @@ const CoverageManager: React.FC = (props) => {
       daysOptions,
       coinOptions,
       bigButtonStyle,
-      gradientTextStyle,
+      gradientStyle,
       interfaceState,
       portfolio,
+      portfolioLoading,
       series,
+      showPortfolio,
       riskScores,
       // setEnteredDays,
       // setEnteredAmount,

@@ -5,7 +5,7 @@ import { Tab } from '../../constants/enums'
 import { GenericIconAndText, IconAndText } from './IconAndText'
 import { InputSectionWrapper } from '../atoms/Input'
 
-const StyledInput = styled.input`
+export const StyledInput = styled.input`
   border-color: ${({ theme }) => theme.separator.bg_color};
 `
 
@@ -15,6 +15,7 @@ export const InputSection = ({
   onChange,
   setMax,
   disabled,
+  readonly,
 }: // ref,
 {
   tab?: Tab.DEPOSIT | Tab.LOCK | Tab.WITHDRAW
@@ -22,6 +23,7 @@ export const InputSection = ({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   setMax?: () => void
   disabled?: boolean
+  readonly?: boolean
 }): JSX.Element => {
   return (
     <InputSectionWrapper>
@@ -31,10 +33,11 @@ export const InputSection = ({
         type="text"
         className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
         placeholder="0"
-        value={value}
+        value={value ?? ''}
         onChange={onChange}
         style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: '100%' }}
         disabled={disabled}
+        readOnly={readonly}
       />
       {setMax && (
         <Button onClick={setMax} disabled={disabled} m={10}>
@@ -61,6 +64,7 @@ export const GenericInputSection = ({
   inputWidth,
   iconAndTextWidth,
   placeholder,
+  readonly,
 }: {
   icon?: JSX.Element
   text?: string
@@ -77,6 +81,7 @@ export const GenericInputSection = ({
   inputWidth?: number
   iconAndTextWidth?: number
   placeholder?: string
+  readonly?: boolean
 }): JSX.Element => {
   const rawStyle = {
     ...style,
@@ -86,7 +91,7 @@ export const GenericInputSection = ({
   }
   return (
     <InputSectionWrapper style={rawStyle}>
-      {icon && text && (
+      {icon && (
         <GenericIconAndText
           icon={icon}
           text={text}
@@ -96,14 +101,14 @@ export const GenericInputSection = ({
         />
       )}
       <StyledInput
-        key="mainInput"
         type="text"
         className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
         placeholder={placeholder ?? '0'}
-        value={value}
+        value={value ?? ''}
         onChange={onChange}
         style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: inputWidth ?? '100%' }}
         disabled={disabled}
+        readOnly={readonly}
       />
       {buttonText && (
         <Button

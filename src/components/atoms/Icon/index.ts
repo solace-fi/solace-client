@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components'
 import { ArrowDropDown } from '@styled-icons/material-rounded/ArrowDropDown'
+import { Close } from '@styled-icons/material-rounded/Close'
 import { Checkmark } from '@styled-icons/evaicons-solid/Checkmark'
 import { Clock } from '@styled-icons/bootstrap/Clock'
 import { CoinStack } from '@styled-icons/boxicons-solid/CoinStack'
@@ -26,6 +27,7 @@ import { Medium } from '@styled-icons/boxicons-logos/Medium'
 import { Menu } from '@styled-icons/boxicons-regular/Menu'
 import { NetworkChart } from '@styled-icons/boxicons-regular/NetworkChart'
 import { PeopleCommunity } from '@styled-icons/fluentui-system-filled/PeopleCommunity'
+import { Add } from '@styled-icons/fluentui-system-filled/Add'
 import { ReceiptMoney } from '@styled-icons/fluentui-system-filled/ReceiptMoney'
 import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
 import { SendPlane } from '@styled-icons/remix-fill/SendPlane'
@@ -150,3 +152,7 @@ export const StyledHelpCircle = styled(HelpCircle)``
 export const StyledOptions = styled(Options)``
 
 export const StyledModelTraining = styled(ModelTraining)``
+
+export const StyledClose = styled(Close)``
+
+export const StyledAdd = styled(Add)``
