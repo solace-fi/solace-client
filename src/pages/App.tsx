@@ -19,7 +19,7 @@ import { Route, Switch, useLocation } from 'react-router-dom'
 /* import managers */
 
 /* import pages */
-import About from './about'
+// import About from './about'
 import Invest from './invest'
 import Stake from './stake'
 import Bond from './bond'
@@ -29,7 +29,7 @@ import Terms from './terms'
 /* import components */
 import { MenusTopNavBar } from '../components/organisms/MenusTopNavbar'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent, Flex } from '../components/atoms/Layout'
-import { Statistics } from '../components/organisms/Statistics'
+// import { Statistics } from '../components/organisms/Statistics'
 import {
   StyledDashboard,
   StyledCoinStack,
