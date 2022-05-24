@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Content, Flex, GrayBgDiv, HeroContainer } from '../../components/atoms/Layout'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableData } from '../../components/atoms/Table'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
-import { useGeneral } from '../../context/GeneralManager'
 import { SolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
 import { capitalizeFirstLetter } from '../../utils/formatting'
 import { Loader } from '../../components/atoms/Loader'
 import { Text } from '../../components/atoms/Typography'
+import { useTierColors } from '../../hooks/internal/useTierColors'
 
 export function PortfolioTable({
   portfolio,
@@ -16,65 +16,8 @@ export function PortfolioTable({
   loading: boolean
 }): JSX.Element {
   const { isDesktop, isMobile } = useWindowDimensions()
-  const { appTheme } = useGeneral()
-  const [tierColors, setTierColors] = useState<string[]>([])
 
-  useEffect(() => {
-    const getGreenToRedColors = (maxTier: number) => {
-      if (!portfolio) return
-
-      // rgb settings: since we only want red to green colors, only values r and g will be adjusted
-      const luminosityPercentage = appTheme == 'light' ? 0.7 : 0.8
-      const rangeMin = appTheme == 'light' ? 60 : 80
-      const rangeMax = 255
-
-      // b value appears to represent color intensity in this case, so it is set to rangeMin
-      // the lower b is, the stronger the color
-      const b = rangeMin
-      let r = rangeMax
-      let g = b
-
-      const colors = []
-
-      // since we are changing r and g, we are changing two color ranges of equal length,
-      // then divide the product by the number of tiers to get the increment
-      // we do not need increment if the max tier is 0 or 1
-      const increment = maxTier > 1 ? ((rangeMax - rangeMin) * 2) / maxTier : (rangeMax - rangeMin) * 2
-
-      // we start by changing the g value to get the green colors first
-      let changingR = false
-      for (let i = 0; i < maxTier + 1; i++) {
-        // for easier index-to-color access, we are pushing values toward the beginning of the array
-        // the lower the index, the greener the color, and the higher the index, the redder the color
-        colors.unshift(`rgb(${r * luminosityPercentage}, ${g * luminosityPercentage}, ${b * luminosityPercentage})`)
-        if (changingR) {
-          r -= increment
-        } else {
-          // if g goes past the max range, pour that leftover increment into subtracting from r
-          if (g + increment > rangeMax) {
-            const leftOver = g + increment - rangeMax
-            g = rangeMax
-            r -= leftOver
-            changingR = true
-          } else {
-            g += increment
-          }
-          // switch to change r value if we got all the g colors
-          if (g == rangeMax) {
-            changingR = true
-          }
-        }
-      }
-      setTierColors(colors)
-    }
-    const maxTierProtocol =
-      portfolio && portfolio.protocols.length > 0
-        ? portfolio.protocols.reduce((pn, cn) => (cn.tier > pn.tier ? cn : pn))
-        : undefined
-    if (maxTierProtocol) {
-      getGreenToRedColors(maxTierProtocol.tier)
-    }
-  }, [portfolio, appTheme])
+  const tierColors = useTierColors(portfolio ? portfolio.protocols.map((p) => p.tier) : undefined)
 
   const getColorByTier = (tier: number) => {
     const index = tier - 1

@@ -17,16 +17,3 @@ export enum SystemNotice {
   LOSS_EVENT_DETECTED = 'LED',
   AUDIT_NOTICE = 'AN',
 }
-
-export enum Tab {
-  DEPOSIT,
-  LOCK,
-  WITHDRAW,
-  REWARDS,
-}
-
-export enum StakingVersion {
-  v1,
-  v2,
-  difference,
-}

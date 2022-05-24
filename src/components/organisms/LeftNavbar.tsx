@@ -6,7 +6,7 @@ import { useLocation } from 'react-router'
 import { useGeneral } from '../../context/GeneralManager'
 
 /* import constants */
-import { BKPT_3, BKPT_4, Z_NAV } from '../../constants'
+import { BKPT_2, BKPT_3, BKPT_4, BKPT_NAVBAR, Z_NAV } from '../../constants'
 
 /* import components */
 import { ItemText, ItemList } from '../atoms/Navbar'
@@ -44,6 +44,7 @@ import { LogoBase } from '../atoms/Logo'
 import whiteLogo from '../../resources/svg/solace-logo-white.svg'
 
 interface CollapsibleNavbar {
+  show: boolean
   tabs: {
     collapsibleName: string
     pages: {
@@ -54,7 +55,17 @@ interface CollapsibleNavbar {
   }[]
 }
 
-export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
+const LeftAppNav = styled.div<{ shouldShow: boolean }>`
+  background: ${({ theme }) => theme.body.bg_color};
+  display: flex;
+  position: fixed;
+  overflow: auto;
+  top: 0;
+  bottom: 0;
+  z-index: ${Z_NAV};
+  ${(props) => (props.shouldShow ? `left: 0%; transition: 350ms;` : `left: -100%; transition: 350ms;`)};
+`
+export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ show, tabs }) => {
   const { appTheme, rightSidebar } = useGeneral()
   const location = useLocation()
   const { width } = useWindowDimensions()
@@ -64,19 +75,10 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
   const widthThreshold = useMemo(() => width > (rightSidebar ? BKPT_4 : BKPT_3), [width, rightSidebar])
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        overflow: 'auto',
-        top: '0',
-        bottom: '0',
-        display: 'flex',
-        background: 'transparent',
-      }}
-    >
+    <LeftAppNav shouldShow={show}>
       <div
         style={{
-          padding: '30px 5px 20px 0px',
+          padding: `30px 5px 20px ${widthThreshold ? '30px' : '5px'}`,
           display: 'flex',
           flexDirection: 'column',
         }}
@@ -325,7 +327,7 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
           )}
         </Flex>
       </div>
-    </div>
+    </LeftAppNav>
   )
 }
 

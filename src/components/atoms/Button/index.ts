@@ -16,6 +16,7 @@ export interface ButtonProps extends ClickProps {
   success?: boolean
   error?: boolean
   warning?: boolean
+  matchBg?: boolean
   glow?: boolean
   separator?: boolean
   hidden?: boolean
@@ -44,11 +45,12 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
     if (props.dark || props.info || props.success || props.warning || props.error) {
       textColor = `${theme.typography.lightText}`
     }
-    if (props.analogical) textColor = `${theme.typography.contrastText}`
+    if (props.analogical || props.matchBg) textColor = `${theme.typography.contrastText}`
     let bgColor = `${theme.typography.contrastText}`
     if (props.light) bgColor = `${theme.typography.lightText}`
     if (props.dark) bgColor = `${theme.typography.darkText}`
     if (props.analogical) bgColor = `${theme.typography.analogicalText}`
+    if (props.matchBg) bgColor = `${theme.body.bg_color}`
     if (props.info) bgColor = `${theme.typography.infoText}`
     if (props.success) bgColor = `${theme.typography.successText}`
     if (props.warning) bgColor = `${theme.typography.warningText}`
@@ -65,7 +67,7 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
     let textColor = `${theme.typography.contrastText}`
     if (props.light) textColor = `${theme.typography.lightText}`
     if (props.dark) textColor = `${theme.typography.darkText}`
-    if (props.analogical) textColor = `${theme.typography.analogicalText}`
+    if (props.analogical || props.matchBg) textColor = `${theme.typography.analogicalText}`
     if (props.info) textColor = `${theme.typography.infoText}`
     if (props.success) textColor = `${theme.typography.successText}`
     if (props.warning) textColor = `${theme.typography.warningText}`
@@ -84,9 +86,11 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
       textColor = `${theme.typography.lightText}`
     }
     if (props.analogical) textColor = `${theme.typography.contrastText}`
+    if (props.matchBg) textColor = `${theme.typography.contrastText}`
     let bgColor = `${theme.typography.contrastText}`
     if (props.light) bgColor = `${theme.typography.lightText}`
     if (props.dark) bgColor = `${theme.typography.darkText}`
+    if (props.matchBg) bgColor = `${theme.body.bg_color}`
     if (props.analogical) bgColor = `${theme.typography.analogicalText}`
     if (props.info) bgColor = `${theme.typography.infoText}`
     if (props.success) bgColor = `${theme.typography.successText}`
@@ -138,6 +142,7 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
 
   if (props.light) textColor = `${theme.typography.lightText}`
   if (props.dark) textColor = `${theme.typography.darkText}`
+  if (props.matchBg) textColor = `${theme.body.bg_color}`
   if (props.analogical) textColor = `${theme.typography.analogicalText}`
   if (props.info) textColor = `${theme.typography.infoText}`
   if (props.success) textColor = `${theme.typography.successText}`
@@ -151,6 +156,10 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
     if (props.dark) {
       hoverTextColor = `${theme.typography.lightText}`
       hoverBgColor = `${theme.typography.darkText}`
+    }
+    if (props.matchBg) {
+      hoverTextColor = `${theme.typography.contrastText}`
+      hoverBgColor = `${theme.body.bg_color}`
     }
     if (props.info) {
       hoverTextColor = `${theme.typography.lightText}`
@@ -186,10 +195,7 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
   `
 }
 
-export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+export const ButtonAppearanceCss = css<ButtonProps & GeneralElementProps>`
   outline: none;
   border: 1px solid ${(props) => props.theme.typography.contrastText};
   ${(props) => props.analogical && `border: 1px solid ${props.theme.typography.analogicalText};`}
@@ -200,20 +206,10 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   ${(props) => props.warning && `border: 1px solid ${props.theme.typography.warningText};`}
   ${(props) => props.error && `border: 1px solid ${props.theme.typography.errorText};`}
   ${(props) => props.separator && `border: 1px solid ${props.theme.typography.separator};`}
-
   ${(props) => props.noborder && `border: none;`}
-
   ${(props) => !props.noradius && `border-radius: 10px;`}
-  font-weight: 500;
-  text-align: center;
   transition: all 0.2s, color 0.2s;
   cursor: pointer;
-  ${(props) => props.pt !== undefined && 'padding-top: 4px;'}
-  ${(props) => props.pb !== undefined && 'padding-bottom: 4px;'}
-  ${(props) => props.pl !== undefined && 'padding-left: 16px;'}
-  ${(props) => props.pr !== undefined && 'padding-right: 16px;'}
-  ${(props) => props.width == undefined && 'min-width: 90px;'}
-  ${(props) => props.height == undefined && 'min-height: 34px;'}
   visibility: ${(props) => (props.hidden ? 'hidden;' : 'visible;')};
   color: ${({ theme }) => theme.typography.contrastText};
 
@@ -222,12 +218,32 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   ${(props) => props.glow && `box-shadow: ${props.theme.button.glow};`}
   font-weight: ${(props) => (props.semibold ? '600' : '500')};
   font-family: 'Open Sans', sans-serif;
+  ${(props) => props.pt !== undefined && 'padding-top: 4px;'}
+  ${(props) => props.pb !== undefined && 'padding-bottom: 4px;'}
+  ${(props) => props.pl !== undefined && 'padding-left: 16px;'}
+  ${(props) => props.pr !== undefined && 'padding-right: 16px;'}
+  ${(props) => props.width == undefined && 'min-width: 90px;'}
+  ${(props) => props.height == undefined && 'min-height: 34px;'}
   ${Text4Css}
+  ${GeneralElementCss}
+`
+
+export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  text-align: center;
+
+  ${ButtonAppearanceCss}
+`
+
+export const ButtonAppearance = styled.button<ButtonProps & GeneralElementProps>`
+  ${ButtonAppearanceCss}
 `
 
 export const Button = styled.button<ButtonProps & GeneralElementProps>`
   ${ButtonBaseCss}
-  ${GeneralElementCss}
 `
 
 export const GraySquareButton = styled(Button)`

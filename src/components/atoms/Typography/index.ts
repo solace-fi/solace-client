@@ -49,7 +49,10 @@ export interface TextFontProps {
   /** `font-size: 16px` */ t3s?: boolean
   /** `14px` */ t4s?: boolean
   /** `font-size: 12px`, `line-height: 14px` */ t5s?: boolean
+  /** `width < BKPT_3` ? `12px` : `10px` */ t6?: boolean
   /** `font-size: 10px`, `line-height: 12px` */ t6s?: boolean
+  /** `width < BKPT_3` ? `10px` : `8px` */ t7?: boolean
+  /** `font-size: 10px` */ t7s?: boolean
 }
 
 export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextStyleProps {}
@@ -172,6 +175,26 @@ export const Text6StaticCss = css`
   line-height: 12px;
 `
 
+export const Text6Css = css`
+  font-size: 12px;
+
+  @media screen and (max-width: ${BKPT_3}px) {
+    font-size: 10px;
+  }
+`
+
+export const Text7Css = css`
+  font-size: 10px;
+
+  @media screen and (max-width: ${BKPT_3}px) {
+    font-size: 8px;
+  }
+`
+
+export const Text7StaticCss = css`
+  font-size: 10px;
+`
+
 export const BigSize1Css = css`
   font-size: 48px;
 `
@@ -197,7 +220,10 @@ export const TextFontCss = css<TextFontProps>`
     if (props.t3s) return Text3StaticCss
     if (props.t4s) return Text4StaticCss
     if (props.t5s) return Text5StaticCss
+    if (props.t6) return Text6Css
     if (props.t6s) return Text6StaticCss
+    if (props.t7) return Text7Css
+    if (props.t7s) return Text7StaticCss
     if (props.big1) return BigSize1Css
     if (props.big2) return BigSize2Css
     if (props.big3) return BigSize3Css

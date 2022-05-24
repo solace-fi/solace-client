@@ -1,4 +1,5 @@
 import { TransactionCondition, SystemNotice, Error } from '../enums'
+import { SolaceRiskProtocol } from './api'
 
 export type CheckboxData = { id: string; checked: boolean }
 
@@ -41,4 +42,8 @@ export type PageInfo = {
   to: string
   icon: JSX.Element
   component: () => any
+}
+
+export type LocalSolaceRiskProtocol = SolaceRiskProtocol & {
+  index: number
 }

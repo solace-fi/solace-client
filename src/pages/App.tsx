@@ -53,6 +53,7 @@ import { AppMenu } from '../components/organisms/RightNavbar'
 import { InfoSideNavbar, MobileInfoSideNavbar } from '../components/organisms/LeftNavbar'
 import { AppMenuHeader } from '../components/organisms/AppMenuHeader'
 import { useGeneral } from '../context/GeneralManager'
+import Cover from './cover'
 
 export default function App(): any {
   const { leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar } = useGeneral()
@@ -147,12 +148,11 @@ export default function App(): any {
       <AnalyticsReporter />
       <GlobalStyle location={location} />
       <MenusTopNavBar setShowLeft={setLeftSidebar} setShowRight={setRightSidebar} />
+      <InfoSideNavbar show={width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR)} tabs={tabs} />
       <AppMenu show={rightSidebar} setShow={setRightSidebar} />
       <Layout>
         <ContentContainer>
-          <SideNavContent mobileWidth={6}>
-            <InfoSideNavbar tabs={tabs} />
-          </SideNavContent>
+          <SideNavContent mobileWidth={6}></SideNavContent>
           <MobileInfoSideNavbar
             show={leftSidebar && width < (rightSidebar ? BKPT_2 : BKPT_NAVBAR)}
             setShow={setLeftSidebar}
@@ -180,6 +180,7 @@ export default function App(): any {
                     <Route exact key={p.to} path={p.to} component={p.component} />
                   ))}
                   <Route exact path="/terms" component={Terms} />
+                  <Route exact path="/swc3" component={Cover} />
                 </Switch>
               </div>
               <SideNavContent desktopWidth={8}></SideNavContent>
