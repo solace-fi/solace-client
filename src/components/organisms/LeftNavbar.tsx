@@ -120,23 +120,25 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
                 openSpeed={700}
                 closeSpeed={0}
               >
-                {t.pages.map((p, i) => (
-                  <ItemText key={i} style={{ height: '25px', justifyContent: widthThreshold ? 'inherit' : 'center' }}>
-                    {p.newTab ? (
-                      <HyperLink href={p.to} target="_blank" rel="noopener noreferrer">
-                        <TextSpan t4 light={lightText}>
-                          {p.pageName}
-                        </TextSpan>
-                      </HyperLink>
-                    ) : (
-                      <HyperLink href={p.to}>
-                        <TextSpan t4 light={lightText}>
-                          {p.pageName}
-                        </TextSpan>
-                      </HyperLink>
-                    )}
-                  </ItemText>
-                ))}
+                <Flex col mt={3}>
+                  {t.pages.map((p, i) => (
+                    <ItemText key={i} style={{ height: '25px', justifyContent: widthThreshold ? 'inherit' : 'center' }}>
+                      {p.newTab ? (
+                        <HyperLink href={p.to} target="_blank" rel="noopener noreferrer">
+                          <TextSpan t4 light={lightText}>
+                            {p.pageName}
+                          </TextSpan>
+                        </HyperLink>
+                      ) : (
+                        <HyperLink href={p.to}>
+                          <TextSpan t4 light={lightText}>
+                            {p.pageName}
+                          </TextSpan>
+                        </HyperLink>
+                      )}
+                    </ItemText>
+                  ))}
+                </Flex>
               </Accordion>
             </Flex>
           ))}
