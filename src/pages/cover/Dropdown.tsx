@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useCoverageContext } from './CoverageContext'
 import { Accordion } from '../../components/atoms/Accordion'
 import { Button, ButtonAppearance } from '../../components/atoms/Button'
@@ -6,8 +6,8 @@ import { InputSectionWrapper, StyledInput } from '../../components/atoms/Input'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
-import { TableRow } from '../../components/atoms/Table'
-import { SolaceRiskProtocol } from '../../constants/types'
+import { TokenInfo } from '../../constants/types'
+import { formatUnits } from 'ethers/lib/utils'
 
 export const DropdownInputSection = ({
   hasArrow,
@@ -179,6 +179,50 @@ export const DropdownOptionsUnique = ({
                 {item.icon ?? <Text {...gradientStyle}>{item.label}</Text>}
               </Flex>
               <Text autoAlignVertical>{item.value}</Text>
+            </Flex>
+          </ButtonAppearance>
+        ))}
+        {searchedList.length === 0 && (
+          <Text t3 textAlignCenter bold>
+            {noneText ?? 'No results found'}
+          </Text>
+        )}
+      </Flex>
+    </Accordion>
+  )
+}
+
+export const BalanceDropdownOptions = ({
+  searchedList,
+  isOpen,
+  noneText,
+  onClick,
+}: {
+  searchedList: TokenInfo[]
+  isOpen: boolean
+  noneText?: string
+  onClick: (value: string) => void
+}): JSX.Element => {
+  const { styles } = useCoverageContext()
+  const { bigButtonStyle, gradientStyle } = styles
+
+  return (
+    <Accordion isOpen={isOpen} style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }} customHeight={'380px'}>
+      <Flex col gap={8} p={12}>
+        {searchedList.map((item) => (
+          <ButtonAppearance
+            key={item.address}
+            {...bigButtonStyle}
+            matchBg
+            secondary
+            noborder
+            onClick={() => onClick(item.address)}
+          >
+            <Flex stretch between pl={16} pr={16}>
+              <Flex gap={8} itemsCenter>
+                {<Text {...gradientStyle}>{item.symbol}</Text>}
+              </Flex>
+              <Text autoAlignVertical>{formatUnits(item.balance, item.decimals)}</Text>
             </Flex>
           </ButtonAppearance>
         ))}

@@ -33,6 +33,7 @@ export type NetworkConfig = {
       noBondingV2?: boolean
       noFarmingV1?: boolean
       noSoteria?: boolean
+      noCoverageV3?: boolean
       noStakingV1?: boolean
       noStakingV2?: boolean
     }

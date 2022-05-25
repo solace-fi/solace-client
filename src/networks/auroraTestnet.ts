@@ -62,6 +62,7 @@ export const AuroraTestnetNetwork: NetworkConfig = {
       noBondingV1: true,
       noFarmingV1: true,
       noStakingV1: true,
+      noCoverageV3: true,
     },
     specialFeatures: {
       solaceBuyLink: `https://www.trisolaris.io/#/swap?inputCurrency=${NEAR_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
