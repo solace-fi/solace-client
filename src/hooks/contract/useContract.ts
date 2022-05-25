@@ -43,7 +43,13 @@ export function useGetBondTellerContracts(): (BondTellerContractData & {
       const mapping = cache.tellerToTokenMapping[key]
       const tellerAbi = mapping.tellerAbi
       const contract = new Contract(key, tellerAbi, signer ?? provider)
-      const type = mapping.isBondTellerErc20 ? 'erc20' : mapping.name == 'ETH' ? 'eth' : 'matic'
+      const type = mapping.isBondTellerErc20
+        ? 'erc20'
+        : mapping.name == 'ETH'
+        ? 'eth'
+        : mapping.name == 'FTM'
+        ? 'ftm'
+        : 'matic'
       const cntct: BondTellerContractData & { metadata: TellerTokenMetadata } = {
         contract,
         type,

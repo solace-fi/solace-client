@@ -257,7 +257,7 @@ export const useBatchBalances = (
 
   useEffect(() => {
     const getBalances = async () => {
-      if (activeNetwork.config.restrictedFeatures.noCoverageV3 || !account) return
+      if (activeNetwork.config.restrictedFeatures.noCoverageV3 || !account || loading) return
       setLoading(true)
       const batchBalances = await Promise.all(
         addresses.map((address) => queryBalance(new Contract(address, IERC20.abi, provider), account))
@@ -270,7 +270,7 @@ export const useBatchBalances = (
       setLoading(false)
     }
     getBalances()
-  }, [activeNetwork, account, addresses, provider])
+  }, [activeNetwork, account, addresses.length, provider])
 
   return { loading, batchBalances }
 }

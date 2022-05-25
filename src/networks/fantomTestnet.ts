@@ -11,6 +11,7 @@ import { hexValue } from 'ethers/lib/utils'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/fantomTestnet'
 import { FTMSCAN_API_KEY } from '../constants'
 import { NetworkConfig } from '../constants/types'
+import FantomLogo from '../resources/svg/networks/fantom-logo.svg'
 
 const chainId = 4002
 
@@ -18,7 +19,7 @@ export const FantomTestnetNetwork: NetworkConfig = {
   name: 'Fantom Testnet',
   chainId: chainId,
   isTestnet: true,
-  logo: '',
+  logo: FantomLogo,
   supportedTxTypes: [0],
   nativeCurrency: { mainnetReference: WFTM_TOKEN.address[1], symbol: Unit.FTM, decimals: 18 },
   rpc: {

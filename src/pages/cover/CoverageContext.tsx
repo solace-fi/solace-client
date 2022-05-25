@@ -185,7 +185,8 @@ const CoverageManager: React.FC = (props) => {
     const selectedBalance = batchBalances.find((b) => b.addr === selectedCoin.address)
     if (!selectedBalance) return false
     return isAppropriateAmount(enteredAmount, selectedCoin.decimals, selectedBalance.balance)
-  }, [batchBalances, enteredAmount, isAppropriateAmount, selectedCoin.address, selectedCoin.decimals])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchBalances, enteredAmount, selectedCoin.address, selectedCoin.decimals])
 
   const bigButtonStyle = useMemo(() => {
     return {

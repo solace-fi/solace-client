@@ -277,13 +277,15 @@ export const usePortfolio = (): {
 
   const riskBalances = useCallback(async (): Promise<SolaceRiskBalance[] | undefined> => {
     if (!account) return undefined
-    return await risk.getSolaceRiskBalances(account, [1, 137])
+    const balances = await risk.getSolaceRiskBalances(account, [1, 137])
+    return balances
   }, [account, risk])
 
   const riskScores = useCallback(
     async (balances: SolaceRiskBalance[]): Promise<SolaceRiskScore | undefined> => {
       if (!account) return undefined
-      return await risk.getSolaceRiskScores(account, balances)
+      const scores = await risk.getSolaceRiskScores(account, balances)
+      return scores
     },
     [account, risk]
   )
@@ -416,7 +418,7 @@ export const useExistingPolicy = () => {
 
   useEffect(() => {
     const getExistingPolicy = async () => {
-      if (!account || activeNetwork.config.restrictedFeatures.noSoteria) {
+      if (!account || activeNetwork.config.restrictedFeatures.noCoverageV3) {
         setPolicyId(ZERO)
         setLoading(true)
         return

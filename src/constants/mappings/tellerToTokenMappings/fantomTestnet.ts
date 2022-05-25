@@ -28,7 +28,7 @@ export const tellerToTokenMapping: {
     name: BondName.WETH,
     addr: WETH9_TOKEN.address[chainId],
     principalAbi: ierc20Json.abi,
-    tellerAbi: bondTellerErc20Abi_V2,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: WETH9_TOKEN.address[1],
     tokenId: 'ethereum',
     isBondTellerErc20: true,
