@@ -5,7 +5,7 @@ import { useFunctions } from '../../hooks/policy/useSolaceCoverProduct'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../constants/enums'
 import { Text } from '../../components/atoms/Typography'
-import { Card } from '.'
+import { TileCard } from '../../components/molecules/TileCard'
 import { useWeb3React } from '@web3-react/core'
 
 export function CoverageActive({ policyStatus }: { policyStatus: boolean }) {
@@ -21,7 +21,7 @@ export function CoverageActive({ policyStatus }: { policyStatus: boolean }) {
   }
 
   return (
-    <Card>
+    <TileCard>
       <Flex between itemsCenter>
         <Flex col gap={6}>
           <Flex stretch gap={7}>
@@ -41,6 +41,6 @@ export function CoverageActive({ policyStatus }: { policyStatus: boolean }) {
           )}
         </Flex>
       </Flex>
-    </Card>
+    </TileCard>
   )
 }

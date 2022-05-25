@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
@@ -58,18 +58,21 @@ export const useInputAmount = () => {
     return Math.max(fixed(fixed(bal, 6) - fixed(gasInCurrency, 6), 6), 0)
   }
 
-  const handleInputChange = (input: string, maxDecimals?: number, maxBalance?: string) => {
-    const filtered = filterAmount(input, amount)
-    const formatted = formatAmount(filtered)
-    if (
-      filtered.includes('.') &&
-      filtered.split('.')[1]?.length > (maxDecimals ?? activeNetwork.nativeCurrency.decimals)
-    )
-      return
-    if (maxBalance && parseUnits(formatted, 18).gt(parseUnits(maxBalance, 18))) return
-    setAmount(filtered)
-    setMaxSelected(false)
-  }
+  const handleInputChange = useCallback(
+    (input: string, maxDecimals?: number, maxBalance?: string) => {
+      const filtered = filterAmount(input, amount)
+      const formatted = formatAmount(filtered)
+      if (
+        filtered.includes('.') &&
+        filtered.split('.')[1]?.length > (maxDecimals ?? activeNetwork.nativeCurrency.decimals)
+      )
+        return
+      if (maxBalance && parseUnits(formatted, 18).gt(parseUnits(maxBalance, 18))) return
+      setAmount(filtered)
+      setMaxSelected(false)
+    },
+    [amount, activeNetwork.nativeCurrency.decimals]
+  )
 
   const setMax = (balance: BigNumber, balanceDecimals: number, gasLimit?: number) => {
     const calculatedMaxAmount = calculateMaxAmount(balance, balanceDecimals, gasLimit)

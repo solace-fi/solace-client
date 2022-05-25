@@ -179,7 +179,7 @@ export const BondV1 = () => {
                     <Text bold t1 mb={10} warning>
                       V1 Bonds
                     </Text>
-                    <Scrollable maxMobileHeight={65}>
+                    <Scrollable maxMobileHeight={'65vh'}>
                       <CardContainer cardsPerRow={2}>
                         {currentTellerDetails.map((tellerDetail, i) => (
                           <Card key={i} onClick={haveErrors ? undefined : () => openModal(true, tellerDetail)}>

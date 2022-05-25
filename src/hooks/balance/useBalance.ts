@@ -13,6 +13,8 @@ import { SOLACE_TOKEN, XSOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/m
 import { UnderwritingPoolUSDBalances } from '@solace-fi/sdk-nightly'
 import { useWeb3React } from '@web3-react/core'
 import { NetworkConfig } from '../../constants/types'
+import { BigNumber, Contract } from 'ethers'
+import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 
 export const useNativeTokenBalance = (): string => {
   const { provider } = useProvider()
@@ -41,7 +43,7 @@ export const useNativeTokenBalance = (): string => {
   return balance
 }
 
-export const useScpBalance = (): string => {
+export const useVaultScpBalance = (): string => {
   const { keyContracts } = useContracts()
   const { vault } = useMemo(() => keyContracts, [keyContracts])
   const { activeNetwork } = useNetwork()
@@ -239,4 +241,36 @@ export const useCrossChainUnderwritingPoolBalance = () => {
   }, [minute])
 
   return { underwritingPoolBalance }
+}
+
+export const useBatchBalances = (
+  addresses: string[]
+): {
+  batchBalances: { addr: string; balance: BigNumber }[]
+  loading: boolean
+} => {
+  const { account } = useWeb3React()
+  const { provider } = useProvider()
+  const { activeNetwork } = useNetwork()
+  const [loading, setLoading] = useState(true)
+  const [batchBalances, setBatchBalances] = useState<{ addr: string; balance: BigNumber }[]>([])
+
+  useEffect(() => {
+    const getBalances = async () => {
+      if (activeNetwork.config.restrictedFeatures.noCoverageV3 || !account) return
+      setLoading(true)
+      const batchBalances = await Promise.all(
+        addresses.map((address) => queryBalance(new Contract(address, IERC20.abi, provider), account))
+      )
+      setBatchBalances(
+        addresses.map((addr, i) => {
+          return { addr, balance: batchBalances[i] }
+        })
+      )
+      setLoading(false)
+    }
+    getBalances()
+  }, [activeNetwork, account, addresses, provider])
+
+  return { loading, batchBalances }
 }
