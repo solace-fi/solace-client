@@ -14,6 +14,8 @@ import { hexStripZeros } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import { useGeneral } from './GeneralManager'
 import { Error } from '../constants/enums'
+import { FantomNetwork } from '../networks/fantom'
+import { FantomTestnetNetwork } from '../networks/fantomTestnet'
 
 /*
 
@@ -29,6 +31,8 @@ export const networks: NetworkConfig[] = [
   MumbaiNetwork,
   AuroraNetwork,
   AuroraTestnetNetwork,
+  FantomNetwork,
+  FantomTestnetNetwork,
 ]
 
 export const networksMapping = networks.reduce((configs: any, networkConfig: NetworkConfig) => ({

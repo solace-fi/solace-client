@@ -601,7 +601,7 @@ export const useTotalAccountBalance = (account: string | null | undefined) => {
     setPersonalBalance(accountBalance)
     setEarnedBalance(rewardPoints)
     fetching.current = false
-  }, [account])
+  }, [account, latestBlock])
 
   useEffect(() => {
     getBal()

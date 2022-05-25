@@ -95,7 +95,7 @@ export const MainNetwork: NetworkConfig = {
         abi: solaceCoverProductABI.abi,
       },
     },
-    restrictedFeatures: {},
+    restrictedFeatures: { noCoverageV3: true },
     specialFeatures: {
       solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },

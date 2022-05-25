@@ -4,7 +4,7 @@ import { useContracts } from '../../context/ContractsManager'
 import { floatUnits } from '../../utils/formatting'
 import { ZERO } from '../../constants'
 import { useCachedData } from '../../context/CachedDataManager'
-import { useScpBalance } from '../balance/useBalance'
+import { useVaultScpBalance } from '../balance/useBalance'
 import { useNetwork } from '../../context/NetworkManager'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx, TxResult } from '../../constants/types'
@@ -41,7 +41,7 @@ export const useCapitalPoolSize = (): string => {
 export const useUserVaultDetails = () => {
   const [userVaultAssets, setUserVaultAssets] = useState<string>('0')
   const [userVaultShare, setUserVaultShare] = useState<string>('0')
-  const scpBalance = useScpBalance()
+  const scpBalance = useVaultScpBalance()
   const { account } = useWeb3React()
   const { keyContracts } = useContracts()
   const { vault, cpFarm } = useMemo(() => keyContracts, [keyContracts])

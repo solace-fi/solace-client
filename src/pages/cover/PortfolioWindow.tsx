@@ -20,9 +20,10 @@ import { Z_NAV } from '../../constants'
 
 export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
   const { active } = useWeb3React()
-  const { portfolioKit, styles, seriesKit } = useCoverageContext()
+  const { portfolioKit, styles, seriesKit, intrface } = useCoverageContext()
   const { series } = seriesKit
-  const { portfolio: portfolioScore, loading: portfolioLoading, riskScores } = portfolioKit
+  const { portfolioLoading } = intrface
+  const { portfolio: portfolioScore, riskScores } = portfolioKit
   const { bigButtonStyle, gradientStyle } = styles
   const [simulatedPortfolioScore, setSimulatedPortfolioScore] = useState<SolaceRiskScore | undefined>(undefined)
   const [canSimulate, setCanSimulate] = useState(false)
