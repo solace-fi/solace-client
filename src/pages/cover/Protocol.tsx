@@ -8,7 +8,7 @@ import { useCoverageContext } from './CoverageContext'
 import { Accordion } from '../../components/atoms/Accordion'
 import { TileCard } from '../../components/molecules/TileCard'
 import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
-import { StyledAdd, StyledClose, StyledHelpCircle } from '../../components/atoms/Icon'
+import { StyledAdd, StyledArrowDropDown, StyledClose, StyledHelpCircle } from '../../components/atoms/Icon'
 import { GenericInputSection, SmallerInputSection, StyledInput } from '../../components/molecules/InputSection'
 import usePrevious from '../../hooks/internal/usePrevious'
 import { InputSectionWrapper } from '../../components/atoms/Input'
@@ -91,18 +91,14 @@ export const Protocol: React.FC<{
     [editId, editableProtocolAppIds, handleEditingItem, dropdownOpen, protocol.appId, activeList]
   )
 
-  const close = () => {
-    setProtocolsOpen(false)
-  }
-
   const _editAmount = useDebounce(() => {
     editAmount(protocol.appId, enteredAmount)
   }, 300)
 
-  useEffect(() => {
-    if (!simulatingPrev && simulating) close()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [simulatingPrev, simulating])
+  // useEffect(() => {
+  //   if (!simulatingPrev && simulating) close()
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [simulatingPrev, simulating])
 
   useEffect(() => {
     _editAmount()
@@ -138,7 +134,7 @@ export const Protocol: React.FC<{
           !protocolsOpen && setProtocolsOpen(true)
           protocolsOpen && handleEditingItem(protocol.appId)
         }}
-        style={{ position: 'relative', width: '100%', cursor: 'pointer' }}
+        style={{ position: 'relative', width: '100%', cursor: protocolsOpen ? 'default' : 'pointer' }}
       >
         {/* <Button
           {...gradientStyle}
@@ -182,17 +178,34 @@ export const Protocol: React.FC<{
             >
               {/* <div style={{ background: 'red', height: '32px' }}> aAa </div> */}
               {protocolsOpen ? (
-                <ThinButton>
-                  <Flex itemsCenter>
+                <ThinButton
+                  onClick={() => {
+                    setDropdownOpen(!dropdownOpen)
+                  }}
+                >
+                  <Flex itemsCenter={!!isValidProtocol} style={!isValidProtocol ? { width: '100%' } : {}}>
                     <Text autoAlignVertical p={5}>
                       {isValidProtocol ? (
                         <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={16} />
                       ) : (
-                        <StyledHelpCircle size={16} />
+                        // <StyledHelpCircle size={16} />
+                        <></>
                       )}
                     </Text>
-                    <Text t5s>
-                      {capitalizeFirstLetter(protocol.appId.includes('Empty') ? 'Empty' : protocol.appId)}
+                    <Text t5s style={!isValidProtocol ? { width: '100%' } : {}}>
+                      {/* {capitalizeFirstLetter(protocol.appId.includes('Empty') ? 'Choose Protocol' : protocol.appId)} */}
+                      {isValidProtocol ? (
+                        processProtocolName(protocol.appId)
+                      ) : (
+                        <Flex between>
+                          <Text t5s>
+                            {capitalizeFirstLetter(
+                              protocol.appId.includes('Empty') ? 'Choose Protocol' : protocol.appId
+                            )}
+                          </Text>
+                          <StyledArrowDropDown size={16} />
+                        </Flex>
+                      )}
                     </Text>
                   </Flex>
                 </ThinButton>
@@ -336,7 +349,7 @@ export const Protocol: React.FC<{
               techygradient
               secondary
               noborder
-              onClick={() => deleteItem(protocol.appId)}
+              onClick={() => setProtocolsOpen(false)}
               style={{ width: '100%', borderRadius: '8px' }}
             >
               <Flex gap={4} itemsCenter>
@@ -351,15 +364,17 @@ export const Protocol: React.FC<{
           {/* <div style={{ padding: 8 }}> */}
           <Flex col gap={8} mt={12}>
             <div>
-              <SmallerInputSection
-                placeholder={'Search Protocol'}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  width: '100%',
-                  border: 'none',
-                }}
-              />
+              {dropdownOpen && (
+                <SmallerInputSection
+                  placeholder={'Search Protocol'}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    width: '100%',
+                    border: 'none',
+                  }}
+                />
+              )}
               {/* <GenericInputSection
                 placeholder={'Search Protocol'}
                 value={searchTerm}

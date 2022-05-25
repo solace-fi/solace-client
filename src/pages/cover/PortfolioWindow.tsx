@@ -249,6 +249,7 @@ export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
           onClick={addItem}
           disabled={portfolioLoading && active}
           // noborder
+          height={51}
         >
           <Flex itemsCenter gap={5}>
             {/* <Text info style={{ display: 'flex', alignItems: 'center' }}>

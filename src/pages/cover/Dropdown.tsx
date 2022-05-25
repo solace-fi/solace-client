@@ -7,6 +7,8 @@ import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
 import { capitalizeFirstLetter } from '../../utils/formatting'
+// import ScrollContainer from 'react-indiana-drag-scroll'
+
 // import { TableRow } from '../../components/atoms/Table'
 // import { SolaceRiskProtocol } from '../../constants/types'
 
@@ -224,6 +226,7 @@ export const DropdownOptionsUnique = ({
       hideScrollbar
     >
       <Flex col gap={8} p={12}>
+        {/* <ScrollContainer className="scroll-container"> */}
         {searchedList.map((item) => (
           <ButtonAppearance
             key={item.label}
@@ -259,6 +262,7 @@ export const DropdownOptionsUnique = ({
             {noneText ?? 'No results found'}
           </Text>
         )}
+        {/* </ScrollContainer> */}
       </Flex>
     </Accordion>
   )
