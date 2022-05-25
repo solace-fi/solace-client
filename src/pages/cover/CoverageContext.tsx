@@ -103,7 +103,7 @@ const CoverageManager: React.FC = (props) => {
             return {
               label: s.appId,
               value: s.appId,
-              icon: <img src={`https://assets.solace.fi/zapperLogos/${s.appId}`} height={24} />,
+              icon: <img src={`https://assets.solace.fi/zapperLogos/${s.appId}`} height={16} />,
             }
           })
         : [],

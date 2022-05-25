@@ -17,6 +17,7 @@ import { useWeb3React } from '@web3-react/core'
 import { StyledAdd } from '../../components/atoms/Icon'
 import styled from 'styled-components'
 import { Z_NAV } from '../../constants'
+import { Text } from '../../components/atoms/Typography'
 
 export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
   const { active } = useWeb3React()
@@ -242,13 +243,21 @@ export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
         </TileCard>
         <Button
           {...gradientStyle}
-          secondary
+          // secondary
+          separator
           {...bigButtonStyle}
           onClick={addItem}
           disabled={portfolioLoading && active}
-          noborder
+          // noborder
         >
-          <StyledAdd size={16} /> Add Custom Position
+          <Flex itemsCenter gap={5}>
+            {/* <Text info style={{ display: 'flex', alignItems: 'center' }}>
+              <StyledAdd size={14} />
+            </Text> */}
+            <Text techygradient t4s>
+              + Add Position
+            </Text>
+          </Flex>
         </Button>
         {editableProtocols.map((protocol: LocalSolaceRiskProtocol) => {
           const riskColor = getColorByTier(protocol.tier)

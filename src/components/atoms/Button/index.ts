@@ -137,6 +137,29 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
       }
     `
   }
+  // if (props.techygradient) {
+  //   const finalCss = css`
+  //     opacity: 1;
+  //     transform: scale(1);
+  //     &:hover {
+  //       ${!props.nohover && `opacity: 0.8;`}
+  //     }
+  //   `
+  //   return css`
+  //     color: transparent;
+  //     background-image: linear-gradient(
+  //       to bottom right,
+  //       ${theme.typography.techyGradientA},
+  //       ${theme.typography.techyGradientB}
+  //     );
+  //     opacity: 1;
+  //     transform: scale(1);
+  //     background-clip: text;
+
+  //     ${finalCss}
+  //   `
+  // }
+
   let textColor = `${theme.typography.contrastText}`
   let hoverTextColor = `${theme.typography.analogicalText}`
   let hoverBgColor = `${theme.typography.contrastText}`
