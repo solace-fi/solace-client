@@ -11,6 +11,7 @@ export interface FlexProps {
   justifyCenter?: boolean
   justifyEnd?: boolean
   itemsCenter?: boolean
+  itemsEnd?: boolean
   center?: boolean
   column?: boolean
   col?: boolean
@@ -50,6 +51,7 @@ export const Flex = styled.div<FlexProps>`
   ${({ justifyCenter }) => justifyCenter && css`justify-content: center;`}
   ${({ justifyEnd })    => justifyEnd    && css`justify-content: flex-end;`}
   ${({ itemsCenter })   => itemsCenter   && css`align-items: center;`}
+  ${({ itemsEnd })      => itemsEnd      && css`align-items: flex-end;`}
   ${({ center })        => center        && css`justify-content: center;`}
   ${({ column })        => column        && css`flex-direction: column;`}
   ${({ col })           => col           && css`flex-direction: column;`}

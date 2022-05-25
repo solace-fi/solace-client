@@ -16,6 +16,7 @@ export function TileCard({
   noPadding,
   gap,
   padding,
+  onClick,
   ...rest
 }: {
   children: React.ReactNode
@@ -31,6 +32,7 @@ export function TileCard({
   noPadding?: boolean
   gap?: number
   padding?: number
+  onClick?: () => void
 }): JSX.Element {
   const defaultStyle = style ?? {}
   // thinner is 0.8, bigger is 1.2
@@ -60,7 +62,7 @@ export function TileCard({
   }
 
   return !noShadow ? (
-    <ShadowDiv style={combinedStyle} {...rest}>
+    <ShadowDiv style={combinedStyle} {...rest} onClick={onClick}>
       <RaisedBox style={horiz ? rowStyle : colStyle}>
         <Flex p={!noPadding ? padding ?? 24 : undefined} column={!horiz} stretch flex1 gap={gap}>
           {children}

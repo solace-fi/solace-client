@@ -14,13 +14,14 @@ export interface TextStyleProps extends GeneralElementProps {
   analogical?: boolean
   light?: boolean
   dark?: boolean
+  contrast?: boolean
   outlined?: boolean
   autoAlignVertical?: boolean
   autoAlignHorizontal?: boolean
   autoAlign?: boolean
   regular?: boolean
   medium?: boolean
-  bold?: boolean
+  /** `font-weight: 600` if open sans, `700` if montserrat */ bold?: boolean
   extrabold?: boolean
   italics?: boolean
   underline?: boolean
@@ -273,6 +274,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.warning && `color: ${props.theme.typography.warningText};`}
   ${(props) => props.light && `color: ${props.theme.typography.lightText};`}
   ${(props) => props.dark && `color: ${props.theme.typography.darkText};`}
+  ${(props) => props.contrast && `color: ${props.theme.typography.contrastText};`}
   ${(props) => props.fade && `opacity: 0.8;`}
   ${(props) => props.inline && `display: inline;`}
   /* techy gradient is props.theme.typography.techyGradientA and techyGradientB (top to bottom); text bg clip css */
@@ -287,7 +289,7 @@ export const TextStyleCss = css<TextStyleProps>`
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      font-weight: 600;
+      font-weight: ${props.extrabold ? 700 : 600} !important;
     `}
   /* warm gradient is props.theme.typography.warmGradientA and warmGradientB (top left to bottom right); text bg clip css */
   ${(props) =>
@@ -301,7 +303,7 @@ export const TextStyleCss = css<TextStyleProps>`
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      font-weight: 600;
+      font-weight: ${props.extrabold ? 700 : 600} !important;
     `}
   ${GeneralElementCss}
   transition: all 200ms ease;

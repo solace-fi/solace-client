@@ -40,7 +40,7 @@ export const CoverageLimitSelector = ({
 
   const highestPosition = useMemo(
     () =>
-      portfolioScore && portfolioScore.protocols.length > 0
+      portfolioScore?.protocols?.length && portfolioScore.protocols.length > 0
         ? portfolioScore.protocols.reduce((pn, cn) => (cn.balanceUSD > pn.balanceUSD ? cn : pn))
         : undefined,
     [portfolioScore]
@@ -104,7 +104,7 @@ export const CoverageLimitSelector = ({
         <Text t4s>Select Limit</Text>
       </Flex>
       <Flex between itemsCenter mt={10}>
-        <GraySquareButton onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}>
+        <GraySquareButton onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))} width={34} height={34}>
           <StyledArrowIosBackOutline height={18} />
         </GraySquareButton>
         <Flex col itemsCenter>
@@ -127,7 +127,7 @@ export const CoverageLimitSelector = ({
             }
           </Text>
         </Flex>
-        <GraySquareButton onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}>
+        <GraySquareButton onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))} width={34} height={34}>
           <StyledArrowIosForwardOutline height={18} />
         </GraySquareButton>
       </Flex>

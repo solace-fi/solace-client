@@ -4,6 +4,7 @@ import { Button } from '../atoms/Button'
 import { Tab } from '../../constants/enums'
 import { GenericIconAndText, IconAndText } from './IconAndText'
 import { InputSectionWrapper } from '../atoms/Input'
+import { Theme } from '../../styles/themes'
 
 export const StyledInput = styled.input`
   border-color: ${({ theme }) => theme.separator.bg_color};
@@ -106,7 +107,12 @@ export const GenericInputSection = ({
         placeholder={placeholder ?? '0'}
         value={value ?? ''}
         onChange={onChange}
-        style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: inputWidth ?? '100%' }}
+        style={{
+          backgroundColor: 'inherit',
+          color: 'inherit',
+          borderRadius: 'inherit',
+          width: inputWidth ?? '100%',
+        }}
         disabled={disabled}
         readOnly={readonly}
       />
@@ -130,3 +136,24 @@ export const GenericInputSection = ({
     </InputSectionWrapper>
   )
 }
+
+export const SmallerInputSection = styled.input<{ asideBg?: boolean; theme: Theme }>`
+  border-color: ${({ theme }: { theme: Theme }) => theme.separator.bg_color} !important;
+  width: 100% !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  padding: 6px 16px !important;
+  font-size: 12px !important;
+  font-family: 'Open Sans', sans-serif !important;
+  box-sizing: border-box !important;
+  color: ${({ theme }: { theme: Theme }) => theme.typography.darkText} !important;
+  background-color: ${({ theme }: { theme: Theme }) => theme.v2.raised} !important;
+  outline: none !important;
+  &:focus {
+    border-color: ${({ theme }: { theme: Theme }) => theme.separator.bg_color} !important;
+  }
+  ${({ theme, asideBg }: { theme: Theme; asideBg?: boolean }) =>
+    asideBg && `background-color: ${theme.body.bg_color} !important;`}
+`

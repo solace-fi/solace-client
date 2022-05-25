@@ -7,6 +7,7 @@ type AccordionProps = {
   customHeight?: string
   openSpeed?: number
   closeSpeed?: number
+  hideScrollbar?: boolean
 }
 
 export const Accordion = styled.div<AccordionProps>`
@@ -22,5 +23,11 @@ export const Accordion = styled.div<AccordionProps>`
   ${(props) => !props.noBackgroundColor && `background-color: ${props.theme.accordion.bg_color};`}
   overflow-y: hidden;
   ${(props) => (props.noScroll ? null : `overflow-y: auto;`)}
+  ${(props) =>
+    !props.hideScrollbar
+      ? null
+      : `::-webkit-scrollbar { width: 0px; }
+  scrollbar-width: none;
+  -ms-overflow-style: none;`}
   border-radius: 10px;
 `

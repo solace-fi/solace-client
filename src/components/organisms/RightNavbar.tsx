@@ -269,7 +269,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                     <Button
                       nohover
                       noborder
-                      onClick={appTheme == 'dark' && toggleTheme}
+                      onClick={appTheme == 'dark' ? toggleTheme : undefined}
                       style={{ minWidth: '0', minHeight: '0' }}
                     >
                       <StyledSun size={20} />
@@ -278,7 +278,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                     <Button
                       nohover
                       noborder
-                      onClick={appTheme == 'light' && toggleTheme}
+                      onClick={appTheme == 'light' ? toggleTheme : undefined}
                       style={{ minWidth: '0', minHeight: '0' }}
                     >
                       {<StyledMoon size={20} />}

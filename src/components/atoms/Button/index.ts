@@ -1,6 +1,7 @@
 import { GeneralElementProps, GeneralElementCss, PaddingProps, PaddingCss } from '../../generalInterfaces'
 import styled, { css } from 'styled-components'
 import { Text4Css } from '../Typography'
+import { Theme } from '../../../styles/themes'
 
 export interface ClickProps {
   onClick?: any
@@ -246,15 +247,12 @@ export const Button = styled.button<ButtonProps & GeneralElementProps>`
   ${ButtonBaseCss}
 `
 
-export const GraySquareButton = styled(Button)`
+export const GraySquareButton = styled(Button)<{ noborder?: boolean; theme: Theme; darkText?: boolean }>`
   border-radius: 10px;
-  height: 15px;
-  width: 15px;
-  min-height: 34px;
-  min-width: 34px;
   background-color: ${(props) => props.theme.body.bg_color};
-  border: 1px solid ${(props) => props.theme.typography.separator};
-  color: ${(props) => props.theme.typography.infoText};
+  box-sizing: border-box;
+  ${({ noborder, theme }) => (noborder ? `border: none;` : `border: 1px solid ${theme.separator.bg_color};`)}
+  color: ${(props) => (props.darkText ? props.theme.typography.darkText : props.theme.typography.darkText)};
   &:hover {
     background-color: ${(props) => props.theme.typography.separator};
     color: ${(props) => props.theme.typography.infoText};
@@ -279,4 +277,18 @@ export const ButtonWrapper = styled.div<PaddingProps & ButtonWrapperProps>`
   gap: 10px;
   ${PaddingCss}
   ${ButtonWrapperCss}
+`
+
+export const ThinButton = styled(Button)<{ hasBorder?: boolean; hasCustomBg?: boolean; theme: Theme }>`
+  ${({ hasCustomBg, theme }) =>
+    hasCustomBg
+      ? ''
+      : css`
+          background-color: ${theme.v2.raised};
+        `}
+  ${({ hasBorder }) => (hasBorder ? `border-width: 1px;` : `border-width: 0;`)}
+  box-shadow: 0px 0px 30px -5px rgba(138, 138, 138, 0.4);
+  ${({ width }) => (width ? `min-width: ${width}px;` : 'width: 100%;')}
+  height: 30px;
+  border-radius: 8px;
 `

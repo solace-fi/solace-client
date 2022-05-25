@@ -140,7 +140,7 @@ const PolicyContent = (): JSX.Element => {
           <Text mont {...gradientStyle} t2 textAlignCenter>
             Ready to protect your portfolio?
           </Text>
-          <Text mont t3 textAlignCenter pt={8}>
+          <Text t3 textAlignCenter pt={8}>
             Here is the best policy price based on your portfolio and optimal coverage limit.
           </Text>
         </Flex>
@@ -182,8 +182,8 @@ const PolicyContent = (): JSX.Element => {
                 </TextSpan>
               </Text>
               <Flex col pt={16}>
-                <Text t7 bold>
-                  Coverage Limit:
+                <Text contrast t7 bold>
+                  Cover limit:
                 </Text>
                 <Text t6>Highest Position + 20%</Text>
               </Flex>
@@ -222,10 +222,10 @@ const PolicyContent = (): JSX.Element => {
             </Flex>
             <Flex col gap={12}>
               <Flex col>
-                <Text mont t4s textAlignCenter>
+                <Text t4s textAlignCenter>
                   Enter the number of days or the amount of funds.
                 </Text>
-                <Text mont info t5s textAlignCenter italics underline pt={4}>
+                <Text techygradient t5s textAlignCenter italics pt={4}>
                   Paid daily. Cancel and withdraw any time.
                 </Text>
               </Flex>

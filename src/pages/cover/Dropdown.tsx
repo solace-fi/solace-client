@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useCoverageContext } from './CoverageContext'
 import { Accordion } from '../../components/atoms/Accordion'
 import { Button, ButtonAppearance } from '../../components/atoms/Button'
@@ -6,8 +6,55 @@ import { InputSectionWrapper, StyledInput } from '../../components/atoms/Input'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
-import { TableRow } from '../../components/atoms/Table'
-import { SolaceRiskProtocol } from '../../constants/types'
+import { capitalizeFirstLetter } from '../../utils/formatting'
+// import { TableRow } from '../../components/atoms/Table'
+// import { SolaceRiskProtocol } from '../../constants/types'
+
+export function processProtocolName(str: string): string {
+  // remove hyphen & capitalize first letter of each word
+  return str
+    .split('-')
+    .map((word) => {
+      switch (word.toLowerCase()) {
+        case 'amm':
+        case 'apy':
+          return word.toUpperCase()
+        case 'defi':
+          return 'DeFi'
+        case 'defisaver':
+          return 'DeFi Saver'
+        case 'deversifi':
+          return 'DeversiFi'
+        case 'derivadex':
+          return 'DerivaDEX'
+        case 'dao':
+          return 'DAO'
+        case 'liquiddriver':
+          return 'LiquidDriver'
+        case 'tokensets':
+          return 'TokenSets'
+        case 'wepiggy':
+          return 'WePiggy'
+        case 'waultswap':
+          return 'WaultSwap'
+        case 'stormswap':
+          return 'StormSwap'
+        case 'spiritswap':
+          return 'SpiritSwap'
+        case 'spookyswap':
+          return 'SpookySwap'
+        case 'snowswap':
+          return 'SnowSwap'
+        case 'shapeshift':
+          return 'ShapeShift'
+        case 'yieldyak':
+          return 'Yield Yak'
+        default:
+          return capitalizeFirstLetter(word)
+      }
+    })
+    .join(' ')
+}
 
 export const DropdownInputSection = ({
   hasArrow,
@@ -94,7 +141,14 @@ export const DropdownInputSection = ({
         placeholder={placeholder ?? '0'}
         value={value ?? ''}
         onChange={onChange}
-        style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: inputWidth ?? '100%' }}
+        style={{
+          backgroundColor: 'inherit',
+          color: 'inherit',
+          borderRadius: 'inherit',
+          width: inputWidth ?? '100%',
+          fontFamily: 'Open Sans',
+          height: '10px',
+        }}
         disabled={disabled}
       />
     </InputSectionWrapper>
@@ -131,7 +185,7 @@ export const DropdownOptions = ({
               <Flex gap={8} itemsCenter>
                 {item.icon ?? <Text {...gradientStyle}>{item.label}</Text>}
               </Flex>
-              <Text autoAlignVertical>{item.value}</Text>
+              <Text autoAlignVertical>{processProtocolName(item.value)}</Text>
             </Flex>
           </ButtonAppearance>
         ))}
@@ -162,7 +216,13 @@ export const DropdownOptionsUnique = ({
   const { bigButtonStyle, gradientStyle } = styles
 
   return (
-    <Accordion isOpen={isOpen} style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }} customHeight={'280px'}>
+    <Accordion
+      isOpen={isOpen}
+      style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }}
+      customHeight={'280px'}
+      noBackgroundColor
+      hideScrollbar
+    >
       <Flex col gap={8} p={12}>
         {searchedList.map((item) => (
           <ButtonAppearance
@@ -171,14 +231,26 @@ export const DropdownOptionsUnique = ({
             matchBg
             secondary
             noborder
+            height={37}
+            pt={10.5}
+            pb={10.5}
+            pl={12}
+            pr={12}
             onClick={() => onClick(item.value)}
             disabled={comparingList.includes(item.label)}
+            style={{ borderRadius: '8px' }}
           >
-            <Flex stretch between pl={16} pr={16}>
+            <Flex stretch gap={12}>
               <Flex gap={8} itemsCenter>
-                {item.icon ?? <Text {...gradientStyle}>{item.label}</Text>}
+                {item.icon ?? (
+                  <Text {...gradientStyle} bold>
+                    {item.label}
+                  </Text>
+                )}
               </Flex>
-              <Text autoAlignVertical>{item.value}</Text>
+              <Text autoAlignVertical t5s bold>
+                {processProtocolName(item.value)}
+              </Text>
             </Flex>
           </ButtonAppearance>
         ))}

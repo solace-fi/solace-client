@@ -181,6 +181,26 @@ export default function App(): any {
                   ))}
                   <Route exact path="/terms" component={Terms} />
                   <Route exact path="/swc3" component={Cover} />
+                  <Route
+                    exact
+                    path="*"
+                    component={() => (
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          height: 'calc(100vh - 130px)',
+                          width: '100%',
+                          fontSize: '2rem',
+                          // fontFamily: 'Montserrat',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        404 Not Found
+                      </div>
+                    )}
+                  />
                 </Switch>
               </div>
               <SideNavContent desktopWidth={8}></SideNavContent>
