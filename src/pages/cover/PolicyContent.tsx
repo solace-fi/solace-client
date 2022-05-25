@@ -275,7 +275,9 @@ export const PolicyContent = (): JSX.Element => {
                             hasArrow
                             isOpen={coinsOpen}
                             placeholder={'Enter amount'}
-                            icon={<img src={`https://assets.solace.fi/zapperLogos/frax`} height={16} />}
+                            icon={
+                              <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
+                            }
                             text={selectedCoin.symbol}
                             value={enteredAmount}
                             onChange={(e) => setEnteredAmount(e.target.value)}

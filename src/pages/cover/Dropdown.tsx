@@ -220,7 +220,8 @@ export const BalanceDropdownOptions = ({
           >
             <Flex stretch between pl={16} pr={16}>
               <Flex gap={8} itemsCenter>
-                {<Text {...gradientStyle}>{item.symbol}</Text>}
+                <img src={`https://assets.solace.fi/${item.name.toLowerCase()}`} width={16} height={16} />
+                <Text {...gradientStyle}>{item.symbol}</Text>
               </Flex>
               <Text autoAlignVertical>{formatUnits(item.balance, item.decimals)}</Text>
             </Flex>
