@@ -21,7 +21,7 @@ import { BigNumber } from 'ethers'
 
 /* import constants */
 import { MAX_BPS } from '../../../constants'
-import { BondTellerDetails } from '../../../constants/types'
+import { BondTellerFullDetails } from '../../../constants/types'
 
 /* import components */
 import { Modal } from '../../molecules/Modal'
@@ -40,7 +40,7 @@ interface BondSettingsModalProps extends ModalProps {
   setBondRecipient: any
   slippagePrct: string
   setSlippagePrct: any
-  selectedBondDetail?: BondTellerDetails
+  selectedBondDetail?: BondTellerFullDetails
 }
 
 export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({

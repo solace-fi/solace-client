@@ -1,8 +1,8 @@
-import React, { useMemo, useContext, createContext, useEffect, useState, useCallback } from 'react'
+import React, { useMemo, useContext, createContext, useEffect, useCallback } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
-import { GasData, LocalTx, TokenToPriceMapping } from '../constants/types'
+import { GasData, LocalTx } from '../constants/types'
 import { useReload } from '../hooks/internal/useReload'
 
 import { useFetchGasData } from '../hooks/provider/useGas'
@@ -10,6 +10,7 @@ import { useFetchGasData } from '../hooks/provider/useGas'
 import { useNetwork } from './NetworkManager'
 import { useGetCrossTokenPricesFromCoingecko } from '../hooks/api/usePrice'
 import { useWeb3React } from '@web3-react/core'
+import { TokenToPriceMapping } from '@solace-fi/sdk-nightly'
 
 /*
 

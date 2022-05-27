@@ -1,4 +1,5 @@
-import { LockData, CheckboxData } from '../../../constants/types'
+import { CheckboxData } from '../../../constants/types'
+import { LockData } from '@solace-fi/sdk-nightly'
 
 /**
  * @name updateLocksChecked

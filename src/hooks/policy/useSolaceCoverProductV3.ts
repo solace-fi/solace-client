@@ -6,15 +6,7 @@ import { LocalTx, NetworkConfig } from '../../constants/types'
 import { networks, useNetwork } from '../../context/NetworkManager'
 import { withBackoffRetries } from '../../utils/time'
 import { useGetFunctionGas } from '../provider/useGas'
-import {
-  Risk,
-  SolaceRiskBalance,
-  SolaceRiskScore,
-  SolaceRiskSeries,
-  CoverageV3,
-  SCP,
-  Policy,
-} from '@solace-fi/sdk-nightly'
+import { Risk, SolaceRiskBalance, SolaceRiskScore, SolaceRiskSeries, CoverageV3, Policy } from '@solace-fi/sdk-nightly'
 import { useWeb3React } from '@web3-react/core'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useProvider } from '../../context/ProviderManager'

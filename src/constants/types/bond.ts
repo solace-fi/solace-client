@@ -1,6 +1,5 @@
 import { BigNumber } from 'ethers'
-import { Contract } from '@ethersproject/contracts'
-import { BondTellerContractData } from './contract'
+import { BondTellerDetails, BondTokenData } from '@solace-fi/sdk-nightly'
 
 export type BondTokenV1 = {
   id: BigNumber
@@ -10,42 +9,12 @@ export type BondTokenV1 = {
   maturation: BigNumber
 }
 
-export type BondTokenV2 = {
+export type BondTokenV2 = BondTokenData & {
   id: BigNumber
-  payoutAmount: BigNumber
-  payoutAlreadyClaimed: BigNumber
-  principalPaid: BigNumber
-  vestingStart: number
-  localVestingTerm: number
 }
 
-export type BondTellerDetails = {
-  tellerData: BondTellerData
-  principalData: BondPrincipalData
+export type BondTellerFullDetails = BondTellerDetails & {
   metadata: TellerTokenMetadata
-}
-
-export type BondTellerData = {
-  teller: BondTellerContractData
-  bondPrice: BigNumber
-  usdBondPrice: number
-  vestingTermInSeconds: number
-  capacity: BigNumber
-  maxPayout: BigNumber
-  bondFeeBps?: BigNumber
-  bondRoi: number
-}
-
-export type BondPrincipalData = {
-  principal: Contract
-  principalProps: {
-    symbol: string
-    decimals: number
-    name: string
-    address: string
-  }
-  token0?: string
-  token1?: string
 }
 
 export type TellerTokenMetadata = {

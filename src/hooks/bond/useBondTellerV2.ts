@@ -1,11 +1,4 @@
-import {
-  BondTellerDetails,
-  BondTokenV2,
-  TxResult,
-  LocalTx,
-  BondTellerContractData,
-  TellerTokenMetadata,
-} from '../../constants/types'
+import { BondTellerFullDetails, TxResult, LocalTx, TellerTokenMetadata } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 
 import { BigNumber } from 'ethers'
@@ -16,9 +9,9 @@ import { useProvider } from '../../context/ProviderManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useCachedData } from '../../context/CachedDataManager'
-import { Bond } from '@solace-fi/sdk-nightly'
+import { BondTellerContractData, Bond } from '@solace-fi/sdk-nightly'
 
-export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefined) => {
+export const useBondTellerV2 = (selectedBondDetail: BondTellerFullDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()
 
   const deposit = async (
@@ -106,11 +99,11 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
   return { deposit, claimPayout }
 }
 
-export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
+export const useBondTellerFullDetailsV2 = (): { tellerDetails: BondTellerFullDetails[]; mounting: boolean } => {
   const { signer, provider } = useProvider()
   const { tellers } = useContracts()
   const { activeNetwork } = useNetwork()
-  const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
+  const [tellerDetails, setTellerDetails] = useState<BondTellerFullDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
   const canBondV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noBondingV2, [
     activeNetwork.config.restrictedFeatures.noBondingV2,

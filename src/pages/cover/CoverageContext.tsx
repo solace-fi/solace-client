@@ -3,7 +3,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { BKPT_2, BKPT_NAVBAR, ZERO } from '../../constants'
 import { InterfaceState } from '../../constants/enums'
 import { coinsMap } from '../../constants/mappings/coverageStablecoins'
-import { ReadToken, SolaceRiskBalance, SolaceRiskScore, TokenInfo } from '../../constants/types'
+import { ReadToken, TokenInfo } from '../../constants/types'
 import { useGeneral } from '../../context/GeneralManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useBatchBalances } from '../../hooks/balance/useBalance'
@@ -12,6 +12,7 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { usePortfolio, useRiskSeries, useCheckIsCoverageActive } from '../../hooks/policy/useSolaceCoverProductV3'
 import { BigNumber } from 'ethers'
 import { accurateMultiply } from '../../utils/formatting'
+import { SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 
 type CoverageContextType = {
   intrface: {

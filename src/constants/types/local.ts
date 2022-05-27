@@ -1,5 +1,5 @@
 import { TransactionCondition, SystemNotice, Error } from '../enums'
-import { SolaceRiskProtocol } from './api'
+import { SolaceRiskProtocol } from '@solace-fi/sdk-nightly'
 
 export type CheckboxData = { id: string; checked: boolean }
 

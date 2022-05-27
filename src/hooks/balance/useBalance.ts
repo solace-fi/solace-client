@@ -10,7 +10,7 @@ import { useProvider } from '../../context/ProviderManager'
 import { useBridge } from './useBridge'
 import { withBackoffRetries } from '../../utils/time'
 import { SOLACE_TOKEN, XSOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
-import { UnderwritingPoolUSDBalances } from '@solace-fi/sdk-nightly'
+import { SCP, UnderwritingPoolUSDBalances } from '@solace-fi/sdk-nightly'
 import { useWeb3React } from '@web3-react/core'
 import { NetworkConfig } from '../../constants/types'
 import { BigNumber, Contract } from 'ethers'
@@ -41,6 +41,45 @@ export const useNativeTokenBalance = (): string => {
   }, [activeNetwork, account, version])
 
   return balance
+}
+
+export const useScpBalance = (): string => {
+  const { account } = useWeb3React()
+  const { activeNetwork } = useNetwork()
+  const { provider } = useProvider()
+  const { version } = useCachedData()
+  const [scpBalance, setScpBalance] = useState<string>('0')
+  const scpObj = useMemo(
+    () => (activeNetwork.config.restrictedFeatures.noCoverageV3 ? undefined : new SCP(activeNetwork.chainId, provider)),
+    [activeNetwork, provider]
+  )
+
+  const getScpBalance = async () => {
+    if (!account || !scpObj?.scp) return
+    try {
+      const balance = await scpObj.scp.balanceOf(account)
+      const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
+      setScpBalance(formattedBalance)
+    } catch (err) {
+      console.log('getScpBalance', err)
+    }
+  }
+
+  useEffect(() => {
+    if (!account || !scpObj?.scp) return
+    getScpBalance()
+    scpObj.scp.on('Transfer', (from, to) => {
+      if (from == account || to == account) {
+        getScpBalance()
+      }
+    })
+
+    return () => {
+      scpObj?.scp.removeAllListeners()
+    }
+  }, [account, scpObj, version])
+
+  return scpBalance
 }
 
 export const useVaultScpBalance = (): string => {

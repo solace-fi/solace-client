@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
 import { isAddress } from '../../utils'
 import { Contract } from '@ethersproject/contracts'
-import { BondTellerContractData, ContractSources, TellerTokenMetadata } from '../../constants/types'
+import { ContractSources, TellerTokenMetadata } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { AddressZero } from '@ethersproject/constants'
+import { BondTellerContractData } from '@solace-fi/sdk-nightly'
 
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
   const { provider, signer } = useProvider()

@@ -17,7 +17,7 @@
 import React from 'react'
 
 /* import constants */
-import { BondTellerDetails } from '../../../../constants/types'
+import { BondTellerFullDetails } from '../../../../constants/types'
 import { FunctionName } from '../../../../constants/enums'
 
 /* import managers */
@@ -37,7 +37,7 @@ import { useNetwork } from '../../../../context/NetworkManager'
 
 interface BondOptionsV2Props {
   isBondTellerErc20: boolean
-  selectedBondDetail?: BondTellerDetails
+  selectedBondDetail?: BondTellerFullDetails
   isStaking: boolean
   shouldUseNativeToken: boolean
   approval: boolean

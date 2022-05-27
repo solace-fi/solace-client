@@ -128,7 +128,7 @@ export function CoveredChains({
                       marginRight: 'auto',
                       display: 'grid',
                       gridTemplateColumns: `repeat(${Math.min(3, policyChains.length)}, 1fr)`,
-                      gridTemplateRows: `repeat(${Math.floor(policyChains.length / 3) + 1}, 1fr)`,
+                      gridTemplateRows: `repeat(${Math.floor(policyChains.length % 3) + 1}, 1fr)`,
                       gridColumnGap: '10px',
                       gridRowGap: '10px',
                     }}

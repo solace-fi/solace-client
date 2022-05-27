@@ -26,7 +26,7 @@ import { BigNumber } from 'ethers'
 import { useWeb3React } from '@web3-react/core'
 
 /* import constants */
-import { BondTellerDetails, BondTokenV2, LocalTx } from '../../../../constants/types'
+import { BondTellerFullDetails, BondTokenV2, LocalTx } from '../../../../constants/types'
 import { BKPT_3, MAX_APPROVAL_AMOUNT, MAX_BPS, ZERO } from '../../../../constants'
 import { FunctionName, TransactionCondition } from '../../../../constants/enums'
 
@@ -70,7 +70,7 @@ import { withBackoffRetries } from '../../../../utils/time'
 interface BondModalV2Props {
   closeModal: () => void
   isOpen: boolean
-  selectedBondDetail?: BondTellerDetails
+  selectedBondDetail?: BondTellerFullDetails
 }
 
 export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, selectedBondDetail }) => {

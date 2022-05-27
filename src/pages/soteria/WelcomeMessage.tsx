@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Button } from '../../components/atoms/Button'
 import { useGeneral } from '../../context/GeneralManager'
-import { SolaceRiskScore } from '../../constants/types'
+import { SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { truncateValue } from '../../utils/formatting'
 import { Text } from '../../components/atoms/Typography'
 

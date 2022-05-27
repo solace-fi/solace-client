@@ -25,7 +25,7 @@ import React, { useCallback, useState, useMemo, useEffect } from 'react'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { BondTellerDetails, BondTokenV1, LocalTx } from '../../../../constants/types'
+import { BondTellerFullDetails, BondTokenV1, LocalTx } from '../../../../constants/types'
 // import { BKPT_3, MAX_BPS, ZERO } from '../../../../constants'
 import {
   FunctionName,
@@ -87,7 +87,7 @@ import { useWeb3React } from '@web3-react/core'
 interface BondModalV1Props {
   closeModal: () => void
   isOpen: boolean
-  selectedBondDetail?: BondTellerDetails
+  selectedBondDetail?: BondTellerFullDetails
 }
 
 export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, selectedBondDetail }) => {

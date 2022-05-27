@@ -29,7 +29,7 @@ import { useNetwork } from '../../context/NetworkManager'
 /* import constants */
 import { FunctionName } from '../../constants/enums'
 import { BKPT_1, BKPT_5, BKPT_6, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
-import { LockData, UserLocksData, UserLocksInfo, CheckboxData } from '../../constants/types'
+import { CheckboxData } from '../../constants/types'
 import { Tab, StakingVersion } from '../../constants/enums'
 
 /* import components */
@@ -81,6 +81,7 @@ import { Loader } from '../../components/atoms/Loader'
 import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
 import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
 import { useWeb3React } from '@web3-react/core'
+import { LockData, UserLocksData, UserLocksInfo } from '@solace-fi/sdk-nightly'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

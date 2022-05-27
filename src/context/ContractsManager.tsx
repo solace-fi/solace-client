@@ -2,8 +2,9 @@ import React, { createContext, useContext, useMemo } from 'react'
 import { Contract } from '@ethersproject/contracts'
 
 import { useContractArray, useGetBondTellerContracts, useGetContract } from '../hooks/contract/useContract'
-import { BondTellerContractData, ContractSources, TellerTokenMetadata } from '../constants/types'
+import { ContractSources, TellerTokenMetadata } from '../constants/types'
 import { useNetwork } from './NetworkManager'
+import { BondTellerContractData } from '@solace-fi/sdk-nightly'
 
 /*
 
