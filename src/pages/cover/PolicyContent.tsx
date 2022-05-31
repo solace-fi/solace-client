@@ -25,7 +25,7 @@ import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 
 export const PolicyContent = (): JSX.Element => {
   const { intrface, styles, input, dropdowns, policy } = useCoverageContext()
-  const { navbarThreshold, coverageLoading, handleUserState } = intrface
+  const { navbarThreshold, coverageLoading, existingPolicyLoading, handleUserState } = intrface
   const { bigButtonStyle, gradientStyle } = styles
   const {
     enteredAmount: asyncEnteredAmount,
@@ -36,7 +36,7 @@ export const PolicyContent = (): JSX.Element => {
     selectedCoin,
     handleSelectedCoin,
   } = input
-  const { policyId, newCoverageLimit } = policy
+  const { policyId, newCoverageLimit, existingPolicyId, existingPolicyNetwork, status } = policy
   const { daysOptions, batchBalanceData, daysOpen, coinsOpen, setDaysOpen, setCoinsOpen } = dropdowns
 
   const [enteredDays, setEnteredDays] = useState<string>(asyncEnteredDays)
@@ -48,7 +48,6 @@ export const PolicyContent = (): JSX.Element => {
   const { activeNetwork, changeNetwork } = useNetwork()
   const { version } = useCachedData()
   const { isMobile } = useWindowDimensions()
-  const { policyId: existingPolicyId, network: existingPolicyNetwork, loading: existingLoading } = useExistingPolicy()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const { getMinRequiredAccountBalance, getAvailableCoverCapacity, purchase, cancel } = useCoverageFunctions()
@@ -111,7 +110,7 @@ export const PolicyContent = (): JSX.Element => {
 
   return (
     <Content>
-      {coverageLoading || existingLoading ? (
+      {coverageLoading || existingPolicyLoading ? (
         <Flex col gap={24} m={isMobile ? 20 : undefined}>
           <LoaderText text={'Loading'} />
         </Flex>

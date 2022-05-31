@@ -1,6 +1,6 @@
 import { BondName } from '../../enums'
 import { TellerTokenMetadata } from '../../types'
-import { TELLER_ADDRS_V2 } from '../../addresses/fantomTestnet'
+import { TELLER_ADDRS_V2 } from '../../addresses/fantom'
 import { DAI_TOKEN, WETH9_TOKEN, USDC_TOKEN, USDT_TOKEN, WBTC_TOKEN, FRAX_TOKEN, WFTM_TOKEN } from '../token'
 import bondTellerErc20Abi_V2 from '../../metadata/BondTellerErc20_V2.json'
 import bondTellerFtm from '../../metadata/BondTellerFtm.json'
@@ -28,7 +28,7 @@ export const tellerToTokenMapping: {
     name: BondName.WETH,
     addr: WETH9_TOKEN.address[chainId],
     principalAbi: ierc20Json.abi,
-    tellerAbi: bondTellerErc20Abi_V2,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: WETH9_TOKEN.address[1],
     tokenId: 'ethereum',
     isBondTellerErc20: true,

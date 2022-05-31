@@ -1,4 +1,4 @@
-import { KEY_ADDRS } from '../constants/addresses/fantom'
+import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/fantom'
 import { Unit } from '../constants/enums'
 import { WFTM_TOKEN } from '../constants/mappings/token'
 
@@ -12,6 +12,7 @@ import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMapping
 import { FTMSCAN_API_KEY } from '../constants'
 import { NetworkConfig } from '../constants/types'
 import FantomLogo from '../resources/svg/networks/fantom-logo.svg'
+import solaceCoverProductV2ABI from '../constants/metadata/SolaceCoverProductV2.json'
 
 const chainId = 250
 
@@ -48,21 +49,24 @@ export const FantomNetwork: NetworkConfig = {
         addr: KEY_ADDRS.XSLOCKER,
         abi: xsLockerABI.abi,
       },
+      solaceCoverProduct: {
+        addr: SPECIAL_ADDRS.SOLACE_COVER_PRODUCT_V2,
+        abi: solaceCoverProductV2ABI.abi,
+        additionalInfo: 'v2',
+      },
       stakingRewards: {
         addr: KEY_ADDRS.STAKING_REWARDS,
         abi: stakingRewardsABI.abi,
-        additionalInfo: 'v2',
       },
     },
     specialContracts: {},
     restrictedFeatures: {
-      noSoteria: true,
       noBondingV1: true,
       noFarmingV1: true,
       noStakingV1: true,
     },
     specialFeatures: {},
-    underwritingPoolAddr: '',
+    underwritingPoolAddr: '0x2971f45c0952437934B3F055C401241e5C339F93',
   },
   cache: {
     tellerToTokenMapping,

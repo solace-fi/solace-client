@@ -3,13 +3,18 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { BKPT_2, BKPT_NAVBAR, ZERO } from '../../constants'
 import { InterfaceState } from '../../constants/enums'
 import { coinsMap } from '../../constants/mappings/coverageStablecoins'
-import { ReadToken, TokenInfo } from '../../constants/types'
+import { NetworkConfig, ReadToken, TokenInfo } from '../../constants/types'
 import { useGeneral } from '../../context/GeneralManager'
-import { useNetwork } from '../../context/NetworkManager'
+import { networks, useNetwork } from '../../context/NetworkManager'
 import { useBatchBalances } from '../../hooks/balance/useBalance'
 import { useInputAmount } from '../../hooks/internal/useInputAmount'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
-import { usePortfolio, useRiskSeries, useCheckIsCoverageActive } from '../../hooks/policy/useSolaceCoverProductV3'
+import {
+  usePortfolio,
+  useRiskSeries,
+  useCheckIsCoverageActive,
+  useExistingPolicy,
+} from '../../hooks/policy/useSolaceCoverProductV3'
 import { BigNumber } from 'ethers'
 import { accurateMultiply } from '../../utils/formatting'
 import { SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
@@ -26,6 +31,7 @@ type CoverageContextType = {
     seriesLoading: boolean
     balancesLoading: boolean
     coverageLoading: boolean
+    existingPolicyLoading: boolean
   }
   input: {
     enteredDays: string
@@ -61,6 +67,8 @@ type CoverageContextType = {
     status: boolean
     currentCoverageLimit: BigNumber
     newCoverageLimit: BigNumber
+    existingPolicyId: BigNumber
+    existingPolicyNetwork: NetworkConfig
   }
 }
 
@@ -76,6 +84,7 @@ const CoverageContext = createContext<CoverageContextType>({
     seriesLoading: true,
     balancesLoading: true,
     coverageLoading: true,
+    existingPolicyLoading: true,
   },
   input: {
     enteredDays: '',
@@ -111,6 +120,8 @@ const CoverageContext = createContext<CoverageContextType>({
     status: false,
     currentCoverageLimit: ZERO,
     newCoverageLimit: ZERO,
+    existingPolicyId: ZERO,
+    existingPolicyNetwork: networks[0],
   },
 })
 
@@ -134,16 +145,19 @@ const CoverageManager: React.FC = (props) => {
   const [showPortfolio, setShowPortfolio] = useState(false)
   const [daysOpen, setDaysOpen] = useState(false)
   const [coinsOpen, setCoinsOpen] = useState(false)
+  const {
+    policyId: existingPolicyId,
+    network: existingPolicyNetwork,
+    loading: existingPolicyLoading,
+  } = useExistingPolicy()
 
   const coinOptions = useMemo(() => coinsMap[activeNetwork.chainId] ?? [], [activeNetwork])
   const { loading: balancesLoading, batchBalances } = useBatchBalances(coinOptions.map((c) => c.address))
 
-  const loading = useMemo(() => portfolioLoading || seriesLoading || balancesLoading || coverageLoading, [
-    portfolioLoading,
-    seriesLoading,
-    balancesLoading,
-    coverageLoading,
-  ])
+  const loading = useMemo(
+    () => portfolioLoading || seriesLoading || balancesLoading || coverageLoading || existingPolicyLoading,
+    [portfolioLoading, seriesLoading, balancesLoading, coverageLoading, existingPolicyLoading]
+  )
 
   const interfaceState = useMemo(() => (loading ? InterfaceState.LOADING : userState), [loading, userState])
   const navbarThreshold = useMemo(() => width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR), [rightSidebar, width])
@@ -251,6 +265,7 @@ const CoverageManager: React.FC = (props) => {
         seriesLoading,
         balancesLoading,
         coverageLoading,
+        existingPolicyLoading,
       },
       input: {
         enteredDays,
@@ -286,6 +301,8 @@ const CoverageManager: React.FC = (props) => {
         status,
         currentCoverageLimit,
         newCoverageLimit,
+        existingPolicyId,
+        existingPolicyNetwork,
       },
     }),
     [
@@ -314,6 +331,9 @@ const CoverageManager: React.FC = (props) => {
       newCoverageLimit,
       policyId,
       status,
+      existingPolicyId,
+      existingPolicyNetwork,
+      existingPolicyLoading,
       riskScores,
       handleInputChange,
       handleSelectedCoin,

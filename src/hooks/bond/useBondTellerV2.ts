@@ -110,6 +110,7 @@ export const useBondTellerFullDetailsV2 = (): { tellerDetails: BondTellerFullDet
   ])
   const { tokenPriceMapping } = useCachedData()
   const running = useRef(false)
+  const [canRun, setCanRun] = useState<boolean>(false)
 
   useEffect(() => {
     setMounting(true)
@@ -120,6 +121,7 @@ export const useBondTellerFullDetailsV2 = (): { tellerDetails: BondTellerFullDet
       if (
         !canBondV2 ||
         running.current ||
+        !canRun ||
         (Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object)
       )
         return
@@ -150,10 +152,16 @@ export const useBondTellerFullDetailsV2 = (): { tellerDetails: BondTellerFullDet
       setMounting(false)
       running.current = false
 
-      return setTellerDetails(adjustedTellerDetails)
+      setTellerDetails(adjustedTellerDetails)
     }
     getPrices()
-  }, [signer, tellers, canBondV2, tokenPriceMapping, activeNetwork, provider])
+  }, [signer, tellers, canBondV2, tokenPriceMapping, activeNetwork, provider, canRun])
+
+  useEffect(() => {
+    setTimeout(() => {
+      setCanRun(true)
+    }, 400)
+  }, [])
 
   return { tellerDetails, mounting }
 }

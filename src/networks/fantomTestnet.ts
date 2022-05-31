@@ -57,7 +57,6 @@ export const FantomTestnetNetwork: NetworkConfig = {
       stakingRewards: {
         addr: KEY_ADDRS.STAKING_REWARDS,
         abi: stakingRewardsABI.abi,
-        additionalInfo: 'v2',
       },
     },
     specialContracts: {},
@@ -67,7 +66,6 @@ export const FantomTestnetNetwork: NetworkConfig = {
       noStakingV1: true,
     },
     specialFeatures: {},
-    underwritingPoolAddr: '0x501ace27A074471F099ffFeC008Bd1b151c7F7dE',
   },
   cache: {
     tellerToTokenMapping,
