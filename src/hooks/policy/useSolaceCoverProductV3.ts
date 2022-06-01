@@ -427,7 +427,7 @@ export const useExistingPolicy = () => {
         {}
       )
 
-      const data = await policy.getExistingPolicy(account, rpcUrlMapping, false)
+      const data = await policy.getExistingPolicy_V2(account, rpcUrlMapping, false)
       if (data.length > 0) {
         const network = networks.find((n) => n.chainId === data[0].chainId)
         if (network) {
