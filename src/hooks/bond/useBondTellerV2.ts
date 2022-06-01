@@ -62,6 +62,24 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerFullDetails | unde
           gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
         })
         break
+      case FunctionName.BOND_DEPOSIT_FTM:
+        estGas = await cntct.estimateGas.depositFtm(minAmountOut, recipient, stake)
+        console.log('cntct.estimateGas.depositFtm', estGas.toString())
+        tx = await cntct.depositFtm(minAmountOut, recipient, stake, {
+          value: parsedAmount,
+          ...gasConfig,
+          // ...gasSettings,
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        })
+        break
+      case FunctionName.BOND_DEPOSIT_WFTM:
+        estGas = await cntct.estimateGas.depositWftm(parsedAmount, minAmountOut, recipient, stake)
+        console.log('cntct.estimateGas.depositWftm', estGas.toString())
+        tx = await cntct.depositWftm(parsedAmount, minAmountOut, recipient, stake, {
+          ...gasConfig,
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        })
+        break
       case FunctionName.BOND_DEPOSIT_ERC20_V2:
       default:
         estGas = await cntct.estimateGas.deposit(parsedAmount, minAmountOut, recipient, stake)

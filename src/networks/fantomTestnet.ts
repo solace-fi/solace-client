@@ -26,7 +26,7 @@ export const FantomTestnetNetwork: NetworkConfig = {
   rpc: {
     httpsUrl: `https://rpc.testnet.fantom.network/`,
     pollingInterval: 12_000,
-    blockConfirms: 3,
+    blockConfirms: 1,
   },
   explorer: {
     name: 'FTMscan',

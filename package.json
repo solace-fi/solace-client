@@ -9,7 +9,7 @@
     "@gnosis.pm/safe-service-client": "^1.0.1",
     "@rebass/forms": "^4.0.6",
     "@rooks/use-debounce": "^4.11.2",
-    "@solace-fi/sdk-nightly": "^0.5.23",
+    "@solace-fi/sdk-nightly": "^0.5.25",
     "@styled-icons/bootstrap": "^10.34.0",
     "@styled-icons/boxicons-logos": "^10.38.0",
     "@styled-icons/boxicons-regular": "^10.38.0",

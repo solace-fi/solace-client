@@ -33,6 +33,8 @@ export enum FunctionName {
   // bond tellers v2
   BOND_DEPOSIT_WMATIC = 'DepositWmatic',
   BOND_DEPOSIT_MATIC = 'DepositMatic',
+  BOND_DEPOSIT_WFTM = 'DepositWftm',
+  BOND_DEPOSIT_FTM = 'DepositFtm',
   BOND_DEPOSIT_WETH_V2 = 'DepositWeth',
   BOND_DEPOSIT_ETH_V2 = 'DepositEth',
   BOND_DEPOSIT_ERC20_V2 = 'Deposit',

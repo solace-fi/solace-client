@@ -99,12 +99,9 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   const [bondRecipient, setBondRecipient] = useState<string | null | undefined>(undefined)
   const [calculatedAmountIn, setCalculatedAmountIn] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
-  const {
-    bondDepositFunctionName,
-    bondDepositWrappedFunctionName,
-    bondDepositFunctionGas,
-    // bondDepositWrappedFunctionGas,
-  } = useTellerConfig(activeNetwork)
+  const { bondDepositFunctionName, bondDepositWrappedFunctionName, bondDepositFunctionGas } = useTellerConfig(
+    activeNetwork
+  )
   const [func, setFunc] = useState<FunctionName>(bondDepositFunctionName)
   const [principalBalance, setPrincipalBalance] = useState<string>('0')
   const [slippagePrct, setSlippagePrct] = useState<string>('100')
@@ -485,6 +482,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
                     isAcceptableAmount={isAcceptableAmount}
                     slippagePrct={slippagePrct}
                     bondRecipient={bondRecipient}
+                    calculatedAmountOut={calculatedAmountOut}
                     setIsStaking={setIsStaking}
                     setShouldUseNativeToken={setShouldUseNativeToken}
                     approve={unlimitedApprove}

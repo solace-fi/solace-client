@@ -148,7 +148,7 @@ export const useGetCrossTokenPricesFromCoingecko = (minute: number): { tokenPric
       if (gettingPrices.current) return
       gettingPrices.current = true
       const price = new PriceApi()
-      const consolidatedPriceMapping = await price.getCoinGeckoTokenPrices()
+      const consolidatedPriceMapping = await price.getMirrorCoingeckoPrices()
 
       setTokenPriceMapping(consolidatedPriceMapping)
       gettingPrices.current = false
