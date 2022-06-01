@@ -66,12 +66,13 @@ export const useExistingPolicy = (account: string | null | undefined) => {
         {}
       )
 
-      const data = await policy.getExistingPolicy(account, rpcUrlMapping, false)
+      const data = await policy.getExistingPolicy_V2(account, rpcUrlMapping, false)
       if (data.length > 0) {
-        const network = networks.find((n) => n.chainId === data[0].chainId)
+        const policyWithHighestCoverLimit = data.reduce((a, b) => (a.coverLimit.gt(b.coverLimit) ? a : b))
+        const network = networks.find((n) => n.chainId === policyWithHighestCoverLimit.chainId)
         if (network) {
           setNetwork(network)
-          setPolicyId(data[0].policyId)
+          setPolicyId(policyWithHighestCoverLimit.policyId)
         } else {
           setPolicyId(ZERO)
           setNetwork(networks[0])
