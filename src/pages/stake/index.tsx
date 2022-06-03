@@ -14,7 +14,7 @@
 */
 
 /* import packages */
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
@@ -33,7 +33,7 @@ import { CheckboxData } from '../../constants/types'
 import { Tab, StakingVersion } from '../../constants/enums'
 
 /* import components */
-import { Button, ButtonWrapper } from '../../components/atoms/Button'
+import { Button, ButtonWrapper, GraySquareButton } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { StyledSlider, Checkbox } from '../../components/atoms/Input'
 import { Content, Flex, Scrollable, VerticalSeparator, HeroContainer } from '../../components/atoms/Layout'
@@ -41,7 +41,12 @@ import { ModalCell } from '../../components/atoms/Modal'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { Modal } from '../../components/molecules/Modal'
 import { Table, TableBody, TableData, TableHead, TableHeader, TableRow } from '../../components/atoms/Table'
-import { StyledMultiselect, StyledInfo } from '../../components/atoms/Icon'
+import {
+  StyledMultiselect,
+  StyledInfo,
+  StyledArrowIosBackOutline,
+  StyledArrowIosForwardOutline,
+} from '../../components/atoms/Icon'
 import DifferenceNotification from './organisms/DifferenceNotification'
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
@@ -414,6 +419,18 @@ export default function Stake(): JSX.Element {
     [locks, locksChecked]
   )
 
+  const [currentPage, setCurrentPage] = useState<number>(0)
+
+  const numResultsPerPage = 5
+  const numPages = useMemo(() => Math.ceil(locks.length / numResultsPerPage), [locks])
+
+  const locksPaginated = useMemo(
+    () => locks.slice(currentPage * numResultsPerPage, (currentPage + 1) * numResultsPerPage),
+    [currentPage, locks]
+  )
+
+  const [openedLockId, setOpenedLockId] = useState<number | undefined>(undefined)
+
   useEffect(() => {
     const _getUserLocks = async () => {
       if (!account || fetchingLocks.current) return
@@ -458,6 +475,19 @@ export default function Stake(): JSX.Element {
       setLocksChecked(locksChecked.map((lock) => ({ ...lock, checked: false })))
     } else {
       setLocksChecked(locksChecked.map((lock) => ({ ...lock, checked: true })))
+    }
+  }
+
+  const handleOpenLock = useCallback((openedId: number | undefined) => {
+    setOpenedLockId(openedId)
+  }, [])
+
+  const handleCurrentPageChange = (dest: 'next' | 'prev') => {
+    setOpenedLockId(undefined)
+    if (dest == 'prev') {
+      setCurrentPage(currentPage - 1 < 0 ? numPages - 1 : currentPage - 1)
+    } else {
+      setCurrentPage(currentPage + 1 > numPages - 1 ? 0 : currentPage + 1)
     }
   }
 
@@ -778,7 +808,7 @@ export default function Stake(): JSX.Element {
                 )}
                 {!loading &&
                   locks.length > 0 &&
-                  locks.map((lock, i) => (
+                  locksPaginated.map((lock, i) => (
                     <Safe
                       key={lock.xsLockID.toNumber()}
                       lock={lock}
@@ -786,8 +816,27 @@ export default function Stake(): JSX.Element {
                       isChecked={boxIsChecked(locksChecked, lock.xsLockID.toString())}
                       onCheck={() => handleLockCheck(lock.xsLockID)}
                       index={i}
+                      openedLockId={openedLockId}
+                      handleOpenLock={handleOpenLock}
                     />
                   ))}
+                {!loading && numPages > 1 && (
+                  <Flex pb={20} justifyCenter>
+                    <Flex itemsCenter gap={5}>
+                      <GraySquareButton onClick={() => handleCurrentPageChange('prev')}>
+                        <StyledArrowIosBackOutline height={18} />
+                      </GraySquareButton>
+                      {numPages > 1 && (
+                        <Text t4>
+                          Page {currentPage + 1}/{numPages}
+                        </Text>
+                      )}
+                      <GraySquareButton onClick={() => handleCurrentPageChange('next')}>
+                        <StyledArrowIosForwardOutline height={18} />
+                      </GraySquareButton>
+                    </Flex>
+                  </Flex>
+                )}
                 {!loading && locks.length == 0 && (
                   <HeroContainer>
                     <Text t1 textAlignCenter>

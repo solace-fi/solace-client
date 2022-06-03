@@ -19,7 +19,7 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
     <>
       {width > (rightSidebar ? BKPT_7 : BKPT_6) ? (
         <RaisedBox>
-          <Flex stretch gap={91} wrap mb={20} p={24}>
+          <Flex stretch gap={91} wrap mb={20} p={24} justifyCenter>
             <Flex gap={91}>
               <div>
                 <InfoPair importance="primary" label="Staked Balance">

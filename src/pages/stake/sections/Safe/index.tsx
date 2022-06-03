@@ -26,20 +26,24 @@ export default function Safe({
   lock,
   batchActionsIsEnabled,
   isChecked,
+  openedLockId,
+  handleOpenLock,
   onCheck,
   index,
 }: {
   lock: LockData
   batchActionsIsEnabled: boolean
   isChecked: boolean
+  openedLockId: number | undefined
+  handleOpenLock: (openedId: number | undefined) => void
   onCheck: (index: number) => void
   index: number
 }): JSX.Element {
   const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
-  const [isOpen, setIsOpen] = useState(false)
-  const openSafe = () => setIsOpen(true)
-  const closeSafe = () => setIsOpen(false)
+  const isOpen = useMemo(() => openedLockId == lock.xsLockID.toNumber(), [lock.xsLockID, openedLockId])
+  const openSafe = () => handleOpenLock(lock.xsLockID.toNumber())
+  const closeSafe = () => handleOpenLock(undefined)
 
   const unboostedAmount = useMemo(() => formatUnits(lock.unboostedAmount, 18), [lock.unboostedAmount])
   const boostedValue = useMemo(() => formatUnits(lock.boostedValue, 18), [lock.boostedValue])
@@ -64,7 +68,7 @@ export default function Safe({
         {/******************************************************
 				                      TOP SECTION
 				******************************************************/}
-        <Flex between stretch p={24} gap={24}>
+        <Flex between={batchActionsIsEnabled} justifyCenter={!batchActionsIsEnabled} stretch p={24} gap={24}>
           <Flex center hidden={!batchActionsIsEnabled || width < (rightSidebar ? BKPT_6 : BKPT_5)}>
             {batchActionsIsEnabled && <Checkbox type="checkbox" checked={isChecked} onChange={() => onCheck(index)} />}
           </Flex>

@@ -22,21 +22,6 @@ export const useCoverageFunctions = () => {
     [activeNetwork, signer]
   )
 
-  const purchaseFor = async (user: string, coverLimit: BigNumberish) => {
-    if (!coverageObj) return { tx: null, localTx: null }
-    const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchaseFor(user, coverLimit)
-    const tx = await coverageObj.purchaseFor(user, coverLimit, {
-      ...gasConfig,
-      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
-    })
-    const localTx: LocalTx = {
-      hash: tx.hash,
-      type: FunctionName.COVER_PURCHASE_FOR,
-      status: TransactionCondition.PENDING,
-    }
-    return { tx, localTx }
-  }
-
   const purchase = async (coverLimit: BigNumberish) => {
     if (!coverageObj) return { tx: null, localTx: null }
     const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchase(coverLimit)
@@ -144,17 +129,6 @@ export const useCoverageFunctions = () => {
     }
   }
 
-  const calculateCancelFee = async (policyId: BigNumberish): Promise<BigNumber> => {
-    if (!coverageObj) return ZERO
-    try {
-      const d = await withBackoffRetries(async () => coverageObj.calculateCancelFee(policyId))
-      return d
-    } catch (e) {
-      console.log('error calculateCancelFee ', e)
-      return ZERO
-    }
-  }
-
   const paused = async (): Promise<boolean> => {
     if (!coverageObj) return true
     try {
@@ -240,7 +214,6 @@ export const useCoverageFunctions = () => {
     getMinRequiredAccountBalance,
     getMinScpRequired,
     tokenURI,
-    calculateCancelFee,
     paused,
     policyCount,
     chargeCycle,
@@ -248,7 +221,6 @@ export const useCoverageFunctions = () => {
     coverLimitOf,
     policyOf,
     debtOf,
-    purchaseFor,
     purchase,
     cancel,
   }
