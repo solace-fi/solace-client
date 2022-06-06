@@ -10,20 +10,18 @@ import { useNetwork } from '../../context/NetworkManager'
 import CoverageManager, { useCoverageContext } from './CoverageContext'
 import { PortfolioWindow } from './PortfolioWindow'
 import { PolicyContent } from './PolicyContent'
+import { CldModal } from './CldModal'
 
 const CoverageContent = () => {
+  const { intrface } = useCoverageContext()
+  const { showPortfolioModal, showCLDModal } = intrface
+
   return (
-    <div
-      style={{
-        gridTemplateColumns: '2fr 1fr',
-        display: 'grid',
-        position: 'relative',
-        gap: '15px',
-      }}
-    >
+    <>
+      <CldModal show={showCLDModal} />
+      <PortfolioWindow show={showPortfolioModal} />
       <CoveragePage />
-      <PortfolioWindow show={true} />
-    </div>
+    </>
   )
 }
 
@@ -39,7 +37,7 @@ const CoveragePage = (): JSX.Element => {
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { styles, intrface } = useCoverageContext()
-  const { handleShowPortfolio } = intrface
+  const { handleShowPortfolioModal } = intrface
   const { gradientStyle } = styles
   const canShowCoverageV3 = useMemo(() => !activeNetwork.config.restrictedFeatures.noCoverageV3, [
     activeNetwork.config.restrictedFeatures.noCoverageV3,
@@ -61,7 +59,7 @@ const CoveragePage = (): JSX.Element => {
           </Box>
           <Flex justifyCenter>
             <HeroContainer>
-              <Button {...gradientStyle} secondary noborder p={20} onClick={() => handleShowPortfolio(true)}>
+              <Button {...gradientStyle} secondary noborder p={20} onClick={() => handleShowPortfolioModal(true)}>
                 <Text t2>Open Portfolio Editor</Text>
               </Button>
             </HeroContainer>

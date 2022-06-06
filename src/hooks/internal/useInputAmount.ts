@@ -45,10 +45,13 @@ export const useInputAmount = () => {
   const [amount, setAmount] = useState<string>('')
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
 
-  const isAppropriateAmount = (amount: string, amountDecimals: number, assetBalance: BigNumber): boolean => {
-    if (!amount || amount == '.' || parseUnits(amount, amountDecimals).lte(ZERO)) return false
-    return assetBalance.gte(parseUnits(amount, amountDecimals))
-  }
+  const isAppropriateAmount = useCallback(
+    (amount: string, amountDecimals: number, assetBalance: BigNumber): boolean => {
+      if (!amount || amount == '.' || parseUnits(amount, amountDecimals).lte(ZERO)) return false
+      return assetBalance.gte(parseUnits(amount, amountDecimals))
+    },
+    []
+  )
 
   const calculateMaxAmount = (balance: BigNumber, amountDecimals: number, gasLimit?: number) => {
     const bal = formatUnits(balance, amountDecimals)

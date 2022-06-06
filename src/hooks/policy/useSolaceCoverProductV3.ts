@@ -6,7 +6,15 @@ import { LocalTx, NetworkConfig } from '../../constants/types'
 import { networks, useNetwork } from '../../context/NetworkManager'
 import { withBackoffRetries } from '../../utils/time'
 import { useGetFunctionGas } from '../provider/useGas'
-import { Risk, SolaceRiskBalance, SolaceRiskScore, SolaceRiskSeries, CoverageV3, Policy } from '@solace-fi/sdk-nightly'
+import {
+  Risk,
+  SolaceRiskBalance,
+  SolaceRiskScore,
+  SolaceRiskSeries,
+  CoverageV3,
+  Policy,
+  SCP,
+} from '@solace-fi/sdk-nightly'
 import { useWeb3React } from '@web3-react/core'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useProvider } from '../../context/ProviderManager'
@@ -22,10 +30,75 @@ export const useCoverageFunctions = () => {
     [activeNetwork, signer]
   )
 
-  const purchase = async (coverLimit: BigNumberish) => {
+  const scpObj = useMemo(
+    () => (activeNetwork.config.restrictedFeatures.noCoverageV3 ? undefined : new SCP(activeNetwork.chainId, signer)),
+    [activeNetwork, signer]
+  )
+
+  const purchaseWithStable = async (account: string, coverLimit: BigNumberish, token: string, amount: BigNumberish) => {
     if (!coverageObj) return { tx: null, localTx: null }
-    const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchase(coverLimit)
-    const tx = await coverageObj.purchase(coverLimit, {
+    const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchaseWithStable(
+      account,
+      coverLimit,
+      token,
+      amount
+    )
+    const tx = await coverageObj.purchaseWithStable(account, coverLimit, token, amount, {
+      ...gasConfig,
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+    })
+    const localTx: LocalTx = {
+      hash: tx.hash,
+      type: FunctionName.COVER_PURCHASE_WITH_STABLE,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
+  const purchaseWithNonStable = async (
+    account: string,
+    coverLimit: BigNumberish,
+    token: string,
+    amount: BigNumberish,
+    price: BigNumberish,
+    priceDeadline: BigNumberish,
+    signature: string
+  ) => {
+    if (!coverageObj) return { tx: null, localTx: null }
+    const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchaseWithNonStable(
+      account,
+      coverLimit,
+      token,
+      amount,
+      price,
+      priceDeadline,
+      signature
+    )
+    const tx = await coverageObj.purchaseWithNonStable(
+      account,
+      coverLimit,
+      token,
+      amount,
+      price,
+      priceDeadline,
+      signature,
+      {
+        ...gasConfig,
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+      }
+    )
+    const localTx: LocalTx = {
+      hash: tx.hash,
+      type: FunctionName.COVER_PURCHASE_WITH_STABLE,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
+  const purchase = async (account: string, coverLimit: BigNumberish) => {
+    if (!coverageObj) return { tx: null, localTx: null }
+    const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchase(account, coverLimit)
+    const tx = await coverageObj.purchase(account, coverLimit, {
       ...gasConfig,
       gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
@@ -52,6 +125,33 @@ export const useCoverageFunctions = () => {
     return { tx, localTx }
   }
 
+  const withdraw = async (
+    account: string,
+    amount: BigNumberish,
+    price: BigNumber,
+    priceDeadline: BigNumber,
+    signature: string
+  ) => {
+    if (!scpObj) return { tx: null, localTx: null }
+    const estGas = await scpObj.coverPaymentManager.estimateGas.withdraw(
+      amount,
+      account,
+      price,
+      priceDeadline,
+      signature
+    )
+    const tx = await scpObj.coverPaymentManager.withdraw(amount, account, price, priceDeadline, signature, {
+      ...gasConfig,
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+    })
+    const localTx: LocalTx = {
+      hash: tx.hash,
+      type: FunctionName.COVER_WITHDRAW,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
   const getActiveCoverLimit = async (): Promise<BigNumber> => {
     if (!coverageObj) return ZERO
     try {
@@ -59,6 +159,24 @@ export const useCoverageFunctions = () => {
       return d
     } catch (e) {
       console.log('error getActiveCoverLimit ', e)
+      return ZERO
+    }
+  }
+
+  const getRefundableSOLACEAmount = async (
+    depositor: string,
+    price: BigNumber,
+    priceDeadline: BigNumber,
+    signature: string
+  ): Promise<BigNumber> => {
+    if (!scpObj) return ZERO
+    try {
+      const d = await withBackoffRetries(async () =>
+        scpObj.getRefundableSOLACEAmount(depositor, price, priceDeadline, signature)
+      )
+      return d
+    } catch (e) {
+      console.log('error getRefundableSOLACEAmount ', e)
       return ZERO
     }
   }
@@ -209,6 +327,7 @@ export const useCoverageFunctions = () => {
   return {
     getActiveCoverLimit,
     getAvailableCoverCapacity,
+    getRefundableSOLACEAmount,
     getMaxCover,
     getPolicyStatus,
     getMinRequiredAccountBalance,
@@ -222,7 +341,10 @@ export const useCoverageFunctions = () => {
     policyOf,
     debtOf,
     purchase,
+    purchaseWithStable,
+    purchaseWithNonStable,
     cancel,
+    withdraw,
   }
 }
 

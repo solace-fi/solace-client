@@ -3,7 +3,7 @@ import { useWeb3React } from '@web3-react/core'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { StyledClock, StyledOptions } from '../../components/atoms/Icon'
-import { Content, Flex, VerticalSeparator } from '../../components/atoms/Layout'
+import { Content, Flex, HeroContainer, VerticalSeparator } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
 import { ZERO } from '../../constants'
@@ -13,7 +13,7 @@ import { useGeneral } from '../../context/GeneralManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useCoverageFunctions, useExistingPolicy } from '../../hooks/policy/useSolaceCoverProductV3'
-import { filterAmount } from '../../utils/formatting'
+import { filterAmount, floatUnits, truncateValue } from '../../utils/formatting'
 import { useCoverageContext } from './CoverageContext'
 import { BalanceDropdownOptions, DropdownInputSection, DropdownOptions } from './Dropdown'
 
@@ -22,25 +22,39 @@ import ZapperDark from '../../resources/svg/zapper-dark.svg'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { LoaderText } from '../../components/molecules/LoaderText'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
+import { parseUnits } from 'ethers/lib/utils'
 
 export const PolicyContent = (): JSX.Element => {
-  const { intrface, styles, input, dropdowns, policy } = useCoverageContext()
-  const { navbarThreshold, coverageLoading, existingPolicyLoading, handleUserState } = intrface
+  const { intrface, styles, input, dropdowns, policy, portfolioKit } = useCoverageContext()
+  const {
+    navbarThreshold,
+    coverageLoading,
+    existingPolicyLoading,
+    interfaceState,
+    userState,
+    handleUserState,
+    handleCtaState,
+    handleShowPortfolioModal,
+    handleShowCLDModal,
+  } = intrface
   const { bigButtonStyle, gradientStyle } = styles
   const {
-    enteredAmount: asyncEnteredAmount,
-    enteredDays: asyncEnteredDays,
-    setEnteredDays: setAsyncEnteredDays,
-    handleInputChange: handleAmountChange,
-    isAcceptableAmount,
+    enteredDeposit: asyncEnteredDeposit,
+    enteredWithdrawal: asyncEnteredWithdrawal,
+    enteredCoverLimit,
+    handleEnteredDeposit,
+    handleEnteredWithdrawal,
+    isAcceptableDeposit,
+    isAcceptableWithdrawal,
     selectedCoin,
     handleSelectedCoin,
   } = input
-  const { policyId, newCoverageLimit, existingPolicyId, existingPolicyNetwork, status } = policy
-  const { daysOptions, batchBalanceData, daysOpen, coinsOpen, setDaysOpen, setCoinsOpen } = dropdowns
+  const { policyId, existingPolicyId, existingPolicyNetwork, status, curCoverageLimit, scpBalance } = policy
+  const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
+  const { curPortfolio, curDailyCost, curUsdBalanceSum } = portfolioKit
 
-  const [enteredDays, setEnteredDays] = useState<string>(asyncEnteredDays)
-  const [enteredAmount, setEnteredAmount] = useState<string>(asyncEnteredAmount)
+  const [enteredDeposit, setEnteredDeposit] = useState<string>(asyncEnteredDeposit)
+  const [enteredWithdrawal, setEnteredWithdrawal] = useState<string>(asyncEnteredWithdrawal)
 
   const { appTheme } = useGeneral()
   const { account } = useWeb3React()
@@ -50,63 +64,112 @@ export const PolicyContent = (): JSX.Element => {
   const { isMobile } = useWindowDimensions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
-  const { getMinRequiredAccountBalance, getAvailableCoverCapacity, purchase, cancel } = useCoverageFunctions()
+  const { purchaseWithStable, purchaseWithNonStable, purchase, cancel } = useCoverageFunctions()
 
   const [showExistingPolicyMessage, setShowExistingPolicyMessage] = useState<boolean>(true)
   const firstTime = useMemo(() => existingPolicyId.isZero(), [existingPolicyId])
+  const policyDuration = useMemo(() => (curDailyCost > 0 ? parseFloat(scpBalance) / curDailyCost : 0), [
+    curDailyCost,
+    scpBalance,
+  ])
 
-  // const buyCta = useMemo(() => [InterfaceState.BUYING].includes(intrface.interfaceState), [intrface.interfaceState])
-  // const extendCta = useMemo(() => [InterfaceState.EXTENDING].includes(intrface.interfaceState), [
-  //   intrface.interfaceState,
+  // const newUserState = useMemo(() => [InterfaceState.NEW_USER].includes(userState), [userState])
+  // const returningUserState = useMemo(() => [InterfaceState.RETURNING_USER].includes(userState), [
+  //   userState,
   // ])
-  // const withdrawCta = useMemo(() => [InterfaceState.WITHDRAWING].includes(intrface.interfaceState), [
-  //   intrface.interfaceState,
+  // const curUserState = useMemo(() => [InterfaceState.CURRENT_USER].includes(userState), [
+  //   userState,
   // ])
-  // const neutralCta = useMemo(() => [InterfaceState.NEUTRAL].includes(intrface.interfaceState), [
-  //   intrface.interfaceState,
+  // const depositCta = useMemo(() => [InterfaceState.DEPOSITING].includes(interfaceState), [
+  //   interfaceState,
+  // ])
+  // const withdrawCta = useMemo(() => [InterfaceState.WITHDRAWING].includes(interfaceState), [
+  //   interfaceState,
   // ])
 
-  const buyCta = true
-  const neutralCta = false
-  const extendCta = false
+  const newUserState = true
+  const curUserState = false
+  const returningUserState = false
+  const depositCta = false
   const withdrawCta = false
 
   const callPurchase = async () => {
     if (!account) return
-    await purchase(newCoverageLimit)
+    await purchase(account, enteredCoverLimit)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
   }
 
-  const _editDays = useDebounce(() => {
-    setAsyncEnteredDays(enteredDays)
-  }, 200)
+  const callPurchaseWithStable = async () => {
+    if (!account) return
+    await purchaseWithStable(
+      account,
+      enteredCoverLimit,
+      selectedCoin.address,
+      parseUnits(enteredDeposit, selectedCoin.decimals)
+    )
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
+  }
 
-  const _editAmount = useDebounce(() => {
-    handleAmountChange(enteredAmount)
-  }, 200)
-
-  useEffect(() => {
-    _editDays()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enteredDays])
-
-  useEffect(() => {
-    _editAmount()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enteredAmount])
-
-  useEffect(() => {
-    if (!status) {
-      handleUserState(InterfaceState.BUYING)
+  const handlePurchase = async () => {
+    if (parseUnits(enteredDeposit, selectedCoin.decimals).isZero()) {
+      callPurchase()
     } else {
-      handleUserState(InterfaceState.NEUTRAL)
+      callPurchaseWithStable()
     }
-  }, [status, handleUserState])
+  }
+
+  const callCancel = async () => {
+    if (!account) return
+    await cancel()
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callCancel', err, FunctionName.COVER_CANCEL))
+  }
+
+  // const callWithdraw = async () => {
+
+  // }
+
+  const _editDeposit = useDebounce(() => {
+    handleEnteredDeposit(enteredDeposit)
+  }, 200)
+
+  useEffect(() => {
+    _editDeposit()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enteredDeposit])
+
+  const _editWithdrawal = useDebounce(() => {
+    handleEnteredWithdrawal(enteredWithdrawal)
+  }, 200)
+
+  useEffect(() => {
+    _editWithdrawal()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enteredWithdrawal])
+
+  useEffect(() => {
+    if (!policyId || policyId?.eq(ZERO)) {
+      handleUserState(InterfaceState.NEW_USER)
+    } else if (!status) {
+      handleUserState(InterfaceState.RETURNING_USER)
+    } else {
+      handleUserState(InterfaceState.CURRENT_USER)
+    }
+  }, [policyId, status, handleUserState])
 
   useEffect(() => {
     setShowExistingPolicyMessage(true)
   }, [activeNetwork.chainId])
+
+  useEffect(() => {
+    setEnteredDeposit(asyncEnteredDeposit)
+  }, [asyncEnteredDeposit])
+
+  useEffect(() => {
+    setEnteredWithdrawal(asyncEnteredWithdrawal)
+  }, [asyncEnteredWithdrawal])
 
   return (
     <Content>
@@ -148,14 +211,29 @@ export const PolicyContent = (): JSX.Element => {
             </TileCard>
           ) : (
             <>
-              <Flex col>
-                <Text mont {...gradientStyle} t2 textAlignCenter>
-                  Ready to protect your portfolio?
-                </Text>
-                <Text mont t3 textAlignCenter pt={8}>
-                  Here is the best policy price based on your portfolio and optimal coverage limit.
-                </Text>
-              </Flex>
+              {curPortfolio && curPortfolio.protocols.length == 0 && newUserState && (
+                <Flex col gap={8} marginAuto>
+                  <Text mont t3 textAlignCenter>
+                    Your portfolio is empty.
+                  </Text>
+                  <Text mont t3 textAlignCenter>
+                    You may simulate a portfolio to see the cost of coverage.
+                  </Text>
+                  <Flex stretch flex1>
+                    <Button
+                      {...gradientStyle}
+                      {...bigButtonStyle}
+                      secondary
+                      noborder
+                      onClick={() => handleShowPortfolioModal(true)}
+                    >
+                      <Text bold t4s>
+                        Enter Simulator
+                      </Text>
+                    </Button>
+                  </Flex>
+                </Flex>
+              )}
               <Flex center>
                 <div
                   style={{
@@ -169,202 +247,220 @@ export const PolicyContent = (): JSX.Element => {
                   <TileCard bigger padding={16}>
                     <Flex between style={{ alignItems: 'center' }}>
                       <Text bold>My Portfolio</Text>
-                      <Text info>
-                        <StyledOptions size={20} />
-                      </Text>
+                      <Button width={40} noborder onClick={() => handleShowPortfolioModal(true)}>
+                        <Text info>
+                          <StyledOptions size={20} />
+                        </Text>
+                      </Button>
                     </Flex>
                     <Text t3s bold {...gradientStyle} pt={8}>
-                      $1
+                      ${truncateValue(curUsdBalanceSum, 2)}
                     </Text>
-                    <Flex pt={16}>??</Flex>
                   </TileCard>
                   <TileCard bigger padding={16}>
                     <Flex between style={{ alignItems: 'center' }}>
-                      <Text bold>Pay as you go</Text>
-                      <Text info>
-                        <StyledOptions size={20} />
-                      </Text>
+                      <Text bold>My Cover Limit</Text>
+                      <Button width={40} noborder onClick={() => handleShowCLDModal(true)}>
+                        <Text info>
+                          <StyledOptions size={20} />
+                        </Text>
+                      </Button>
                     </Flex>
                     <Text pt={8}>
                       <TextSpan t3s bold {...gradientStyle}>
-                        $1
-                      </TextSpan>
-                      <TextSpan t6 bold pl={5}>
-                        / Day
+                        ${truncateValue(floatUnits(curCoverageLimit, 18), 2)}
                       </TextSpan>
                     </Text>
-                    <Flex col pt={16}>
-                      <Text t7 bold>
-                        Coverage Limit:
-                      </Text>
-                      <Text t6>Highest Position + 20%</Text>
-                    </Flex>
                   </TileCard>
                 </div>
               </Flex>
               <div style={{ margin: 'auto' }}>
                 <TileCard>
-                  <Flex stretch between center pb={24}>
+                  <Flex stretch between pb={16}>
                     <Flex col>
-                      <Text bold t4>
-                        My Balance
-                      </Text>
-                      <Text textAlignCenter bold t3 {...gradientStyle}>
-                        $69
+                      <Text bold t4 {...gradientStyle}>
+                        My Subscription Cost
                       </Text>
                     </Flex>
-                    <VerticalSeparator />
                     <Flex col>
-                      <Text bold t4>
-                        Policy Status
-                      </Text>
-                      {status ? (
-                        <Text textAlignCenter bold t3 success>
-                          Active
-                        </Text>
-                      ) : (
-                        <Text textAlignCenter bold t3 error>
-                          Inactive
-                        </Text>
-                      )}
-                    </Flex>
-                    <VerticalSeparator />
-                    <Flex col>
-                      <Text bold t4>
-                        Est. Days
-                      </Text>
-                      <Text textAlignCenter bold t3 {...gradientStyle}>
-                        365
+                      <Text bold t4 {...gradientStyle}>
+                        ${truncateValue(curDailyCost, 2)} / Day
                       </Text>
                     </Flex>
                   </Flex>
-                  <Flex col gap={12}>
-                    <Flex col>
-                      <Text mont t4s textAlignCenter>
-                        Enter the number of days or the amount of funds.
-                      </Text>
-                      <Text mont info t5s textAlignCenter italics underline pt={4}>
-                        Paid daily. Cancel and withdraw any time.
-                      </Text>
+                  {(curUserState || returningUserState) && (
+                    <Flex stretch between center pb={24}>
+                      <div
+                        style={{
+                          gridTemplateColumns: '1fr 0fr 1fr 0fr 1fr',
+                          display: 'grid',
+                          position: 'relative',
+                          gap: '12px',
+                        }}
+                      >
+                        <Flex col>
+                          <Text bold t4 textAlignCenter>
+                            My Balance
+                          </Text>
+                          <Text textAlignCenter bold t3 {...gradientStyle}>
+                            ${truncateValue(scpBalance, 2)}
+                          </Text>
+                        </Flex>
+                        <VerticalSeparator />
+                        <Flex col>
+                          <Text bold t4 textAlignCenter>
+                            Policy Status
+                          </Text>
+                          {status ? (
+                            <Text textAlignCenter bold t3 success>
+                              Active
+                            </Text>
+                          ) : (
+                            <Text textAlignCenter bold t3 error>
+                              Inactive
+                            </Text>
+                          )}
+                        </Flex>
+                        <VerticalSeparator />
+                        <Flex col>
+                          <Text bold t4 textAlignCenter>
+                            Est. Days
+                          </Text>
+                          <Text textAlignCenter bold t3 {...gradientStyle}>
+                            {truncateValue(policyDuration, 2)}
+                          </Text>
+                        </Flex>
+                      </div>
                     </Flex>
-                    {(buyCta || extendCta) && (
-                      <>
-                        <div>
-                          <DropdownInputSection
-                            hasArrow
-                            isOpen={daysOpen}
-                            placeholder={'Enter days'}
-                            icon={<StyledClock size={16} />}
-                            text={'Days'}
-                            value={enteredDays}
-                            onChange={(e) => setEnteredDays(e.target.value)}
-                            onClick={() => setDaysOpen(!daysOpen)}
-                          />
-                          <DropdownOptions
-                            isOpen={daysOpen}
-                            searchedList={daysOptions}
-                            onClick={(value: string) => {
-                              setEnteredDays(value)
-                              setDaysOpen(false)
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <DropdownInputSection
-                            hasArrow
-                            isOpen={coinsOpen}
-                            placeholder={'Enter amount'}
-                            icon={
-                              <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
-                            }
-                            text={selectedCoin.symbol}
-                            value={enteredAmount}
-                            onChange={(e) => setEnteredAmount(e.target.value)}
-                            onClick={() => setCoinsOpen(!coinsOpen)}
-                          />
-                          <BalanceDropdownOptions
-                            isOpen={coinsOpen}
-                            searchedList={batchBalanceData}
-                            onClick={(value: string) => {
-                              handleSelectedCoin(value)
-                              setCoinsOpen(false)
-                            }}
-                          />
-                        </div>
-                      </>
+                  )}
+                  <Flex col gap={12}>
+                    {(depositCta || newUserState) && (
+                      <div>
+                        <DropdownInputSection
+                          hasArrow
+                          isOpen={coinsOpen}
+                          placeholder={'Enter amount'}
+                          icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
+                          text={selectedCoin.symbol}
+                          value={enteredDeposit}
+                          onChange={(e) => setEnteredDeposit(filterAmount(e.target.value, enteredDeposit))}
+                          onClick={() => setCoinsOpen(!coinsOpen)}
+                        />
+                        <BalanceDropdownOptions
+                          isOpen={coinsOpen}
+                          searchedList={batchBalanceData}
+                          onClick={(value: string) => {
+                            handleSelectedCoin(value)
+                            setCoinsOpen(false)
+                          }}
+                        />
+                      </div>
                     )}
                     {withdrawCta && (
                       <DropdownInputSection
                         placeholder={'Enter amount'}
                         icon={<img src={`https://assets.solace.fi/solace`} height={16} />}
                         text={'SOLACE'}
-                        value={enteredAmount}
-                        onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
+                        value={enteredWithdrawal}
+                        onChange={(e) => setEnteredWithdrawal(filterAmount(e.target.value, enteredWithdrawal))}
                       />
                     )}
                     <ButtonWrapper isColumn p={0}>
-                      {buyCta && (
-                        <Button {...gradientStyle} {...bigButtonStyle} secondary noborder>
+                      {newUserState && (
+                        <Button {...gradientStyle} {...bigButtonStyle} secondary noborder onClick={handlePurchase}>
                           <Text bold t4s>
-                            Purchase Policy
+                            Subscribe to Policy
                           </Text>
                         </Button>
                       )}
-                      {neutralCta && (
+                      {returningUserState && (
+                        <Button success {...bigButtonStyle} onClick={handlePurchase}>
+                          <Text bold t4s>
+                            Activate Policy
+                          </Text>
+                        </Button>
+                      )}
+                      {(curUserState || returningUserState) && !depositCta && !withdrawCta && (
                         <Button
                           {...gradientStyle}
                           {...bigButtonStyle}
                           secondary
                           noborder
-                          onClick={() => handleUserState(InterfaceState.EXTENDING)}
+                          onClick={() => handleCtaState(InterfaceState.DEPOSITING)}
                         >
                           <Text bold t4s>
-                            Extend Policy
+                            Deposit
                           </Text>
                         </Button>
                       )}
-                      {neutralCta && (
+                      {(curUserState || returningUserState) && !depositCta && !withdrawCta && (
                         <Button
                           secondary
                           matchBg
                           {...bigButtonStyle}
                           noborder
-                          onClick={() => handleUserState(InterfaceState.WITHDRAWING)}
+                          onClick={() => handleCtaState(InterfaceState.WITHDRAWING)}
                         >
                           <Text bold t4s>
-                            Withdraw Funds
+                            Withdraw
                           </Text>
                         </Button>
                       )}
-                      {extendCta && (
+                      {depositCta && (
                         <ButtonWrapper style={{ width: '100%' }} p={0}>
-                          <Button pt={16} pb={16} separator onClick={() => handleUserState(InterfaceState.NEUTRAL)}>
+                          <Button pt={16} pb={16} separator onClick={() => handleCtaState(undefined)}>
                             Cancel
                           </Button>
-                          <Button {...bigButtonStyle} {...gradientStyle} secondary noborder>
-                            Extend Policy
+                          <Button {...bigButtonStyle} matchBg secondary noborder onClick={handlePurchase}>
+                            <Text {...gradientStyle}>Deposit</Text>
                           </Button>
                         </ButtonWrapper>
                       )}
                       {withdrawCta && (
                         <ButtonWrapper style={{ width: '100%' }} p={0}>
-                          <Button pt={16} pb={16} separator onClick={() => handleUserState(InterfaceState.NEUTRAL)}>
+                          <Button pt={16} pb={16} separator onClick={() => handleCtaState(undefined)}>
                             Cancel
                           </Button>
-                          <Button {...bigButtonStyle} matchBg secondary noborder>
+                          <Button
+                            {...bigButtonStyle}
+                            matchBg
+                            secondary
+                            noborder
+                            // onClick={callWithdraw}
+                          >
                             <Text {...gradientStyle}>Withdraw</Text>
                           </Button>
                         </ButtonWrapper>
                       )}
+                      {curUserState && (
+                        <Button {...bigButtonStyle} error mt={16} onClick={callCancel}>
+                          Deactivate Policy
+                        </Button>
+                      )}
                     </ButtonWrapper>
                   </Flex>
                 </TileCard>
-                {(withdrawCta || extendCta || neutralCta) && (
-                  <Button {...bigButtonStyle} error mt={16}>
-                    Cancel Policy
-                  </Button>
-                )}
               </div>
+              {curPortfolio && curPortfolio.protocols.length > 0 && (
+                <Flex col gap={8} marginAuto pt={36}>
+                  <Text mont t3 textAlignCenter>
+                    See the predicted coverage cost for a customized portfolio through the simulator.
+                  </Text>
+                  <Flex stretch flex1>
+                    <Button
+                      {...gradientStyle}
+                      {...bigButtonStyle}
+                      secondary
+                      noborder
+                      onClick={() => handleShowPortfolioModal(true)}
+                    >
+                      <Text bold t4s>
+                        Enter Simulator
+                      </Text>
+                    </Button>
+                  </Flex>
+                </Flex>
+              )}
             </>
           )}
         </Flex>

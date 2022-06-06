@@ -18,9 +18,11 @@ export enum FunctionName {
   COMPOUND_LOCKS = 'CompoundLocks',
 
   // coverage v3
-  COVER_PURCHASE_FOR = 'PurchaseFor',
+  COVER_PURCHASE_WITH_STABLE = 'PurchaseWithStable',
+  COVER_PURCHASE_WITH_NON_STABLE = 'PurchaseWithNonStable',
   COVER_PURCHASE = 'Purchase',
   COVER_CANCEL = 'Cancel',
+  COVER_WITHDRAW = 'Withdraw',
 
   // soteria (coverage v2)
   SOTERIA_ACTIVATE = 'ActivatePolicy',

@@ -58,7 +58,7 @@ export const useScpBalance = (): string => {
     if (!account || !scpObj?.scp) return
     try {
       const balance = await scpObj.scp.balanceOf(account)
-      const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
+      const formattedBalance = formatUnits(balance, 18)
       setScpBalance(formattedBalance)
     } catch (err) {
       console.log('getScpBalance', err)
@@ -309,7 +309,7 @@ export const useBatchBalances = (
       setLoading(false)
     }
     getBalances()
-  }, [activeNetwork, account, addresses, provider])
+  }, [activeNetwork, account, JSON.stringify(addresses), provider])
 
   return { loading, batchBalances }
 }
