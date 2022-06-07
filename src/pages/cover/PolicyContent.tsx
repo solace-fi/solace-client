@@ -236,31 +236,37 @@ export const PolicyContent = (): JSX.Element => {
 
   return (
     <Content>
-      {coverageLoading || existingPolicyLoading ? (
-        <Flex col gap={24} m={isMobile ? 20 : undefined}>
-          <LoaderText text={'Loading'} />
-        </Flex>
-      ) : (
-        <Flex col gap={24}>
-          {!firstTime && policyId?.isZero() && showExistingPolicyMessage ? (
-            <TileCard>
-              <Flex col gap={30} itemsCenter>
-                <Text t2s>Solace Wallet Coverage</Text>
-                <Flex col gap={10} itemsCenter>
-                  <Text t2>Cover your wallet on any of our supported chains with one policy!</Text>
-                  <Text t2 warning>
-                    It looks like you already have a policy on {existingPolicyNetwork.name}.
-                  </Text>
-                </Flex>
-                <ButtonWrapper isColumn={isMobile}>
-                  <Button info secondary pl={23} pr={23} onClick={() => changeNetwork(existingPolicyNetwork.chainId)}>
-                    Switch to {existingPolicyNetwork.name}
-                  </Button>
-                  <Button info pl={23} pr={23} onClick={() => setShowExistingPolicyMessage(false)}>
-                    Continue Anyway
-                  </Button>
-                </ButtonWrapper>
-                {/* {appTheme == 'light' && (
+      <div
+        style={{
+          backgroundColor: 'red',
+          width: '375px',
+        }}
+      >
+        {coverageLoading || existingPolicyLoading ? (
+          <Flex col gap={24} m={isMobile ? 20 : undefined}>
+            <LoaderText text={'Loading'} />
+          </Flex>
+        ) : (
+          <Flex col gap={24}>
+            {!firstTime && policyId?.isZero() && showExistingPolicyMessage ? (
+              <TileCard>
+                <Flex col gap={30} itemsCenter>
+                  <Text t2s>Solace Wallet Coverage</Text>
+                  <Flex col gap={10} itemsCenter>
+                    <Text t2>Cover your wallet on any of our supported chains with one policy!</Text>
+                    <Text t2 warning>
+                      It looks like you already have a policy on {existingPolicyNetwork.name}.
+                    </Text>
+                  </Flex>
+                  <ButtonWrapper isColumn={isMobile}>
+                    <Button info secondary pl={23} pr={23} onClick={() => changeNetwork(existingPolicyNetwork.chainId)}>
+                      Switch to {existingPolicyNetwork.name}
+                    </Button>
+                    <Button info pl={23} pr={23} onClick={() => setShowExistingPolicyMessage(false)}>
+                      Continue Anyway
+                    </Button>
+                  </ButtonWrapper>
+                  {/* {appTheme == 'light' && (
                 <Flex center>
                   <img src={Zapper} style={{ width: '145px' }} />
                 </Flex>
@@ -270,298 +276,301 @@ export const PolicyContent = (): JSX.Element => {
                   <img src={ZapperDark} style={{ width: '145px' }} />
                 </Flex>
               )} */}
-              </Flex>
-            </TileCard>
-          ) : (
-            <>
-              {curPortfolio && curPortfolio.protocols.length == 0 && newUserState && (
-                <Flex col gap={8} marginAuto>
-                  <Text mont t3 textAlignCenter>
-                    Your portfolio is empty.
-                  </Text>
-                  <Text mont t3 textAlignCenter>
-                    You may simulate a portfolio to see the cost of coverage.
-                  </Text>
-                  <Flex stretch flex1>
-                    <Button
-                      {...gradientStyle}
-                      {...bigButtonStyle}
-                      secondary
-                      noborder
-                      onClick={() => handleShowSimulatorModal(true)}
-                    >
-                      <Text bold t4s>
-                        Enter Simulator
-                      </Text>
-                    </Button>
-                  </Flex>
                 </Flex>
-              )}
-              <Flex center>
-                <div
-                  style={{
-                    width: navbarThreshold ? '50%' : '100%',
-                    gridTemplateColumns: '1fr 1fr',
-                    display: 'grid',
-                    position: 'relative',
-                    gap: '15px',
-                  }}
-                >
-                  <TileCard bigger padding={16}>
-                    <Flex between style={{ alignItems: 'center' }}>
-                      <Text bold>My Portfolio</Text>
-                      <Button width={40} noborder onClick={() => handleShowPortfolioModal(true)}>
-                        <Text info>
-                          <StyledOptions size={20} />
-                        </Text>
-                      </Button>
-                    </Flex>
-                    {portfolioLoading ? (
-                      <LoaderText text={'Fetching'} />
-                    ) : (
-                      <Text t3s bold {...gradientStyle} pt={8}>
-                        ${truncateValue(curUsdBalanceSum, 2)}
-                      </Text>
-                    )}
-                  </TileCard>
-                  <TileCard bigger padding={16}>
-                    <Flex between style={{ alignItems: 'center' }}>
-                      <Text bold>My Cover Limit</Text>
-                      <Button width={40} noborder onClick={() => handleShowCLDModal(true)}>
-                        <Text info>
-                          <StyledOptions size={20} />
-                        </Text>
-                      </Button>
-                    </Flex>
-                    <Text pt={8}>
-                      <TextSpan t3s bold {...gradientStyle}>
-                        ${truncateValue(floatUnits(curCoverageLimit, 18), 2)}
-                      </TextSpan>
+              </TileCard>
+            ) : (
+              <>
+                {curPortfolio && curPortfolio.protocols.length == 0 && newUserState && (
+                  <Flex col gap={8} marginAuto>
+                    <Text mont t3 textAlignCenter>
+                      Your portfolio is empty.
                     </Text>
-                  </TileCard>
-                </div>
-              </Flex>
-              <div style={{ margin: 'auto' }}>
-                <TileCard>
-                  <Flex stretch between pb={16}>
-                    <Flex col>
-                      <Text bold t4 {...gradientStyle}>
-                        My Subscription Cost
-                      </Text>
-                    </Flex>
-                    <Flex col>
-                      <Text bold t4 {...gradientStyle}>
-                        ${truncateValue(curDailyCost, 2)} / Day
-                      </Text>
+                    <Text mont t3 textAlignCenter>
+                      You may simulate a portfolio to see the cost of coverage.
+                    </Text>
+                    <Flex stretch flex1>
+                      <Button
+                        {...gradientStyle}
+                        {...bigButtonStyle}
+                        secondary
+                        noborder
+                        onClick={() => handleShowSimulatorModal(true)}
+                      >
+                        <Text bold t4s>
+                          Enter Simulator
+                        </Text>
+                      </Button>
                     </Flex>
                   </Flex>
-                  {(curUserState || returningUserState) && (
-                    <Flex stretch between center pb={24}>
-                      <div
-                        style={{
-                          gridTemplateColumns: '1fr 0fr 1fr 0fr 1fr',
-                          display: 'grid',
-                          position: 'relative',
-                          gap: '12px',
-                        }}
-                      >
-                        <Flex col>
-                          <Text bold t4 textAlignCenter>
-                            My Balance
+                )}
+                <Flex center>
+                  <div
+                    style={{
+                      width: navbarThreshold ? '50%' : '100%',
+                      gridTemplateColumns: '1fr 1fr',
+                      display: 'grid',
+                      position: 'relative',
+                      gap: '15px',
+                    }}
+                  >
+                    <TileCard bigger padding={16}>
+                      <Flex between style={{ alignItems: 'center' }}>
+                        <Text bold>My Portfolio</Text>
+                        <Button width={40} noborder onClick={() => handleShowPortfolioModal(true)}>
+                          <Text info>
+                            <StyledOptions size={20} />
                           </Text>
-                          <Text textAlignCenter bold t3 {...gradientStyle}>
-                            ${truncateValue(scpBalance, 2)}
+                        </Button>
+                      </Flex>
+                      {portfolioLoading ? (
+                        <LoaderText text={'Fetching'} />
+                      ) : (
+                        <Text t3s bold {...gradientStyle} pt={8}>
+                          ${truncateValue(curUsdBalanceSum, 2)}
+                        </Text>
+                      )}
+                    </TileCard>
+                    <TileCard bigger padding={16}>
+                      <Flex between style={{ alignItems: 'center' }}>
+                        <Text bold>My Cover Limit</Text>
+                        <Button width={40} noborder onClick={() => handleShowCLDModal(true)}>
+                          <Text info>
+                            <StyledOptions size={20} />
                           </Text>
-                        </Flex>
-                        <VerticalSeparator />
-                        <Flex col>
-                          <Text bold t4 textAlignCenter>
-                            Policy Status
-                          </Text>
-                          {status ? (
-                            <Text textAlignCenter bold t3 success>
-                              Active
-                            </Text>
-                          ) : (
-                            <Text textAlignCenter bold t3 error>
-                              Inactive
-                            </Text>
-                          )}
-                        </Flex>
-                        <VerticalSeparator />
-                        <Flex col>
-                          <Text bold t4 textAlignCenter>
-                            Est. Days
-                          </Text>
-                          <Text textAlignCenter bold t3 {...gradientStyle}>
-                            {truncateValue(policyDuration, 2)}
-                          </Text>
-                        </Flex>
-                      </div>
+                        </Button>
+                      </Flex>
+                      <Text pt={8}>
+                        <TextSpan t3s bold {...gradientStyle}>
+                          ${truncateValue(floatUnits(curCoverageLimit, 18), 2)}
+                        </TextSpan>
+                      </Text>
+                    </TileCard>
+                  </div>
+                </Flex>
+                <div style={{ margin: 'auto' }}>
+                  <TileCard>
+                    <Flex stretch between pb={16}>
+                      <Flex col>
+                        <Text bold t4 {...gradientStyle}>
+                          My Subscription Cost
+                        </Text>
+                      </Flex>
+                      <Flex col>
+                        <Text bold t4 {...gradientStyle}>
+                          ${truncateValue(curDailyCost, 2)} / Day
+                        </Text>
+                      </Flex>
                     </Flex>
-                  )}
-                  <Flex col gap={12}>
-                    {(depositCta || newUserState) && (
-                      <div>
-                        <DropdownInputSection
-                          hasArrow
-                          isOpen={coinsOpen}
-                          placeholder={'Enter amount'}
-                          icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
-                          text={selectedCoin.symbol}
-                          value={enteredDeposit}
-                          onChange={(e) =>
-                            handleEnteredDeposit(filterAmount(e.target.value, enteredDeposit), selectedCoin.decimals)
-                          }
-                          onClick={() => setCoinsOpen(!coinsOpen)}
-                        />
-                        <BalanceDropdownOptions
-                          isOpen={coinsOpen}
-                          searchedList={batchBalanceData}
-                          onClick={(value: string) => {
-                            handleSelectedCoin(value)
-                            setCoinsOpen(false)
+                    {(curUserState || returningUserState) && (
+                      <Flex stretch between center pb={24}>
+                        <div
+                          style={{
+                            gridTemplateColumns: '1fr 0fr 1fr 0fr 1fr',
+                            display: 'grid',
+                            position: 'relative',
+                            gap: '12px',
                           }}
+                        >
+                          <Flex col>
+                            <Text bold t4 textAlignCenter>
+                              My Balance
+                            </Text>
+                            <Text textAlignCenter bold t3 {...gradientStyle}>
+                              ${truncateValue(scpBalance, 2)}
+                            </Text>
+                          </Flex>
+                          <VerticalSeparator />
+                          <Flex col>
+                            <Text bold t4 textAlignCenter>
+                              Policy Status
+                            </Text>
+                            {status ? (
+                              <Text textAlignCenter bold t3 success>
+                                Active
+                              </Text>
+                            ) : (
+                              <Text textAlignCenter bold t3 error>
+                                Inactive
+                              </Text>
+                            )}
+                          </Flex>
+                          <VerticalSeparator />
+                          <Flex col>
+                            <Text bold t4 textAlignCenter>
+                              Est. Days
+                            </Text>
+                            <Text textAlignCenter bold t3 {...gradientStyle}>
+                              {truncateValue(policyDuration, 2)}
+                            </Text>
+                          </Flex>
+                        </div>
+                      </Flex>
+                    )}
+                    <Flex col gap={12}>
+                      {(depositCta || newUserState) && (
+                        <div>
+                          <DropdownInputSection
+                            hasArrow
+                            isOpen={coinsOpen}
+                            placeholder={'Enter amount'}
+                            icon={
+                              <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
+                            }
+                            text={selectedCoin.symbol}
+                            value={enteredDeposit}
+                            onChange={(e) =>
+                              handleEnteredDeposit(filterAmount(e.target.value, enteredDeposit), selectedCoin.decimals)
+                            }
+                            onClick={() => setCoinsOpen(!coinsOpen)}
+                          />
+                          <BalanceDropdownOptions
+                            isOpen={coinsOpen}
+                            searchedList={batchBalanceData}
+                            onClick={(value: string) => {
+                              handleSelectedCoin(value)
+                              setCoinsOpen(false)
+                            }}
+                          />
+                        </div>
+                      )}
+                      {withdrawCta && (
+                        <DropdownInputSection
+                          placeholder={'Enter amount'}
+                          icon={<img src={`https://assets.solace.fi/solace`} height={16} />}
+                          text={'SOLACE'}
+                          value={enteredWithdrawal}
+                          onChange={(e) => setEnteredWithdrawal(filterAmount(e.target.value, enteredWithdrawal))}
                         />
-                      </div>
-                    )}
-                    {withdrawCta && (
-                      <DropdownInputSection
-                        placeholder={'Enter amount'}
-                        icon={<img src={`https://assets.solace.fi/solace`} height={16} />}
-                        text={'SOLACE'}
-                        value={enteredWithdrawal}
-                        onChange={(e) => setEnteredWithdrawal(filterAmount(e.target.value, enteredWithdrawal))}
-                      />
-                    )}
-                    <ButtonWrapper isColumn p={0}>
-                      {newUserState && (
-                        <Button
-                          {...gradientStyle}
-                          {...bigButtonStyle}
-                          secondary
-                          noborder
-                          onClick={handlePurchase}
-                          disabled={
-                            !doesMeetMinReqAccBal ||
-                            (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
-                              !isAcceptableDeposit)
-                          }
-                        >
-                          <Text bold t4s>
-                            Subscribe to Policy
-                          </Text>
-                        </Button>
                       )}
-                      {returningUserState && !depositCta && !withdrawCta && (
-                        <Button
-                          success
-                          {...bigButtonStyle}
-                          onClick={handlePurchase}
-                          disabled={
-                            !doesMeetMinReqAccBal ||
-                            (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
-                              !isAcceptableDeposit)
-                          }
-                        >
-                          <Text bold t4s>
-                            Activate Policy
-                          </Text>
-                        </Button>
-                      )}
-                      {(curUserState || returningUserState) && !depositCta && !withdrawCta && (
-                        <Button
-                          {...gradientStyle}
-                          {...bigButtonStyle}
-                          secondary
-                          noborder
-                          onClick={() => handleCtaState(InterfaceState.DEPOSITING)}
-                        >
-                          <Text bold t4s>
-                            Deposit
-                          </Text>
-                        </Button>
-                      )}
-                      {(curUserState || returningUserState) && !depositCta && !withdrawCta && (
-                        <Button
-                          secondary
-                          matchBg
-                          {...bigButtonStyle}
-                          noborder
-                          onClick={() => handleCtaState(InterfaceState.WITHDRAWING)}
-                        >
-                          <Text bold t4s>
-                            Withdraw
-                          </Text>
-                        </Button>
-                      )}
-                      {depositCta && (
-                        <ButtonWrapper style={{ width: '100%' }} p={0}>
-                          <Button pt={16} pb={16} separator onClick={() => handleCtaState(undefined)}>
-                            Cancel
-                          </Button>
+                      <ButtonWrapper isColumn p={0}>
+                        {newUserState && (
                           <Button
+                            {...gradientStyle}
                             {...bigButtonStyle}
-                            matchBg
                             secondary
                             noborder
                             onClick={handlePurchase}
-                            disabled={!isAcceptableDeposit}
+                            disabled={
+                              !doesMeetMinReqAccBal ||
+                              (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
+                                !isAcceptableDeposit)
+                            }
                           >
-                            <Text {...gradientStyle}>Deposit</Text>
+                            <Text bold t4s>
+                              Subscribe to Policy
+                            </Text>
                           </Button>
-                        </ButtonWrapper>
-                      )}
-                      {withdrawCta && (
-                        <ButtonWrapper style={{ width: '100%' }} p={0}>
-                          <Button pt={16} pb={16} separator onClick={() => handleCtaState(undefined)}>
-                            Cancel
-                          </Button>
+                        )}
+                        {returningUserState && !depositCta && !withdrawCta && (
                           <Button
+                            success
                             {...bigButtonStyle}
-                            matchBg
+                            onClick={handlePurchase}
+                            disabled={
+                              !doesMeetMinReqAccBal ||
+                              (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
+                                !isAcceptableDeposit)
+                            }
+                          >
+                            <Text bold t4s>
+                              Activate Policy
+                            </Text>
+                          </Button>
+                        )}
+                        {(curUserState || returningUserState) && !depositCta && !withdrawCta && (
+                          <Button
+                            {...gradientStyle}
+                            {...bigButtonStyle}
                             secondary
                             noborder
-                            onClick={callWithdraw}
-                            disabled={!isAcceptableWithdrawal || refundableSOLACEAmount.isZero()}
+                            onClick={() => handleCtaState(InterfaceState.DEPOSITING)}
                           >
-                            <Text {...gradientStyle}>Withdraw</Text>
+                            <Text bold t4s>
+                              Deposit
+                            </Text>
                           </Button>
-                        </ButtonWrapper>
-                      )}
-                      {curUserState && !depositCta && !withdrawCta && (
-                        <Button {...bigButtonStyle} error onClick={callCancel}>
-                          Deactivate Policy
-                        </Button>
-                      )}
-                    </ButtonWrapper>
+                        )}
+                        {(curUserState || returningUserState) && !depositCta && !withdrawCta && (
+                          <Button
+                            secondary
+                            matchBg
+                            {...bigButtonStyle}
+                            noborder
+                            onClick={() => handleCtaState(InterfaceState.WITHDRAWING)}
+                          >
+                            <Text bold t4s>
+                              Withdraw
+                            </Text>
+                          </Button>
+                        )}
+                        {depositCta && (
+                          <ButtonWrapper style={{ width: '100%' }} p={0}>
+                            <Button pt={16} pb={16} separator onClick={() => handleCtaState(undefined)}>
+                              Cancel
+                            </Button>
+                            <Button
+                              {...bigButtonStyle}
+                              matchBg
+                              secondary
+                              noborder
+                              onClick={handlePurchase}
+                              disabled={!isAcceptableDeposit}
+                            >
+                              <Text {...gradientStyle}>Deposit</Text>
+                            </Button>
+                          </ButtonWrapper>
+                        )}
+                        {withdrawCta && (
+                          <ButtonWrapper style={{ width: '100%' }} p={0}>
+                            <Button pt={16} pb={16} separator onClick={() => handleCtaState(undefined)}>
+                              Cancel
+                            </Button>
+                            <Button
+                              {...bigButtonStyle}
+                              matchBg
+                              secondary
+                              noborder
+                              onClick={callWithdraw}
+                              disabled={!isAcceptableWithdrawal || refundableSOLACEAmount.isZero()}
+                            >
+                              <Text {...gradientStyle}>Withdraw</Text>
+                            </Button>
+                          </ButtonWrapper>
+                        )}
+                        {curUserState && !depositCta && !withdrawCta && (
+                          <Button {...bigButtonStyle} error onClick={callCancel}>
+                            Deactivate Policy
+                          </Button>
+                        )}
+                      </ButtonWrapper>
+                    </Flex>
+                  </TileCard>
+                </div>
+                {curPortfolio && curPortfolio.protocols.length > 0 && (
+                  <Flex col gap={8} marginAuto pt={36}>
+                    <Text mont t3 textAlignCenter>
+                      See the predicted coverage cost for a customized portfolio through the simulator.
+                    </Text>
+                    <Flex stretch flex1>
+                      <Button
+                        {...gradientStyle}
+                        {...bigButtonStyle}
+                        secondary
+                        noborder
+                        onClick={() => handleShowSimulatorModal(true)}
+                      >
+                        <Text bold t4s>
+                          Enter Simulator
+                        </Text>
+                      </Button>
+                    </Flex>
                   </Flex>
-                </TileCard>
-              </div>
-              {curPortfolio && curPortfolio.protocols.length > 0 && (
-                <Flex col gap={8} marginAuto pt={36}>
-                  <Text mont t3 textAlignCenter>
-                    See the predicted coverage cost for a customized portfolio through the simulator.
-                  </Text>
-                  <Flex stretch flex1>
-                    <Button
-                      {...gradientStyle}
-                      {...bigButtonStyle}
-                      secondary
-                      noborder
-                      onClick={() => handleShowSimulatorModal(true)}
-                    >
-                      <Text bold t4s>
-                        Enter Simulator
-                      </Text>
-                    </Button>
-                  </Flex>
-                </Flex>
-              )}
-            </>
-          )}
-        </Flex>
-      )}
+                )}
+              </>
+            )}
+          </Flex>
+        )}
+      </div>
     </Content>
   )
 }
