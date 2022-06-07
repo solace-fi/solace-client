@@ -53,13 +53,16 @@ export const useInputAmount = () => {
     []
   )
 
-  const calculateMaxAmount = (balance: BigNumber, amountDecimals: number, gasLimit?: number) => {
-    const bal = formatUnits(balance, amountDecimals)
-    if (!gasLimit || !gasData) return bal
-    // if currency to send is also for paying gas, subtract gas from amount to send
-    const gasInCurrency = (gasLimit / POW_NINE) * gasData.gasPrice
-    return Math.max(fixed(fixed(bal, 6) - fixed(gasInCurrency, 6), 6), 0)
-  }
+  const calculateMaxAmount = useCallback(
+    (balance: BigNumber, amountDecimals: number, gasLimit?: number) => {
+      const bal = formatUnits(balance, amountDecimals)
+      if (!gasLimit || !gasData) return bal
+      // if currency to send is also for paying gas, subtract gas from amount to send
+      const gasInCurrency = (gasLimit / POW_NINE) * gasData.gasPrice
+      return Math.max(fixed(fixed(bal, 6) - fixed(gasInCurrency, 6), 6), 0)
+    },
+    [gasData]
+  )
 
   const handleInputChange = useCallback(
     (input: string, maxDecimals?: number, maxBalance?: string) => {
@@ -77,16 +80,19 @@ export const useInputAmount = () => {
     [amount, activeNetwork.nativeCurrency.decimals]
   )
 
-  const setMax = (balance: BigNumber, balanceDecimals: number, gasLimit?: number) => {
-    const calculatedMaxAmount = calculateMaxAmount(balance, balanceDecimals, gasLimit)
-    setAmount(calculatedMaxAmount.toString())
-    setMaxSelected(true)
-  }
+  const setMax = useCallback(
+    (balance: BigNumber, balanceDecimals: number, gasLimit?: number) => {
+      const calculatedMaxAmount = calculateMaxAmount(balance, balanceDecimals, gasLimit)
+      setAmount(calculatedMaxAmount.toString())
+      setMaxSelected(true)
+    },
+    [calculateMaxAmount]
+  )
 
-  const resetAmount = () => {
+  const resetAmount = useCallback(() => {
     setAmount('')
     setMaxSelected(false)
-  }
+  }, [])
 
   return {
     amount,

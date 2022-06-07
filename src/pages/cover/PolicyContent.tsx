@@ -1,6 +1,6 @@
 import useDebounce from '@rooks/use-debounce'
 import { useWeb3React } from '@web3-react/core'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { StyledClock, StyledOptions } from '../../components/atoms/Icon'
 import { Content, Flex, HeroContainer, VerticalSeparator } from '../../components/atoms/Layout'
@@ -8,12 +8,11 @@ import { Text, TextSpan } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
 import { ZERO } from '../../constants'
 import { FunctionName, InterfaceState } from '../../constants/enums'
-import { useCachedData } from '../../context/CachedDataManager'
 import { useGeneral } from '../../context/GeneralManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useCoverageFunctions, useExistingPolicy } from '../../hooks/policy/useSolaceCoverProductV3'
-import { filterAmount, floatUnits, truncateValue } from '../../utils/formatting'
+import { accurateMultiply, filterAmount, floatUnits, formatAmount, truncateValue } from '../../utils/formatting'
 import { useCoverageContext } from './CoverageContext'
 import { BalanceDropdownOptions, DropdownInputSection, DropdownOptions } from './Dropdown'
 
@@ -23,6 +22,8 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { LoaderText } from '../../components/molecules/LoaderText'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { parseUnits } from 'ethers/lib/utils'
+import { Price, SCP } from '@solace-fi/sdk-nightly'
+import { BigNumber } from 'ethers'
 
 export const PolicyContent = (): JSX.Element => {
   const { intrface, styles, input, dropdowns, policy, portfolioKit } = useCoverageContext()
@@ -30,41 +31,48 @@ export const PolicyContent = (): JSX.Element => {
     navbarThreshold,
     coverageLoading,
     existingPolicyLoading,
+    portfolioLoading,
     interfaceState,
     userState,
     handleUserState,
     handleCtaState,
     handleShowPortfolioModal,
     handleShowCLDModal,
+    handleShowSimulatorModal,
   } = intrface
   const { bigButtonStyle, gradientStyle } = styles
   const {
-    enteredDeposit: asyncEnteredDeposit,
+    enteredDeposit,
     enteredWithdrawal: asyncEnteredWithdrawal,
     enteredCoverLimit,
     handleEnteredDeposit,
     handleEnteredWithdrawal,
     isAcceptableDeposit,
-    isAcceptableWithdrawal,
     selectedCoin,
     handleSelectedCoin,
   } = input
-  const { policyId, existingPolicyId, existingPolicyNetwork, status, curCoverageLimit, scpBalance } = policy
+  const {
+    policyId,
+    existingPolicyId,
+    existingPolicyNetwork,
+    status,
+    curCoverageLimit,
+    scpBalance,
+    doesMeetMinReqAccBal,
+  } = policy
   const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
   const { curPortfolio, curDailyCost, curUsdBalanceSum } = portfolioKit
 
-  const [enteredDeposit, setEnteredDeposit] = useState<string>(asyncEnteredDeposit)
   const [enteredWithdrawal, setEnteredWithdrawal] = useState<string>(asyncEnteredWithdrawal)
 
   const { appTheme } = useGeneral()
   const { account } = useWeb3React()
   const { latestBlock, signer } = useProvider()
   const { activeNetwork, changeNetwork } = useNetwork()
-  const { version } = useCachedData()
   const { isMobile } = useWindowDimensions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
-  const { purchaseWithStable, purchaseWithNonStable, purchase, cancel } = useCoverageFunctions()
+  const { purchaseWithStable, purchaseWithNonStable, purchase, cancel, withdraw } = useCoverageFunctions()
 
   const [showExistingPolicyMessage, setShowExistingPolicyMessage] = useState<boolean>(true)
   const firstTime = useMemo(() => existingPolicyId.isZero(), [existingPolicyId])
@@ -73,25 +81,33 @@ export const PolicyContent = (): JSX.Element => {
     scpBalance,
   ])
 
+  // TODO - uncomment this when the smart functions are working
   // const newUserState = useMemo(() => [InterfaceState.NEW_USER].includes(userState), [userState])
-  // const returningUserState = useMemo(() => [InterfaceState.RETURNING_USER].includes(userState), [
-  //   userState,
-  // ])
-  // const curUserState = useMemo(() => [InterfaceState.CURRENT_USER].includes(userState), [
-  //   userState,
-  // ])
-  // const depositCta = useMemo(() => [InterfaceState.DEPOSITING].includes(interfaceState), [
-  //   interfaceState,
-  // ])
-  // const withdrawCta = useMemo(() => [InterfaceState.WITHDRAWING].includes(interfaceState), [
-  //   interfaceState,
-  // ])
+  // const returningUserState = useMemo(() => [InterfaceState.RETURNING_USER].includes(userState), [userState])
+  // const curUserState = useMemo(() => [InterfaceState.CURRENT_USER].includes(userState), [userState])
 
-  const newUserState = true
+  // const depositCta = useMemo(() => [InterfaceState.DEPOSITING].includes(interfaceState), [interfaceState])
+  // const withdrawCta = useMemo(() => [InterfaceState.WITHDRAWING].includes(interfaceState), [interfaceState])
+
+  // MANUALLY ADJUST INTERFACE STATE HERE FOR NOW
+  const newUserState = false
   const curUserState = false
-  const returningUserState = false
-  const depositCta = false
+  const returningUserState = true
+
+  const depositCta = true
   const withdrawCta = false
+
+  const [refundableSOLACEAmount, setRefundableSOLACEAmount] = useState<BigNumber>(ZERO)
+  const [withdrawingMoreThanRefundable, setWithdrawingMoreThanRefundable] = useState<boolean>(false)
+
+  const [signatureObj, setSignatureObj] = useState<any>(undefined)
+
+  const isAcceptableWithdrawal = useMemo(() => {
+    const BN_enteredWithdrawal = parseUnits(formatAmount(enteredWithdrawal), 18)
+    if (BN_enteredWithdrawal.isZero()) return false
+    setWithdrawingMoreThanRefundable(refundableSOLACEAmount.gt(BN_enteredWithdrawal))
+    return true
+  }, [enteredWithdrawal, refundableSOLACEAmount])
 
   const callPurchase = async () => {
     if (!account) return
@@ -112,11 +128,30 @@ export const PolicyContent = (): JSX.Element => {
       .catch((err) => handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
   }
 
+  const callPurchaseWithNonStable = async () => {
+    if (!account) return
+    await purchaseWithNonStable(
+      account,
+      enteredCoverLimit,
+      selectedCoin.address,
+      parseUnits(enteredDeposit, selectedCoin.decimals),
+      signatureObj.price,
+      signatureObj.deadline,
+      signatureObj.signature
+    )
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) =>
+        handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
+      )
+  }
+
   const handlePurchase = async () => {
-    if (parseUnits(enteredDeposit, selectedCoin.decimals).isZero()) {
+    if (parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero()) {
       callPurchase()
-    } else {
+    } else if (selectedCoin.stablecoin) {
       callPurchaseWithStable()
+    } else {
+      callPurchaseWithNonStable()
     }
   }
 
@@ -127,25 +162,53 @@ export const PolicyContent = (): JSX.Element => {
       .catch((err) => handleContractCallError('callCancel', err, FunctionName.COVER_CANCEL))
   }
 
-  // const callWithdraw = async () => {
+  const getRefundableSOLACEAmount = useCallback(async () => {
+    if (!account) {
+      setRefundableSOLACEAmount(ZERO)
+      setSignatureObj(undefined)
+      return
+    }
+    const p = new Price()
+    const priceInfo = await p.getPriceInfo()
+    const scp = new SCP(activeNetwork.chainId, signer)
+    const signature = priceInfo.signatures[`${activeNetwork.chainId}`]
+    if (!signature) {
+      setRefundableSOLACEAmount(ZERO)
+      setSignatureObj(undefined)
+      return
+    }
+    const tokenSignatureProps: any = Object.values(signature)[0]
+    const refundableSOLACEAmount = await scp.getRefundableSOLACEAmount(
+      account,
+      tokenSignatureProps.price,
+      tokenSignatureProps.deadline,
+      tokenSignatureProps.signature
+    )
+    setRefundableSOLACEAmount(refundableSOLACEAmount)
+    setSignatureObj(tokenSignatureProps)
+  }, [account, activeNetwork.chainId, signer])
 
-  // }
-
-  const _editDeposit = useDebounce(() => {
-    handleEnteredDeposit(enteredDeposit)
-  }, 200)
-
-  useEffect(() => {
-    _editDeposit()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enteredDeposit])
+  const callWithdraw = async () => {
+    if (!account || !signatureObj || refundableSOLACEAmount.isZero()) return
+    const amountToWithdraw = refundableSOLACEAmount.gt(parseUnits(enteredWithdrawal, selectedCoin.decimals))
+      ? parseUnits(enteredWithdrawal, selectedCoin.decimals)
+      : refundableSOLACEAmount
+    await withdraw(account, amountToWithdraw, signatureObj.price, signatureObj.deadline, signatureObj.signature)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callWithdraw', err, FunctionName.COVER_WITHDRAW))
+  }
 
   const _editWithdrawal = useDebounce(() => {
     handleEnteredWithdrawal(enteredWithdrawal)
   }, 200)
 
+  const _getRefundableSOLACEAmount = useDebounce(() => {
+    getRefundableSOLACEAmount()
+  }, 300)
+
   useEffect(() => {
     _editWithdrawal()
+    _getRefundableSOLACEAmount()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enteredWithdrawal])
 
@@ -163,9 +226,9 @@ export const PolicyContent = (): JSX.Element => {
     setShowExistingPolicyMessage(true)
   }, [activeNetwork.chainId])
 
-  useEffect(() => {
-    setEnteredDeposit(asyncEnteredDeposit)
-  }, [asyncEnteredDeposit])
+  // useEffect(() => {
+  //   setEnteredDeposit(asyncEnteredDeposit)
+  // }, [asyncEnteredDeposit])
 
   useEffect(() => {
     setEnteredWithdrawal(asyncEnteredWithdrawal)
@@ -225,7 +288,7 @@ export const PolicyContent = (): JSX.Element => {
                       {...bigButtonStyle}
                       secondary
                       noborder
-                      onClick={() => handleShowPortfolioModal(true)}
+                      onClick={() => handleShowSimulatorModal(true)}
                     >
                       <Text bold t4s>
                         Enter Simulator
@@ -253,9 +316,13 @@ export const PolicyContent = (): JSX.Element => {
                         </Text>
                       </Button>
                     </Flex>
-                    <Text t3s bold {...gradientStyle} pt={8}>
-                      ${truncateValue(curUsdBalanceSum, 2)}
-                    </Text>
+                    {portfolioLoading ? (
+                      <LoaderText text={'Fetching'} />
+                    ) : (
+                      <Text t3s bold {...gradientStyle} pt={8}>
+                        ${truncateValue(curUsdBalanceSum, 2)}
+                      </Text>
+                    )}
                   </TileCard>
                   <TileCard bigger padding={16}>
                     <Flex between style={{ alignItems: 'center' }}>
@@ -343,7 +410,9 @@ export const PolicyContent = (): JSX.Element => {
                           icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
                           text={selectedCoin.symbol}
                           value={enteredDeposit}
-                          onChange={(e) => setEnteredDeposit(filterAmount(e.target.value, enteredDeposit))}
+                          onChange={(e) =>
+                            handleEnteredDeposit(filterAmount(e.target.value, enteredDeposit), selectedCoin.decimals)
+                          }
                           onClick={() => setCoinsOpen(!coinsOpen)}
                         />
                         <BalanceDropdownOptions
@@ -367,14 +436,34 @@ export const PolicyContent = (): JSX.Element => {
                     )}
                     <ButtonWrapper isColumn p={0}>
                       {newUserState && (
-                        <Button {...gradientStyle} {...bigButtonStyle} secondary noborder onClick={handlePurchase}>
+                        <Button
+                          {...gradientStyle}
+                          {...bigButtonStyle}
+                          secondary
+                          noborder
+                          onClick={handlePurchase}
+                          disabled={
+                            !doesMeetMinReqAccBal ||
+                            (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
+                              !isAcceptableDeposit)
+                          }
+                        >
                           <Text bold t4s>
                             Subscribe to Policy
                           </Text>
                         </Button>
                       )}
-                      {returningUserState && (
-                        <Button success {...bigButtonStyle} onClick={handlePurchase}>
+                      {returningUserState && !depositCta && !withdrawCta && (
+                        <Button
+                          success
+                          {...bigButtonStyle}
+                          onClick={handlePurchase}
+                          disabled={
+                            !doesMeetMinReqAccBal ||
+                            (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
+                              !isAcceptableDeposit)
+                          }
+                        >
                           <Text bold t4s>
                             Activate Policy
                           </Text>
@@ -411,7 +500,14 @@ export const PolicyContent = (): JSX.Element => {
                           <Button pt={16} pb={16} separator onClick={() => handleCtaState(undefined)}>
                             Cancel
                           </Button>
-                          <Button {...bigButtonStyle} matchBg secondary noborder onClick={handlePurchase}>
+                          <Button
+                            {...bigButtonStyle}
+                            matchBg
+                            secondary
+                            noborder
+                            onClick={handlePurchase}
+                            disabled={!isAcceptableDeposit}
+                          >
                             <Text {...gradientStyle}>Deposit</Text>
                           </Button>
                         </ButtonWrapper>
@@ -426,14 +522,15 @@ export const PolicyContent = (): JSX.Element => {
                             matchBg
                             secondary
                             noborder
-                            // onClick={callWithdraw}
+                            onClick={callWithdraw}
+                            disabled={!isAcceptableWithdrawal || refundableSOLACEAmount.isZero()}
                           >
                             <Text {...gradientStyle}>Withdraw</Text>
                           </Button>
                         </ButtonWrapper>
                       )}
-                      {curUserState && (
-                        <Button {...bigButtonStyle} error mt={16} onClick={callCancel}>
+                      {curUserState && !depositCta && !withdrawCta && (
+                        <Button {...bigButtonStyle} error onClick={callCancel}>
                           Deactivate Policy
                         </Button>
                       )}
@@ -452,7 +549,7 @@ export const PolicyContent = (): JSX.Element => {
                       {...bigButtonStyle}
                       secondary
                       noborder
-                      onClick={() => handleShowPortfolioModal(true)}
+                      onClick={() => handleShowSimulatorModal(true)}
                     >
                       <Text bold t4s>
                         Enter Simulator

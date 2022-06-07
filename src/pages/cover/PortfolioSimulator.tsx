@@ -17,11 +17,11 @@ import { useWeb3React } from '@web3-react/core'
 import { StyledAdd } from '../../components/atoms/Icon'
 import { Modal } from '../../components/molecules/Modal'
 
-export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
+export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => {
   const { active } = useWeb3React()
   const { portfolioKit, styles, seriesKit, intrface } = useCoverageContext()
   const { series } = seriesKit
-  const { portfolioLoading, handleShowPortfolioModal } = intrface
+  const { portfolioLoading, handleShowSimulatorModal } = intrface
   const { curPortfolio: portfolioScore, simPortfolio, riskScores, handleSimPortfolio } = portfolioKit
   const { bigButtonStyle, gradientStyle } = styles
   const [canSimulate, setCanSimulate] = useState(false)
@@ -229,7 +229,7 @@ export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
   }, [portfolioScore, portfolioPrev])
 
   return (
-    <Modal isOpen={show} modalTitle={'Portfolio Simulator'} handleClose={() => handleShowPortfolioModal(false)}>
+    <Modal isOpen={show} modalTitle={'Portfolio Simulator'} handleClose={() => handleShowSimulatorModal(false)}>
       {/* <Content style={{ transition: 'all 350ms ease 0s' }}> */}
       <Flex col gap={8}>
         {(portfolioLoading && active) || compiling || simulating ? (

@@ -106,6 +106,10 @@ const coverageStablecoins_Mainnet = [
   },
 ]
 
+const coverageStablecoins_Rinkeby = [
+  { address: '0x6D6DC3A8f02a1fEc0B9575e8dDE4135929Bd6e21', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
+]
+
 const coverageStablecoins_Aurora = [
   { address: '0xe3520349F477A5F6EB06107066048508498A291b', name: 'Dai Stablecoin', symbol: 'DAI', decimals: 18 },
   { address: '0xB12BFcA5A55806AaF64E99521918A4bf0fC40802', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
@@ -229,6 +233,7 @@ const coverageStablecoins_Fantom_Testnet = [
 
 export const coinsMap: { [key: number]: ReadToken[] } = {
   [1]: coverageStablecoins_Mainnet,
+  [4]: coverageStablecoins_Rinkeby,
   [1313161554]: coverageStablecoins_Aurora,
   [137]: coverageStablecoins_Polygon,
   [250]: coverageStablecoins_Fantom,

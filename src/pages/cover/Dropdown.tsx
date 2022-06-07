@@ -8,6 +8,7 @@ import { Text } from '../../components/atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
 import { TokenInfo } from '../../constants/types'
 import { formatUnits } from 'ethers/lib/utils'
+import { truncateValue } from '../../utils/formatting'
 
 export const DropdownInputSection = ({
   hasArrow,
@@ -223,7 +224,7 @@ export const BalanceDropdownOptions = ({
                 <img src={`https://assets.solace.fi/${item.name.toLowerCase()}`} width={16} height={16} />
                 <Text {...gradientStyle}>{item.symbol}</Text>
               </Flex>
-              <Text autoAlignVertical>{formatUnits(item.balance, item.decimals)}</Text>
+              <Text autoAlignVertical>{truncateValue(formatUnits(item.balance, item.decimals), 3)}</Text>
             </Flex>
           </ButtonAppearance>
         ))}

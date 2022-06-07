@@ -4,12 +4,11 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { getGasValue } from '../../utils/formatting'
 import { GasConfiguration } from '@solace-fi/sdk-nightly'
-import { ZERO } from '../../constants'
 import { useProvider } from '../../context/ProviderManager'
-import { formatUnits } from 'ethers/lib/utils'
-import { FeeData } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
 import { SUPPORTED_WALLETS } from '../../wallet'
+import { formatUnits } from 'ethers/lib/utils'
+import { ZERO } from '../../constants'
 
 export const useFetchGasData = (): GasData | undefined => {
   const { activeNetwork } = useNetwork()
@@ -21,7 +20,7 @@ export const useFetchGasData = (): GasData | undefined => {
   useEffect(() => {
     const fetchGasData = async () => {
       running.current = true
-      await provider.getFeeData().then((result: FeeData) => {
+      await provider.getFeeData().then((result) => {
         const gasPriceStr = formatUnits(result.gasPrice ?? ZERO, 'gwei')
         const gasPrice = activeNetwork.config.specialFeatures.hardcodedGasPrice ?? Math.ceil(parseFloat(gasPriceStr))
 
@@ -42,7 +41,7 @@ export const useFetchGasData = (): GasData | undefined => {
     if (!latestBlock || running.current) return
 
     fetchGasData()
-  }, [activeNetwork.chainId, latestBlock])
+  }, [activeNetwork.chainId, latestBlock, provider])
 
   return gasData
 }

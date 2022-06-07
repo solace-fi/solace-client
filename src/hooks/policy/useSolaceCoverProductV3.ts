@@ -488,6 +488,7 @@ export const useCheckIsCoverageActive = () => {
       setMounting(false)
     }
     getStatus()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, latestBlock, activeNetwork.config.restrictedFeatures.noCoverageV3, version])
 
   return { policyId, status, coverageLimit, mounting }
@@ -539,6 +540,7 @@ export const useExistingPolicy = () => {
       fetching.current = false
     }
     getExistingPolicy()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, latestBlock])
 
   useEffect(() => {
