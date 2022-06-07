@@ -59,6 +59,9 @@ export const PolicyContent = (): JSX.Element => {
     curCoverageLimit,
     scpBalance,
     doesMeetMinReqAccBal,
+    scpObj,
+    depositApproval,
+    unlimitedApproveCPM,
   } = policy
   const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
   const { curPortfolio, curDailyCost, curUsdBalanceSum } = portfolioKit
@@ -90,11 +93,11 @@ export const PolicyContent = (): JSX.Element => {
   // const withdrawCta = useMemo(() => [InterfaceState.WITHDRAWING].includes(interfaceState), [interfaceState])
 
   // MANUALLY ADJUST INTERFACE STATE HERE FOR NOW
-  const newUserState = false
+  const newUserState = true
   const curUserState = false
-  const returningUserState = true
+  const returningUserState = false
 
-  const depositCta = true
+  const depositCta = false
   const withdrawCta = false
 
   const [refundableSOLACEAmount, setRefundableSOLACEAmount] = useState<BigNumber>(ZERO)
@@ -117,7 +120,7 @@ export const PolicyContent = (): JSX.Element => {
   }
 
   const callPurchaseWithStable = async () => {
-    if (!account) return
+    if (!account || !depositApproval) return
     await purchaseWithStable(
       account,
       enteredCoverLimit,
@@ -129,7 +132,7 @@ export const PolicyContent = (): JSX.Element => {
   }
 
   const callPurchaseWithNonStable = async () => {
-    if (!account) return
+    if (!account || !depositApproval) return
     await purchaseWithNonStable(
       account,
       enteredCoverLimit,
@@ -163,14 +166,13 @@ export const PolicyContent = (): JSX.Element => {
   }
 
   const getRefundableSOLACEAmount = useCallback(async () => {
-    if (!account) {
+    if (!account || !scpObj) {
       setRefundableSOLACEAmount(ZERO)
       setSignatureObj(undefined)
       return
     }
     const p = new Price()
     const priceInfo = await p.getPriceInfo()
-    const scp = new SCP(activeNetwork.chainId, signer)
     const signature = priceInfo.signatures[`${activeNetwork.chainId}`]
     if (!signature) {
       setRefundableSOLACEAmount(ZERO)
@@ -178,7 +180,7 @@ export const PolicyContent = (): JSX.Element => {
       return
     }
     const tokenSignatureProps: any = Object.values(signature)[0]
-    const refundableSOLACEAmount = await scp.getRefundableSOLACEAmount(
+    const refundableSOLACEAmount = await scpObj.getRefundableSOLACEAmount(
       account,
       tokenSignatureProps.price,
       tokenSignatureProps.deadline,
@@ -186,7 +188,7 @@ export const PolicyContent = (): JSX.Element => {
     )
     setRefundableSOLACEAmount(refundableSOLACEAmount)
     setSignatureObj(tokenSignatureProps)
-  }, [account, activeNetwork.chainId, signer])
+  }, [account, activeNetwork.chainId, scpObj])
 
   const callWithdraw = async () => {
     if (!account || !signatureObj || refundableSOLACEAmount.isZero()) return
@@ -435,7 +437,7 @@ export const PolicyContent = (): JSX.Element => {
                       />
                     )}
                     <ButtonWrapper isColumn p={0}>
-                      {newUserState && (
+                      {newUserState && depositApproval && (
                         <Button
                           {...gradientStyle}
                           {...bigButtonStyle}
@@ -453,7 +455,7 @@ export const PolicyContent = (): JSX.Element => {
                           </Text>
                         </Button>
                       )}
-                      {returningUserState && !depositCta && !withdrawCta && (
+                      {returningUserState && !depositCta && !withdrawCta && depositApproval && (
                         <Button
                           success
                           {...bigButtonStyle}
@@ -469,7 +471,20 @@ export const PolicyContent = (): JSX.Element => {
                           </Text>
                         </Button>
                       )}
-                      {(curUserState || returningUserState) && !depositCta && !withdrawCta && (
+                      {!depositApproval && newUserState && (
+                        <Button
+                          {...gradientStyle}
+                          {...bigButtonStyle}
+                          secondary
+                          noborder
+                          onClick={() => unlimitedApproveCPM(selectedCoin.address)}
+                        >
+                          <Text bold t4s>
+                            Approve
+                          </Text>
+                        </Button>
+                      )}
+                      {depositApproval && (curUserState || returningUserState) && !depositCta && !withdrawCta && (
                         <Button
                           {...gradientStyle}
                           {...bigButtonStyle}
@@ -500,16 +515,31 @@ export const PolicyContent = (): JSX.Element => {
                           <Button pt={16} pb={16} separator onClick={() => handleCtaState(undefined)}>
                             Cancel
                           </Button>
-                          <Button
-                            {...bigButtonStyle}
-                            matchBg
-                            secondary
-                            noborder
-                            onClick={handlePurchase}
-                            disabled={!isAcceptableDeposit}
-                          >
-                            <Text {...gradientStyle}>Deposit</Text>
-                          </Button>
+                          {depositApproval && (
+                            <Button
+                              {...bigButtonStyle}
+                              matchBg
+                              secondary
+                              noborder
+                              onClick={handlePurchase}
+                              disabled={!isAcceptableDeposit}
+                            >
+                              <Text {...gradientStyle}>Deposit</Text>
+                            </Button>
+                          )}
+                          {!depositApproval && (
+                            <Button
+                              {...gradientStyle}
+                              {...bigButtonStyle}
+                              secondary
+                              noborder
+                              onClick={() => unlimitedApproveCPM(selectedCoin.address)}
+                            >
+                              <Text bold t4s>
+                                Approve
+                              </Text>
+                            </Button>
+                          )}
                         </ButtonWrapper>
                       )}
                       {withdrawCta && (
