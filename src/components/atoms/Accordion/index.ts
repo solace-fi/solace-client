@@ -1,4 +1,5 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
+import { Theme } from '../../../styles/themes'
 
 type AccordionProps = {
   isOpen: boolean
@@ -8,6 +9,7 @@ type AccordionProps = {
   openSpeed?: number
   closeSpeed?: number
   hideScrollbar?: boolean
+  thinScrollbar?: boolean
 }
 
 export const Accordion = styled.div<AccordionProps>`
@@ -24,10 +26,35 @@ export const Accordion = styled.div<AccordionProps>`
   overflow-y: hidden;
   ${(props) => (props.noScroll ? null : `overflow-y: auto;`)}
   ${(props) =>
+    props.thinScrollbar
+      ? css`
+          ::-webkit-scrollbar {
+            width: 0.5em;
+          }
+          ::-webkit-scrollbar-track {
+            background-color: ${(props.theme as Theme).separator.bg_color};
+          }
+          ::-webkit-scrollbar-thumb {
+            height: 2em;
+            /* background-color: ${(props.theme as Theme).body.bg_color}; */
+            background-image: linear-gradient(
+              to bottom right,
+              ${(props.theme as Theme).typography.warmGradientA},
+              ${(props.theme as Theme).typography.warmGradientB}
+            );
+          }
+        `
+      : null}
+  ${(props) =>
     !props.hideScrollbar
       ? null
-      : `::-webkit-scrollbar { width: 0px; }
-  scrollbar-width: none;
-  -ms-overflow-style: none;`}
+      : css`
+          ::-webkit-scrollbar {
+          ::-webkit-scrollbar {
+            width: 0px;
+          }
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        `}
   border-radius: 10px;
 `

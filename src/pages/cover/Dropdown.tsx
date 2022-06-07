@@ -223,7 +223,7 @@ export const DropdownOptionsUnique = ({
       style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }}
       customHeight={'280px'}
       noBackgroundColor
-      hideScrollbar
+      thinScrollbar
     >
       <Flex col gap={8} p={12}>
         {/* <ScrollContainer className="scroll-container"> */}
