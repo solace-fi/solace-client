@@ -366,7 +366,7 @@ const CoverageManager: React.FC = (props) => {
         handleContractCallError('approve', e, FunctionName.APPROVE)
       }
     },
-    [activeNetwork, signer]
+    [activeNetwork, signer, scpObj]
   )
 
   const handleSimCoverLimit = useCallback((coverageLimit: BigNumber) => {
