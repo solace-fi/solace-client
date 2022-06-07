@@ -11,10 +11,10 @@ import { getCoingeckoTokenPriceByAddr } from '../../utils/api'
 import { withBackoffRetries } from '../../utils/time'
 import sushiswapLpAbi from '../../constants/metadata/ISushiswapMetadataAlt.json'
 import { Unit } from '../../constants/enums'
-import { NetworkConfig, TokenToPriceMapping } from '../../constants/types'
+import { NetworkConfig } from '../../constants/types'
 import { BigNumber } from 'ethers'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { Price as PriceApi } from '@solace-fi/sdk-nightly'
+import { Price as PriceApi, TokenToPriceMapping } from '@solace-fi/sdk-nightly'
 
 export const usePriceSdk = () => {
   const { getPriceFromSushiswap, getPriceFromSushiswapLp } = useGetPriceFromSushiSwap()
@@ -148,7 +148,7 @@ export const useGetCrossTokenPricesFromCoingecko = (minute: number): { tokenPric
       if (gettingPrices.current) return
       gettingPrices.current = true
       const price = new PriceApi()
-      const consolidatedPriceMapping = await price.getCoinGeckoTokenPrices()
+      const consolidatedPriceMapping = await price.getMirrorCoingeckoPrices()
 
       setTokenPriceMapping(consolidatedPriceMapping)
       gettingPrices.current = false

@@ -1,38 +1,27 @@
-import useDebounce from '@rooks/use-debounce'
 import { useWeb3React } from '@web3-react/core'
-import { use } from 'chai'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useMemo } from 'react'
 import { Box } from '../../components/atoms/Box'
-import { Button, ButtonWrapper } from '../../components/atoms/Button'
-import { StyledClock, StyledInfo, StyledOptions } from '../../components/atoms/Icon'
-import { Content, Flex, HeroContainer, Scrollable, VerticalSeparator } from '../../components/atoms/Layout'
+import { Button } from '../../components/atoms/Button'
+import { StyledInfo } from '../../components/atoms/Icon'
+import { Content, Flex, HeroContainer } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
-import { TileCard } from '../../components/molecules/TileCard'
-import { InterfaceState } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import CoverageManager, { useCoverageContext } from './CoverageContext'
-import { DropdownInputSection, DropdownOptions } from './Dropdown'
-import { PortfolioWindow } from './PortfolioWindow'
+import { PortfolioSimulator } from './PortfolioSimulator'
+import { PolicyContent } from './PolicyContent'
+import { CldModal } from './CldModal'
 
 const CoverageContent = () => {
   const { intrface } = useCoverageContext()
-  const { showPortfolio, setShowPortfolio } = intrface
-
-  const portfolioRef = useRef<HTMLDivElement | null>(null)
+  const { showPortfolioModal, showCLDModal, showSimulatorModal } = intrface
 
   return (
-    <div
-      style={{
-        gridTemplateColumns: '2fr 1fr',
-        display: 'grid',
-        position: 'relative',
-        gap: '15px',
-      }}
-    >
+    <>
+      <CldModal show={showCLDModal} />
+      <PortfolioSimulator show={showSimulatorModal} />
       <CoveragePage />
-      <PortfolioWindow show={showPortfolio} />
-    </div>
+    </>
   )
 }
 
@@ -48,16 +37,15 @@ const CoveragePage = (): JSX.Element => {
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { styles, intrface } = useCoverageContext()
-  const { setShowPortfolio } = intrface
+  const { handleShowSimulatorModal } = intrface
   const { gradientStyle } = styles
-  // const canShowSoteria = useMemo(() => !activeNetwork.config.restrictedFeatures.noSoteria, [
-  //   activeNetwork.config.restrictedFeatures.noSoteria,
-  // ])
-  const canShowSoteria = true
+  const canShowCoverageV3 = useMemo(() => !activeNetwork.config.restrictedFeatures.noCoverageV3, [
+    activeNetwork.config.restrictedFeatures.noCoverageV3,
+  ])
 
   return (
     <>
-      {canShowSoteria && account ? (
+      {canShowCoverageV3 && account ? (
         <PolicyContent />
       ) : account ? (
         <Content>
@@ -71,7 +59,7 @@ const CoveragePage = (): JSX.Element => {
           </Box>
           <Flex justifyCenter>
             <HeroContainer>
-              <Button {...gradientStyle} secondary noborder p={20} onClick={() => setShowPortfolio(true)}>
+              <Button {...gradientStyle} secondary noborder p={20} onClick={() => handleShowSimulatorModal(true)}>
                 <Text t2>Open Portfolio Editor</Text>
               </Button>
             </HeroContainer>
@@ -84,6 +72,7 @@ const CoveragePage = (): JSX.Element => {
   )
 }
 
+<<<<<<< HEAD
 const PolicyContent = (): JSX.Element => {
   const { intrface, styles, input, dropdowns } = useCoverageContext()
   const { navbarThreshold } = intrface
@@ -338,4 +327,6 @@ const PolicyContent = (): JSX.Element => {
   )
 }
 
+=======
+>>>>>>> dev/swc3
 export default Cover

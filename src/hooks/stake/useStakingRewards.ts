@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useContracts } from '../../context/ContractsManager'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import { GlobalLockInfo, LocalTx } from '../../constants/types'
+import { LocalTx } from '../../constants/types'
 import { ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { rangeFrom0 } from '../../utils/numeric'
@@ -12,7 +12,7 @@ import { useGetFunctionGas } from '../provider/useGas'
 import { withBackoffRetries } from '../../utils/time'
 import { useNetwork } from '../../context/NetworkManager'
 
-import { Lock, Staker } from '@solace-fi/sdk-nightly'
+import { Lock, Staker, GlobalLockInfo } from '@solace-fi/sdk-nightly'
 import { useCachedData } from '../../context/CachedDataManager'
 
 export const useStakingRewards = () => {

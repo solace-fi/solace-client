@@ -223,6 +223,7 @@ export const capitalizeFirstLetter = (str: string): string => {
   if (str.length == 0) return str
   return str.charAt(0).toUpperCase().concat(str.slice(1))
 }
+
 export function encodeAddresses(addresses: string[]): string {
   let encoded = '0x'
   for (let i = 0; i < addresses.length; i++) {

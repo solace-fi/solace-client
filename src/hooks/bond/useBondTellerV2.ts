@@ -1,11 +1,4 @@
-import {
-  BondTellerDetails,
-  BondTokenV2,
-  TxResult,
-  LocalTx,
-  BondTellerContractData,
-  TellerTokenMetadata,
-} from '../../constants/types'
+import { BondTellerFullDetails, TxResult, LocalTx, TellerTokenMetadata } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 
 import { BigNumber } from 'ethers'
@@ -16,9 +9,9 @@ import { useProvider } from '../../context/ProviderManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useCachedData } from '../../context/CachedDataManager'
-import { Bond } from '@solace-fi/sdk-nightly'
+import { BondTellerContractData, Bond } from '@solace-fi/sdk-nightly'
 
-export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefined) => {
+export const useBondTellerV2 = (selectedBondDetail: BondTellerFullDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()
 
   const deposit = async (
@@ -69,6 +62,24 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
           gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
         })
         break
+      case FunctionName.BOND_DEPOSIT_FTM:
+        estGas = await cntct.estimateGas.depositFtm(minAmountOut, recipient, stake)
+        console.log('cntct.estimateGas.depositFtm', estGas.toString())
+        tx = await cntct.depositFtm(minAmountOut, recipient, stake, {
+          value: parsedAmount,
+          ...gasConfig,
+          // ...gasSettings,
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        })
+        break
+      case FunctionName.BOND_DEPOSIT_WFTM:
+        estGas = await cntct.estimateGas.depositWftm(parsedAmount, minAmountOut, recipient, stake)
+        console.log('cntct.estimateGas.depositWftm', estGas.toString())
+        tx = await cntct.depositWftm(parsedAmount, minAmountOut, recipient, stake, {
+          ...gasConfig,
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        })
+        break
       case FunctionName.BOND_DEPOSIT_ERC20_V2:
       default:
         estGas = await cntct.estimateGas.deposit(parsedAmount, minAmountOut, recipient, stake)
@@ -106,17 +117,18 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
   return { deposit, claimPayout }
 }
 
-export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
+export const useBondTellerFullDetailsV2 = (): { tellerDetails: BondTellerFullDetails[]; mounting: boolean } => {
   const { signer, provider } = useProvider()
   const { tellers } = useContracts()
   const { activeNetwork } = useNetwork()
-  const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
+  const [tellerDetails, setTellerDetails] = useState<BondTellerFullDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
   const canBondV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noBondingV2, [
     activeNetwork.config.restrictedFeatures.noBondingV2,
   ])
   const { tokenPriceMapping } = useCachedData()
   const running = useRef(false)
+  const [canRun, setCanRun] = useState<boolean>(false)
 
   useEffect(() => {
     setMounting(true)
@@ -127,6 +139,7 @@ export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; 
       if (
         !canBondV2 ||
         running.current ||
+        !canRun ||
         (Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object)
       )
         return
@@ -157,10 +170,16 @@ export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; 
       setMounting(false)
       running.current = false
 
-      return setTellerDetails(adjustedTellerDetails)
+      setTellerDetails(adjustedTellerDetails)
     }
     getPrices()
-  }, [signer, tellers, canBondV2, tokenPriceMapping, activeNetwork, provider])
+  }, [signer, tellers, canBondV2, tokenPriceMapping, activeNetwork, provider, canRun])
+
+  useEffect(() => {
+    setTimeout(() => {
+      setCanRun(true)
+    }, 400)
+  }, [])
 
   return { tellerDetails, mounting }
 }

@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
 import { isAddress } from '../../utils'
 import { Contract } from '@ethersproject/contracts'
-import { BondTellerContractData, ContractSources, TellerTokenMetadata } from '../../constants/types'
+import { ContractSources, TellerTokenMetadata } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { AddressZero } from '@ethersproject/constants'
+import { BondTellerContractData } from '@solace-fi/sdk-nightly'
 
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
   const { provider, signer } = useProvider()
@@ -43,7 +44,13 @@ export function useGetBondTellerContracts(): (BondTellerContractData & {
       const mapping = cache.tellerToTokenMapping[key]
       const tellerAbi = mapping.tellerAbi
       const contract = new Contract(key, tellerAbi, signer ?? provider)
-      const type = mapping.isBondTellerErc20 ? 'erc20' : mapping.name == 'ETH' ? 'eth' : 'matic'
+      const type = mapping.isBondTellerErc20
+        ? 'erc20'
+        : mapping.name == 'ETH'
+        ? 'eth'
+        : mapping.name == 'FTM'
+        ? 'ftm'
+        : 'matic'
       const cntct: BondTellerContractData & { metadata: TellerTokenMetadata } = {
         contract,
         type,

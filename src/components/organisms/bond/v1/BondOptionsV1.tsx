@@ -17,7 +17,7 @@
 import React from 'react'
 
 /* import constants */
-import { BondTellerDetails } from '../../../../constants/types'
+import { BondTellerFullDetails } from '../../../../constants/types'
 import { FunctionName } from '../../../../constants/enums'
 
 /* import managers */
@@ -35,7 +35,7 @@ import { accurateMultiply, shortenAddress } from '../../../../utils/formatting'
 
 interface BondOptionsV1Props {
   isBondTellerErc20: boolean
-  selectedBondDetail?: BondTellerDetails
+  selectedBondDetail?: BondTellerFullDetails
   isStaking: boolean
   shouldUseNativeToken: boolean
   approval: boolean

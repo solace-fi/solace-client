@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, ButtonWrapper } from '../../../../components/atoms/Button'
 import InformationBox from '../../components/InformationBox'
-import { LockData } from '../../../../constants/types'
+import { LockData } from '@solace-fi/sdk-nightly'
 import { useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { useStakingRewards } from '../../../../hooks/stake/useStakingRewards'
 import { FunctionName, InfoBoxType } from '../../../../constants/enums'

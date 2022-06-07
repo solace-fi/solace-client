@@ -17,7 +17,7 @@
 import React from 'react'
 
 /* import constants */
-import { BondTellerDetails } from '../../../../constants/types'
+import { BondTellerFullDetails } from '../../../../constants/types'
 import { FunctionName } from '../../../../constants/enums'
 
 /* import managers */
@@ -34,10 +34,11 @@ import { StyledGraphDown, StyledSendPlane } from '../../../atoms/Icon'
 import { accurateMultiply, shortenAddress } from '../../../../utils/formatting'
 import { useTellerConfig } from '../../../../hooks/bond/useDetectTeller'
 import { useNetwork } from '../../../../context/NetworkManager'
+import { BigNumber } from 'ethers'
 
 interface BondOptionsV2Props {
   isBondTellerErc20: boolean
-  selectedBondDetail?: BondTellerDetails
+  selectedBondDetail?: BondTellerFullDetails
   isStaking: boolean
   shouldUseNativeToken: boolean
   approval: boolean
@@ -45,6 +46,7 @@ interface BondOptionsV2Props {
   isAcceptableAmount: boolean
   slippagePrct: string
   bondRecipient: string | null | undefined
+  calculatedAmountOut?: BigNumber
   setIsStaking: React.Dispatch<React.SetStateAction<boolean>>
   setShouldUseNativeToken: React.Dispatch<React.SetStateAction<boolean>>
   approve: () => Promise<void>
@@ -61,6 +63,7 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
   isAcceptableAmount,
   slippagePrct,
   bondRecipient,
+  calculatedAmountOut,
   setIsStaking,
   setShouldUseNativeToken,
   approve,
@@ -101,7 +104,7 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
             <Button
               widthP={100}
               info
-              disabled={!isAcceptableAmount || haveErrors}
+              disabled={!isAcceptableAmount || haveErrors || !calculatedAmountOut}
               onClick={() => callDepositBond(isStaking)}
             >
               Bond

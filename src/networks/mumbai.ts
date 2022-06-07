@@ -66,6 +66,7 @@ export const MumbaiNetwork: NetworkConfig = {
       noBondingV1: true,
       noFarmingV1: true,
       noStakingV1: true,
+      noCoverageV3: true,
     },
     specialFeatures: {
       unwrapBridgedSolace: true,

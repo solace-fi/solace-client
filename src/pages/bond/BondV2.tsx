@@ -20,7 +20,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 
 /* import constants */
 import { BKPT_4, BKPT_5 } from '../../constants'
-import { BondTellerDetails } from '../../constants/types'
+import { BondTellerFullDetails } from '../../constants/types'
 
 /* import context */
 import { useGeneral } from '../../context/GeneralManager'
@@ -40,7 +40,7 @@ import { StyledInfo } from '../../components/atoms/Icon'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
-import { useBondTellerDetailsV2 } from '../../hooks/bond/useBondTellerV2'
+import { useBondTellerFullDetailsV2 } from '../../hooks/bond/useBondTellerV2'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
@@ -53,7 +53,7 @@ export const BondV2 = () => {
   */
   const { rightSidebar, haveErrors } = useGeneral()
   const { activeNetwork } = useNetwork()
-  const [selectedBondDetail, setSelectedBondDetail] = useState<BondTellerDetails | undefined>(undefined)
+  const [selectedBondDetail, setSelectedBondDetail] = useState<BondTellerFullDetails | undefined>(undefined)
   const { width } = useWindowDimensions()
 
   const [showBondModal, setShowBondModal] = useState<boolean>(false)
@@ -62,7 +62,7 @@ export const BondV2 = () => {
     activeNetwork.config.restrictedFeatures.noBondingV2,
   ])
 
-  const btd = useBondTellerDetailsV2()
+  const btd = useBondTellerFullDetailsV2()
 
   const currentTellerDetails = useMemo(() => btd.tellerDetails, [btd.tellerDetails])
 
@@ -72,7 +72,7 @@ export const BondV2 = () => {
 
   */
 
-  const openModal = (toggle: boolean, selectedBond?: BondTellerDetails) => {
+  const openModal = (toggle: boolean, selectedBond?: BondTellerFullDetails) => {
     if (selectedBond) setSelectedBondDetail(selectedBond)
     setShowBondModal(toggle)
   }

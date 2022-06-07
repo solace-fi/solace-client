@@ -1,38 +1,42 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BigNumber } from 'ethers'
-import { Content, Flex } from '../../components/atoms/Layout'
+import { Flex } from '../../components/atoms/Layout'
 import { useCoverageContext } from './CoverageContext'
-import { LocalSolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
+import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { Button } from '../../components/atoms/Button'
 import { formatAmount } from '../../utils/formatting'
 import { useTierColors } from '../../hooks/internal/useTierColors'
 import { Protocol } from './Protocol'
 import usePrevious from '../../hooks/internal/usePrevious'
-import { SolaceRiskBalance } from '@solace-fi/sdk-nightly'
+import { SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { TileCard } from '../../components/molecules/TileCard'
 import { LoaderText } from '../../components/molecules/LoaderText'
 import { CoverageLimitSelector } from '../soteria/CoverageLimitSelector'
 import { Projections } from './Projections'
 import { useWeb3React } from '@web3-react/core'
 import { StyledAdd } from '../../components/atoms/Icon'
+<<<<<<< HEAD:src/pages/cover/PortfolioWindow.tsx
 import styled from 'styled-components'
 import { Z_NAV } from '../../constants'
 import { Text } from '../../components/atoms/Typography'
+=======
+import { Modal } from '../../components/molecules/Modal'
+>>>>>>> dev/swc3:src/pages/cover/PortfolioSimulator.tsx
 
-export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
+export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => {
   const { active } = useWeb3React()
-  const { portfolioKit, styles, seriesKit } = useCoverageContext()
+  const { portfolioKit, styles, seriesKit, intrface } = useCoverageContext()
   const { series } = seriesKit
-  const { portfolio: portfolioScore, loading: portfolioLoading, riskScores } = portfolioKit
+  const { portfolioLoading, handleShowSimulatorModal } = intrface
+  const { curPortfolio: portfolioScore, simPortfolio, riskScores, handleSimPortfolio } = portfolioKit
   const { bigButtonStyle, gradientStyle } = styles
-  const [simulatedPortfolioScore, setSimulatedPortfolioScore] = useState<SolaceRiskScore | undefined>(undefined)
   const [canSimulate, setCanSimulate] = useState(false)
   const [simCoverageLimit, setSimCoverageLimit] = useState<BigNumber>(BigNumber.from(0))
   const [editingItem, setEditingItem] = useState<string | undefined>(undefined)
   const [simulating, setSimulating] = useState(false)
   const [compiling, setCompiling] = useState(false)
 
-  const scoreToUse = useMemo(() => simulatedPortfolioScore ?? portfolioScore, [portfolioScore, simulatedPortfolioScore])
+  const scoreToUse = useMemo(() => simPortfolio ?? portfolioScore, [portfolioScore, simPortfolio])
 
   const [editableProtocols, setEditableProtocols] = useState<LocalSolaceRiskProtocol[]>([])
 
@@ -205,11 +209,11 @@ export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
       }))
     if (riskBalances.length === 0) return
     const score: SolaceRiskScore | undefined = await riskScores(riskBalances)
-    setSimulatedPortfolioScore(score)
+    handleSimPortfolio(score)
     setCompiling(false)
     setCanSimulate(false)
     setSimulating(false)
-  }, [editableProtocols, portfolioLoading, active, riskScores])
+  }, [editableProtocols, portfolioLoading, active, riskScores, handleSimPortfolio])
 
   const handleEditingItem = useCallback((appId: string | undefined) => {
     setEditingItem(appId)
@@ -231,7 +235,8 @@ export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
   }, [portfolioScore, portfolioPrev])
 
   return (
-    <Content style={{ transition: 'all 350ms ease 0s' }}>
+    <Modal isOpen={show} modalTitle={'Portfolio Simulator'} handleClose={() => handleShowSimulatorModal(false)}>
+      {/* <Content style={{ transition: 'all 350ms ease 0s' }}> */}
       <Flex col gap={8}>
         {(portfolioLoading && active) || compiling || simulating ? (
           <LoaderText text={portfolioLoading && active ? 'Loading' : simulating ? 'Simulating' : 'Compiling'} t6 />
@@ -291,6 +296,7 @@ export const PortfolioWindow = ({ show }: { show: boolean }): JSX.Element => {
           </Button>
         )}
       </Flex>
-    </Content>
+      {/* </Content> */}
+    </Modal>
   )
 }

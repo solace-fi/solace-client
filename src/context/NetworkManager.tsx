@@ -9,6 +9,8 @@ import { PolygonNetwork } from '../networks/polygon'
 import { MumbaiNetwork } from '../networks/mumbai'
 import { AuroraNetwork } from '../networks/aurora'
 import { AuroraTestnetNetwork } from '../networks/auroraTestnet'
+import { FantomNetwork } from '../networks/fantom'
+import { FantomTestnetNetwork } from '../networks/fantomTestnet'
 import { useWeb3React } from '@web3-react/core'
 import { hexStripZeros } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
@@ -29,6 +31,8 @@ export const networks: NetworkConfig[] = [
   MumbaiNetwork,
   AuroraNetwork,
   AuroraTestnetNetwork,
+  FantomNetwork,
+  FantomTestnetNetwork,
 ]
 
 export const networksMapping = networks.reduce((configs: any, networkConfig: NetworkConfig) => ({

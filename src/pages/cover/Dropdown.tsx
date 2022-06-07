@@ -6,6 +6,7 @@ import { InputSectionWrapper, StyledInput } from '../../components/atoms/Input'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
+<<<<<<< HEAD
 import { capitalizeFirstLetter } from '../../utils/formatting'
 // import ScrollContainer from 'react-indiana-drag-scroll'
 
@@ -57,6 +58,11 @@ export function processProtocolName(str: string): string {
     })
     .join(' ')
 }
+=======
+import { TokenInfo } from '../../constants/types'
+import { formatUnits } from 'ethers/lib/utils'
+import { truncateValue } from '../../utils/formatting'
+>>>>>>> dev/swc3
 
 export const DropdownInputSection = ({
   hasArrow,
@@ -263,6 +269,51 @@ export const DropdownOptionsUnique = ({
           </Text>
         )}
         {/* </ScrollContainer> */}
+      </Flex>
+    </Accordion>
+  )
+}
+
+export const BalanceDropdownOptions = ({
+  searchedList,
+  isOpen,
+  noneText,
+  onClick,
+}: {
+  searchedList: TokenInfo[]
+  isOpen: boolean
+  noneText?: string
+  onClick: (value: string) => void
+}): JSX.Element => {
+  const { styles } = useCoverageContext()
+  const { bigButtonStyle, gradientStyle } = styles
+
+  return (
+    <Accordion isOpen={isOpen} style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }} customHeight={'380px'}>
+      <Flex col gap={8} p={12}>
+        {searchedList.map((item) => (
+          <ButtonAppearance
+            key={item.address}
+            {...bigButtonStyle}
+            matchBg
+            secondary
+            noborder
+            onClick={() => onClick(item.address)}
+          >
+            <Flex stretch between pl={16} pr={16}>
+              <Flex gap={8} itemsCenter>
+                <img src={`https://assets.solace.fi/${item.name.toLowerCase()}`} width={16} height={16} />
+                <Text {...gradientStyle}>{item.symbol}</Text>
+              </Flex>
+              <Text autoAlignVertical>{truncateValue(formatUnits(item.balance, item.decimals), 3)}</Text>
+            </Flex>
+          </ButtonAppearance>
+        ))}
+        {searchedList.length === 0 && (
+          <Text t3 textAlignCenter bold>
+            {noneText ?? 'No results found'}
+          </Text>
+        )}
       </Flex>
     </Accordion>
   )

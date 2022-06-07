@@ -2,7 +2,7 @@ import { useMemo, useEffect, useState, useRef, useCallback } from 'react'
 import { BigNumber } from 'ethers'
 import { ADDRESS_ZERO, GAS_LIMIT, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { LocalTx, NetworkConfig, SolaceRiskScore } from '../../constants/types'
+import { LocalTx, NetworkConfig } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useProvider } from '../../context/ProviderManager'
@@ -10,7 +10,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork, networks } from '../../context/NetworkManager'
 import { rangeFrom0 } from '../../utils/numeric'
 import { withBackoffRetries } from '../../utils/time'
-import { Risk, SolaceRiskBalance, SolaceRiskSeries } from '@solace-fi/sdk-nightly'
+import { Risk, SolaceRiskBalance, SolaceRiskSeries, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 
 export const useFunctions = () => {
   const { keyContracts } = useContracts()

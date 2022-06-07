@@ -3,7 +3,7 @@ import { BigNumber } from 'ethers'
 import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
 import { useCoverageContext } from './CoverageContext'
 import { Text, TextSpan } from '../../components/atoms/Typography'
-import { SolaceRiskScore } from '../../constants/types'
+import { SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { floatUnits, truncateValue } from '../../utils/formatting'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 

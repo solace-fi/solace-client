@@ -20,7 +20,7 @@ import React, { useState, useEffect } from 'react'
 import { formatUnits } from '@ethersproject/units'
 
 /* import constants */
-import { BondTellerDetails } from '../../../constants/types'
+import { BondTellerFullDetails } from '../../../constants/types'
 import { SOLACE_TOKEN } from '../../../constants/mappings/token'
 
 /* import components */
@@ -32,7 +32,7 @@ import { getLongtimeFromMillis } from '../../../utils/time'
 import { ZERO } from '../../../constants'
 
 interface PublicBondInfoProps {
-  selectedBondDetail?: BondTellerDetails
+  selectedBondDetail?: BondTellerFullDetails
 }
 
 export const PublicBondInfo: React.FC<PublicBondInfoProps> = ({ selectedBondDetail }) => {

@@ -17,7 +17,14 @@ export enum FunctionName {
   COMPOUND_LOCK = 'CompoundLock',
   COMPOUND_LOCKS = 'CompoundLocks',
 
-  // soteria
+  // coverage v3
+  COVER_PURCHASE_WITH_STABLE = 'PurchaseWithStable',
+  COVER_PURCHASE_WITH_NON_STABLE = 'PurchaseWithNonStable',
+  COVER_PURCHASE = 'Purchase',
+  COVER_CANCEL = 'Cancel',
+  COVER_WITHDRAW = 'Withdraw',
+
+  // soteria (coverage v2)
   SOTERIA_ACTIVATE = 'ActivatePolicy',
   SOTERIA_DEACTIVATE = 'DeactivatePolicy',
   SOTERIA_UPDATE_LIMIT = 'UpdateCoverLimit',
@@ -28,6 +35,8 @@ export enum FunctionName {
   // bond tellers v2
   BOND_DEPOSIT_WMATIC = 'DepositWmatic',
   BOND_DEPOSIT_MATIC = 'DepositMatic',
+  BOND_DEPOSIT_WFTM = 'DepositWftm',
+  BOND_DEPOSIT_FTM = 'DepositFtm',
   BOND_DEPOSIT_WETH_V2 = 'DepositWeth',
   BOND_DEPOSIT_ETH_V2 = 'DepositEth',
   BOND_DEPOSIT_ERC20_V2 = 'Deposit',
