@@ -101,8 +101,8 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
   // const { activeNetwork } = useNetwork()
   // const { reload } = useCachedData()
   // const { makeTxToast } = useNotifications()
-  const { keyContracts } = useContracts()
-  const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
+  // const { keyContracts } = useContracts()
+  // const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
 
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   // const [canMax, setCanMax] = useState<boolean>(true)

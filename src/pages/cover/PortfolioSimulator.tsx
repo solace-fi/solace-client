@@ -15,13 +15,8 @@ import { CoverageLimitSelector } from '../soteria/CoverageLimitSelector'
 import { Projections } from './Projections'
 import { useWeb3React } from '@web3-react/core'
 import { StyledAdd } from '../../components/atoms/Icon'
-<<<<<<< HEAD:src/pages/cover/PortfolioWindow.tsx
-import styled from 'styled-components'
-import { Z_NAV } from '../../constants'
 import { Text } from '../../components/atoms/Typography'
-=======
 import { Modal } from '../../components/molecules/Modal'
->>>>>>> dev/swc3:src/pages/cover/PortfolioSimulator.tsx
 
 export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => {
   const { active } = useWeb3React()

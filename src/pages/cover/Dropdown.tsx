@@ -6,7 +6,7 @@ import { InputSectionWrapper, StyledInput } from '../../components/atoms/Input'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
-<<<<<<< HEAD
+
 import { capitalizeFirstLetter } from '../../utils/formatting'
 // import ScrollContainer from 'react-indiana-drag-scroll'
 
@@ -58,11 +58,10 @@ export function processProtocolName(str: string): string {
     })
     .join(' ')
 }
-=======
+
 import { TokenInfo } from '../../constants/types'
 import { formatUnits } from 'ethers/lib/utils'
 import { truncateValue } from '../../utils/formatting'
->>>>>>> dev/swc3
 
 export const DropdownInputSection = ({
   hasArrow,
