@@ -65,6 +65,7 @@ export const FantomNetwork: NetworkConfig = {
       noFarmingV1: true,
       noStakingV1: true,
       noCoverageV3: true,
+      noStakingRewardsV2: true,
     },
     specialFeatures: {},
     underwritingPoolAddr: '0x2971f45c0952437934B3F055C401241e5C339F93',

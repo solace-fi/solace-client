@@ -36,6 +36,7 @@ export type NetworkConfig = {
       noCoverageV3?: boolean
       noStakingV1?: boolean
       noStakingV2?: boolean
+      noStakingRewardsV2?: boolean
     }
     specialFeatures: {
       solaceBuyLink?: string

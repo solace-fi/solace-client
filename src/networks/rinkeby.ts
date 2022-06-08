@@ -89,7 +89,7 @@ export const RinkebyNetwork: NetworkConfig = {
         abi: solaceCoverProductABI.abi,
       },
     },
-    restrictedFeatures: {},
+    restrictedFeatures: { noStakingRewardsV2: true },
     specialFeatures: {
       solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },

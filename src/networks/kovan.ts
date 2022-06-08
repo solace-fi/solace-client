@@ -90,7 +90,7 @@ export const KovanNetwork: NetworkConfig = {
         abi: cpFarmABI,
       },
     },
-    restrictedFeatures: { noSoteria: true, noCoverageV3: true },
+    restrictedFeatures: { noSoteria: true, noCoverageV3: true, noStakingRewardsV2: true },
     specialFeatures: {
       solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },

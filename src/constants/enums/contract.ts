@@ -14,6 +14,8 @@ export enum FunctionName {
   // staking rewards
   HARVEST_LOCK = 'HarvestLock',
   HARVEST_LOCKS = 'HarvestLocks',
+  HARVEST_LOCK_FOR_SCP = 'HarvestLockForScp',
+  HARVEST_LOCKS_FOR_SCP = 'HarvestLocksForScp',
   COMPOUND_LOCK = 'CompoundLock',
   COMPOUND_LOCKS = 'CompoundLocks',
 
