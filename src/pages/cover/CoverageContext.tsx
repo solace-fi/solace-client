@@ -1,13 +1,13 @@
-import { SolaceRiskProtocol, SolaceRiskSeries } from '@solace-fi/sdk-nightly'
+import { SCP, SolaceRiskProtocol, SolaceRiskSeries } from '@solace-fi/sdk-nightly'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { BKPT_2, BKPT_NAVBAR, ZERO } from '../../constants'
-import { InterfaceState } from '../../constants/enums'
+import { BKPT_2, BKPT_NAVBAR, MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
+import { FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
 import { coinsMap } from '../../constants/mappings/coverageStablecoins'
 import { NetworkConfig, ReadToken, TokenInfo } from '../../constants/types'
 import { useGeneral } from '../../context/GeneralManager'
 import { networks, useNetwork } from '../../context/NetworkManager'
 import { useBatchBalances, useScpBalance } from '../../hooks/balance/useBalance'
-import { useInputAmount } from '../../hooks/internal/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import {
   usePortfolio,
@@ -16,7 +16,7 @@ import {
   useExistingPolicy,
   useCoverageFunctions,
 } from '../../hooks/policy/useSolaceCoverProductV3'
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { useCachedData } from '../../context/CachedDataManager'
 import { accurateMultiply, convertSciNotaToPrecise, formatAmount } from '../../utils/formatting'
@@ -24,6 +24,12 @@ import { parseUnits } from 'ethers/lib/utils'
 import { useWeb3React } from '@web3-react/core'
 import { usePortfolioAnalysis } from '../../hooks/policy/usePortfolioAnalysis'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
+import { useProvider } from '../../context/ProviderManager'
+import IERC20 from '../../constants/metadata/IERC20Metadata.json'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
+import { useNotifications } from '../../context/NotificationsManager'
+import { useTokenAllowance } from '../../hooks/contract/useToken'
+import SOLACE from '../../constants/metadata/SOLACE.json'
 
 type CoverageContextType = {
   intrface: {
@@ -45,6 +51,7 @@ type CoverageContextType = {
     balancesLoading: boolean
     coverageLoading: boolean
     existingPolicyLoading: boolean
+    transactionLoading: boolean
   }
   input: {
     enteredDeposit: string
@@ -98,6 +105,9 @@ type CoverageContextType = {
     minReqScpBal: BigNumber
     availCovCap: BigNumber
     scpBalance: string
+    scpObj?: SCP
+    depositApproval: boolean
+    unlimitedApproveCPM: (tokenAddr: string) => void
   }
 }
 
@@ -121,6 +131,7 @@ const CoverageContext = createContext<CoverageContextType>({
     balancesLoading: true,
     coverageLoading: true,
     existingPolicyLoading: true,
+    transactionLoading: false,
   },
   input: {
     enteredDeposit: '',
@@ -174,6 +185,9 @@ const CoverageContext = createContext<CoverageContextType>({
     minReqScpBal: ZERO,
     availCovCap: ZERO,
     scpBalance: '',
+    scpObj: undefined,
+    depositApproval: false,
+    unlimitedApproveCPM: () => undefined,
   },
 })
 
@@ -181,12 +195,15 @@ const CoverageManager: React.FC = (props) => {
   const { account } = useWeb3React()
   const { appTheme, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
-  const { tokenPriceMapping, minute } = useCachedData()
+  const { tokenPriceMapping, minute, reload } = useCachedData()
+  const { signer } = useProvider()
+  const { makeTxToast } = useNotifications()
 
   const { width } = useWindowDimensions()
   const { portfolio: curPortfolio, riskScores, loading: portfolioLoading } = usePortfolio()
   const [simPortfolio, setSimPortfolio] = useState<SolaceRiskScore | undefined>()
   const { series, loading: seriesLoading } = useRiskSeries()
+  const [transactionLoading, setTransactionLoading] = useState<boolean>(false)
   const scpBalance = useScpBalance()
   const {
     amount: enteredDeposit,
@@ -197,9 +214,11 @@ const CoverageManager: React.FC = (props) => {
   const { amount: enteredWithdrawal, handleInputChange: handleEnteredWithdrawal } = useInputAmount()
   const { getAvailableCoverCapacity, getMinRequiredAccountBalance, getMinScpRequired } = useCoverageFunctions()
   const { policyId, status, coverageLimit: curCoverageLimit, mounting: coverageLoading } = useCheckIsCoverageActive()
+  const { handleContractCallError } = useTransactionExecution()
 
   const [enteredCoverLimit, setEnteredCoverLimit] = useState<BigNumber>(ZERO)
   const [simCoverLimit, setSimCoverLimit] = useState<BigNumber>(ZERO)
+  const [scpObj, setScpObj] = useState<SCP | undefined>(undefined)
 
   const {
     highestPosition: curHighestPosition,
@@ -246,8 +265,14 @@ const CoverageManager: React.FC = (props) => {
   const { loading: balancesLoading, batchBalances } = useBatchBalances(coinOptions.map((c) => c.address))
 
   const loading = useMemo(
-    () => portfolioLoading || seriesLoading || balancesLoading || coverageLoading || existingPolicyLoading,
-    [portfolioLoading, seriesLoading, balancesLoading, coverageLoading, existingPolicyLoading]
+    () =>
+      portfolioLoading ||
+      seriesLoading ||
+      balancesLoading ||
+      coverageLoading ||
+      existingPolicyLoading ||
+      transactionLoading,
+    [portfolioLoading, seriesLoading, balancesLoading, coverageLoading, existingPolicyLoading, transactionLoading]
   )
 
   const [userState, setUserState] = useState<InterfaceState>(InterfaceState.NEW_USER)
@@ -272,6 +297,14 @@ const CoverageManager: React.FC = (props) => {
 
   const [selectedCoin, setSelectedCoin] = useState<ReadToken & { stablecoin: boolean }>(coinOptions[0])
   const [selectedCoinPrice, setSelectedCoinPrice] = useState<number>(0)
+
+  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
+  const depositApproval = useTokenAllowance(
+    contractForAllowance,
+    spenderAddress,
+    enteredDeposit && enteredDeposit != '.' ? parseUnits(enteredDeposit, selectedCoin.decimals).toString() : '0'
+  )
 
   const batchBalanceData = useMemo(() => {
     return batchBalances.map((b, i) => {
@@ -309,6 +342,31 @@ const CoverageManager: React.FC = (props) => {
     () =>
       appTheme == 'light' ? { techygradient: true, warmgradient: false } : { techygradient: false, warmgradient: true },
     [appTheme]
+  )
+
+  const unlimitedApproveCPM = useCallback(
+    async (tokenAddr: string) => {
+      if (!scpObj) return
+      const tokenContract = new Contract(tokenAddr, IERC20.abi, signer)
+      try {
+        const tx: TransactionResponse = await tokenContract.approve(
+          scpObj.coverPaymentManager.address,
+          MAX_APPROVAL_AMOUNT
+        )
+        const txHash = tx.hash
+        setTransactionLoading(true)
+        makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
+        await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
+          const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+          makeTxToast(FunctionName.APPROVE, status, txHash)
+          reload()
+        })
+        setTransactionLoading(false)
+      } catch (e) {
+        handleContractCallError('approve', e, FunctionName.APPROVE)
+      }
+    },
+    [activeNetwork, signer, scpObj]
   )
 
   const handleSimCoverLimit = useCallback((coverageLimit: BigNumber) => {
@@ -410,7 +468,26 @@ const CoverageManager: React.FC = (props) => {
     } else if (selectedCoin.stablecoin) {
       setSelectedCoinPrice(1)
     }
-  }, [selectedCoin, tokenPriceMapping])
+    let abi = null
+    switch (selectedCoin.symbol) {
+      case 'SOLACE':
+        abi = SOLACE
+        break
+      default:
+        abi = IERC20.abi
+    }
+    setContractForAllowance(new Contract(selectedCoin.address, abi, signer))
+  }, [selectedCoin, tokenPriceMapping, signer])
+
+  useEffect(() => {
+    if (!signer || activeNetwork.config.restrictedFeatures.noCoverageV3) {
+      setScpObj(undefined)
+      return
+    }
+    const scpObj = new SCP(activeNetwork.chainId, signer)
+    setScpObj(scpObj)
+    setSpenderAddress(scpObj.coverPaymentManager.address)
+  }, [activeNetwork, signer])
 
   const value = useMemo<CoverageContextType>(
     () => ({
@@ -426,6 +503,7 @@ const CoverageManager: React.FC = (props) => {
         seriesLoading,
         balancesLoading,
         coverageLoading,
+        transactionLoading,
         existingPolicyLoading,
         handleShowPortfolioModal,
         handleShowSimulatorModal,
@@ -486,6 +564,9 @@ const CoverageManager: React.FC = (props) => {
         minReqScpBal, // check how much scp should stay on the account
         availCovCap, // available cover capacity for this chain
         scpBalance, // the user's scp balance
+        scpObj,
+        depositApproval,
+        unlimitedApproveCPM,
       },
     }),
     [
@@ -511,6 +592,7 @@ const CoverageManager: React.FC = (props) => {
       existingPolicyId,
       existingPolicyNetwork,
       existingPolicyLoading,
+      transactionLoading,
       enteredDeposit,
       enteredWithdrawal,
       isAcceptableDeposit,
@@ -534,6 +616,8 @@ const CoverageManager: React.FC = (props) => {
       minReqScpBal,
       showSimulatorModal,
       showSimCoverModal,
+      scpObj,
+      depositApproval,
       handleEnteredCoverLimit,
       handleSimPortfolio,
       handleSimCoverLimit,
@@ -547,6 +631,7 @@ const CoverageManager: React.FC = (props) => {
       handleCtaState,
       handleShowSimulatorModal,
       handleShowSimCoverModal,
+      unlimitedApproveCPM,
     ]
   )
   return <CoverageContext.Provider value={value}>{props.children}</CoverageContext.Provider>

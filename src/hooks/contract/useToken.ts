@@ -16,8 +16,8 @@ export const useTokenAllowance = (
   const approval = useMemo(() => hasApproval(allowance, parsedAmount), [parsedAmount, allowance])
 
   const checkAllowance = async () => {
+    if (!account || !tokenContract || !spender) return
     try {
-      if (!account || !tokenContract || !spender) return
       const _allowance = await withBackoffRetries(async () => tokenContract.allowance(account, spender))
       setAllowance(_allowance.toString())
     } catch (err) {

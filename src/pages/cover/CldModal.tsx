@@ -4,18 +4,20 @@ import { parseUnits } from 'ethers/lib/utils'
 import React, { useEffect, useState } from 'react'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Flex } from '../../components/atoms/Layout'
-import { Text } from '../../components/atoms/Typography'
-import { Modal } from '../../components/molecules/Modal'
+import { SectionTitle, Text } from '../../components/atoms/Typography'
+import { Modal, ModalCloseButton } from '../../components/molecules/Modal'
 import { FunctionName } from '../../constants/enums'
+import { useGeneral } from '../../context/GeneralManager'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
 import { filterAmount } from '../../utils/formatting'
-import { CoverageLimitSelector } from '../soteria/CoverageLimitSelector'
+import { CoverageLimitSelector2 } from '../soteria/CoverageLimitSelector'
 import { useCoverageContext } from './CoverageContext'
 import { BalanceDropdownOptions, DropdownInputSection } from './Dropdown'
 
 export const CldModal = ({ show }: { show: boolean }) => {
   const { account } = useWeb3React()
+  const { appTheme } = useGeneral()
   const { purchaseWithStable, purchaseWithNonStable, purchase } = useCoverageFunctions()
   const { intrface, portfolioKit, input, dropdowns, styles } = useCoverageContext()
   const { handleShowCLDModal } = intrface
@@ -76,40 +78,87 @@ export const CldModal = ({ show }: { show: boolean }) => {
   }, [asyncEnteredDeposit])
 
   return (
-    <Modal isOpen={show} modalTitle={'Set Cover Limit'} handleClose={() => handleShowCLDModal(false)}>
-      <CoverageLimitSelector portfolioScore={curPortfolio} setNewCoverageLimit={handleEnteredCoverLimit} />
+    // <Modal isOpen={show} modalTitle={'Set Cover Limit'} handleClose={() => handleShowCLDModal(false)}>
+    //   <CoverageLimitSelector portfolioScore={curPortfolio} setNewCoverageLimit={handleEnteredCoverLimit} />
+    //   <ButtonWrapper>
+    //     <Button {...gradientStyle} {...bigButtonStyle} onClick={callPurchase} secondary noborder>
+    //       Save
+    //     </Button>
+    //   </ButtonWrapper>
+    //   <Flex col gap={12}>
+    //     <div>
+    //       <DropdownInputSection
+    //         hasArrow
+    //         isOpen={localCoinsOpen}
+    //         placeholder={'Enter amount'}
+    //         icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
+    //         text={selectedCoin.symbol}
+    //         value={enteredDeposit}
+    //         onChange={(e) => setEnteredDeposit(filterAmount(e.target.value, enteredDeposit))}
+    //         onClick={() => setLocalCoinsOpen(!localCoinsOpen)}
+    //       />
+    //       <BalanceDropdownOptions
+    //         isOpen={localCoinsOpen}
+    //         searchedList={batchBalanceData}
+    //         onClick={(value: string) => {
+    //           handleSelectedCoin(value)
+    //           setLocalCoinsOpen(false)
+    //         }}
+    //       />
+    //     </div>
+    //     <ButtonWrapper style={{ width: '100%' }} p={0}>
+    //       <Button {...bigButtonStyle} {...gradientStyle} secondary noborder onClick={handlePurchase}>
+    //         <Text>Deposit &amp; Save</Text>
+    //       </Button>
+    //     </ButtonWrapper>
+    //   </Flex>
+    // </Modal>
+    <>
+      <Flex justifyEnd>
+        <Flex onClick={() => handleShowCLDModal(false)}>
+          <ModalCloseButton lightColor={appTheme == 'dark'} />
+        </Flex>
+      </Flex>
+      <Flex justifyCenter mb={4}>
+        <Text big3 mont semibold style={{ lineHeight: '29.26px' }}>
+          Set Cover Limit
+        </Text>
+      </Flex>
+      <CoverageLimitSelector2 portfolioScore={curPortfolio} setNewCoverageLimit={handleEnteredCoverLimit} />
       <ButtonWrapper>
         <Button {...gradientStyle} {...bigButtonStyle} onClick={callPurchase} secondary noborder>
           Save
         </Button>
       </ButtonWrapper>
-      <Flex col gap={12}>
-        <div>
-          <DropdownInputSection
-            hasArrow
-            isOpen={localCoinsOpen}
-            placeholder={'Enter amount'}
-            icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
-            text={selectedCoin.symbol}
-            value={enteredDeposit}
-            onChange={(e) => setEnteredDeposit(filterAmount(e.target.value, enteredDeposit))}
-            onClick={() => setLocalCoinsOpen(!localCoinsOpen)}
-          />
-          <BalanceDropdownOptions
-            isOpen={localCoinsOpen}
-            searchedList={batchBalanceData}
-            onClick={(value: string) => {
-              handleSelectedCoin(value)
-              setLocalCoinsOpen(false)
-            }}
-          />
-        </div>
-        <ButtonWrapper style={{ width: '100%' }} p={0}>
-          <Button {...bigButtonStyle} {...gradientStyle} secondary noborder onClick={handlePurchase}>
-            <Text>Deposit &amp; Save</Text>
-          </Button>
-        </ButtonWrapper>
-      </Flex>
-    </Modal>
+      {curPortfolio && curPortfolio.protocols.length > 0 && (
+        <Flex col gap={12}>
+          <div>
+            <DropdownInputSection
+              hasArrow
+              isOpen={localCoinsOpen}
+              placeholder={'Enter amount'}
+              icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
+              text={selectedCoin.symbol}
+              value={enteredDeposit}
+              onChange={(e) => setEnteredDeposit(filterAmount(e.target.value, enteredDeposit))}
+              onClick={() => setLocalCoinsOpen(!localCoinsOpen)}
+            />
+            <BalanceDropdownOptions
+              isOpen={localCoinsOpen}
+              searchedList={batchBalanceData}
+              onClick={(value: string) => {
+                handleSelectedCoin(value)
+                setLocalCoinsOpen(false)
+              }}
+            />
+          </div>
+          <ButtonWrapper style={{ width: '100%' }} p={0}>
+            <Button {...bigButtonStyle} {...gradientStyle} secondary noborder onClick={handlePurchase}>
+              <Text>Deposit &amp; Save</Text>
+            </Button>
+          </ButtonWrapper>
+        </Flex>
+      )}
+    </>
   )
 }

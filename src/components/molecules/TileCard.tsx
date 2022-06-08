@@ -5,6 +5,7 @@ import { Flex, ShadowDiv } from '../atoms/Layout'
 export function TileCard({
   children,
   style,
+  innerStyle,
   thinner,
   innerBigger,
   innerThinner,
@@ -21,6 +22,7 @@ export function TileCard({
 }: {
   children: React.ReactNode
   style?: React.CSSProperties
+  innerStyle?: React.CSSProperties
   /** first card - `flex: 0.8` */ thinner?: boolean
   /** second card - `flex 1` */ bigger?: boolean
   /** second card inactive - `flex 1.2` */ innerBigger?: boolean
@@ -64,7 +66,7 @@ export function TileCard({
   return !noShadow ? (
     <ShadowDiv style={combinedStyle} {...rest} onClick={onClick}>
       <RaisedBox style={horiz ? rowStyle : colStyle}>
-        <Flex p={!noPadding ? padding ?? 24 : undefined} column={!horiz} stretch flex1 gap={gap}>
+        <Flex p={!noPadding ? padding ?? 24 : undefined} column={!horiz} stretch flex1 gap={gap} style={innerStyle}>
           {children}
         </Flex>
       </RaisedBox>

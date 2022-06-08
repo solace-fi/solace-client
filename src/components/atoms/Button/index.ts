@@ -270,9 +270,15 @@ export const Button = styled.button<ButtonProps & GeneralElementProps>`
   ${ButtonBaseCss}
 `
 
-export const GraySquareButton = styled(Button)<{ noborder?: boolean; theme: Theme; darkText?: boolean }>`
+export const GraySquareButton = styled(Button)<{
+  noborder?: boolean
+  theme: Theme
+  darkText?: boolean
+  actuallyWhite?: boolean
+}>`
   border-radius: 10px;
-  background-color: ${(props) => props.theme.body.bg_color};
+  background-color: ${({ theme, actuallyWhite }: { theme: Theme; actuallyWhite?: boolean }) =>
+    actuallyWhite ? theme.v2.raised : theme.body.bg_color};
   box-sizing: border-box;
   ${({ noborder, theme }) => (noborder ? `border: none;` : `border: 1px solid ${theme.separator.bg_color};`)}
   color: ${(props) => (props.darkText ? props.theme.typography.darkText : props.theme.typography.darkText)};

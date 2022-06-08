@@ -21,6 +21,7 @@ export interface TextStyleProps extends GeneralElementProps {
   autoAlign?: boolean
   regular?: boolean
   medium?: boolean
+  semibold?: boolean
   /** `font-weight: 600` if open sans, `700` if montserrat */ bold?: boolean
   extrabold?: boolean
   italics?: boolean
@@ -36,9 +37,9 @@ export interface TextStyleProps extends GeneralElementProps {
   inline?: boolean
 }
 export interface TextFontProps {
-  /* `48px` */ big1?: boolean
-  /* `36px` */ big2?: boolean
-  /* `24px` */ big3?: boolean
+  /** `48px` */ big1?: boolean
+  /** `36px` */ big2?: boolean
+  /** `24px` */ big3?: boolean
   /** `width < BKPT_3` ? `24px` : `22px` */ t1?: boolean
   /** `width < BKPT_3` ? `20px` : `18px` */ t2?: boolean
   /** `width < BKPT_3` ? `18px` : `16px` */ t2_5?: boolean
@@ -248,6 +249,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.autoAlignVertical && AlignVerticalCss}
   ${(props) => props.autoAlignHorizontal && AlignHorizontalCss}
   ${(props) => props.medium && 'font-weight: 500;'}
+  ${(props) => props.semibold && 'font-weight: 600;'}
   ${(props) => {
     if (props.bold && props.mont)
       return css`

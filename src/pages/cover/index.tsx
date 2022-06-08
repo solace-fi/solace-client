@@ -17,11 +17,16 @@ const CoverageContent = () => {
   const { showPortfolioModal, showCLDModal, showSimulatorModal } = intrface
 
   return (
-    <>
-      <CldModal show={showCLDModal} />
-      <PortfolioSimulator show={showSimulatorModal} />
-      <CoveragePage />
-    </>
+    <Content>
+      <Flex justifyCenter>
+        <Flex col w={375}>
+          {showCLDModal && <CldModal show={true} />}
+          {showSimulatorModal && <PortfolioSimulator show={true} />}
+          {/* {showPortfolioModal && <PortfolioSimulator show={true} />} */}
+          {!showSimulatorModal && !showCLDModal && <CoveragePage />}
+        </Flex>
+      </Flex>
+    </Content>
   )
 }
 
