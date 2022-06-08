@@ -12,6 +12,7 @@ export const lightTheme = {
     techyGradientB: 'rgb(95, 93, 249)',
     warmGradientA: 'rgba(243, 211, 126, 1)',
     warmGradientB: 'rgba(240, 77, 66, 1)',
+    lightGray: 'rgb(244, 245, 247)',
     separator: '#E3E4E6',
     lightNeutral: '#F2CAD6',
   },
@@ -115,6 +116,7 @@ export const darkTheme = {
     techyGradientB: 'rgb(95, 93, 249)',
     warmGradientA: 'rgba(243, 211, 126, 1)',
     warmGradientB: 'rgba(240, 77, 66, 1)',
+    lightGray: 'rgba(255, 255, 255, 0.04)',
     separator: '#828282',
     lightNeutral: '#F2CAD6',
   },
@@ -205,4 +207,5 @@ export const darkTheme = {
 } as const
 
 export type Theme = typeof lightTheme | typeof darkTheme
+export default Theme
 // export type Theme = { theme: typeof lightTheme | typeof darkTheme }

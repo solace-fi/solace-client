@@ -2,6 +2,7 @@ import { BKPT_5 } from '../../../constants'
 import styled, { css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
 import { BKPT_6 } from '../../../constants'
+import { Theme } from '../../../styles/themes'
 
 export interface FlexProps {
   between?: boolean
@@ -37,6 +38,15 @@ export interface FlexProps {
   hidden?: boolean
   baseline?: boolean
   flex1?: boolean
+  rounded?: boolean
+  shadow?: boolean
+
+  bgRaised?: boolean
+  bgSecondary?: boolean
+  bgTechy?: boolean
+  bgWarm?: boolean
+  bgInfo?: boolean
+  bgError?: boolean
 }
 
 // type Conditional = string | number | boolean | undefined
@@ -47,39 +57,48 @@ export interface FlexProps {
 // prettier-ignore
 export const Flex = styled.div<FlexProps>`
   display: flex;
-  ${({ justifyStart })  => justifyStart  && css`justify-content: flex-start;`}
-  ${({ justifyCenter }) => justifyCenter && css`justify-content: center;`}
-  ${({ justifyEnd })    => justifyEnd    && css`justify-content: flex-end;`}
-  ${({ itemsCenter })   => itemsCenter   && css`align-items: center;`}
-  ${({ itemsEnd })      => itemsEnd      && css`align-items: flex-end;`}
-  ${({ center })        => center        && css`justify-content: center;`}
-  ${({ column })        => column        && css`flex-direction: column;`}
-  ${({ col })           => col           && css`flex-direction: column;`}
-  ${({ stretch })       => stretch       && css`align-items: stretch;`}
-  ${({ wrap })          => wrap          && css`flex-wrap: wrap;`}
-  ${({ between })       => between       && css`justify-content: space-between;`}
-  ${({ around })        => around        && css`justify-content: space-around;`}
-  ${({ evenly })        => evenly        && css`justify-content: space-evenly;`}
-  ${({ marginAuto })    => marginAuto    && css`margin: auto;`}
-  ${({ m })             => m             && css`margin: ${m}px;`}
-  ${({ mb })            => mb            && css`margin-bottom: ${mb}px;`}
-  ${({ mt })            => mt            && css`margin-top: ${mt}px;`}
-  ${({ ml })            => ml            && css`margin-left: ${ml}px;`}
-  ${({ mr })            => mr            && css`margin-right: ${mr}px;`}
-  ${({ mx })            => mx            && css`margin-left: ${mx}px; margin-right: ${mx}px;`}
-  ${({ my })            => my            && css`margin-top: ${my}px; margin-bottom: ${my}px;`}
-  ${({ p })             => p             && css`padding: ${p}px;`}
-  ${({ pb })            => pb            && css`padding-bottom: ${pb}px;`}
-  ${({ pl })            => pl            && css`padding-left: ${pl}px;`}
-  ${({ pr })            => pr            && css`padding-right: ${pr}px;`}
-  ${({ pt })            => pt            && css`padding-top: ${pt}px;`}
-  ${({ px })            => px            && css`padding-left: ${px}px; padding-right: ${px}px;`}
-  ${({ py })            => py            && css`padding-top: ${py}px; padding-bottom: ${py}px;`}
-  ${({ gap })           => gap           && css`gap: ${gap}px;`}
-  ${({ w })             => w             && css`width: ${w}px;`}
-  ${({ hidden })        => hidden        && css`display: none;`}
-  ${({ baseline })      => baseline      && css`align-self: baseline;`}
-  ${({ flex1 })         => flex1         && css`flex: 1;`}
+  ${({ justifyStart })  => justifyStart  !== undefined ? css`justify-content: flex-start;` : ""}
+  ${({ justifyCenter }) => justifyCenter !== undefined ? css`justify-content: center;` : ""}
+  ${({ justifyEnd })    => justifyEnd    !== undefined ? css`justify-content: flex-end;` : ""}
+  ${({ itemsCenter })   => itemsCenter   !== undefined ? css`align-items: center;` : ""}
+  ${({ itemsEnd })      => itemsEnd      !== undefined ? css`align-items: flex-end;` : ""}
+  ${({ center })        => center        !== undefined ? css`justify-content: center;` : ""}
+  ${({ column })        => column        !== undefined ? css`flex-direction: column;` : ""}
+  ${({ col })           => col           !== undefined ? css`flex-direction: column;` : ""}
+  ${({ stretch })       => stretch       !== undefined ? css`align-items: stretch;` : ""}
+  ${({ wrap })          => wrap          !== undefined ? css`flex-wrap: wrap;` : ""}
+  ${({ between })       => between       !== undefined ? css`justify-content: space-between;` : ""}
+  ${({ around })        => around        !== undefined ? css`justify-content: space-around;` : ""}
+  ${({ evenly })        => evenly        !== undefined ? css`justify-content: space-evenly;` : ""}
+  ${({ marginAuto })    => marginAuto    !== undefined ? css`margin: auto;` : ""}
+  ${({ m })             => m             !== undefined ? css`margin: ${m}px;` : ""}
+  ${({ mb })            => mb            !== undefined ? css`margin-bottom: ${mb}px;` : ""}
+  ${({ mt })            => mt            !== undefined ? css`margin-top: ${mt}px;` : ""}
+  ${({ ml })            => ml            !== undefined ? css`margin-left: ${ml}px;` : ""}
+  ${({ mr })            => mr            !== undefined ? css`margin-right: ${mr}px;` : ""}
+  ${({ mx })            => mx            !== undefined ? css`margin-left: ${mx}px; margin-right: ${mx}px;` : ""}
+  ${({ my })            => my            !== undefined ? css`margin-top: ${my}px; margin-bottom: ${my}px;` : ""}
+  ${({ p })             => p             !== undefined ? css`padding: ${p}px;` : ""}
+  ${({ pb })            => pb            !== undefined ? css`padding-bottom: ${pb}px;` : ""}
+  ${({ pl })            => pl            !== undefined ? css`padding-left: ${pl}px;` : ""}
+  ${({ pr })            => pr            !== undefined ? css`padding-right: ${pr}px;` : ""}
+  ${({ pt })            => pt            !== undefined ? css`padding-top: ${pt}px;` : ""}
+  ${({ px })            => px            !== undefined ? css`padding-left: ${px}px; padding-right: ${px}px;` : ""}
+  ${({ py })            => py            !== undefined ? css`padding-top: ${py}px; padding-bottom: ${py}px;` : ""}
+  ${({ gap })           => gap           !== undefined ? css`gap: ${gap}px;` : ""}
+  ${({ w })             => w             !== undefined ? css`width: ${w}px;` : ""}
+  ${({ hidden })        => hidden        !== undefined ? css`display: none;` : ""}
+  ${({ baseline })      => baseline      !== undefined ? css`align-self: baseline;` : ""}
+  ${({ flex1 })         => flex1         !== undefined ? css`flex: 1;` : ""}
+  ${({ rounded })       => rounded       !== undefined ? css`border-radius: 10px;` : ""}
+  ${({ shadow })        => shadow        !== undefined ? css`box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);` : ""}
+  
+  ${(props)             => props.bgRaised    !== undefined ? css`background-color: ${(props.theme as Theme).v2.raised};` : ""}
+  ${(props)             => props.bgSecondary !== undefined ? css`background-color: ${(props.theme as Theme).body.bg_color};` : ""}
+  ${(props)             => props.bgTechy     !== undefined ? css`background-image: linear-gradient(to bottom right, ${(props.theme as Theme).typography.techyGradientA}, ${(props.theme as Theme).typography.techyGradientB});` : ""}
+  ${(props)             => props.bgWarm      !== undefined ? css`background-image: linear-gradient(to bottom right, ${(props.theme as Theme).typography.warmGradientA}, ${(props.theme as Theme).typography.warmGradientB});` : ""}
+  ${(props)             => props.bgInfo      !== undefined ? css`background-color: ${(props.theme as Theme).typography.infoText};` : ""}
+  ${(props)             => props.bgError     !== undefined ? css`background-color: ${(props.theme as Theme).typography.errorText};` : ""}
 `
 
 export const GridOrRow = styled(Flex)<{ preferredWidth?: number }>`

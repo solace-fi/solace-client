@@ -24,6 +24,7 @@ import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { parseUnits } from 'ethers/lib/utils'
 import { Price, SCP } from '@solace-fi/sdk-nightly'
 import { BigNumber } from 'ethers'
+import { RaisedBox } from '../../components/atoms/Box'
 
 export const PolicyContent = (): JSX.Element => {
   const { intrface, styles, input, dropdowns, policy, portfolioKit } = useCoverageContext()
@@ -386,7 +387,7 @@ export const PolicyContent = (): JSX.Element => {
                 </div>
               </Flex>
               <div style={{ margin: '16px 20px auto' }}>
-                <TileCard>
+                <Flex shadow bgSecondary col rounded px={24} py={16}>
                   <Flex stretch between pb={16}>
                     <Flex col>
                       <Text bold t4 {...gradientStyle}>
@@ -402,48 +403,39 @@ export const PolicyContent = (): JSX.Element => {
                     </Text>
                   </Flex>
                   {(curUserState || returningUserState) && (
-                    <Flex stretch between center pb={24}>
-                      <div
-                        style={{
-                          gridTemplateColumns: '1fr 0fr 1fr 0fr 1fr',
-                          display: 'grid',
-                          position: 'relative',
-                          gap: '12px',
-                        }}
-                      >
-                        <Flex col>
-                          <Text bold t4 textAlignCenter>
-                            My Balance
+                    <Flex bgRaised py={16} px={20} rounded stretch between mb={16}>
+                      <Flex col gap={4}>
+                        <Text bold t7s textAlignCenter>
+                          My Balance
+                        </Text>
+                        <Text textAlignCenter bold t4s dark>
+                          ${truncateValue(scpBalance, 2)}
+                        </Text>
+                      </Flex>
+                      <VerticalSeparator />
+                      <Flex col gap={4}>
+                        <Text bold t7s textAlignCenter>
+                          Policy Status
+                        </Text>
+                        {status ? (
+                          <Text textAlignCenter bold t4s success>
+                            Active
                           </Text>
-                          <Text textAlignCenter bold t3 {...gradientStyle}>
-                            ${truncateValue(scpBalance, 2)}
+                        ) : (
+                          <Text textAlignCenter bold t4s error>
+                            Inactive
                           </Text>
-                        </Flex>
-                        <VerticalSeparator />
-                        <Flex col>
-                          <Text bold t4 textAlignCenter>
-                            Policy Status
-                          </Text>
-                          {status ? (
-                            <Text textAlignCenter bold t3 success>
-                              Active
-                            </Text>
-                          ) : (
-                            <Text textAlignCenter bold t3 error>
-                              Inactive
-                            </Text>
-                          )}
-                        </Flex>
-                        <VerticalSeparator />
-                        <Flex col>
-                          <Text bold t4 textAlignCenter>
-                            Est. Days
-                          </Text>
-                          <Text textAlignCenter bold t3 {...gradientStyle}>
-                            {truncateValue(policyDuration, 2)}
-                          </Text>
-                        </Flex>
-                      </div>
+                        )}
+                      </Flex>
+                      <VerticalSeparator />
+                      <Flex col gap={4}>
+                        <Text bold t7s textAlignCenter>
+                          Est. Days
+                        </Text>
+                        <Text textAlignCenter bold t4s dark>
+                          {truncateValue(policyDuration, 2)}
+                        </Text>
+                      </Flex>
                     </Flex>
                   )}
                   <Flex col gap={12}>
@@ -549,7 +541,7 @@ export const PolicyContent = (): JSX.Element => {
                           noborder
                           onClick={() => handleCtaState(InterfaceState.WITHDRAWING)}
                         >
-                          <Text bold t4s>
+                          <Text bold t4s techygradient>
                             Withdraw
                           </Text>
                         </Button>
@@ -610,7 +602,7 @@ export const PolicyContent = (): JSX.Element => {
                       )}
                     </ButtonWrapper>
                   </Flex>
-                </TileCard>
+                </Flex>
               </div>
               {curPortfolio && curPortfolio.protocols.length > 0 && (
                 <Flex col gap={16} marginAuto pt={36} px={44}>
