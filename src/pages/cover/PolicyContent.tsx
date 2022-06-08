@@ -168,27 +168,16 @@ export const PolicyContent = (): JSX.Element => {
   const getRefundableSOLACEAmount = useCallback(async () => {
     if (!account || !scpObj) {
       setRefundableSOLACEAmount(ZERO)
-      setSignatureObj(undefined)
       return
     }
-    const p = new Price()
-    const priceInfo = await p.getPriceInfo()
-    const signature = priceInfo.signatures[`${activeNetwork.chainId}`]
-    if (!signature) {
-      setRefundableSOLACEAmount(ZERO)
-      setSignatureObj(undefined)
-      return
-    }
-    const tokenSignatureProps: any = Object.values(signature)[0]
     const refundableSOLACEAmount = await scpObj.getRefundableSOLACEAmount(
       account,
-      tokenSignatureProps.price,
-      tokenSignatureProps.deadline,
-      tokenSignatureProps.signature
+      signatureObj.price,
+      signatureObj.deadline,
+      signatureObj.signature
     )
     setRefundableSOLACEAmount(refundableSOLACEAmount)
-    setSignatureObj(tokenSignatureProps)
-  }, [account, activeNetwork.chainId, scpObj])
+  }, [account, scpObj, signatureObj])
 
   const callWithdraw = async () => {
     if (!account || !signatureObj || refundableSOLACEAmount.isZero()) return
@@ -235,6 +224,17 @@ export const PolicyContent = (): JSX.Element => {
   useEffect(() => {
     setEnteredWithdrawal(asyncEnteredWithdrawal)
   }, [asyncEnteredWithdrawal])
+
+  useEffect(() => {
+    const getSignatureObj = async () => {
+      const p = new Price()
+      const priceInfo = await p.getPriceInfo()
+      const signature = priceInfo.signatures[`${activeNetwork.chainId}`]
+      const tokenSignatureProps: any = Object.values(signature)[0]
+      setSignatureObj(tokenSignatureProps)
+    }
+    getSignatureObj()
+  }, [activeNetwork.chainId, latestBlock])
 
   return (
     // <Content>

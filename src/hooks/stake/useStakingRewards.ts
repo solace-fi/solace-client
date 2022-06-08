@@ -12,8 +12,9 @@ import { useGetFunctionGas } from '../provider/useGas'
 import { withBackoffRetries } from '../../utils/time'
 import { useNetwork } from '../../context/NetworkManager'
 
-import { Lock, Staker, GlobalLockInfo } from '@solace-fi/sdk-nightly'
+import { Lock, Staker, GlobalLockInfo, Price } from '@solace-fi/sdk-nightly'
 import { useCachedData } from '../../context/CachedDataManager'
+import { FunctionGasLimits } from '../../constants/mappings/gas'
 
 export const useStakingRewards = () => {
   // const { account } = useWeb3React()
@@ -148,12 +149,71 @@ export const useStakingRewards = () => {
     return { tx, localTx }
   }
 
+  const harvestLockRewardsForScp = async (xsLockIDs: BigNumber[]) => {
+    if (!stakingRewards || xsLockIDs.length == 0 || activeNetwork.config.restrictedFeatures.noStakingRewardsV2)
+      return { tx: null, localTx: null }
+    const p = new Price()
+    const priceInfo = await p.getPriceInfo()
+    const signature = priceInfo.signatures[`${activeNetwork.chainId}`]
+    if (!signature) return { tx: null, localTx: null }
+    const tokenSignatureProps: any = Object.values(signature)[0]
+    let tx = null
+    let type = FunctionName.HARVEST_LOCK_FOR_SCP
+    if (xsLockIDs.length > 1) {
+      // const estGas = await stakingRewards.estimateGas.harvestLocksForScp(
+      //   xsLockIDs,
+      //   tokenSignatureProps.price,
+      //   tokenSignatureProps.deadline,
+      //   tokenSignatureProps.signature
+      // )
+      // console.log('stakingRewards.estimateGas.harvestLocksForScp', estGas.toString())
+      tx = await stakingRewards.harvestLocksForScp(
+        xsLockIDs,
+        tokenSignatureProps.price,
+        tokenSignatureProps.deadline,
+        tokenSignatureProps.signature,
+        {
+          ...gasConfig,
+          gasLimit: FunctionGasLimits['stakingRewards.harvestLocksForScp'],
+          // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        }
+      )
+      type = FunctionName.HARVEST_LOCKS_FOR_SCP
+    } else {
+      // const estGas = await stakingRewards.estimateGas.harvestLockForScp(
+      //   xsLockIDs[0],
+      //   tokenSignatureProps.price,
+      //   tokenSignatureProps.deadline,
+      //   tokenSignatureProps.signature
+      // )
+      // console.log('stakingRewards.estimateGas.harvestLockForScp', estGas.toString())
+      tx = await stakingRewards.harvestLockForScp(
+        xsLockIDs[0],
+        tokenSignatureProps.price,
+        tokenSignatureProps.deadline,
+        tokenSignatureProps.signature,
+        {
+          ...gasConfig,
+          gasLimit: FunctionGasLimits['stakingRewards.harvestLockForScp'],
+          // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        }
+      )
+    }
+    const localTx: LocalTx = {
+      hash: tx.hash,
+      type: type,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
   return {
     getUserPendingRewards,
     getPendingRewardsOfLock,
     getStakedLockInfo,
     getGlobalLockStats,
     harvestLockRewards,
+    harvestLockRewardsForScp,
     compoundLockRewards,
   }
 }

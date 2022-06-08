@@ -18,6 +18,7 @@ import {
 import { useWeb3React } from '@web3-react/core'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useProvider } from '../../context/ProviderManager'
+import { FunctionGasLimits } from '../../constants/mappings/gas'
 
 export const useCoverageFunctions = () => {
   const { activeNetwork } = useNetwork()
@@ -37,15 +38,16 @@ export const useCoverageFunctions = () => {
 
   const purchaseWithStable = async (account: string, coverLimit: BigNumberish, token: string, amount: BigNumberish) => {
     if (!coverageObj) return { tx: null, localTx: null }
-    const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchaseWithStable(
-      account,
-      coverLimit,
-      token,
-      amount
-    )
+    // const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchaseWithStable(
+    //   account,
+    //   coverLimit,
+    //   token,
+    //   amount
+    // )
     const tx = await coverageObj.purchaseWithStable(account, coverLimit, token, amount, {
       ...gasConfig,
-      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+      // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+      gasLimit: FunctionGasLimits['solaceCoverProductV3.purchaseWithStable'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -65,15 +67,15 @@ export const useCoverageFunctions = () => {
     signature: string
   ) => {
     if (!coverageObj) return { tx: null, localTx: null }
-    const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchaseWithNonStable(
-      account,
-      coverLimit,
-      token,
-      amount,
-      price,
-      priceDeadline,
-      signature
-    )
+    // const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchaseWithNonStable(
+    //   account,
+    //   coverLimit,
+    //   token,
+    //   amount,
+    //   price,
+    //   priceDeadline,
+    //   signature
+    // )
     const tx = await coverageObj.purchaseWithNonStable(
       account,
       coverLimit,
@@ -84,7 +86,8 @@ export const useCoverageFunctions = () => {
       signature,
       {
         ...gasConfig,
-        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        gasLimit: FunctionGasLimits['solaceCoverProductV3.purchaseWithNonStable'],
       }
     )
     const localTx: LocalTx = {
@@ -97,10 +100,11 @@ export const useCoverageFunctions = () => {
 
   const purchase = async (account: string, coverLimit: BigNumberish) => {
     if (!coverageObj) return { tx: null, localTx: null }
-    const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchase(account, coverLimit)
+    // const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchase(account, coverLimit)
     const tx = await coverageObj.purchase(account, coverLimit, {
       ...gasConfig,
-      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+      // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+      gasLimit: FunctionGasLimits['solaceCoverProductV3.purchase'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -112,10 +116,11 @@ export const useCoverageFunctions = () => {
 
   const cancel = async () => {
     if (!coverageObj) return { tx: null, localTx: null }
-    const estGas = await coverageObj.solaceCoverProduct.estimateGas.cancel()
+    // const estGas = await coverageObj.solaceCoverProduct.estimateGas.cancel()
     const tx = await coverageObj.cancel({
       ...gasConfig,
-      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+      // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+      gasLimit: FunctionGasLimits['solaceCoverProductV3.cancel'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -133,16 +138,17 @@ export const useCoverageFunctions = () => {
     signature: string
   ) => {
     if (!scpObj) return { tx: null, localTx: null }
-    const estGas = await scpObj.coverPaymentManager.estimateGas.withdraw(
-      amount,
-      account,
-      price,
-      priceDeadline,
-      signature
-    )
+    // const estGas = await scpObj.coverPaymentManager.estimateGas.withdraw(
+    //   amount,
+    //   account,
+    //   price,
+    //   priceDeadline,
+    //   signature
+    // )
     const tx = await scpObj.coverPaymentManager.withdraw(amount, account, price, priceDeadline, signature, {
       ...gasConfig,
-      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+      // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+      gasLimit: FunctionGasLimits['coverPaymentManager.withdraw'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
