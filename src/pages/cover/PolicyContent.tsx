@@ -2,7 +2,7 @@ import useDebounce from '@rooks/use-debounce'
 import { useWeb3React } from '@web3-react/core'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
-import { StyledOptions } from '../../components/atoms/Icon'
+import { StyledExpand, StyledOptions, StyledCalculator } from '../../components/atoms/Icon'
 import { Content, Flex, VerticalSeparator } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
@@ -93,8 +93,8 @@ export const PolicyContent = (): JSX.Element => {
   // const withdrawCta = useMemo(() => [InterfaceState.WITHDRAWING].includes(interfaceState), [interfaceState])
 
   // MANUALLY ADJUST INTERFACE STATE HERE FOR NOW
-  const newUserState = true
-  const curUserState = false
+  const newUserState = false
+  const curUserState = true
   const returningUserState = false
 
   const depositCta = false
@@ -240,7 +240,7 @@ export const PolicyContent = (): JSX.Element => {
     // <Content>
     <div
       style={{
-        // backgroundColor: 'red',
+        backgroundColor: 'pink',
         width: '375px',
         margin: 'auto',
       }}
@@ -255,7 +255,7 @@ export const PolicyContent = (): JSX.Element => {
           <LoaderText text={'Loading'} />
         </Flex>
       ) : (
-        <Flex col gap={16}>
+        <Flex col gap={0}>
           {!firstTime && policyId?.isZero() && showExistingPolicyMessage ? (
             <TileCard>
               <Flex col gap={30} itemsCenter>
@@ -290,7 +290,7 @@ export const PolicyContent = (): JSX.Element => {
             <>
               {curPortfolio && curPortfolio.protocols.length == 0 && newUserState && (
                 <Flex col gap={16} marginAuto style={{ width: '100%' }}>
-                  <Flex col gap={8} marginAuto>
+                  <Flex col gap={0} marginAuto>
                     <Text t4s textAlignCenter>
                       Your portfolio is empty.
                     </Text>
@@ -306,14 +306,19 @@ export const PolicyContent = (): JSX.Element => {
                       noborder
                       onClick={() => handleShowSimulatorModal(true)}
                     >
-                      <Text bold t4s>
-                        Portfolio Simulator
-                      </Text>
+                      <Flex gap={8}>
+                        <Text t4s>
+                          <StyledCalculator size={18} />
+                        </Text>
+                        <Text bold t4s>
+                          Portfolio Simulator
+                        </Text>
+                      </Flex>
                     </Button>
                   </Flex>
                 </Flex>
               )}
-              <Flex center mx={20}>
+              <Flex center mx={20} mt={47}>
                 <div
                   style={{
                     // width: navbarThreshold ? '50%' : '100%',
@@ -342,7 +347,7 @@ export const PolicyContent = (): JSX.Element => {
                       </Text>
                       <Button width={35} height={35} noborder onClick={() => handleShowPortfolioModal(true)}>
                         <Text info>
-                          <StyledOptions size={12} />
+                          <StyledExpand size={12} />
                         </Text>
                       </Button>
                     </Flex>
@@ -380,7 +385,7 @@ export const PolicyContent = (): JSX.Element => {
                   </TileCard>
                 </div>
               </Flex>
-              <div style={{ margin: 'auto 20px' }}>
+              <div style={{ margin: '16px 20px auto' }}>
                 <TileCard>
                   <Flex stretch between pb={16}>
                     <Flex col>
@@ -608,9 +613,9 @@ export const PolicyContent = (): JSX.Element => {
                 </TileCard>
               </div>
               {curPortfolio && curPortfolio.protocols.length > 0 && (
-                <Flex col gap={8} marginAuto pt={36}>
-                  <Text mont t3 textAlignCenter>
-                    See the predicted coverage cost for a customized portfolio through the simulator.
+                <Flex col gap={16} marginAuto pt={36} px={44}>
+                  <Text t4 textAlignCenter>
+                    Get a quote for non-existing portfolio positions by simulating your portfolio.
                   </Text>
                   <Flex stretch flex1>
                     <Button
@@ -620,9 +625,14 @@ export const PolicyContent = (): JSX.Element => {
                       noborder
                       onClick={() => handleShowSimulatorModal(true)}
                     >
-                      <Text bold t4s>
-                        Portfolio Simulator
-                      </Text>
+                      <Flex gap={8}>
+                        <Text t4s>
+                          <StyledCalculator size={18} />
+                        </Text>
+                        <Text bold t4s>
+                          Portfolio Simulator
+                        </Text>
+                      </Flex>
                     </Button>
                   </Flex>
                 </Flex>

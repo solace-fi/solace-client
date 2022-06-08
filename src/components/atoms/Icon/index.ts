@@ -22,6 +22,8 @@ import { GraphDown } from '@styled-icons/bootstrap/GraphDown'
 import { History } from '@styled-icons/boxicons-regular/History'
 import { Info } from '@styled-icons/fluentui-system-regular/Info'
 import { Options } from '@styled-icons/fluentui-system-regular/Options'
+import { Calculator } from '@styled-icons/fluentui-system-regular/Calculator'
+import { Expand } from '@styled-icons/boxicons-regular/Expand'
 import { LinkExternal } from '@styled-icons/boxicons-regular/LinkExternal'
 import { Medium } from '@styled-icons/boxicons-logos/Medium'
 import { Menu } from '@styled-icons/boxicons-regular/Menu'
@@ -150,9 +152,12 @@ export const StyledFolderHistory = styled(FolderHistory)``
 export const StyledHelpCircle = styled(HelpCircle)``
 
 export const StyledOptions = styled(Options)``
+export const StyledCalculator = styled(Calculator)``
 
 export const StyledModelTraining = styled(ModelTraining)``
 
 export const StyledClose = styled(Close)``
 
 export const StyledAdd = styled(Add)``
+
+export const StyledExpand = styled(Expand)``

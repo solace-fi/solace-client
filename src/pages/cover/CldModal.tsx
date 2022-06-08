@@ -113,8 +113,18 @@ export const CldModal = ({ show }: { show: boolean }) => {
     //     </ButtonWrapper>
     //   </Flex>
     // </Modal>
-    <>
-      <Flex justifyEnd>
+    <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative' }} justifyCenter>
+      <Flex
+        itemsCenter
+        justifyCenter
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          height: '50px',
+          width: '50px',
+        }}
+      >
         <Flex onClick={() => handleShowCLDModal(false)}>
           <ModalCloseButton lightColor={appTheme == 'dark'} />
         </Flex>
@@ -159,6 +169,6 @@ export const CldModal = ({ show }: { show: boolean }) => {
           </ButtonWrapper>
         </Flex>
       )}
-    </>
+    </Flex>
   )
 }
