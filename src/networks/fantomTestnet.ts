@@ -13,6 +13,14 @@ import { FTMSCAN_API_KEY } from '../constants'
 import { NetworkConfig } from '../constants/types'
 import FantomLogo from '../resources/svg/networks/fantom-logo.svg'
 import solaceCoverProductV2ABI from '../constants/metadata/SolaceCoverProductV2.json'
+import solaceCoverProductV3ABI from '../constants/metadata/SolaceCoverProductV3.json'
+import coverPaymentManagerABI from '../constants/metadata/CoverPaymentManager.json'
+import stakingRewardsV2ABI from '../constants/metadata/StakingRewardsV2.json'
+import {
+  COVER_PAYMENT_MANAGER_ADDRESS,
+  SOLACE_COVER_PRODUCT_V3_ADDRESS,
+  STAKING_REWARDS_V2_ADDRESS,
+} from '@solace-fi/sdk-nightly'
 
 const chainId = 4002
 
@@ -57,6 +65,18 @@ export const FantomTestnetNetwork: NetworkConfig = {
       stakingRewards: {
         addr: KEY_ADDRS.STAKING_REWARDS,
         abi: stakingRewardsABI.abi,
+      },
+      solaceCoverProductV3: {
+        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
+        abi: solaceCoverProductV3ABI,
+      },
+      coverPaymentManager: {
+        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
+        abi: coverPaymentManagerABI,
+      },
+      stakingRewardsV2: {
+        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
+        abi: stakingRewardsV2ABI,
       },
     },
     specialContracts: {},
