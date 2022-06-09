@@ -92,7 +92,7 @@ export const useCoverageFunctions = () => {
     )
     const localTx: LocalTx = {
       hash: tx.hash,
-      type: FunctionName.COVER_PURCHASE_WITH_STABLE,
+      type: FunctionName.COVER_PURCHASE_WITH_NON_STABLE,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }

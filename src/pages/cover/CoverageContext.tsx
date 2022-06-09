@@ -1,4 +1,4 @@
-import { SCP, SolaceRiskProtocol, SolaceRiskSeries } from '@solace-fi/sdk-nightly'
+import { Price, SCP, SolaceRiskProtocol, SolaceRiskSeries } from '@solace-fi/sdk-nightly'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { BKPT_2, BKPT_NAVBAR, MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
 import { FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
@@ -46,6 +46,7 @@ type CoverageContextType = {
     userState: InterfaceState
     handleUserState: (state: InterfaceState) => void
     handleCtaState: (state: InterfaceState | undefined) => void
+    handleTransactionLoading: (setLoading: boolean) => void
     portfolioLoading: boolean
     seriesLoading: boolean
     balancesLoading: boolean
@@ -106,6 +107,7 @@ type CoverageContextType = {
     availCovCap: BigNumber
     scpBalance: string
     scpObj?: SCP
+    signatureObj: any
     depositApproval: boolean
     unlimitedApproveCPM: (tokenAddr: string) => void
   }
@@ -122,7 +124,7 @@ const CoverageContext = createContext<CoverageContextType>({
     handleShowSimulatorModal: () => undefined,
     showSimCoverModal: false,
     handleShowSimCoverModal: () => undefined,
-    interfaceState: InterfaceState.LOADING,
+    interfaceState: InterfaceState.NEW_USER,
     userState: InterfaceState.NEW_USER,
     handleUserState: () => undefined,
     handleCtaState: () => undefined,
@@ -132,6 +134,7 @@ const CoverageContext = createContext<CoverageContextType>({
     coverageLoading: true,
     existingPolicyLoading: true,
     transactionLoading: false,
+    handleTransactionLoading: () => undefined,
   },
   input: {
     enteredDeposit: '',
@@ -186,6 +189,7 @@ const CoverageContext = createContext<CoverageContextType>({
     availCovCap: ZERO,
     scpBalance: '',
     scpObj: undefined,
+    signatureObj: undefined,
     depositApproval: false,
     unlimitedApproveCPM: () => undefined,
   },
@@ -196,7 +200,7 @@ const CoverageManager: React.FC = (props) => {
   const { appTheme, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
   const { tokenPriceMapping, minute, reload } = useCachedData()
-  const { signer } = useProvider()
+  const { signer, latestBlock } = useProvider()
   const { makeTxToast } = useNotifications()
 
   const { width } = useWindowDimensions()
@@ -219,6 +223,7 @@ const CoverageManager: React.FC = (props) => {
   const [enteredCoverLimit, setEnteredCoverLimit] = useState<BigNumber>(ZERO)
   const [simCoverLimit, setSimCoverLimit] = useState<BigNumber>(ZERO)
   const [scpObj, setScpObj] = useState<SCP | undefined>(undefined)
+  const [signatureObj, setSignatureObj] = useState<any>(undefined)
 
   const {
     highestPosition: curHighestPosition,
@@ -264,24 +269,9 @@ const CoverageManager: React.FC = (props) => {
   )
   const { loading: balancesLoading, batchBalances } = useBatchBalances(coinOptions.map((c) => c.address))
 
-  const loading = useMemo(
-    () =>
-      portfolioLoading ||
-      seriesLoading ||
-      balancesLoading ||
-      coverageLoading ||
-      existingPolicyLoading ||
-      transactionLoading,
-    [portfolioLoading, seriesLoading, balancesLoading, coverageLoading, existingPolicyLoading, transactionLoading]
-  )
-
   const [userState, setUserState] = useState<InterfaceState>(InterfaceState.NEW_USER)
   const [ctaState, setCtaState] = useState<InterfaceState | undefined>(undefined)
-  const interfaceState = useMemo(() => (loading ? InterfaceState.LOADING : ctaState ?? userState), [
-    loading,
-    userState,
-    ctaState,
-  ])
+  const interfaceState = useMemo(() => ctaState ?? userState, [userState, ctaState])
   const navbarThreshold = useMemo(() => width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR), [rightSidebar, width])
   const seriesLogos = useMemo(() => {
     return series
@@ -388,6 +378,10 @@ const CoverageManager: React.FC = (props) => {
     [coinOptions, resetDeposit]
   )
 
+  const handleTransactionLoading = useCallback((setLoading: boolean) => {
+    setTransactionLoading(setLoading)
+  }, [])
+
   const handleSimPortfolio = useCallback((portfolioScore: SolaceRiskScore | undefined) => {
     setSimPortfolio(portfolioScore)
   }, [])
@@ -485,6 +479,21 @@ const CoverageManager: React.FC = (props) => {
     setSpenderAddress(scpObj.coverPaymentManager.address)
   }, [activeNetwork, signer])
 
+  useEffect(() => {
+    const getSignatureObj = async () => {
+      const p = new Price()
+      const priceInfo = await p.getPriceInfo()
+      const signature = priceInfo.signatures[`${activeNetwork.chainId}`]
+      if (!signature) {
+        setSignatureObj(undefined)
+        return
+      }
+      const tokenSignatureProps: any = Object.values(signature)[0]
+      setSignatureObj(tokenSignatureProps)
+    }
+    getSignatureObj()
+  }, [activeNetwork.chainId, latestBlock])
+
   const value = useMemo<CoverageContextType>(
     () => ({
       intrface: {
@@ -507,6 +516,7 @@ const CoverageManager: React.FC = (props) => {
         handleShowSimCoverModal,
         handleUserState, // change type of user
         handleCtaState, // is the user depositing, withdrawing, or neither?
+        handleTransactionLoading,
       },
       input: {
         enteredDeposit, // amount of deposit entered, in units of selected coin
@@ -561,6 +571,7 @@ const CoverageManager: React.FC = (props) => {
         availCovCap, // available cover capacity for this chain
         scpBalance, // the user's scp balance
         scpObj,
+        signatureObj,
         depositApproval,
         unlimitedApproveCPM,
       },
@@ -613,6 +624,7 @@ const CoverageManager: React.FC = (props) => {
       showSimulatorModal,
       showSimCoverModal,
       scpObj,
+      signatureObj,
       depositApproval,
       handleEnteredCoverLimit,
       handleSimPortfolio,
@@ -627,6 +639,7 @@ const CoverageManager: React.FC = (props) => {
       handleCtaState,
       handleShowSimulatorModal,
       handleShowSimCoverModal,
+      handleTransactionLoading,
       unlimitedApproveCPM,
     ]
   )

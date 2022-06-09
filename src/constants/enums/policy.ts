@@ -4,7 +4,6 @@ export enum InterfaceState {
   DEPOSITING = 'DEPOSITING',
   WITHDRAWING = 'WITHDRAWING',
   RETURNING_USER = 'RETURNING_USER',
-  LOADING = 'LOADING',
 }
 
 export enum ChosenLimit {
