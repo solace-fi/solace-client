@@ -495,7 +495,7 @@ export const useCheckIsCoverageActive = () => {
     }
     getStatus()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, latestBlock, activeNetwork.config.restrictedFeatures.noCoverageV3, version])
+  }, [account, latestBlock, activeNetwork, version])
 
   return { policyId, status, coverageLimit, mounting }
 }

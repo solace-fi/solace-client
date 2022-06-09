@@ -477,6 +477,7 @@ const CoverageManager: React.FC = (props) => {
     const scpObj = new SCP(activeNetwork.chainId, signer)
     setScpObj(scpObj)
     setSpenderAddress(scpObj.coverPaymentManager.address)
+    setCtaState(undefined)
   }, [activeNetwork, signer])
 
   useEffect(() => {

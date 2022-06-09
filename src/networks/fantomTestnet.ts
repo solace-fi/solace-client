@@ -64,7 +64,6 @@ export const FantomTestnetNetwork: NetworkConfig = {
       noBondingV1: true,
       noFarmingV1: true,
       noStakingV1: true,
-      noStakingRewardsV2: true,
     },
     specialFeatures: {},
   },
