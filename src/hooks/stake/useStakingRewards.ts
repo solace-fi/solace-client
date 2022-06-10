@@ -18,7 +18,7 @@ import { FunctionGasLimits } from '../../constants/mappings/gas'
 
 export const useStakingRewards = () => {
   // const { account } = useWeb3React()
-  const { provider } = useProvider()
+  const { provider, signer } = useProvider()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { stakingRewards, xsLocker } = useMemo(() => keyContracts, [keyContracts])
@@ -150,7 +150,7 @@ export const useStakingRewards = () => {
   }
 
   const harvestLockRewardsForScp = async (xsLockIDs: BigNumber[]) => {
-    if (!stakingRewards || xsLockIDs.length == 0 || activeNetwork.config.restrictedFeatures.noStakingRewardsV2)
+    if (xsLockIDs.length == 0 || activeNetwork.config.restrictedFeatures.noStakingRewardsV2)
       return { tx: null, localTx: null }
     const p = new Price()
     const priceInfo = await p.getPriceInfo()
@@ -159,6 +159,7 @@ export const useStakingRewards = () => {
     const tokenSignatureProps: any = Object.values(signature)[0]
     let tx = null
     let type = FunctionName.HARVEST_LOCK_FOR_SCP
+    const staker = new Staker(activeNetwork.chainId, signer)
     if (xsLockIDs.length > 1) {
       // const estGas = await stakingRewards.estimateGas.harvestLocksForScp(
       //   xsLockIDs,
@@ -167,7 +168,7 @@ export const useStakingRewards = () => {
       //   tokenSignatureProps.signature
       // )
       // console.log('stakingRewards.estimateGas.harvestLocksForScp', estGas.toString())
-      tx = await stakingRewards.harvestLocksForScp(
+      tx = await staker.harvestLocksForScp(
         xsLockIDs,
         tokenSignatureProps.price,
         tokenSignatureProps.deadline,
@@ -187,7 +188,7 @@ export const useStakingRewards = () => {
       //   tokenSignatureProps.signature
       // )
       // console.log('stakingRewards.estimateGas.harvestLockForScp', estGas.toString())
-      tx = await stakingRewards.harvestLockForScp(
+      tx = await staker.harvestLockForScp(
         xsLockIDs[0],
         tokenSignatureProps.price,
         tokenSignatureProps.deadline,

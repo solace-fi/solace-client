@@ -6,15 +6,26 @@ import { useTransactionExecution } from '../../../../hooks/internal/useInputAmou
 import { useStakingRewards } from '../../../../hooks/stake/useStakingRewards'
 import { FunctionName, InfoBoxType } from '../../../../constants/enums'
 import { StyledForm } from '../../atoms/StyledForm'
+import { useNetwork } from '../../../../context/NetworkManager'
+import { useCheckIsCoverageActive } from '../../../../hooks/policy/useSolaceCoverProductV3'
+import { ZERO } from '../../../../constants'
 
 export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
+  const { activeNetwork } = useNetwork()
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { harvestLockRewards, compoundLockRewards } = useStakingRewards()
+  const { harvestLockRewards, compoundLockRewards, harvestLockRewardsForScp } = useStakingRewards()
+  const { policyId } = useCheckIsCoverageActive()
 
   const callHarvestLockRewards = async () => {
     await harvestLockRewards([lock.xsLockID])
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callHarvestLockRewards', err, FunctionName.HARVEST_LOCK))
+  }
+
+  const callHarvestLockRewardsForSCP = async () => {
+    await harvestLockRewardsForScp([lock.xsLockID])
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callHarvestLockRewardsForSCP', err, FunctionName.HARVEST_LOCK_FOR_SCP))
   }
 
   const callCompoundLockRewards = async () => {
@@ -47,6 +58,17 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
           <Button secondary info noborder disabled={lock.pendingRewards.isZero()} onClick={callCompoundLockRewards}>
             Compound
           </Button>
+          {!activeNetwork.config.restrictedFeatures.noStakingRewardsV2 && policyId?.gt(ZERO) && (
+            <Button
+              secondary
+              info
+              noborder
+              disabled={lock.pendingRewards.isZero()}
+              onClick={callHarvestLockRewardsForSCP}
+            >
+              Pay Premium
+            </Button>
+          )}
         </ButtonWrapper>
       </StyledForm>
     </div>

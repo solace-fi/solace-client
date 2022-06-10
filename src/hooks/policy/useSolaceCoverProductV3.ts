@@ -92,7 +92,7 @@ export const useCoverageFunctions = () => {
     )
     const localTx: LocalTx = {
       hash: tx.hash,
-      type: FunctionName.COVER_PURCHASE_WITH_STABLE,
+      type: FunctionName.COVER_PURCHASE_WITH_NON_STABLE,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
@@ -114,10 +114,10 @@ export const useCoverageFunctions = () => {
     return { tx, localTx }
   }
 
-  const cancel = async () => {
+  const cancel = async (_premium: BigNumberish, _policyholder: string, _deadline: BigNumberish, _signature: string) => {
     if (!coverageObj) return { tx: null, localTx: null }
     // const estGas = await coverageObj.solaceCoverProduct.estimateGas.cancel()
-    const tx = await coverageObj.cancel({
+    const tx = await coverageObj.cancel(_premium, _policyholder, _deadline, _signature, {
       ...gasConfig,
       // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       gasLimit: FunctionGasLimits['solaceCoverProductV3.cancel'],
@@ -319,13 +319,13 @@ export const useCoverageFunctions = () => {
     }
   }
 
-  const debtOf = async (policyholder: string): Promise<BigNumber> => {
-    if (!coverageObj) return ZERO
+  const getBalanceOfNonRefundable = async (account: string): Promise<BigNumber> => {
+    if (!scpObj) return ZERO
     try {
-      const d = await withBackoffRetries(async () => coverageObj.debtOf(policyholder))
+      const d = await withBackoffRetries(async () => scpObj.balanceOfNonRefundable(account))
       return d
     } catch (e) {
-      console.log('error debtOf ', e)
+      console.log('error getBalanceOfNonRefundable ', e)
       return ZERO
     }
   }
@@ -337,6 +337,7 @@ export const useCoverageFunctions = () => {
     getMaxCover,
     getPolicyStatus,
     getMinRequiredAccountBalance,
+    getBalanceOfNonRefundable,
     getMinScpRequired,
     tokenURI,
     paused,
@@ -345,7 +346,6 @@ export const useCoverageFunctions = () => {
     latestChargedTime,
     coverLimitOf,
     policyOf,
-    debtOf,
     purchase,
     purchaseWithStable,
     purchaseWithNonStable,
@@ -495,7 +495,7 @@ export const useCheckIsCoverageActive = () => {
     }
     getStatus()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, latestBlock, activeNetwork.config.restrictedFeatures.noCoverageV3, version])
+  }, [account, latestBlock, activeNetwork, version])
 
   return { policyId, status, coverageLimit, mounting }
 }

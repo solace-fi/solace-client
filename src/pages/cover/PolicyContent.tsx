@@ -21,7 +21,6 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { LoaderText } from '../../components/molecules/LoaderText'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { parseUnits } from 'ethers/lib/utils'
-import { Price, SCP } from '@solace-fi/sdk-nightly'
 import { BigNumber } from 'ethers'
 import { RaisedBox } from '../../components/atoms/Box'
 
@@ -31,6 +30,7 @@ export const PolicyContent = (): JSX.Element => {
     navbarThreshold,
     coverageLoading,
     existingPolicyLoading,
+    transactionLoading,
     portfolioLoading,
     interfaceState,
     userState,
@@ -39,6 +39,7 @@ export const PolicyContent = (): JSX.Element => {
     handleShowPortfolioModal,
     handleShowCLDModal,
     handleShowSimulatorModal,
+    handleTransactionLoading,
   } = intrface
   const { bigButtonStyle, gradientStyle } = styles
   const {
@@ -60,7 +61,10 @@ export const PolicyContent = (): JSX.Element => {
     scpBalance,
     doesMeetMinReqAccBal,
     scpObj,
+    signatureObj,
     depositApproval,
+    minReqScpBal,
+    minReqAccBal,
     unlimitedApproveCPM,
   } = policy
   const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
@@ -69,12 +73,18 @@ export const PolicyContent = (): JSX.Element => {
   const [enteredWithdrawal, setEnteredWithdrawal] = useState<string>(asyncEnteredWithdrawal)
 
   const { account } = useWeb3React()
-  const { latestBlock, signer } = useProvider()
   const { activeNetwork, changeNetwork } = useNetwork()
   const { isMobile } = useWindowDimensions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
-  const { purchaseWithStable, purchaseWithNonStable, purchase, cancel, withdraw } = useCoverageFunctions()
+  const {
+    purchaseWithStable,
+    purchaseWithNonStable,
+    purchase,
+    cancel,
+    withdraw,
+    getBalanceOfNonRefundable,
+  } = useCoverageFunctions()
 
   const [showExistingPolicyMessage, setShowExistingPolicyMessage] = useState<boolean>(true)
   const firstTime = useMemo(() => existingPolicyId.isZero(), [existingPolicyId])
@@ -102,8 +112,6 @@ export const PolicyContent = (): JSX.Element => {
   const [refundableSOLACEAmount, setRefundableSOLACEAmount] = useState<BigNumber>(ZERO)
   const [withdrawingMoreThanRefundable, setWithdrawingMoreThanRefundable] = useState<boolean>(false)
 
-  const [signatureObj, setSignatureObj] = useState<any>(undefined)
-
   const isAcceptableWithdrawal = useMemo(() => {
     const BN_enteredWithdrawal = parseUnits(formatAmount(enteredWithdrawal), 18)
     if (BN_enteredWithdrawal.isZero()) return false
@@ -113,37 +121,42 @@ export const PolicyContent = (): JSX.Element => {
 
   const callPurchase = async () => {
     if (!account) return
+    handleTransactionLoading(true)
     await purchase(account, enteredCoverLimit)
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
+      .then((res) => _handleToast(res.tx, res.localTx))
+      .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
   }
 
   const callPurchaseWithStable = async () => {
     if (!account || !depositApproval) return
+    handleTransactionLoading(true)
     await purchaseWithStable(
       account,
       enteredCoverLimit,
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals)
     )
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
+      .then((res) => _handleToast(res.tx, res.localTx))
+      .catch((err) => _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
   }
 
   const callPurchaseWithNonStable = async () => {
-    if (!account || !depositApproval) return
+    if (!account || !depositApproval || !signatureObj) return
+    const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
+    const tokenSignature: any = Object.values(signature)[0]
+    handleTransactionLoading(true)
     await purchaseWithNonStable(
       account,
       enteredCoverLimit,
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals),
-      signatureObj.price,
-      signatureObj.deadline,
-      signatureObj.signature
+      tokenSignature.price,
+      tokenSignature.deadline,
+      tokenSignature.signature
     )
-      .then((res) => handleToast(res.tx, res.localTx))
+      .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) =>
-        handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
+        _handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
       )
   }
 
@@ -158,10 +171,55 @@ export const PolicyContent = (): JSX.Element => {
   }
 
   const callCancel = async () => {
-    if (!account) return
-    await cancel()
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callCancel', err, FunctionName.COVER_CANCEL))
+    if (!account || !signatureObj) return
+    const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
+    const tokenSignature: any = Object.values(signature)[0]
+    handleTransactionLoading(true)
+    // await cancel()
+    //   .then((res) => _handleToast(res.tx, res.localTx))
+    //   .catch((err) => _handleContractCallError('callCancel', err, FunctionName.COVER_CANCEL))
+  }
+
+  const callWithdraw = async () => {
+    if (!account || !signatureObj || refundableSOLACEAmount.isZero()) return
+    const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
+    const tokenSignature: any = Object.values(signature)[0]
+    handleTransactionLoading(true)
+    const amountToWithdraw = refundableSOLACEAmount.gt(parseUnits(enteredWithdrawal, selectedCoin.decimals))
+      ? parseUnits(enteredWithdrawal, selectedCoin.decimals)
+      : refundableSOLACEAmount
+    const nr = await getBalanceOfNonRefundable(account)
+    let refundableSCP1 = ZERO
+    let refundableSCP2 = ZERO
+    if (parseUnits(scpBalance, 18).gt(nr)) {
+      refundableSCP1 = parseUnits(scpBalance, 18).sub(nr)
+      const float_refundableSCP1 = floatUnits(refundableSCP1, 18)
+      refundableSCP2 = parseUnits(scpBalance, 18).sub(minReqScpBal)
+      const float_refundableSCP2 = floatUnits(refundableSCP2, 18)
+      console.log('current cover limit', floatUnits(curCoverageLimit, 18))
+      console.log('mrab', floatUnits(minReqAccBal, 18))
+      console.log('scpBalance', scpBalance)
+      console.log('nonrefundable', floatUnits(nr, 18))
+      console.log('minScpRequired', floatUnits(minReqScpBal, 18))
+      console.log('scpBalance - nonrefundable SCP', float_refundableSCP1)
+      console.log('scpBalance - minScpRequired SCP', float_refundableSCP2)
+      console.log('refundableSOLACEAmount SOLACE', floatUnits(refundableSOLACEAmount, 18))
+      console.log('scpBalance - nonrefundable SOLACE', float_refundableSCP1 / signatureObj.price)
+      console.log('scpBalance - minScpRequired SOLACE', float_refundableSCP2 / signatureObj.price)
+    }
+    await withdraw(account, amountToWithdraw, tokenSignature.price, tokenSignature.deadline, tokenSignature.signature)
+      .then((res) => _handleToast(res.tx, res.localTx))
+      .catch((err) => _handleContractCallError('callWithdraw', err, FunctionName.COVER_WITHDRAW))
+  }
+
+  const _handleToast = (tx: any, localTx: any) => {
+    handleTransactionLoading(false)
+    handleToast(tx, localTx)
+  }
+
+  const _handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
+    handleContractCallError(functionName, err, txType)
+    handleTransactionLoading(false)
   }
 
   const getRefundableSOLACEAmount = useCallback(async () => {
@@ -169,24 +227,16 @@ export const PolicyContent = (): JSX.Element => {
       setRefundableSOLACEAmount(ZERO)
       return
     }
+    const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
+    const tokenSignature: any = Object.values(signature)[0]
     const refundableSOLACEAmount = await scpObj.getRefundableSOLACEAmount(
       account,
-      signatureObj.price,
-      signatureObj.deadline,
-      signatureObj.signature
+      tokenSignature.price,
+      tokenSignature.deadline,
+      tokenSignature.signature
     )
     setRefundableSOLACEAmount(refundableSOLACEAmount)
-  }, [account, scpObj, signatureObj])
-
-  const callWithdraw = async () => {
-    if (!account || !signatureObj || refundableSOLACEAmount.isZero()) return
-    const amountToWithdraw = refundableSOLACEAmount.gt(parseUnits(enteredWithdrawal, selectedCoin.decimals))
-      ? parseUnits(enteredWithdrawal, selectedCoin.decimals)
-      : refundableSOLACEAmount
-    await withdraw(account, amountToWithdraw, signatureObj.price, signatureObj.deadline, signatureObj.signature)
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callWithdraw', err, FunctionName.COVER_WITHDRAW))
-  }
+  }, [account, scpObj, signatureObj, activeNetwork])
 
   const _editWithdrawal = useDebounce(() => {
     handleEnteredWithdrawal(enteredWithdrawal)
@@ -223,17 +273,6 @@ export const PolicyContent = (): JSX.Element => {
   useEffect(() => {
     setEnteredWithdrawal(asyncEnteredWithdrawal)
   }, [asyncEnteredWithdrawal])
-
-  useEffect(() => {
-    const getSignatureObj = async () => {
-      const p = new Price()
-      const priceInfo = await p.getPriceInfo()
-      const signature = priceInfo.signatures[`${activeNetwork.chainId}`]
-      const tokenSignatureProps: any = Object.values(signature)[0]
-      setSignatureObj(tokenSignatureProps)
-    }
-    getSignatureObj()
-  }, [activeNetwork.chainId, latestBlock])
 
   return (
     // <Content>

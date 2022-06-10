@@ -16,10 +16,18 @@ import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
 import xSolaceMigratorABI from '../constants/metadata/xSolaceMigrator.json'
 import cpFarmABI from '../constants/metadata/CpFarm.json'
 import solaceCoverProductABI from '../constants/metadata/SolaceCoverProduct.json'
+import solaceCoverProductV3ABI from '../constants/metadata/SolaceCoverProductV3.json'
+import coverPaymentManagerABI from '../constants/metadata/CoverPaymentManager.json'
+import stakingRewardsV2ABI from '../constants/metadata/StakingRewardsV2.json'
 
 import { KEY_ADDRS } from '../constants/addresses/rinkeby'
 import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/rinkeby'
+import {
+  COVER_PAYMENT_MANAGER_ADDRESS,
+  SOLACE_COVER_PRODUCT_V3_ADDRESS,
+  STAKING_REWARDS_V2_ADDRESS,
+} from '@solace-fi/sdk-nightly'
 
 const chainId = 4
 
@@ -88,8 +96,20 @@ export const RinkebyNetwork: NetworkConfig = {
         addr: KEY_ADDRS.SOLACE_COVER_PRODUCT,
         abi: solaceCoverProductABI.abi,
       },
+      solaceCoverProductV3: {
+        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
+        abi: solaceCoverProductV3ABI,
+      },
+      coverPaymentManager: {
+        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
+        abi: coverPaymentManagerABI,
+      },
+      stakingRewardsV2: {
+        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
+        abi: stakingRewardsV2ABI,
+      },
     },
-    restrictedFeatures: { noStakingRewardsV2: true },
+    restrictedFeatures: {},
     specialFeatures: {
       solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },

@@ -87,6 +87,7 @@ import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWal
 import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
 import { useWeb3React } from '@web3-react/core'
 import { LockData, UserLocksData, UserLocksInfo } from '@solace-fi/sdk-nightly'
+import { useCheckIsCoverageActive } from '../../hooks/policy/useSolaceCoverProductV3'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -393,8 +394,9 @@ export default function Stake(): JSX.Element {
   const { xSolaceV1Balance } = useXSolaceV1Balance()
   const { getUserLocks } = useUserLockData()
   const { withdrawFromLock } = useXSLocker()
-  const { harvestLockRewards, compoundLockRewards } = useStakingRewards()
+  const { harvestLockRewards, compoundLockRewards, harvestLockRewardsForScp } = useStakingRewards()
   const { handleToast, handleContractCallError } = useTransactionExecution()
+  const { policyId } = useCheckIsCoverageActive()
 
   const calculateTotalHarvest = (locks: LockData[]): BigNumber =>
     locks.reduce((acc, lock) => acc.add(lock.pendingRewards), ZERO)
@@ -511,6 +513,16 @@ export default function Stake(): JSX.Element {
     await harvestLockRewards(eligibleIds)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('handleBatchHarvest', err, type))
+  }
+
+  const handleBatchHarvestForScp = async () => {
+    const selectedLocks = getCheckedLocks(locks, locksChecked)
+    const eligibleLocks = selectedLocks.filter((lock) => !lock.pendingRewards.isZero())
+    const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
+    const type = eligibleIds.length > 1 ? FunctionName.HARVEST_LOCKS_FOR_SCP : FunctionName.HARVEST_LOCK_FOR_SCP
+    await harvestLockRewardsForScp(eligibleIds)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('handleBatchHarvestForScp', err, type))
   }
 
   const handleBatchCompound = async () => {
@@ -781,6 +793,19 @@ export default function Stake(): JSX.Element {
                         >
                           Compound Rewards
                         </Button>
+                        {!activeNetwork.config.restrictedFeatures.noStakingRewardsV2 && policyId?.gt(ZERO) && (
+                          <Button
+                            secondary
+                            info
+                            noborder
+                            pl={10}
+                            pr={10}
+                            onClick={handleBatchHarvestForScp}
+                            disabled={rewardsAreZero}
+                          >
+                            Pay Premium
+                          </Button>
+                        )}
                         <Button
                           secondary
                           info
