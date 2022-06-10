@@ -11,14 +11,18 @@ import usePrevious from '../../hooks/internal/usePrevious'
 import { SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { TileCard } from '../../components/molecules/TileCard'
 import { LoaderText } from '../../components/molecules/LoaderText'
-import { CoverageLimitSelector } from '../soteria/CoverageLimitSelector'
+import { CoverageLimitSelector, CoverageLimitSelector2 } from '../soteria/CoverageLimitSelector'
 import { Projections } from './Projections'
 import { useWeb3React } from '@web3-react/core'
 import { StyledAdd } from '../../components/atoms/Icon'
 import { Text } from '../../components/atoms/Typography'
-import { Modal } from '../../components/molecules/Modal'
+import { Modal, ModalCloseButton } from '../../components/molecules/Modal'
+import { useGeneral } from '../../context/GeneralManager'
+import { Accordion } from '../../components/atoms/Accordion'
 
 export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => {
+  const { appTheme } = useGeneral()
+
   const { active } = useWeb3React()
   const { portfolioKit, styles, seriesKit, intrface } = useCoverageContext()
   const { series } = seriesKit
@@ -34,6 +38,17 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
   const scoreToUse = useMemo(() => simPortfolio ?? portfolioScore, [portfolioScore, simPortfolio])
 
   const [editableProtocols, setEditableProtocols] = useState<LocalSolaceRiskProtocol[]>([])
+
+  const [bottomButtonHeight, setBottomButtonHeight] = useState(91)
+  const [addingProtocol, setAddingProtocol] = useState(false)
+  useEffect(() => {
+    // initial button height is 91, but when it opens, it's a bit taller
+    if (addingProtocol) {
+      setBottomButtonHeight(91 + 50)
+    } else {
+      setBottomButtonHeight(91)
+    }
+  }, [addingProtocol])
 
   const editableProtocolLookup = useMemo(() => {
     const lookup: { [key: string]: LocalSolaceRiskProtocol } = {}
@@ -230,36 +245,52 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
   }, [portfolioScore, portfolioPrev])
 
   return (
-    <Modal isOpen={show} modalTitle={'Portfolio Simulator'} handleClose={() => handleShowSimulatorModal(false)}>
+    <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative' }}>
+      <Flex py={18} itemsCenter between px={20}>
+        <Text t1s mont semibold>
+          Portfolio Simulator
+        </Text>
+        <Flex onClick={() => handleShowSimulatorModal(false)}>
+          <ModalCloseButton lightColor={appTheme == 'dark'} />
+        </Flex>
+      </Flex>
+      {/* <Flex
+        itemsCenter
+        justifyCenter
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          height: '50px',
+          width: '50px',
+        }}
+      >
+      </Flex> */}
       {/* <Content style={{ transition: 'all 350ms ease 0s' }}> */}
-      <Flex col gap={8}>
+      <Flex col gap={12} px={20} pb={18}>
         {(portfolioLoading && active) || compiling || simulating ? (
           <LoaderText text={portfolioLoading && active ? 'Loading' : simulating ? 'Simulating' : 'Compiling'} t6 />
         ) : (
           <Projections portfolioScore={scoreToUse} coverageLimit={simCoverageLimit} />
         )}
-        <TileCard>
-          <CoverageLimitSelector portfolioScore={scoreToUse} setNewCoverageLimit={editCoverageLimit} />
-        </TileCard>
-        <Button
-          {...gradientStyle}
-          // secondary
-          separator
-          {...bigButtonStyle}
-          onClick={addItem}
-          disabled={portfolioLoading && active}
-          // noborder
-          height={51}
-        >
-          <Flex itemsCenter gap={5}>
-            {/* <Text info style={{ display: 'flex', alignItems: 'center' }}>
-              <StyledAdd size={14} />
-            </Text> */}
-            <Text techygradient t4s>
-              + Add Position
-            </Text>
-          </Flex>
-        </Button>
+        {/* <TileCard>
+          <CoverageLimitSelector2 portfolioScore={scoreToUse} setNewCoverageLimit={editCoverageLimit} />
+        </TileCard> */}
+      </Flex>
+      <Flex
+        thinScrollbar
+        col
+        gap={12}
+        pt={20}
+        px={20}
+        pb={10}
+        style={{
+          overflowY: 'auto',
+          // why this height specifically? i have no clue, but it works pixel-perfectly and it's responive (??)
+          height: `calc(100% - ${376}px)`,
+        }}
+        bgError
+      >
         {editableProtocols.map((protocol: LocalSolaceRiskProtocol) => {
           const riskColor = getColorByTier(protocol.tier)
           return (
@@ -278,20 +309,72 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
             />
           )
         })}
-        {editableProtocols.length > 8 && (
+        {editableProtocols.map((protocol: LocalSolaceRiskProtocol) => {
+          const riskColor = getColorByTier(protocol.tier)
+          return (
+            <Protocol
+              key={protocol.appId}
+              protocol={protocol}
+              editableProtocolAppIds={editableProtocolAppIds}
+              riskColor={riskColor}
+              editingItem={editingItem}
+              addItem={addItem}
+              deleteItem={deleteItem}
+              editId={editId}
+              editAmount={editAmount}
+              handleEditingItem={handleEditingItem}
+              simulating={simulating}
+            />
+          )
+        })}
+      </Flex>
+      {editableProtocols.length > 8 && (
+        <Button
+          {...gradientStyle}
+          secondary
+          {...bigButtonStyle}
+          onClick={addItem}
+          disabled={portfolioLoading && active}
+          noborder
+        >
+          <StyledAdd size={16} /> Add Custom Position
+        </Button>
+      )}
+      {/* BOTTOM BUTTONS */}
+      <Flex
+        itemsCenter
+        justifyCenter
+        style={{
+          position: 'absolute',
+          bottom: '0',
+          left: '0',
+          boxSizing: 'border-box',
+          width: '100%',
+        }}
+        p={20}
+        bgSecondary
+      >
+        {!addingProtocol ? (
           <Button
-            {...gradientStyle}
+            // {...gradientStyle}
             secondary
+            raised
             {...bigButtonStyle}
             onClick={addItem}
             disabled={portfolioLoading && active}
-            noborder
+            // noborder
+            height={51}
           >
-            <StyledAdd size={16} /> Add Custom Position
+            <Text techygradient t4s>
+              + Add Position
+            </Text>
           </Button>
+        ) : (
+          <Flex p={16} col bgRaised rounded>
+            a
+          </Flex>
         )}
       </Flex>
-      {/* </Content> */}
-    </Modal>
+    </Flex>
   )
 }

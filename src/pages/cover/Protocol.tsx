@@ -170,45 +170,68 @@ export const Protocol: React.FC<{
         </Button> */}
         <Flex col gap={8}>
           <Flex stretch between gap={10}>
-            <div
-              style={{
-                width: '100%',
-              }}
-            >
-              {/* <div style={{ background: 'red', height: '32px' }}> aAa </div> */}
-              {protocolsOpen ? (
-                <ThinButton
-                  onClick={() => {
-                    setDropdownOpen(!dropdownOpen)
+            {/* <div style={{ background: 'red', height: '32px' }}> aAa </div> */}
+            {protocolsOpen ? (
+              <>
+                <div
+                  style={{
+                    width: '100%',
                   }}
                 >
-                  <Flex itemsCenter={!!isValidProtocol} style={!isValidProtocol ? { width: '100%' } : {}}>
-                    <Text autoAlignVertical p={5}>
-                      {isValidProtocol ? (
-                        <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={16} />
-                      ) : (
-                        // <StyledHelpCircle size={16} />
-                        <></>
-                      )}
-                    </Text>
-                    <Text t5s style={!isValidProtocol ? { width: '100%' } : {}}>
-                      {/* {capitalizeFirstLetter(protocol.appId.includes('Empty') ? 'Choose Protocol' : protocol.appId)} */}
-                      {isValidProtocol ? (
-                        processProtocolName(protocol.appId)
-                      ) : (
-                        <Flex between>
-                          <Text t5s>
-                            {capitalizeFirstLetter(
-                              protocol.appId.includes('Empty') ? 'Choose Protocol' : protocol.appId
-                            )}
-                          </Text>
-                          <StyledArrowDropDown size={16} />
-                        </Flex>
-                      )}
-                    </Text>
-                  </Flex>
-                </ThinButton>
-              ) : (
+                  <ThinButton
+                    onClick={() => {
+                      setDropdownOpen(!dropdownOpen)
+                    }}
+                  >
+                    <Flex itemsCenter={!!isValidProtocol} style={!isValidProtocol ? { width: '100%' } : {}}>
+                      <Text autoAlignVertical p={5}>
+                        {isValidProtocol ? (
+                          <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={16} />
+                        ) : (
+                          // <StyledHelpCircle size={16} />
+                          <></>
+                        )}
+                      </Text>
+                      <Text t5s style={!isValidProtocol ? { width: '100%' } : {}}>
+                        {/* {capitalizeFirstLetter(protocol.appId.includes('Empty') ? 'Choose Protocol' : protocol.appId)} */}
+                        {isValidProtocol ? (
+                          processProtocolName(protocol.appId)
+                        ) : (
+                          <Flex between>
+                            <Text t5s>
+                              {capitalizeFirstLetter(
+                                protocol.appId.includes('Empty') ? 'Choose Protocol' : protocol.appId
+                              )}
+                            </Text>
+                            <StyledArrowDropDown size={16} />
+                          </Flex>
+                        )}
+                      </Text>
+                    </Flex>
+                  </ThinButton>
+                </div>
+                <SmallerInputSection
+                  placeholder={'Cover limit'}
+                  value={enteredAmount}
+                  onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
+                  style={{
+                    maxWidth: '106px',
+                    width: '106px',
+                    minWidth: '106px',
+                    maxHeight: '32px',
+                  }}
+                  asideBg
+                />
+                <GraySquareButton width={32} height={32} noborder onClick={() => setProtocolsOpen(false)} darkText>
+                  <StyledClose size={16} />
+                </GraySquareButton>
+              </>
+            ) : (
+              <div
+                style={{
+                  width: '100%',
+                }}
+              >
                 <Flex between>
                   <Flex itemsCenter gap={8}>
                     {/* protocol icon */}
@@ -246,84 +269,9 @@ export const Protocol: React.FC<{
                     </Flex>
                   </Flex>
                 </Flex>
-              )}
-              {/* <InputSectionWrapper
-                style={{
-                  width: '100%',
-                  height: '40px',
-                }}
-              >
-                <Text autoAlignVertical p={5}>
-                  {isValidProtocol ? (
-                    <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={16} />
-                  ) : (
-                    <StyledHelpCircle size={16} />
-                  )}
-                </Text>
-                <StyledInput
-                  type="text"
-                  // className="py-3 lg:py-5 px-2 outline-none rounded-xl lg:border-0 lg:rounded-none"
-                  className="outline-none"
-                  value={capitalizeFirstLetter(protocol.appId.includes('Empty') ? 'Empty' : protocol.appId)}
-                  onChange={() => undefined}
-                  style={{
-                    backgroundColor: 'inherit',
-                    color: 'inherit',
-                    borderRadius: 'inherit',
-                    width: '100%',
-                    cursor: 'pointer',
-                    borderWidth: '0px',
-                    userSelect: 'none',
-                  }}
-                  readOnly
-                />
-                <Text
-                  p={5}
-                  autoAlignVertical
-                  {...gradientStyle}
-                  style={{ transform: protocolsOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: '12px' }}
-                >
-                  ⯆
-                </Text>
-              </InputSectionWrapper> */}
-            </div>
-            {/* <InputSectionWrapper
-              style={{
-                width: '60%',
-                height: '32px',
-              }}
-            > */}
-            {/* <StyledInput
-              type="text"
-              className="py-3 lg:py-5 px-3 outline-none rounded-xl lg:border-0 lg:rounded-none"
-              value={enteredAmount}
-              onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
-              style={{
-                backgroundColor: 'inherit',
-                color: 'inherit',
-                borderRadius: 'inherit',
-                width: '100%',
-              }}
-            /> */}
-            {protocolsOpen && (
-              <SmallerInputSection
-                placeholder={'0.00'}
-                value={enteredAmount}
-                onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
-                style={{
-                  maxWidth: '106px',
-                  width: '106px',
-                  minWidth: '106px',
-                  maxHeight: '32px',
-                }}
-                asideBg
-              />
+              </div>
             )}
-            {protocolsOpen && (
-              <GraySquareButton width={32} height={32} noborder onClick={() => setProtocolsOpen(false)} darkText>
-                <StyledClose size={16} />
-              </GraySquareButton>
-            )}
+            {protocolsOpen && <></>}
             {/* </InputSectionWrapper> */}
           </Flex>
         </Flex>

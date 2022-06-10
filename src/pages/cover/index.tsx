@@ -19,7 +19,7 @@ const CoverageContent = () => {
   return (
     <Content>
       <Flex justifyCenter>
-        <Flex col w={375}>
+        <Flex col w={375} style={{ backgroundColor: 'pink' }}>
           {showCLDModal && <CldModal show={true} />}
           {showSimulatorModal && <PortfolioSimulator show={true} />}
           {/* {showPortfolioModal && <PortfolioSimulator show={true} />} */}

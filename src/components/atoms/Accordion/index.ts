@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { Theme } from '../../../styles/themes'
+import { ThinScrollbarCss } from '../Scrollbar/ThinScrollbar'
 
 type AccordionProps = {
   isOpen: boolean
@@ -27,31 +27,11 @@ export const Accordion = styled.div<AccordionProps>`
   ${(props) => !props.noBackgroundColor && `background-color: ${props.theme.accordion.bg_color};`}
   overflow-y: hidden;
   ${(props) => (props.noScroll ? null : `overflow-y: auto;`)}
-  ${(props) =>
-    props.thinScrollbar
-      ? css`
-          ::-webkit-scrollbar {
-            width: 0.5em;
-          }
-          ::-webkit-scrollbar-track {
-            background-color: ${(props.theme as Theme).separator.bg_color};
-          }
-          ::-webkit-scrollbar-thumb {
-            height: 2em;
-            /* background-color: ${(props.theme as Theme).body.bg_color}; */
-            background-image: linear-gradient(
-              to bottom right,
-              ${(props.theme as Theme).typography.warmGradientA},
-              ${(props.theme as Theme).typography.warmGradientB}
-            );
-          }
-        `
-      : null}
+  ${(props) => (props.thinScrollbar ? ThinScrollbarCss : null)}
   ${(props) =>
     !props.hideScrollbar
-      ? null
+      ? ''
       : css`
-          ::-webkit-scrollbar {
           ::-webkit-scrollbar {
             width: 0px;
           }

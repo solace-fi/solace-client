@@ -3,12 +3,11 @@ import { useWeb3React } from '@web3-react/core'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { StyledExpand, StyledOptions, StyledCalculator } from '../../components/atoms/Icon'
-import { Content, Flex, VerticalSeparator } from '../../components/atoms/Layout'
-import { Text, TextSpan } from '../../components/atoms/Typography'
+import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
+import { Text } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
 import { ZERO } from '../../constants'
 import { FunctionName, InterfaceState } from '../../constants/enums'
-import { useGeneral } from '../../context/GeneralManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useCoverageFunctions, useExistingPolicy } from '../../hooks/policy/useSolaceCoverProductV3'
@@ -69,7 +68,6 @@ export const PolicyContent = (): JSX.Element => {
 
   const [enteredWithdrawal, setEnteredWithdrawal] = useState<string>(asyncEnteredWithdrawal)
 
-  const { appTheme } = useGeneral()
   const { account } = useWeb3React()
   const { latestBlock, signer } = useProvider()
   const { activeNetwork, changeNetwork } = useNetwork()
@@ -239,13 +237,7 @@ export const PolicyContent = (): JSX.Element => {
 
   return (
     // <Content>
-    <div
-      style={{
-        backgroundColor: 'pink',
-        width: '375px',
-        margin: 'auto',
-      }}
-    >
+    <div>
       <Flex justifyCenter mb={36}>
         <Text big2 mont style={{ marginLeft: 'auto', marginRight: 'auto', fontWeight: '600' }}>
           My Policy

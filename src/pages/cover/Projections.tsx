@@ -1,11 +1,89 @@
-import React, { useMemo } from 'react'
-import { BigNumber } from 'ethers'
-import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
+import React, { ReactNode, useMemo } from 'react'
+import { BigNumber, utils } from 'ethers'
+import { Flex, Grid, VerticalSeparator } from '../../components/atoms/Layout'
 import { useCoverageContext } from './CoverageContext'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { floatUnits, truncateValue } from '../../utils/formatting'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
+import { StyledClock, StyledClose, StyledExport, StyledOptions } from '../../components/atoms/Icon'
+
+function CardTemplate({
+  hasIcon,
+  title,
+  children,
+  techy,
+  unit,
+}: {
+  title: string
+  children: string | React.ReactNode
+  hasIcon?: true
+  techy?: true
+  unit?: string
+}) {
+  return (
+    <Flex col bgRaised p={16} gap={4} rounded>
+      <Text
+        t6s
+        techygradient={techy}
+        bold
+        style={{
+          lineHeight: '13.62px',
+          maxWidth: '75px',
+        }}
+      >
+        {title}
+      </Text>
+      <Text
+        t4s
+        techygradient={techy}
+        bold
+        style={{
+          lineHeight: '19.07px',
+        }}
+      >
+        {children}
+        <Text inline t6s style={{ fontWeight: '400' }} dark>
+          {unit}
+        </Text>
+      </Text>
+    </Flex>
+  )
+}
+
+function SmallCardTemplate({
+  icon,
+  value,
+  techy,
+  error,
+  onClick,
+}: {
+  icon: ReactNode
+  value: string
+  techy?: true
+  error?: true
+  onClick?: () => void
+}) {
+  return (
+    <Flex
+      itemsCenter
+      bgRaised
+      // py={9.75}
+      px={12}
+      // p={16}
+      gap={12}
+      rounded
+      onClick={onClick}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
+      flex1
+    >
+      {icon}
+      <Text t5s techygradient={techy} error={error} bold>
+        {value}
+      </Text>
+    </Flex>
+  )
+}
 
 export const Projections = ({
   portfolioScore,
@@ -38,8 +116,36 @@ export const Projections = ({
   }, [coverageLimit, dailyRate, usdBalanceSum])
 
   return (
-    <Flex stretch evenly center pb={24}>
-      <Flex col>
+    <Grid columns={2} gap={12}>
+      <CardTemplate title="Simulated Portfolio Total">{`$${truncateValue(usdBalanceSum, 2)}`}</CardTemplate>
+      <CardTemplate title="Simulated Cover Limit">{`$${truncateValue(
+        utils.formatEther(coverageLimit),
+        2
+      )}`}</CardTemplate>
+      <CardTemplate techy hasIcon title="Simulated Policy Price" unit="/ Day">{`$${truncateValue(
+        dailyCost,
+        2
+      )}`}</CardTemplate>
+      <Flex col gap={12}>
+        <SmallCardTemplate
+          icon={<StyledExport height={12} width={12} />}
+          value={`Import Limit`}
+          techy
+          onClick={() => {
+            alert('Import Limit')
+          }}
+        />
+        <SmallCardTemplate
+          icon={<StyledClose height={12} width={12} />}
+          value={`Clear Changes`}
+          error
+          onClick={() => {
+            alert('Clear Changes')
+          }}
+        />
+      </Flex>
+    </Grid>
+    /* <Flex col>
         <Text bold t2 textAlignCenter>
           Total
         </Text>
@@ -68,6 +174,6 @@ export const Projections = ({
           </Text>
         </Flex>
       </StyledTooltip>
-    </Flex>
+    </Flex> */
   )
 }

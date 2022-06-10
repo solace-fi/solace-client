@@ -17,6 +17,7 @@ export interface ButtonProps extends ClickProps {
   success?: boolean
   error?: boolean
   warning?: boolean
+  raised?: boolean
   matchBg?: boolean
   glow?: boolean
   separator?: boolean
@@ -56,6 +57,7 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
     if (props.success) bgColor = `${theme.typography.successText}`
     if (props.warning) bgColor = `${theme.typography.warningText}`
     if (props.error) bgColor = `${theme.typography.errorText}`
+    if (props.raised) bgColor = `${(theme as Theme).v2.raised}`
     return css`
       color: ${textColor};
       background-color: ${bgColor};
@@ -73,6 +75,7 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
     if (props.success) textColor = `${theme.typography.successText}`
     if (props.warning) textColor = `${theme.typography.warningText}`
     if (props.error) textColor = `${theme.typography.errorText}`
+    if (props.raised) textColor = `${(theme as Theme).v2.raised}`
     return css`
       color: ${textColor};
       background-color: rgba(0, 0, 0, 0);
@@ -97,6 +100,7 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
     if (props.success) bgColor = `${theme.typography.successText}`
     if (props.warning) bgColor = `${theme.typography.warningText}`
     if (props.error) bgColor = `${theme.typography.errorText}`
+    if (props.raised) bgColor = `${(theme as Theme).v2.raised}`
     if (props.techygradient) {
       return css`
         color: ${theme.typography.lightText};
@@ -205,6 +209,10 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
       hoverTextColor = `${theme.typography.contrastText}`
       hoverBgColor = `${theme.typography.analogicalText}`
     }
+    if (props.raised) {
+      hoverTextColor = `${theme.typography.contrastText}`
+      hoverBgColor = `${(theme as Theme).v2.raised}`
+    }
   }
   return css`
     color: ${textColor};
@@ -229,6 +237,7 @@ export const ButtonAppearanceCss = css<ButtonProps & GeneralElementProps>`
   ${(props) => props.info && `border: 1px solid ${props.theme.typography.infoText};`}
   ${(props) => props.warning && `border: 1px solid ${props.theme.typography.warningText};`}
   ${(props) => props.error && `border: 1px solid ${props.theme.typography.errorText};`}
+  ${(props) => props.raised && `border: 1px solid ${(props.theme as Theme).v2.raised};`}
   ${(props) => props.separator && `border: 1px solid ${props.theme.typography.separator};`}
   ${(props) => props.noborder && `border: none;`}
   ${(props) => !props.noradius && `border-radius: 10px;`}

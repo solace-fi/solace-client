@@ -224,7 +224,7 @@ export const CoverageLimitSelector2 = ({
     <Flex col stretch>
       <Flex justifyCenter>
         <Text t4s textAlignCenter width={200}>
-          Maximum amount of funds you will receive after claiming.
+          Maximum payout in the case of an exploit.
         </Text>
       </Flex>
       <Flex col stretch between mt={36}>

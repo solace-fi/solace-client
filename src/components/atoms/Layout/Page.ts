@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
 import { BKPT_6 } from '../../../constants'
 import { Theme } from '../../../styles/themes'
+import { ThinScrollbarCss } from '../Scrollbar/ThinScrollbar'
 
 export interface FlexProps {
   between?: boolean
@@ -40,6 +41,7 @@ export interface FlexProps {
   flex1?: boolean
   rounded?: boolean
   shadow?: boolean
+  thinScrollbar?: boolean
 
   bgRaised?: boolean
   bgSecondary?: boolean
@@ -92,6 +94,7 @@ export const Flex = styled.div<FlexProps>`
   ${({ flex1 })         => flex1         !== undefined ? css`flex: 1;` : ""}
   ${({ rounded })       => rounded       !== undefined ? css`border-radius: 10px;` : ""}
   ${({ shadow })        => shadow        !== undefined ? css`box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);` : ""}
+  ${({ thinScrollbar }) => thinScrollbar !== undefined ? ThinScrollbarCss : ""}
   
   ${(props)             => props.bgRaised    !== undefined ? css`background-color: ${(props.theme as Theme).v2.raised};` : ""}
   ${(props)             => props.bgSecondary !== undefined ? css`background-color: ${(props.theme as Theme).body.bg_color};` : ""}
