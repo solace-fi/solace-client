@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { Button, GraySquareButton, ThinButton } from '../../components/atoms/Button'
@@ -24,9 +24,8 @@ export const Protocol: React.FC<{
   simulating: boolean
   editingItem: string | undefined
   // addItem: (index?: number | undefined) => void
+  saveEditedItem: (targetAppId: string, newAppId: string, newAmount: string) => boolean
   deleteItem: (targetAppId: string) => void
-  editId: (targetAppId: string, newAppId: string) => void
-  editAmount: (targetAppId: string, newAmount: string) => void
   handleEditingItem: (appId: string | undefined) => void
 }> = ({
   protocol,
@@ -36,16 +35,17 @@ export const Protocol: React.FC<{
   editingItem,
   // addItem,
   deleteItem,
-  editId,
-  editAmount,
+  saveEditedItem,
   handleEditingItem,
 }): JSX.Element => {
   const { seriesKit, styles } = useCoverageContext()
   const { series, seriesLogos } = seriesKit
   const { gradientStyle } = styles
 
-  const [protocolsOpen, setProtocolsOpen] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [accordionOpen, setAccordionOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [enteredAppId, setEnteredAppId] = useState<string>(protocol.appId)
   const [enteredAmount, setEnteredAmount] = useState(
     protocol.balanceUSD.toString() == '0' ? '' : protocol.balanceUSD.toString()
   )
@@ -80,60 +80,62 @@ export const Protocol: React.FC<{
         searchedList={activeList}
         noneText={'No matching protocols found'}
         onClick={(value: string) => {
-          editId(protocol.appId, value)
-          handleEditingItem(undefined)
+          setEnteredAppId(value)
           setDropdownOpen(false)
-          // setProtocolsOpen(false)
+          setAccordionOpen(false)
         }}
       />
     ),
-    [editId, editableProtocolAppIds, handleEditingItem, dropdownOpen, protocol.appId, activeList]
+    [editableProtocolAppIds, dropdownOpen, activeList]
   )
-
-  const _editAmount = useDebounce(() => {
-    editAmount(protocol.appId, enteredAmount)
-  }, 300)
 
   // useEffect(() => {
   //   if (!simulatingPrev && simulating) close()
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [simulatingPrev, simulating])
 
-  useEffect(() => {
-    _editAmount()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enteredAmount])
+  const handleSaveEditedItem = useCallback(() => {
+    const status = saveEditedItem(protocol.appId, enteredAppId, enteredAmount)
+    if (status) handleEditingItem(undefined)
+  }, [enteredAmount, enteredAppId, protocol.appId, saveEditedItem, handleEditingItem])
 
   useEffect(() => {
     setEnteredAmount(protocol.balanceUSD.toString() == '0' ? '' : protocol.balanceUSD.toString())
-  }, [protocol.balanceUSD])
+  }, [protocol.balanceUSD, editingItem])
 
   useEffect(() => {
-    if (!protocolsOpen) {
+    setEnteredAppId(protocol.appId)
+  }, [protocol.appId, editingItem])
+
+  useEffect(() => {
+    if (!accordionOpen) {
       setTimeout(() => {
         setDropdownOpen(false)
       }, 100)
     } else {
       setDropdownOpen(true)
     }
-  }, [protocolsOpen])
+  }, [accordionOpen])
 
   useEffect(() => {
     if (!editingItem || (editingItem && editingItem.toString() !== protocol.appId.toString())) {
-      // setProtocolsOpen(false)
+      setIsEditing(false)
+      setAccordionOpen(false)
       setDropdownOpen(false)
     }
-  }, [editingItem, protocol.appId])
+  }, [editingItem, protocol])
 
   return (
     <div>
       <TileCard
         padding={16}
         onClick={() => {
-          !protocolsOpen && setProtocolsOpen(true)
-          protocolsOpen && handleEditingItem(protocol.appId)
+          if (!isEditing) {
+            setIsEditing(true)
+            handleEditingItem(protocol.appId)
+          }
         }}
-        style={{ position: 'relative', width: '100%', cursor: protocolsOpen ? 'default' : 'pointer' }}
+        style={{ position: 'relative', width: '100%', cursor: isEditing ? 'default' : 'pointer' }}
       >
         {/* <Button
           {...gradientStyle}
@@ -171,7 +173,7 @@ export const Protocol: React.FC<{
         <Flex col gap={8}>
           <Flex stretch between gap={10}>
             {/* <div style={{ background: 'red', height: '32px' }}> aAa </div> */}
-            {protocolsOpen ? (
+            {isEditing ? (
               <>
                 <div
                   style={{
@@ -180,28 +182,25 @@ export const Protocol: React.FC<{
                 >
                   <ThinButton
                     onClick={() => {
-                      setDropdownOpen(!dropdownOpen)
+                      setAccordionOpen(!accordionOpen)
                     }}
                   >
                     <Flex itemsCenter={!!isValidProtocol} style={!isValidProtocol ? { width: '100%' } : {}}>
                       <Text autoAlignVertical p={5}>
                         {isValidProtocol ? (
-                          <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={16} />
+                          <img src={`https://assets.solace.fi/zapperLogos/${enteredAppId}`} height={16} />
                         ) : (
                           // <StyledHelpCircle size={16} />
                           <></>
                         )}
                       </Text>
                       <Text t5s style={!isValidProtocol ? { width: '100%' } : {}}>
-                        {/* {capitalizeFirstLetter(protocol.appId.includes('Empty') ? 'Choose Protocol' : protocol.appId)} */}
                         {isValidProtocol ? (
-                          processProtocolName(protocol.appId)
+                          processProtocolName(enteredAppId)
                         ) : (
                           <Flex between>
                             <Text t5s>
-                              {capitalizeFirstLetter(
-                                protocol.appId.includes('Empty') ? 'Choose Protocol' : protocol.appId
-                              )}
+                              {capitalizeFirstLetter(enteredAppId.includes('Empty') ? 'Choose Protocol' : enteredAppId)}
                             </Text>
                             <StyledArrowDropDown size={16} />
                           </Flex>
@@ -211,7 +210,7 @@ export const Protocol: React.FC<{
                   </ThinButton>
                 </div>
                 <SmallerInputSection
-                  placeholder={'Cover limit'}
+                  placeholder={'Enter USD Amount'}
                   value={enteredAmount}
                   onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
                   style={{
@@ -222,7 +221,7 @@ export const Protocol: React.FC<{
                   }}
                   asideBg
                 />
-                <GraySquareButton width={32} height={32} noborder onClick={() => setProtocolsOpen(false)} darkText>
+                <GraySquareButton width={32} height={32} noborder onClick={() => handleEditingItem(undefined)} darkText>
                   <StyledClose size={16} />
                 </GraySquareButton>
               </>
@@ -271,11 +270,10 @@ export const Protocol: React.FC<{
                 </Flex>
               </div>
             )}
-            {protocolsOpen && <></>}
             {/* </InputSectionWrapper> */}
           </Flex>
         </Flex>
-        {protocolsOpen && (
+        {isEditing && (
           <Flex gap={8} mt={12}>
             <Button
               height={32}
@@ -296,7 +294,9 @@ export const Protocol: React.FC<{
               techygradient
               secondary
               noborder
-              onClick={() => setProtocolsOpen(false)}
+              onClick={() => {
+                handleSaveEditedItem()
+              }}
               style={{ width: '100%', borderRadius: '8px' }}
             >
               <Flex gap={4} itemsCenter>
@@ -307,11 +307,11 @@ export const Protocol: React.FC<{
             </Button>
           </Flex>
         )}
-        <Accordion noScroll isOpen={protocolsOpen} style={{ backgroundColor: 'inherit' }}>
+        <Accordion noScroll isOpen={accordionOpen} style={{ backgroundColor: 'inherit' }}>
           {/* <div style={{ padding: 8 }}> */}
           <Flex col gap={8} mt={12}>
             <div>
-              {dropdownOpen && (
+              {accordionOpen && (
                 <SmallerInputSection
                   placeholder={'Search Protocol'}
                   value={searchTerm}
