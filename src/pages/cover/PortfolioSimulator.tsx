@@ -3,22 +3,26 @@ import { BigNumber } from 'ethers'
 import { Flex } from '../../components/atoms/Layout'
 import { useCoverageContext } from './CoverageContext'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
-import { Button } from '../../components/atoms/Button'
-import { formatAmount } from '../../utils/formatting'
+import { Button, GraySquareButton, ThinButton } from '../../components/atoms/Button'
+import { filterAmount, formatAmount } from '../../utils/formatting'
 import { useTierColors } from '../../hooks/internal/useTierColors'
 import { Protocol } from './Protocol'
 import usePrevious from '../../hooks/internal/usePrevious'
-import { SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
+import { capitalizeFirstLetter, processProtocolName, SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { TileCard } from '../../components/molecules/TileCard'
 import { LoaderText } from '../../components/molecules/LoaderText'
 import { CoverageLimitSelector, CoverageLimitSelector2 } from '../soteria/CoverageLimitSelector'
 import { Projections } from './Projections'
 import { useWeb3React } from '@web3-react/core'
-import { StyledAdd } from '../../components/atoms/Icon'
+import { StyledAdd, StyledArrowDropDown, StyledClose } from '../../components/atoms/Icon'
 import { Text } from '../../components/atoms/Typography'
 import { Modal, ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
 import { Accordion } from '../../components/atoms/Accordion'
+import { protocol } from 'socket.io-client'
+import { SmallerInputSection } from '../../components/molecules/InputSection'
+import AddProtocolForm from './AddProtocolForm'
+import mapEditableProtocols from '../../utils/mapEditableProtocols'
 
 export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => {
   const { appTheme } = useGeneral()
@@ -50,13 +54,17 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
     }
   }, [addingProtocol])
 
-  const editableProtocolLookup = useMemo(() => {
-    const lookup: { [key: string]: LocalSolaceRiskProtocol } = {}
-    editableProtocols.forEach((protocol) => {
-      lookup[protocol.appId.toLowerCase()] = protocol
-    })
-    return lookup
+  const _mapEditableProtocols = useMemo(() => {
+    return mapEditableProtocols(editableProtocols)
   }, [editableProtocols])
+
+  // const editableProtocolLookup = useMemo(() => {
+  //   const lookup: { [key: string]: LocalSolaceRiskProtocol } = {}
+  //   editableProtocols.forEach((protocol) => {
+  //     lookup[protocol.appId.toLowerCase()] = protocol
+  //   })
+  //   return lookup
+  // }, [editableProtocols])
 
   const editableProtocolAppIds = useMemo(() => editableProtocols.map((p) => p.appId.toLowerCase()), [editableProtocols])
 
@@ -73,52 +81,73 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
     }
   }
 
-  const addItem = (index?: number) => {
-    // if adding with out index, or index is last, add to end
-    const time = Date.now().toString()
+  // const addItem = (index?: number) => {
+  //   // if adding with out index, or index is last, add to end
+  //   const time = Date.now().toString()
+  //   const data = {
+  //     appId: `Empty ${time}`,
+  //     balanceUSD: 0,
+  //     category: 'Unknown',
+  //     network: '',
+  //     riskLoad: 0,
+  //     rol: 0,
+  //     rrol: 0,
+  //     tier: 0,
+  //     'rp-usd': 0,
+  //     'risk-adj': 0,
+  //   }
+  //   if (index == undefined || index == editableProtocols.length - 1) {
+  //     setEditableProtocols((prev) => [
+  //       ...prev,
+  //       {
+  //         ...data,
+  //         index: prev.length,
+  //       },
+  //     ])
+  //   } else if (index == -1) {
+  //     // if adding before the first item, add to start
+  //     const temp = [{ ...data, index: 0 }, ...editableProtocols]
+  //     temp.forEach((protocol, i) => {
+  //       protocol.index = i
+  //     })
+  //     setEditableProtocols(temp)
+  //   } else {
+  //     // if adding with index in the middle, add insert into index, then reassign index numbers of all protocols
+  //     const temp = [
+  //       ...editableProtocols.slice(0, index + 1),
+  //       {
+  //         ...data,
+  //         index: index + 1,
+  //       },
+  //       ...editableProtocols.slice(index + 1),
+  //     ]
+  //     const newTemp = [
+  //       ...temp.slice(0, index + 1),
+  //       ...temp.slice(index + 1).map((protocol, i) => ({ ...protocol, index: i + index + 1 })),
+  //     ]
+  //     setEditableProtocols(newTemp)
+  //   }
+  // }
+
+  function onAddProtocol(appId: string, balance: string) {
+    const protocol = _mapEditableProtocols[appId.toLowerCase()]
+    if (!protocol) return
     const data = {
-      appId: `Empty ${time}`,
-      balanceUSD: 0,
-      category: 'Unknown',
-      network: '',
-      riskLoad: 0,
-      rol: 0,
-      rrol: 0,
-      tier: 0,
-      'rp-usd': 0,
-      'risk-adj': 0,
+      index: 0,
+      appId: protocol.appId,
+      balanceUSD: parseFloat(balance),
+      category: protocol.category,
+      network: protocol.network,
+      riskLoad: protocol.riskLoad,
+      rol: protocol.rol,
+      rrol: protocol.rrol,
+      tier: protocol.tier,
+      'rp-usd': protocol['rp-usd'],
+      'risk-adj': protocol['risk-adj'],
     }
-    if (index == undefined || index == editableProtocols.length - 1) {
-      setEditableProtocols((prev) => [
-        ...prev,
-        {
-          ...data,
-          index: prev.length,
-        },
-      ])
-    } else if (index == -1) {
-      // if adding before the first item, add to start
-      const temp = [{ ...data, index: 0 }, ...editableProtocols]
-      temp.forEach((protocol, i) => {
-        protocol.index = i
-      })
-      setEditableProtocols(temp)
-    } else {
-      // if adding with index in the middle, add insert into index, then reassign index numbers of all protocols
-      const temp = [
-        ...editableProtocols.slice(0, index + 1),
-        {
-          ...data,
-          index: index + 1,
-        },
-        ...editableProtocols.slice(index + 1),
-      ]
-      const newTemp = [
-        ...temp.slice(0, index + 1),
-        ...temp.slice(index + 1).map((protocol, i) => ({ ...protocol, index: i + index + 1 })),
-      ]
-      setEditableProtocols(newTemp)
-    }
+    const reIndexedProtocols = editableProtocols.map((protocol, i) => ({ ...protocol, index: i + 1 }))
+    const tmp = [data, ...editableProtocols]
+    setEditableProtocols(tmp)
   }
 
   const editCoverageLimit = useCallback(
@@ -136,7 +165,7 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
       if (!matchingProtocol) return
       let editedSomething = false
 
-      const targetProtocol = editableProtocolLookup[targetAppId.toLowerCase()]
+      const targetProtocol = _mapEditableProtocols[targetAppId.toLowerCase()]
       if (!targetProtocol) return
       setCompiling(true)
       setEditableProtocols(
@@ -157,7 +186,7 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
       )
       if (editedSomething) setCanSimulate(true)
     },
-    [editableProtocols, editableProtocolLookup, series]
+    [editableProtocols, _mapEditableProtocols, series]
   )
 
   const editAmount = useCallback(
@@ -165,7 +194,7 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
       const numberifiedNewAmount = parseFloat(formatAmount(newAmount))
       let editedSomething = false
 
-      const targetProtocol = editableProtocolLookup[targetAppId.toLowerCase()]
+      const targetProtocol = _mapEditableProtocols[targetAppId.toLowerCase()]
       if (!targetProtocol) return
       if (targetProtocol.balanceUSD.toString() === newAmount || !targetProtocol) return
       if (!targetAppId.includes('Empty')) setCompiling(true)
@@ -184,12 +213,12 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
       )
       if (editedSomething && !targetAppId.includes('Empty')) setCanSimulate(true)
     },
-    [editableProtocols, editableProtocolLookup]
+    [editableProtocols, _mapEditableProtocols]
   )
 
   const deleteItem = useCallback(
     (targetAppId: string) => {
-      const targetProtocol = editableProtocolLookup[targetAppId.toLowerCase()]
+      const targetProtocol = _mapEditableProtocols[targetAppId.toLowerCase()]
       if (!targetProtocol) return
       setEditableProtocols(
         editableProtocols
@@ -203,7 +232,7 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
         setCanSimulate(true)
       }
     },
-    [editableProtocols, editableProtocolLookup]
+    [editableProtocols, _mapEditableProtocols]
   )
 
   // do not run this if the user has not touched anything here
@@ -287,7 +316,7 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
         style={{
           overflowY: 'auto',
           // why this height specifically? i have no clue, but it works pixel-perfectly and it's responive (??)
-          height: `calc(100% - ${376}px)`,
+          // height: `calc(100% - ${376}px)`,
         }}
         bgError
       >
@@ -300,7 +329,7 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
               editableProtocolAppIds={editableProtocolAppIds}
               riskColor={riskColor}
               editingItem={editingItem}
-              addItem={addItem}
+              // addItem={addItem}
               deleteItem={deleteItem}
               editId={editId}
               editAmount={editAmount}
@@ -318,7 +347,7 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
               editableProtocolAppIds={editableProtocolAppIds}
               riskColor={riskColor}
               editingItem={editingItem}
-              addItem={addItem}
+              // addItem={addItem}
               deleteItem={deleteItem}
               editId={editId}
               editAmount={editAmount}
@@ -333,7 +362,8 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
           {...gradientStyle}
           secondary
           {...bigButtonStyle}
-          onClick={addItem}
+          // onClick={addItem}
+          onClick={() => setAddingProtocol(true)}
           disabled={portfolioLoading && active}
           noborder
         >
@@ -345,9 +375,9 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
         itemsCenter
         justifyCenter
         style={{
-          position: 'absolute',
-          bottom: '0',
-          left: '0',
+          // position: 'absolute',
+          // bottom: '0',
+          // left: '0',
           boxSizing: 'border-box',
           width: '100%',
         }}
@@ -360,7 +390,8 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
             secondary
             raised
             {...bigButtonStyle}
-            onClick={addItem}
+            // onClick={addItem}
+            onClick={() => setAddingProtocol(true)}
             disabled={portfolioLoading && active}
             // noborder
             height={51}
@@ -370,9 +401,17 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
             </Text>
           </Button>
         ) : (
-          <Flex p={16} col bgRaised rounded>
-            a
-          </Flex>
+          <>
+            <Flex p={16} col bgRaised rounded style={{ width: '100%' }}>
+              <Text t4s>Adding position</Text>
+              <Button onClick={() => setAddingProtocol(false)}>Cancel</Button>
+              <AddProtocolForm
+                editableProtocols={editableProtocols}
+                setIsAddingProtocol={setAddingProtocol}
+                onAddProtocol={onAddProtocol}
+              />
+            </Flex>
+          </>
         )}
       </Flex>
     </Flex>

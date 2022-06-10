@@ -23,7 +23,7 @@ export const Protocol: React.FC<{
   riskColor: string
   simulating: boolean
   editingItem: string | undefined
-  addItem: (index?: number | undefined) => void
+  // addItem: (index?: number | undefined) => void
   deleteItem: (targetAppId: string) => void
   editId: (targetAppId: string, newAppId: string) => void
   editAmount: (targetAppId: string, newAmount: string) => void
@@ -34,7 +34,7 @@ export const Protocol: React.FC<{
   riskColor,
   simulating,
   editingItem,
-  addItem,
+  // addItem,
   deleteItem,
   editId,
   editAmount,
