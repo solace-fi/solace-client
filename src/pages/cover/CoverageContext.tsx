@@ -445,8 +445,8 @@ const CoverageManager: React.FC = (props) => {
   useEffect(() => {
     const init = async () => {
       if (!account) return
-      const availableCoverCapacity = await getMinScpRequired(account)
-      setMinReqScpBal(availableCoverCapacity)
+      const msr = await getMinScpRequired(account)
+      setMinReqScpBal(msr)
     }
     init()
   }, [minute, account])
@@ -484,13 +484,11 @@ const CoverageManager: React.FC = (props) => {
     const getSignatureObj = async () => {
       const p = new Price()
       const priceInfo = await p.getPriceInfo()
-      const signature = priceInfo.signatures[`${activeNetwork.chainId}`]
-      if (!signature) {
+      if (!priceInfo) {
         setSignatureObj(undefined)
         return
       }
-      const tokenSignatureProps: any = Object.values(signature)[0]
-      setSignatureObj(tokenSignatureProps)
+      setSignatureObj(priceInfo)
     }
     getSignatureObj()
   }, [activeNetwork.chainId, latestBlock])

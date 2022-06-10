@@ -7,6 +7,7 @@ import { Text } from '../../components/atoms/Typography'
 import { LoaderText } from '../../components/molecules/LoaderText'
 import { Modal } from '../../components/molecules/Modal'
 import { FunctionName } from '../../constants/enums'
+import { useNetwork } from '../../context/NetworkManager'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
 import { filterAmount, formatAmount } from '../../utils/formatting'
@@ -16,6 +17,7 @@ import { BalanceDropdownOptions, DropdownInputSection } from './Dropdown'
 
 export const CldModal = ({ show }: { show: boolean }) => {
   const { account } = useWeb3React()
+  const { activeNetwork } = useNetwork()
   const { purchaseWithStable, purchaseWithNonStable, purchase } = useCoverageFunctions()
   const { intrface, portfolioKit, input, dropdowns, styles, policy } = useCoverageContext()
   const { handleShowCLDModal, transactionLoading, handleTransactionLoading } = intrface
@@ -58,15 +60,17 @@ export const CldModal = ({ show }: { show: boolean }) => {
 
   const callPurchaseWithNonStable = async () => {
     if (!account || !depositApproval || !signatureObj) return
+    const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
+    const tokenSignature: any = Object.values(signature)[0]
     handleTransactionLoading(true)
     await purchaseWithNonStable(
       account,
       enteredCoverLimit,
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals),
-      signatureObj.price,
-      signatureObj.deadline,
-      signatureObj.signature
+      tokenSignature.price,
+      tokenSignature.deadline,
+      tokenSignature.signature
     )
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) =>
