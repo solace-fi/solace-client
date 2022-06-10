@@ -338,24 +338,6 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
             />
           )
         })}
-        {editableProtocols.map((protocol: LocalSolaceRiskProtocol) => {
-          const riskColor = getColorByTier(protocol.tier)
-          return (
-            <Protocol
-              key={protocol.appId}
-              protocol={protocol}
-              editableProtocolAppIds={editableProtocolAppIds}
-              riskColor={riskColor}
-              editingItem={editingItem}
-              // addItem={addItem}
-              deleteItem={deleteItem}
-              editId={editId}
-              editAmount={editAmount}
-              handleEditingItem={handleEditingItem}
-              simulating={simulating}
-            />
-          )
-        })}
       </Flex>
       {editableProtocols.length > 8 && (
         <Button

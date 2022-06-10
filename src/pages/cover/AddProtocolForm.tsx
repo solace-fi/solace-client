@@ -1,7 +1,6 @@
 import useDebounce from '@rooks/use-debounce'
-import { capitalizeFirstLetter } from '@solace-fi/sdk-nightly'
+import { capitalizeFirstLetter, ProtocolMap } from '@solace-fi/sdk-nightly'
 import React, { useEffect, useMemo, useState } from 'react'
-import { protocol } from 'socket.io-client'
 import { ThinButton, GraySquareButton } from '../../components/atoms/Button'
 import { StyledArrowDropDown, StyledClose } from '../../components/atoms/Icon'
 import { Flex } from '../../components/atoms/Layout'
@@ -26,22 +25,22 @@ export default function AddProtocolForm({
   onAddProtocol: (appId: string, balance: string) => void
   setIsAddingProtocol: (bool: boolean) => void
 }): React.ReactElement {
-  const [protocol, setProtocol] = useState<LocalSolaceRiskProtocol | undefined>(undefined)
+  // const [protocol, setProtocol] = useState<LocalSolaceRiskProtocol | undefined>(undefined)
   const { seriesKit, styles } = useCoverageContext()
   const { series, seriesLogos } = seriesKit
   const { gradientStyle } = styles
 
   const [protocolsOpen, setProtocolsOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [enteredBalance, setEnteredBalance] = useState(
-    (protocol?.balanceUSD.toString() == '0' ? '' : protocol?.balanceUSD.toString()) || ''
-  )
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState<string>('')
+
+  const [enteredBalance, setEnteredBalance] = useState<string>('')
+  const [enteredProtocolMap, setEnteredProtocolMap] = useState<ProtocolMap | undefined>(undefined)
 
   const isValidProtocol = useMemo(() => {
     if (!series) return false
-    return series.data.protocolMap.find((p) => p.appId.toLowerCase() == protocol?.appId.toLowerCase())
-  }, [protocol, series])
+    return series.data.protocolMap.find((p) => p.appId.toLowerCase() == enteredProtocolMap?.appId.toLowerCase())
+  }, [enteredProtocolMap, series])
 
   const protocolOptions = useMemo(() => seriesLogos, [seriesLogos])
 
@@ -56,9 +55,9 @@ export default function AddProtocolForm({
   //   icon: listItem.icon,
   //   name: processProtocolName(listItem.value),
   // })
-  const _mapEditableProtocols = useMemo(() => {
-    return mapEditableProtocols(editableProtocols)
-  }, [editableProtocols])
+  // const _mapEditableProtocols = useMemo(() => {
+  //   return mapEditableProtocols(editableProtocols)
+  // }, [editableProtocols])
 
   const cachedDropdownOptions = useMemo(
     () => (
@@ -68,17 +67,11 @@ export default function AddProtocolForm({
         searchedList={activeList}
         noneText={'No matching protocols found'}
         onClick={(value: string) => {
-          // editId(protocol.appId, value)
-          // handleEditingItem(undefined)
-          // onAddProtocol(value, formatAmount(enteredBalance))
-          // protocol &&
-          //   setProtocol({
-          //     ...protocol,
-          //     appId: value,
-          //   })
-          setProtocol(_mapEditableProtocols[value.toLowerCase()])
+          if (!series) return
+          const foundProtocol = series.data.protocolMap.find((p) => p.appId.toLowerCase() == value.toLowerCase())
+          if (!foundProtocol) return
+          setEnteredProtocolMap(foundProtocol)
           setDropdownOpen(false)
-          // setProtocolsOpen(false)
         }}
       />
     ),
@@ -100,9 +93,9 @@ export default function AddProtocolForm({
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [enteredAmount])
 
-  useEffect(() => {
-    protocol && setEnteredBalance(protocol.balanceUSD.toString() == '0' ? '' : protocol.balanceUSD.toString())
-  }, [protocol, protocol?.balanceUSD])
+  // useEffect(() => {
+  //   protocol && setEnteredBalance(protocol.balanceUSD.toString() == '0' ? '' : protocol.balanceUSD.toString())
+  // }, [protocol, protocol?.balanceUSD])
 
   useEffect(() => {
     if (!protocolsOpen) {
@@ -135,22 +128,24 @@ export default function AddProtocolForm({
         >
           <Flex itemsCenter={!!isValidProtocol} style={!isValidProtocol ? { width: '100%' } : {}}>
             <Text autoAlignVertical p={5}>
-              {protocol && isValidProtocol ? (
-                <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={16} />
+              {enteredProtocolMap && isValidProtocol ? (
+                <img src={`https://assets.solace.fi/zapperLogos/${enteredProtocolMap.appId}`} height={16} />
               ) : (
                 // <StyledHelpCircle size={16} />
                 <></>
               )}
             </Text>
             <Text t5s style={!isValidProtocol ? { width: '100%' } : {}}>
-              {/* {capitalizeFirstLetter(protocol.appId.includes('Empty') ? 'Choose Protocol' : protocol.appId)} */}
-              {protocol && isValidProtocol ? (
-                processProtocolName(protocol.appId)
+              {/* {capitalizeFirstLetter(enteredProtocolMap.appId.includes('Empty') ? 'Choose Protocol' : enteredProtocolMap.appId)} */}
+              {enteredProtocolMap && isValidProtocol ? (
+                processProtocolName(enteredProtocolMap.appId)
               ) : (
                 <Flex between>
                   <Text t5s>
-                    {protocol &&
-                      capitalizeFirstLetter(protocol.appId.includes('Empty') ? 'Choose Protocol' : protocol.appId)}
+                    {enteredProtocolMap &&
+                      capitalizeFirstLetter(
+                        enteredProtocolMap.appId.includes('Empty') ? 'Choose Protocol' : enteredProtocolMap.appId
+                      )}
                   </Text>
                   <StyledArrowDropDown size={16} />
                 </Flex>
@@ -193,16 +188,15 @@ export default function AddProtocolForm({
       >
         <StyledClose size={16} />
       </GraySquareButton>
-      {protocol && (
-        <Button
-          onClick={() => {
-            onAddProtocol(protocol?.appId, formatAmount(enteredBalance))
-            setIsAddingProtocol(false)
-          }}
-        >
-          Save
-        </Button>
-      )}
+      <Button
+        onClick={() => {
+          onAddProtocol(enteredProtocolMap?.appId ?? '', formatAmount(enteredBalance))
+          setIsAddingProtocol(false)
+        }}
+        disabled={!enteredProtocolMap}
+      >
+        Save
+      </Button>
     </>
   )
 }
