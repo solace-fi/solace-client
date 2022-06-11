@@ -205,7 +205,7 @@ const CoverageManager: React.FC = (props) => {
 
   const { width } = useWindowDimensions()
   const { portfolio: curPortfolio, riskScores, loading: portfolioLoading } = usePortfolio()
-  const [simPortfolio, setSimPortfolio] = useState<SolaceRiskScore | undefined>()
+  const [simPortfolio, setSimPortfolio] = useState<SolaceRiskScore | undefined>(undefined)
   const { series, loading: seriesLoading } = useRiskSeries()
   const [transactionLoading, setTransactionLoading] = useState<boolean>(false)
   const scpBalance = useScpBalance()
@@ -426,6 +426,13 @@ const CoverageManager: React.FC = (props) => {
     const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
     handleEnteredCoverLimit(bnHigherBal)
   }, [curHighestPosition, handleEnteredCoverLimit])
+
+  useEffect(() => {
+    if (!simHighestPosition) return
+    const bnBal = BigNumber.from(accurateMultiply(simHighestPosition.balanceUSD, 18))
+    const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
+    handleSimCoverLimit(bnHigherBal)
+  }, [simHighestPosition, handleSimCoverLimit])
 
   useEffect(() => {
     const init = async () => {

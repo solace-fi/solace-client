@@ -107,8 +107,10 @@ export const Projections = ({
   portfolioScore?: SolaceRiskScore
   coverageLimit: BigNumber
 }): JSX.Element => {
-  const { styles } = useCoverageContext()
-  const { gradientStyle } = styles
+  const { intrface, input, portfolioKit } = useCoverageContext()
+  const { handleShowSimCoverModal } = intrface
+  const { handleEnteredCoverLimit } = input
+  const { handleSimPortfolio } = portfolioKit
 
   const usdBalanceSum = useMemo(
     () =>
@@ -136,27 +138,21 @@ export const Projections = ({
       <CardTemplate
         title="Simulated Cover Limit"
         hasIcon
-        onClick={() => {
-          alert('Open simulated cover limit modal')
-        }}
-      >{`$${truncateValue(utils.formatEther(coverageLimit), 2)}`}</CardTemplate>
+        onClick={() => handleShowSimCoverModal(true)}
+      >{`$${truncateValue(utils.formatUnits(coverageLimit), 2)}`}</CardTemplate>
       <CardTemplate techy title="Simulated Policy Price" unit="/ Day">{`$${truncateValue(dailyCost, 2)}`}</CardTemplate>
       <Flex col gap={12}>
         <SmallCardTemplate
           icon={<StyledExport height={12} width={12} />}
           value={`Import Limit`}
           techy
-          onClick={() => {
-            alert('Import Limit')
-          }}
+          onClick={() => handleEnteredCoverLimit(coverageLimit)}
         />
         <SmallCardTemplate
           icon={<StyledClose height={12} width={12} />}
           value={`Clear Changes`}
           error
-          onClick={() => {
-            alert('Clear Changes')
-          }}
+          onClick={() => handleSimPortfolio(undefined)}
         />
       </Flex>
     </Grid>

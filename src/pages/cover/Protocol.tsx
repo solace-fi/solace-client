@@ -321,12 +321,6 @@ export const Protocol: React.FC<{
                   }}
                 />
               )}
-              {/* <GenericInputSection
-                placeholder={'Search Protocol'}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                h={32}
-              /> */}
               {dropdownOpen && cachedDropdownOptions}
             </div>
           </Flex>

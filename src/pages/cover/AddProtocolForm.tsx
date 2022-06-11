@@ -129,28 +129,17 @@ export default function AddProtocolForm({
         >
           <Flex style={{ width: '100%' }} itemsCenter>
             <Text autoAlignVertical p={5}>
-              {enteredProtocolMap && isValidProtocol ? (
+              {enteredProtocolMap && isValidProtocol && (
                 <img src={`https://assets.solace.fi/zapperLogos/${enteredProtocolMap.appId}`} height={16} />
-              ) : (
-                // <StyledHelpCircle size={16} />
-                <Text>Choose amount</Text>
               )}
             </Text>
-            <Text t5s style={!isValidProtocol ? {} : { width: '100%' }}>
-              {/* {capitalizeFirstLetter(enteredProtocolMap.appId.includes('Empty') ? 'Choose Protocol' : enteredProtocolMap.appId)} */}
-              {enteredProtocolMap && isValidProtocol ? (
-                processProtocolName(enteredProtocolMap.appId)
-              ) : (
-                <Flex between>
-                  <Text t5s>
-                    {enteredProtocolMap &&
-                      capitalizeFirstLetter(
-                        enteredProtocolMap.appId.includes('Empty') ? 'Choose Protocol' : enteredProtocolMap.appId
-                      )}
-                  </Text>
-                  <StyledArrowDropDown size={16} />
-                </Flex>
-              )}
+            <Text t5s style={{ width: '100%' }}>
+              <Flex between>
+                <Text t5s>
+                  {enteredProtocolMap ? processProtocolName(enteredProtocolMap.appId) : 'Choose Protocol'}
+                </Text>
+                <StyledArrowDropDown size={16} />
+              </Flex>
             </Text>
           </Flex>
         </ThinButton>
@@ -188,6 +177,17 @@ export default function AddProtocolForm({
           <StyledClose size={16} />
         </GraySquareButton>
       </Flex>
+      {dropdownOpen && (
+        <SmallerInputSection
+          placeholder={'Search Protocol'}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            width: '100%',
+            border: 'none',
+          }}
+        />
+      )}
       {cachedDropdownOptions}
       <Button
         techygradient

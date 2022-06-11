@@ -23,13 +23,13 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
   const { appTheme } = useGeneral()
 
   const { active } = useWeb3React()
-  const { portfolioKit, styles, seriesKit, intrface } = useCoverageContext()
+  const { portfolioKit, input, styles, seriesKit, intrface } = useCoverageContext()
   const { series } = seriesKit
+  const { simCoverLimit } = input
   const { portfolioLoading, handleShowSimulatorModal } = intrface
   const { curPortfolio: portfolioScore, simPortfolio, riskScores, handleSimPortfolio } = portfolioKit
   const { bigButtonStyle, gradientStyle } = styles
   const [canSimulate, setCanSimulate] = useState(false)
-  const [simCoverageLimit, setSimCoverageLimit] = useState<BigNumber>(BigNumber.from(0))
   const [editingItem, setEditingItem] = useState<string | undefined>(undefined)
   const [simulating, setSimulating] = useState(false)
   const [compiling, setCompiling] = useState(false)
@@ -294,11 +294,14 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
   }, [canSimulate])
 
   useEffect(() => {
-    if (portfolioPrev == undefined && portfolioScore != undefined) {
+    if (portfolioScore && simPortfolio == undefined) {
       setEditableProtocols([...portfolioScore.protocols].map((p, i) => ({ ...p, index: i })))
+      handleSimPortfolio(portfolioScore)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portfolioScore, portfolioPrev])
+    if (simPortfolio) {
+      setEditableProtocols([...simPortfolio.protocols].map((p, i) => ({ ...p, index: i })))
+    }
+  }, [portfolioScore, simPortfolio, handleSimPortfolio])
 
   return (
     <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative', overflow: 'hidden' }}>
@@ -336,7 +339,7 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
         {(portfolioLoading && active) || compiling || simulating ? (
           <LoaderText text={portfolioLoading && active ? 'Loading' : simulating ? 'Simulating' : 'Compiling'} t6 />
         ) : (
-          <Projections portfolioScore={scoreToUse} coverageLimit={simCoverageLimit} />
+          <Projections portfolioScore={scoreToUse} coverageLimit={simCoverLimit} />
         )}
         {/* <TileCard>
           <CoverageLimitSelector2 portfolioScore={scoreToUse} setNewCoverageLimit={editCoverageLimit} />

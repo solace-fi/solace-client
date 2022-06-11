@@ -11,19 +11,23 @@ import CoverageManager, { useCoverageContext } from './CoverageContext'
 import { PortfolioSimulator } from './PortfolioSimulator'
 import { PolicyContent } from './PolicyContent'
 import { CldModal } from './CldModal'
+import { SimCoverModal } from './SimCoverModal'
 
 const CoverageContent = () => {
   const { intrface } = useCoverageContext()
-  const { showPortfolioModal, showCLDModal, showSimulatorModal } = intrface
+  const { showPortfolioModal, showCLDModal, showSimulatorModal, showSimCoverModal } = intrface
 
   return (
     <Content>
       <Flex justifyCenter>
         <Flex col w={375}>
-          {showCLDModal && <CldModal show={true} />}
-          {showSimulatorModal && <PortfolioSimulator show={true} />}
-          {/* {showPortfolioModal && <PortfolioSimulator show={true} />} */}
-          {!showSimulatorModal && !showCLDModal && <CoveragePage />}
+          {!showSimulatorModal && showCLDModal && !showSimCoverModal && !showPortfolioModal && <CldModal show={true} />}
+          {showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && (
+            <PortfolioSimulator show={true} />
+          )}
+          {showSimulatorModal && !showCLDModal && showSimCoverModal && !showPortfolioModal && <SimCoverModal />}
+          {/* {!showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && <PortfolioSimulator show={true} />} */}
+          {!showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && <CoveragePage />}
         </Flex>
       </Flex>
     </Content>
