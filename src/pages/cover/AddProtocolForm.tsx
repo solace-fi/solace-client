@@ -22,7 +22,7 @@ export default function AddProtocolForm({
   setIsAddingProtocol,
 }: {
   editableProtocols: LocalSolaceRiskProtocol[]
-  onAddProtocol: (appId: string, balance: string) => void
+  onAddProtocol: (protocolMap: ProtocolMap, balance: string) => void
   setIsAddingProtocol: (bool: boolean) => void
 }): React.ReactElement {
   // const [protocol, setProtocol] = useState<LocalSolaceRiskProtocol | undefined>(undefined)
@@ -195,7 +195,7 @@ export default function AddProtocolForm({
         secondary
         noborder
         onClick={() => {
-          onAddProtocol(enteredProtocolMap?.appId ?? '', formatAmount(enteredBalance))
+          if (enteredProtocolMap) onAddProtocol(enteredProtocolMap, formatAmount(enteredBalance))
           setIsAddingProtocol(false)
         }}
         disabled={!enteredProtocolMap}
