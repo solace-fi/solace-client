@@ -116,7 +116,8 @@ export default function AddProtocolForm({
 
   return (
     <>
-      <div
+      <Flex
+        gap={8}
         style={{
           width: '100%',
         }}
@@ -153,42 +154,46 @@ export default function AddProtocolForm({
             </Text>
           </Flex>
         </ThinButton>
-      </div>
-      <SmallerInputSection
-        placeholder={'Held amount'}
-        value={enteredBalance}
-        // onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
-        onChange={(e) => {
-          // validate amount
-          const numberAmount = parseInt(e.target.value)
-          // if under 0, it's 0
-          if (numberAmount < 0) setEnteredBalance('0')
-          // if not valid, return
-          if (isNaN(numberAmount)) return
-          // otherwise, it's valid, so just set it
-          setEnteredBalance(e.target.value)
-        }}
-        style={{
-          maxWidth: '106px',
-          width: '106px',
-          minWidth: '106px',
-          maxHeight: '32px',
-        }}
-        asideBg
-      />
+        <SmallerInputSection
+          placeholder={'Held amount'}
+          value={enteredBalance}
+          // onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
+          onChange={(e) => {
+            // validate amount
+            const numberAmount = parseInt(e.target.value)
+            // if under 0, it's 0
+            if (numberAmount < 0) setEnteredBalance('0')
+            // if not valid, return
+            if (isNaN(numberAmount)) return
+            // otherwise, it's valid, so just set it
+            setEnteredBalance(e.target.value)
+          }}
+          style={{
+            maxWidth: '106px',
+            width: '106px',
+            minWidth: '106px',
+            maxHeight: '32px',
+          }}
+          asideBg
+        />
+        <GraySquareButton
+          width={32}
+          height={32}
+          noborder
+          onClick={() => {
+            setIsAddingProtocol(false)
+          }}
+          darkText
+        >
+          <StyledClose size={16} />
+        </GraySquareButton>
+      </Flex>
       {cachedDropdownOptions}
-      <GraySquareButton
-        width={32}
-        height={32}
-        noborder
-        onClick={() => {
-          setIsAddingProtocol(false)
-        }}
-        darkText
-      >
-        <StyledClose size={16} />
-      </GraySquareButton>
       <Button
+        techygradient
+        noscaledown
+        secondary
+        noborder
         onClick={() => {
           onAddProtocol(enteredProtocolMap?.appId ?? '', formatAmount(enteredBalance))
           setIsAddingProtocol(false)

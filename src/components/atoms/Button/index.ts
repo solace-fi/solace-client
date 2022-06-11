@@ -28,6 +28,7 @@ export interface ButtonProps extends ClickProps {
   semibold?: boolean
   techygradient?: boolean
   warmgradient?: boolean
+  noscaledown?: boolean
 }
 
 interface ButtonWrapperProps {
@@ -80,7 +81,7 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
       color: ${textColor};
       background-color: rgba(0, 0, 0, 0);
       opacity: 0.5;
-      transform: scale(0.9);
+      transform: ${!props.noscaledown ? css`scale(0.9)` : css`scale(1)`};
     `
   }
   if (props.secondary) {

@@ -384,9 +384,7 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
           </Button>
         ) : (
           <>
-            <Flex p={16} col bgRaised rounded style={{ width: '100%' }}>
-              <Text t4s>Adding position</Text>
-              <Button onClick={() => setAddingProtocol(false)}>Cancel</Button>
+            <Flex p={16} col bgRaised rounded style={{ width: '100%' }} gap={12}>
               <AddProtocolForm
                 editableProtocols={editableProtocols}
                 setIsAddingProtocol={setAddingProtocol}
