@@ -3,30 +3,19 @@ import { BigNumber } from 'ethers'
 import { Flex } from '../../components/atoms/Layout'
 import { useCoverageContext } from './CoverageContext'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
-import { Button, GraySquareButton, ThinButton } from '../../components/atoms/Button'
-import { filterAmount, formatAmount } from '../../utils/formatting'
+import { Button } from '../../components/atoms/Button'
+import { formatAmount } from '../../utils/formatting'
 import { useTierColors } from '../../hooks/internal/useTierColors'
 import { Protocol } from './Protocol'
 import usePrevious from '../../hooks/internal/usePrevious'
-import {
-  capitalizeFirstLetter,
-  processProtocolName,
-  ProtocolMap,
-  SolaceRiskBalance,
-  SolaceRiskScore,
-} from '@solace-fi/sdk-nightly'
-import { TileCard } from '../../components/molecules/TileCard'
+import { ProtocolMap, SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { LoaderText } from '../../components/molecules/LoaderText'
-import { CoverageLimitSelector, CoverageLimitSelector2 } from '../soteria/CoverageLimitSelector'
 import { Projections } from './Projections'
 import { useWeb3React } from '@web3-react/core'
-import { StyledAdd, StyledArrowDropDown, StyledClose } from '../../components/atoms/Icon'
+import { StyledAdd } from '../../components/atoms/Icon'
 import { Text } from '../../components/atoms/Typography'
-import { Modal, ModalCloseButton } from '../../components/molecules/Modal'
+import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
-import { Accordion } from '../../components/atoms/Accordion'
-import { protocol } from 'socket.io-client'
-import { SmallerInputSection } from '../../components/molecules/InputSection'
 import AddProtocolForm from './AddProtocolForm'
 import mapEditableProtocols from '../../utils/mapEditableProtocols'
 
@@ -155,13 +144,13 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
     setCanSimulate(true)
   }
 
-  const editCoverageLimit = useCallback(
-    (newCoverageLimit: BigNumber) => {
-      if (simCoverageLimit.eq(newCoverageLimit)) return
-      setSimCoverageLimit(newCoverageLimit)
-    },
-    [simCoverageLimit]
-  )
+  // const editCoverageLimit = useCallback(
+  //   (newCoverageLimit: BigNumber) => {
+  //     if (simCoverageLimit.eq(newCoverageLimit)) return
+  //     setSimCoverageLimit(newCoverageLimit)
+  //   },
+  //   [simCoverageLimit]
+  // )
 
   // const saveId = useCallback(
   //   (targetAppId: string, newAppId: string) => {
@@ -312,8 +301,8 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
   }, [portfolioScore, portfolioPrev])
 
   return (
-    <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative' }}>
-      <Flex py={18} itemsCenter between px={20}>
+    <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative', overflow: 'hidden' }}>
+      <Flex py={18} itemsCenter between px={20} zIndex={3} bgSecondary>
         <Text t1s mont semibold>
           Portfolio Simulator
         </Text>
@@ -334,7 +323,16 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
       >
       </Flex> */}
       {/* <Content style={{ transition: 'all 350ms ease 0s' }}> */}
-      <Flex col gap={12} px={20} pb={18}>
+      <Flex
+        shadow
+        col
+        gap={12}
+        px={20}
+        pb={18}
+        style={{
+          zIndex: 2,
+        }}
+      >
         {(portfolioLoading && active) || compiling || simulating ? (
           <LoaderText text={portfolioLoading && active ? 'Loading' : simulating ? 'Simulating' : 'Compiling'} t6 />
         ) : (
@@ -353,10 +351,11 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
         pb={10}
         style={{
           overflowY: 'auto',
+          height: '100%',
           // why this height specifically? i have no clue, but it works pixel-perfectly and it's responive (??)
           // height: `calc(100% - ${376}px)`,
         }}
-        bgError
+        bgLightGray
       >
         {editableProtocols.map((protocol: LocalSolaceRiskProtocol) => {
           const riskColor = getColorByTier(protocol.tier)
@@ -404,6 +403,7 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
         }}
         p={20}
         bgSecondary
+        shadow
       >
         {!addingProtocol ? (
           <Button
@@ -423,7 +423,7 @@ export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => 
           </Button>
         ) : (
           <>
-            <Flex p={16} col bgRaised rounded style={{ width: '100%' }} gap={12}>
+            <Flex p={16} col bgRaised rounded style={{ width: '100%' }}>
               <AddProtocolForm
                 editableProtocols={editableProtocols}
                 setIsAddingProtocol={setAddingProtocol}

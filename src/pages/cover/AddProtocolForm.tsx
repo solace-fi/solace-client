@@ -127,16 +127,16 @@ export default function AddProtocolForm({
             setDropdownOpen(!dropdownOpen)
           }}
         >
-          <Flex itemsCenter={!!isValidProtocol} style={!isValidProtocol ? { width: '100%' } : {}}>
+          <Flex style={{ width: '100%' }} itemsCenter>
             <Text autoAlignVertical p={5}>
               {enteredProtocolMap && isValidProtocol ? (
                 <img src={`https://assets.solace.fi/zapperLogos/${enteredProtocolMap.appId}`} height={16} />
               ) : (
                 // <StyledHelpCircle size={16} />
-                <></>
+                <Text>Choose amount</Text>
               )}
             </Text>
-            <Text t5s style={!isValidProtocol ? { width: '100%' } : {}}>
+            <Text t5s style={!isValidProtocol ? {} : { width: '100%' }}>
               {/* {capitalizeFirstLetter(enteredProtocolMap.appId.includes('Empty') ? 'Choose Protocol' : enteredProtocolMap.appId)} */}
               {enteredProtocolMap && isValidProtocol ? (
                 processProtocolName(enteredProtocolMap.appId)
@@ -194,6 +194,7 @@ export default function AddProtocolForm({
         noscaledown
         secondary
         noborder
+        mt={12}
         onClick={() => {
           if (enteredProtocolMap) onAddProtocol(enteredProtocolMap, formatAmount(enteredBalance))
           setIsAddingProtocol(false)

@@ -42,6 +42,7 @@ export interface FlexProps {
   rounded?: boolean
   shadow?: boolean
   thinScrollbar?: boolean
+  zIndex?: number
 
   bgRaised?: boolean
   bgSecondary?: boolean
@@ -49,6 +50,7 @@ export interface FlexProps {
   bgWarm?: boolean
   bgInfo?: boolean
   bgError?: boolean
+  bgLightGray?: boolean
 }
 
 // type Conditional = string | number | boolean | undefined
@@ -95,6 +97,7 @@ export const Flex = styled.div<FlexProps>`
   ${({ rounded })       => rounded       !== undefined ? css`border-radius: 10px;` : ""}
   ${({ shadow })        => shadow        !== undefined ? css`box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);` : ""}
   ${({ thinScrollbar }) => thinScrollbar !== undefined ? ThinScrollbarCss : ""}
+  ${({ zIndex })        => zIndex        !== undefined ? css`z-index: ${zIndex};` : ""}
   
   ${(props)             => props.bgRaised    !== undefined ? css`background-color: ${(props.theme as Theme).v2.raised};` : ""}
   ${(props)             => props.bgSecondary !== undefined ? css`background-color: ${(props.theme as Theme).body.bg_color};` : ""}
@@ -102,6 +105,7 @@ export const Flex = styled.div<FlexProps>`
   ${(props)             => props.bgWarm      !== undefined ? css`background-image: linear-gradient(to bottom right, ${(props.theme as Theme).typography.warmGradientA}, ${(props.theme as Theme).typography.warmGradientB});` : ""}
   ${(props)             => props.bgInfo      !== undefined ? css`background-color: ${(props.theme as Theme).typography.infoText};` : ""}
   ${(props)             => props.bgError     !== undefined ? css`background-color: ${(props.theme as Theme).typography.errorText};` : ""}
+  ${(props)             => props.bgLightGray !== undefined ? css`background-color: ${(props.theme as Theme).typography.lightGray};` : ""}
 `
 
 export const GridOrRow = styled(Flex)<{ preferredWidth?: number }>`

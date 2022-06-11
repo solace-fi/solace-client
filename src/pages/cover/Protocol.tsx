@@ -172,7 +172,6 @@ export const Protocol: React.FC<{
         </Button> */}
         <Flex col gap={8}>
           <Flex stretch between gap={10}>
-            {/* <div style={{ background: 'red', height: '32px' }}> aAa </div> */}
             {isEditing ? (
               <>
                 <div

@@ -63,7 +63,7 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
       color: ${textColor};
       background-color: ${bgColor};
       opacity: 0.5;
-      transform: scale(0.9);
+      transform: ${!props.noscaledown ? css`scale(0.9)` : css`scale(1)`};
       cursor: default;
     `
   }

@@ -14,26 +14,41 @@ function CardTemplate({
   children,
   techy,
   unit,
+  onClick,
 }: {
   title: string
   children: string | React.ReactNode
   hasIcon?: true
   techy?: true
   unit?: string
+  onClick?: () => void
 }) {
   return (
-    <Flex col bgRaised p={16} gap={4} rounded>
-      <Text
-        t6s
-        techygradient={techy}
-        bold
-        style={{
-          lineHeight: '13.62px',
-          maxWidth: '75px',
-        }}
-      >
-        {title}
-      </Text>
+    <Flex
+      col
+      bgRaised
+      p={16}
+      gap={4}
+      rounded
+      style={{
+        cursor: hasIcon ? 'pointer' : 'default',
+      }}
+      onClick={onClick}
+    >
+      <Flex between>
+        <Text
+          t6s
+          techygradient={techy}
+          bold
+          style={{
+            lineHeight: '13.62px',
+            maxWidth: '75px',
+          }}
+        >
+          {title}
+        </Text>
+        {hasIcon && <StyledOptions height={12} width={12} />}
+      </Flex>
       <Text
         t4s
         techygradient={techy}
@@ -43,7 +58,7 @@ function CardTemplate({
         }}
       >
         {children}
-        <Text inline t6s style={{ fontWeight: '400' }} dark>
+        <Text ml={3} inline t6s style={{ fontWeight: '400' }} dark>
           {unit}
         </Text>
       </Text>
@@ -118,14 +133,14 @@ export const Projections = ({
   return (
     <Grid columns={2} gap={12}>
       <CardTemplate title="Simulated Portfolio Total">{`$${truncateValue(usdBalanceSum, 2)}`}</CardTemplate>
-      <CardTemplate title="Simulated Cover Limit">{`$${truncateValue(
-        utils.formatEther(coverageLimit),
-        2
-      )}`}</CardTemplate>
-      <CardTemplate techy hasIcon title="Simulated Policy Price" unit="/ Day">{`$${truncateValue(
-        dailyCost,
-        2
-      )}`}</CardTemplate>
+      <CardTemplate
+        title="Simulated Cover Limit"
+        hasIcon
+        onClick={() => {
+          alert('Open simulated cover limit modal')
+        }}
+      >{`$${truncateValue(utils.formatEther(coverageLimit), 2)}`}</CardTemplate>
+      <CardTemplate techy title="Simulated Policy Price" unit="/ Day">{`$${truncateValue(dailyCost, 2)}`}</CardTemplate>
       <Flex col gap={12}>
         <SmallCardTemplate
           icon={<StyledExport height={12} width={12} />}
@@ -145,35 +160,5 @@ export const Projections = ({
         />
       </Flex>
     </Grid>
-    /* <Flex col>
-        <Text bold t2 textAlignCenter>
-          Total
-        </Text>
-        <Text textAlignCenter bold t1 {...gradientStyle}>
-          ${truncateValue(usdBalanceSum, 2)}
-        </Text>
-      </Flex>
-      <VerticalSeparator />
-      <StyledTooltip
-        id={`projected-premium`}
-        tip={`$${dailyCost * 365.25} / Year`}
-        alwaysShowChildren
-        disabled={dailyCost >= 0.01 || dailyCost == 0}
-      >
-        <Flex col>
-          <Text bold t2 textAlignCenter>
-            Daily Premium
-          </Text>
-          <Text textAlignCenter>
-            <TextSpan t1 bold {...gradientStyle}>
-              ${truncateValue(dailyCost, 2)}
-            </TextSpan>
-            <TextSpan t5s bold pl={5}>
-              / Day
-            </TextSpan>
-          </Text>
-        </Flex>
-      </StyledTooltip>
-    </Flex> */
   )
 }

@@ -116,7 +116,7 @@ export const darkTheme = {
     techyGradientB: 'rgb(95, 93, 249)',
     warmGradientA: 'rgba(243, 211, 126, 1)',
     warmGradientB: 'rgba(240, 77, 66, 1)',
-    lightGray: 'rgba(255, 255, 255, 0.04)',
+    lightGray: 'rgba(255, 255, 255, 0.02)',
     separator: '#828282',
     lightNeutral: '#F2CAD6',
   },
