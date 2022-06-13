@@ -13,21 +13,40 @@ import { PolicyContent } from './PolicyContent'
 import { CldModal } from './CldModal'
 import { SimCoverModal } from './SimCoverModal'
 
+function VisibilityController({ show, children }: { show: boolean; children: React.ReactNode }) {
+  return <div style={{ display: show ? 'block' : 'none' }}>{children}</div>
+}
+
 const CoverageContent = () => {
   const { intrface } = useCoverageContext()
   const { showPortfolioModal, showCLDModal, showSimulatorModal, showSimCoverModal } = intrface
+
+  const _showCldModal = showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal
+  const _showSimulatorModal = showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal
+  const _showSimCoverModal = showSimulatorModal && !showCLDModal && showSimCoverModal && !showPortfolioModal
+  const _showDefault = !showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal
+
+  // const _showCldModal = false
+  // const _showSimulatorModal = false
+  // const _showSimCoverModal = true
+  // const _showDefault = false
 
   return (
     <Content>
       <Flex justifyCenter>
         <Flex col w={375}>
-          {!showSimulatorModal && showCLDModal && !showSimCoverModal && !showPortfolioModal && <CldModal show={true} />}
-          {showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && (
+          <VisibilityController show={_showCldModal}>
+            <CldModal show={true} />
+          </VisibilityController>
+          <VisibilityController show={_showSimulatorModal}>
             <PortfolioSimulator show={true} />
-          )}
-          {showSimulatorModal && !showCLDModal && showSimCoverModal && !showPortfolioModal && <SimCoverModal />}
-          {/* {!showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && <PortfolioSimulator show={true} />} */}
-          {!showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && <CoveragePage />}
+          </VisibilityController>
+          <VisibilityController show={_showSimCoverModal}>
+            <SimCoverModal />
+          </VisibilityController>
+          <VisibilityController show={_showDefault}>
+            <PolicyContent />
+          </VisibilityController>
         </Flex>
       </Flex>
     </Content>

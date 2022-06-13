@@ -223,7 +223,7 @@ export const CoverageLimitSelector2 = ({
   return (
     <Flex col stretch>
       <Flex justifyCenter>
-        <Text t4s textAlignCenter width={200}>
+        <Text t4s textAlignCenter>
           Maximum payout in the case of an exploit.
         </Text>
       </Flex>
