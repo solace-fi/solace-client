@@ -1,6 +1,6 @@
 import { useWeb3React } from '@web3-react/core'
-import { parseUnits } from 'ethers/lib/utils'
-import React, { useState } from 'react'
+import { formatUnits, parseUnits } from 'ethers/lib/utils'
+import React, { useMemo, useState } from 'react'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Flex } from '../../components/atoms/Layout'
 import { ModalCloseButton } from '../../components/molecules/Modal'
@@ -11,9 +11,16 @@ import { FunctionName } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
-import { filterAmount, formatAmount } from '../../utils/formatting'
+import {
+  accurateMultiply,
+  convertSciNotaToPrecise,
+  filterAmount,
+  formatAmount,
+  truncateValue,
+} from '../../utils/formatting'
 import { useCoverageContext } from './CoverageContext'
 import { BalanceDropdownOptions, DropdownInputSection } from './Dropdown'
+import { BigNumber } from 'ethers'
 
 export const CldModal = () => {
   const { account } = useWeb3React()
@@ -29,14 +36,32 @@ export const CldModal = () => {
     handleEnteredCoverLimit,
     selectedCoin,
     handleSelectedCoin,
+    selectedCoinPrice,
   } = input
   const { curPortfolio } = portfolioKit
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
-  const { signatureObj, depositApproval } = policy
+  const { signatureObj, depositApproval, minReqAccBal, scpBalance } = policy
 
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [localCoinsOpen, setLocalCoinsOpen] = useState<boolean>(false)
+
+  const scpBalanceMeetsMrab = useMemo(() => {
+    return minReqAccBal.lte(parseUnits(scpBalance, 18))
+  }, [scpBalance, minReqAccBal])
+
+  const lackingScp = useMemo(() => {
+    const parsedScpBalance = parseUnits(scpBalance, 18)
+    const float_enteredDeposit = parseFloat(formatAmount(enteredDeposit))
+    const depositUSDEquivalent = float_enteredDeposit * selectedCoinPrice
+    const BN_Scp_Plus_Deposit = parsedScpBalance.add(
+      BigNumber.from(accurateMultiply(convertSciNotaToPrecise(`${depositUSDEquivalent}`), 18))
+    )
+    if (minReqAccBal.gt(BN_Scp_Plus_Deposit)) {
+      return truncateValue(formatUnits(minReqAccBal.sub(BN_Scp_Plus_Deposit)), 2)
+    }
+    return '0'
+  }, [scpBalance, minReqAccBal, enteredDeposit, selectedCoinPrice])
 
   const callPurchase = async () => {
     if (!account) return
@@ -157,13 +182,28 @@ export const CldModal = () => {
         </Text>
       </Flex>
       <CoverageLimitSelector2 portfolioScore={curPortfolio} setNewCoverageLimit={handleEnteredCoverLimit} />
-      <ButtonWrapper>
-        <Button {...gradientStyle} {...bigButtonStyle} onClick={callPurchase} secondary noborder>
-          Save
-        </Button>
-      </ButtonWrapper>
-      {curPortfolio && curPortfolio.protocols.length > 0 && (
-        <Flex col gap={12}>
+      {scpBalanceMeetsMrab && (
+        <ButtonWrapper>
+          <Button
+            {...gradientStyle}
+            {...bigButtonStyle}
+            secondary
+            noborder
+            onClick={callPurchase}
+            disabled={enteredCoverLimit.isZero()}
+          >
+            Save
+          </Button>
+        </ButtonWrapper>
+      )}
+      {lackingScp != '0' && (
+        <Text textAlignCenter pt={16}>
+          You need at least ${lackingScp} to set the desired cover limit. Use the form below to deposit the additional
+          premium.
+        </Text>
+      )}
+      {curPortfolio && curPortfolio.protocols.length > 0 && !scpBalanceMeetsMrab && (
+        <Flex col gap={12} pt={16}>
           <div>
             <DropdownInputSection
               hasArrow
@@ -185,7 +225,14 @@ export const CldModal = () => {
             />
           </div>
           <ButtonWrapper style={{ width: '100%' }} p={0}>
-            <Button {...bigButtonStyle} {...gradientStyle} secondary noborder onClick={handlePurchase}>
+            <Button
+              {...bigButtonStyle}
+              {...gradientStyle}
+              secondary
+              noborder
+              onClick={handlePurchase}
+              disabled={enteredCoverLimit.isZero() || lackingScp != '0'}
+            >
               <Text>Deposit &amp; Save</Text>
             </Button>
           </ButtonWrapper>

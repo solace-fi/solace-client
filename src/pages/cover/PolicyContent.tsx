@@ -23,6 +23,7 @@ import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import { RaisedBox } from '../../components/atoms/Box'
+import { COVER_PAYMENT_MANAGER_ADDRESS, SOLACE_COVER_PRODUCT_V3_ADDRESS } from '@solace-fi/sdk-nightly'
 
 export const PolicyContent = (): JSX.Element => {
   const { intrface, styles, input, dropdowns, policy, portfolioKit } = useCoverageContext()
@@ -84,6 +85,8 @@ export const PolicyContent = (): JSX.Element => {
     cancel,
     withdraw,
     getBalanceOfNonRefundable,
+    depositStable,
+    depositNonStable,
   } = useCoverageFunctions()
 
   const [showExistingPolicyMessage, setShowExistingPolicyMessage] = useState<boolean>(true)
@@ -118,6 +121,39 @@ export const PolicyContent = (): JSX.Element => {
     setWithdrawingMoreThanRefundable(refundableSOLACEAmount.gt(BN_enteredWithdrawal))
     return true
   }, [enteredWithdrawal, refundableSOLACEAmount])
+
+  const handleDeposit = async () => {
+    if (selectedCoin.stablecoin) {
+      await callDepositStable()
+    } else {
+      await callDepositNonStable()
+    }
+  }
+
+  const callDepositStable = async () => {
+    if (!account) return
+    handleTransactionLoading(true)
+    await depositStable(selectedCoin.address, account, parseUnits(enteredDeposit, selectedCoin.decimals))
+      .then((res) => _handleToast(res.tx, res.localTx))
+      .catch((err) => _handleContractCallError('callDepositStable', err, FunctionName.COVER_DEPOSIT_STABLE))
+  }
+
+  const callDepositNonStable = async () => {
+    if (!account || !depositApproval) return
+    const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
+    const tokenSignature: any = Object.values(signature)[0]
+    handleTransactionLoading(true)
+    await depositNonStable(
+      selectedCoin.address,
+      account,
+      parseUnits(enteredDeposit, selectedCoin.decimals),
+      tokenSignature.price,
+      tokenSignature.deadline,
+      tokenSignature.signature
+    )
+      .then((res) => _handleToast(res.tx, res.localTx))
+      .catch((err) => _handleContractCallError('callDepositNonStable', err, FunctionName.COVER_DEPOSIT_NON_STABLE))
+  }
 
   const callPurchase = async () => {
     if (!account) return
@@ -188,25 +224,27 @@ export const PolicyContent = (): JSX.Element => {
     const amountToWithdraw = refundableSOLACEAmount.gt(parseUnits(enteredWithdrawal, selectedCoin.decimals))
       ? parseUnits(enteredWithdrawal, selectedCoin.decimals)
       : refundableSOLACEAmount
-    // const nr = await getBalanceOfNonRefundable(account)
-    // let refundableSCP1 = ZERO
-    // let refundableSCP2 = ZERO
-    // if (parseUnits(scpBalance, 18).gt(nr)) {
-    //   refundableSCP1 = parseUnits(scpBalance, 18).sub(nr)
-    //   const float_refundableSCP1 = floatUnits(refundableSCP1, 18)
-    //   refundableSCP2 = parseUnits(scpBalance, 18).sub(minReqScpBal)
-    //   const float_refundableSCP2 = floatUnits(refundableSCP2, 18)
-    //   console.log('current cover limit', floatUnits(curCoverageLimit, 18))
-    //   console.log('mrab', floatUnits(minReqAccBal, 18))
-    //   console.log('scpBalance', scpBalance)
-    //   console.log('nonrefundable', floatUnits(nr, 18))
-    //   console.log('minScpRequired', floatUnits(minReqScpBal, 18))
-    //   console.log('scpBalance - nonrefundable SCP', float_refundableSCP1)
-    //   console.log('scpBalance - minScpRequired SCP', float_refundableSCP2)
-    //   console.log('refundableSOLACEAmount SOLACE', floatUnits(refundableSOLACEAmount, 18))
-    //   console.log('scpBalance - nonrefundable SOLACE', float_refundableSCP1 / signatureObj.price)
-    //   console.log('scpBalance - minScpRequired SOLACE', float_refundableSCP2 / signatureObj.price)
-    // }
+    const nr = await getBalanceOfNonRefundable(account)
+    let refundableSCP1 = ZERO
+    let refundableSCP2 = ZERO
+    if (parseUnits(scpBalance, 18).gt(nr)) {
+      refundableSCP1 = parseUnits(scpBalance, 18).sub(nr)
+      const float_refundableSCP1 = floatUnits(refundableSCP1, 18)
+      refundableSCP2 = parseUnits(scpBalance, 18).sub(minReqScpBal)
+      const float_refundableSCP2 = floatUnits(refundableSCP2, 18)
+      console.log('current cover limit', floatUnits(curCoverageLimit, 18))
+      console.log('mrab', floatUnits(minReqAccBal, 18))
+      console.log('scpBalance', scpBalance)
+      console.log('nonrefundable', floatUnits(nr, 18))
+      console.log('minScpRequired', floatUnits(minReqScpBal, 18))
+      console.log('scpBalance - nonrefundable SCP', float_refundableSCP1)
+      console.log('scpBalance - minScpRequired SCP', float_refundableSCP2)
+      console.log('refundableSOLACEAmount SOLACE', floatUnits(refundableSOLACEAmount, 18))
+      console.log('scpBalance - nonrefundable SOLACE', float_refundableSCP1 / signatureObj.price)
+      console.log('scpBalance - minScpRequired SOLACE', float_refundableSCP2 / signatureObj.price)
+      console.log('swc3', SOLACE_COVER_PRODUCT_V3_ADDRESS[activeNetwork.chainId])
+      console.log('cpm', COVER_PAYMENT_MANAGER_ADDRESS[activeNetwork.chainId])
+    }
     await withdraw(account, amountToWithdraw, tokenSignature.price, tokenSignature.deadline, tokenSignature.signature)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callWithdraw', err, FunctionName.COVER_WITHDRAW))
@@ -512,6 +550,8 @@ export const PolicyContent = (): JSX.Element => {
                           noborder
                           onClick={handlePurchase}
                           disabled={
+                            enteredCoverLimit.isZero() ||
+                            portfolioLoading ||
                             !doesMeetMinReqAccBal ||
                             (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
                               !isAcceptableDeposit)
@@ -528,6 +568,8 @@ export const PolicyContent = (): JSX.Element => {
                           {...bigButtonStyle}
                           onClick={handlePurchase}
                           disabled={
+                            enteredCoverLimit.isZero() ||
+                            portfolioLoading ||
                             !doesMeetMinReqAccBal ||
                             (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
                               !isAcceptableDeposit)
@@ -588,7 +630,7 @@ export const PolicyContent = (): JSX.Element => {
                               matchBg
                               secondary
                               noborder
-                              onClick={handlePurchase}
+                              onClick={handleDeposit}
                               disabled={!isAcceptableDeposit}
                             >
                               <Text {...gradientStyle}>Deposit</Text>

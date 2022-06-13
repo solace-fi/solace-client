@@ -36,6 +36,41 @@ export const useCoverageFunctions = () => {
     [activeNetwork, signer]
   )
 
+  const depositStable = async (token: string, account: string, amount: BigNumberish) => {
+    if (!scpObj) return { tx: null, localTx: null }
+    const tx = await scpObj.depositStable(token, account, amount, {
+      ...gasConfig,
+      gasLimit: FunctionGasLimits['coverPaymentManager.depositStable'],
+    })
+    const localTx: LocalTx = {
+      hash: tx.hash,
+      type: FunctionName.COVER_DEPOSIT_STABLE,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
+  const depositNonStable = async (
+    token: string,
+    account: string,
+    amount: BigNumberish,
+    price: BigNumber,
+    priceDeadline: BigNumber,
+    signature: string
+  ) => {
+    if (!scpObj) return { tx: null, localTx: null }
+    const tx = await scpObj.depositNonStable(token, account, amount, price, priceDeadline, signature, {
+      ...gasConfig,
+      gasLimit: FunctionGasLimits['coverPaymentManager.depositNonStable'],
+    })
+    const localTx: LocalTx = {
+      hash: tx.hash,
+      type: FunctionName.COVER_DEPOSIT_NON_STABLE,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
   const purchaseWithStable = async (account: string, coverLimit: BigNumberish, token: string, amount: BigNumberish) => {
     if (!coverageObj) return { tx: null, localTx: null }
     // const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchaseWithStable(
@@ -351,6 +386,8 @@ export const useCoverageFunctions = () => {
     purchaseWithNonStable,
     cancel,
     withdraw,
+    depositStable,
+    depositNonStable,
   }
 }
 
