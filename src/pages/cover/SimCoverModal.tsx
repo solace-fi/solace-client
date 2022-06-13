@@ -60,7 +60,7 @@ export const SimCoverModal = () => {
           secondary
           noborder
         >
-          Save
+          Set
         </Button>
       </ButtonWrapper>
     </Flex>
