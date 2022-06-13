@@ -52,7 +52,7 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
                 </InfoPair>
               </div>
             </Flex>
-            <Flex col={(rightSidebar ? BKPT_7 : BKPT_6) > width} gap={91} stretch>
+            <Flex col={(rightSidebar ? BKPT_7 : BKPT_6) > width} stretch>
               <Separator horizontal={(rightSidebar ? BKPT_7 : BKPT_6) > width} />
               <div>
                 <InfoPair importance="secondary" label="APR" horizontal={(rightSidebar ? BKPT_7 : BKPT_6) > width}>

@@ -341,13 +341,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "policyCount",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "name": "policyOf",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
@@ -363,11 +356,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_user", "type": "address" },
-      { "internalType": "uint256", "name": "_coverLimit", "type": "uint256" }
+      { "internalType": "address[]", "name": "_users", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "_coverLimits", "type": "uint256[]" }
     ],
     "name": "purchase",
-    "outputs": [{ "internalType": "uint256", "name": "policyID", "type": "uint256" }],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -522,6 +515,13 @@
     "inputs": [{ "internalType": "uint256", "name": "policyID", "type": "uint256" }],
     "name": "tokenURI",
     "outputs": [{ "internalType": "string", "name": "uri", "type": "string" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
