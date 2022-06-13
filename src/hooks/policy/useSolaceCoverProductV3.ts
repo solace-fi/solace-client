@@ -101,7 +101,7 @@ export const useCoverageFunctions = () => {
   const purchase = async (account: string, coverLimit: BigNumberish) => {
     if (!coverageObj) return { tx: null, localTx: null }
     // const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchase(account, coverLimit)
-    const tx = await coverageObj.purchase(account, coverLimit, {
+    const tx = await coverageObj.purchase([account], [coverLimit], {
       ...gasConfig,
       // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       gasLimit: FunctionGasLimits['solaceCoverProductV3.purchase'],
@@ -264,13 +264,13 @@ export const useCoverageFunctions = () => {
     }
   }
 
-  const policyCount = async (): Promise<BigNumber> => {
+  const totalSupply = async (): Promise<BigNumber> => {
     if (!coverageObj) return ZERO
     try {
-      const d = await withBackoffRetries(async () => coverageObj.policyCount())
+      const d = await withBackoffRetries(async () => coverageObj.totalSupply())
       return d
     } catch (e) {
-      console.log('error policyCount ', e)
+      console.log('error totalSupply ', e)
       return ZERO
     }
   }
@@ -341,7 +341,7 @@ export const useCoverageFunctions = () => {
     getMinScpRequired,
     tokenURI,
     paused,
-    policyCount,
+    totalSupply,
     chargeCycle,
     latestChargedTime,
     coverLimitOf,
