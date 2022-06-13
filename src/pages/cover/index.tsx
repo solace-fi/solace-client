@@ -12,6 +12,7 @@ import { PortfolioSimulator } from './PortfolioSimulator'
 import { PolicyContent } from './PolicyContent'
 import { CldModal } from './CldModal'
 import { SimCoverModal } from './SimCoverModal'
+import { Portfolio } from './Portfolio'
 
 function VisibilityController({ show, children }: { show: boolean; children: React.ReactNode }) {
   return <div style={{ display: show ? 'block' : 'none' }}>{children}</div>
@@ -24,6 +25,7 @@ const CoverageContent = () => {
   const _showCldModal = showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal
   const _showSimulatorModal = showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal
   const _showSimCoverModal = showSimulatorModal && !showCLDModal && showSimCoverModal && !showPortfolioModal
+  const _showPortfolioModal = showPortfolioModal && !showCLDModal && !showSimulatorModal && !showSimCoverModal
   const _showDefault = !showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal
 
   // const _showCldModal = false
@@ -36,16 +38,19 @@ const CoverageContent = () => {
       <Flex justifyCenter>
         <Flex col w={375}>
           <VisibilityController show={_showCldModal}>
-            <CldModal show={true} />
+            <CldModal />
+          </VisibilityController>
+          <VisibilityController show={_showPortfolioModal}>
+            <Portfolio />
           </VisibilityController>
           <VisibilityController show={_showSimulatorModal}>
-            <PortfolioSimulator show={true} />
+            <PortfolioSimulator />
           </VisibilityController>
           <VisibilityController show={_showSimCoverModal}>
             <SimCoverModal />
           </VisibilityController>
           <VisibilityController show={_showDefault}>
-            <PolicyContent />
+            <CoveragePage />
           </VisibilityController>
         </Flex>
       </Flex>

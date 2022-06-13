@@ -4,6 +4,7 @@ import { Text } from '../../components/atoms/Typography'
 import { Button, GraySquareButton, ThinButton } from '../../components/atoms/Button'
 import { capitalizeFirstLetter, filterAmount } from '../../utils/formatting'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
+import { SolaceRiskProtocol } from '@solace-fi/sdk-nightly'
 import { useCoverageContext } from './CoverageContext'
 import { Accordion } from '../../components/atoms/Accordion'
 import { TileCard } from '../../components/molecules/TileCard'
@@ -11,10 +12,64 @@ import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
 import { StyledArrowDropDown, StyledClose, StyledHelpCircle } from '../../components/atoms/Icon'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import usePrevious from '../../hooks/internal/usePrevious'
-import useDebounce from '@rooks/use-debounce'
 
 function mapNumberToLetter(number: number): string {
   return String.fromCharCode(97 + number - 1).toUpperCase()
+}
+
+export const ReadOnlyProtocol: React.FC<{
+  protocol: SolaceRiskProtocol
+  riskColor: string
+}> = ({ protocol, riskColor }): JSX.Element => {
+  return (
+    <div>
+      <TileCard padding={16} style={{ position: 'relative', width: '100%' }}>
+        <Flex col gap={8}>
+          <Flex stretch between gap={10}>
+            <div
+              style={{
+                width: '100%',
+              }}
+            >
+              <Flex between>
+                <Flex itemsCenter gap={8}>
+                  {/* protocol icon */}
+                  <Text autoAlignVertical>
+                    <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={36} />
+                  </Text>
+                  <Flex col gap={5}>
+                    {/* protocol name */}
+                    <Text t5s bold>
+                      {capitalizeFirstLetter(
+                        protocol.appId.includes('Empty') ? 'Empty' : processProtocolName(protocol.appId)
+                      )}
+                    </Text>
+                    {/* protocol category */}
+                    <Text t5s>{capitalizeFirstLetter(protocol.category)}</Text>
+                  </Flex>
+                </Flex>
+                <Flex col itemsEnd gap={2}>
+                  {/* balance */}
+                  <Flex itemsCenter>
+                    <Text t3s bold>
+                      ${protocol.balanceUSD.toString() == '0' ? '0' : protocol.balanceUSD.toString()}
+                    </Text>
+                  </Flex>
+                  {/* risl level */}
+                  <Flex itemsCenter gap={4}>
+                    <Text t6s>Risk Level:</Text>
+                    <Text t6s extrabold warmgradient>
+                      {mapNumberToLetter(protocol.tier > 0 ? protocol.tier : 25)}
+                    </Text>
+                  </Flex>
+                </Flex>
+              </Flex>
+            </div>
+          </Flex>
+        </Flex>
+      </TileCard>
+    </div>
+  )
 }
 
 export const Protocol: React.FC<{

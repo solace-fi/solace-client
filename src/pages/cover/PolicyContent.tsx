@@ -94,20 +94,20 @@ export const PolicyContent = (): JSX.Element => {
   ])
 
   // TODO - uncomment this when the smart functions are working
-  // const newUserState = useMemo(() => [InterfaceState.NEW_USER].includes(userState), [userState])
-  // const returningUserState = useMemo(() => [InterfaceState.RETURNING_USER].includes(userState), [userState])
-  // const curUserState = useMemo(() => [InterfaceState.CURRENT_USER].includes(userState), [userState])
+  const newUserState = useMemo(() => [InterfaceState.NEW_USER].includes(userState), [userState])
+  const returningUserState = useMemo(() => [InterfaceState.RETURNING_USER].includes(userState), [userState])
+  const curUserState = useMemo(() => [InterfaceState.CURRENT_USER].includes(userState), [userState])
 
-  // const depositCta = useMemo(() => [InterfaceState.DEPOSITING].includes(interfaceState), [interfaceState])
-  // const withdrawCta = useMemo(() => [InterfaceState.WITHDRAWING].includes(interfaceState), [interfaceState])
+  const depositCta = useMemo(() => [InterfaceState.DEPOSITING].includes(interfaceState), [interfaceState])
+  const withdrawCta = useMemo(() => [InterfaceState.WITHDRAWING].includes(interfaceState), [interfaceState])
 
   // MANUALLY ADJUST INTERFACE STATE HERE FOR NOW
-  const newUserState = false
-  const curUserState = true
-  const returningUserState = false
+  // const newUserState = false
+  // const curUserState = true
+  // const returningUserState = false
 
-  const depositCta = false
-  const withdrawCta = false
+  // const depositCta = false
+  // const withdrawCta = false
 
   const [refundableSOLACEAmount, setRefundableSOLACEAmount] = useState<BigNumber>(ZERO)
   const [withdrawingMoreThanRefundable, setWithdrawingMoreThanRefundable] = useState<boolean>(false)
@@ -188,25 +188,25 @@ export const PolicyContent = (): JSX.Element => {
     const amountToWithdraw = refundableSOLACEAmount.gt(parseUnits(enteredWithdrawal, selectedCoin.decimals))
       ? parseUnits(enteredWithdrawal, selectedCoin.decimals)
       : refundableSOLACEAmount
-    const nr = await getBalanceOfNonRefundable(account)
-    let refundableSCP1 = ZERO
-    let refundableSCP2 = ZERO
-    if (parseUnits(scpBalance, 18).gt(nr)) {
-      refundableSCP1 = parseUnits(scpBalance, 18).sub(nr)
-      const float_refundableSCP1 = floatUnits(refundableSCP1, 18)
-      refundableSCP2 = parseUnits(scpBalance, 18).sub(minReqScpBal)
-      const float_refundableSCP2 = floatUnits(refundableSCP2, 18)
-      console.log('current cover limit', floatUnits(curCoverageLimit, 18))
-      console.log('mrab', floatUnits(minReqAccBal, 18))
-      console.log('scpBalance', scpBalance)
-      console.log('nonrefundable', floatUnits(nr, 18))
-      console.log('minScpRequired', floatUnits(minReqScpBal, 18))
-      console.log('scpBalance - nonrefundable SCP', float_refundableSCP1)
-      console.log('scpBalance - minScpRequired SCP', float_refundableSCP2)
-      console.log('refundableSOLACEAmount SOLACE', floatUnits(refundableSOLACEAmount, 18))
-      console.log('scpBalance - nonrefundable SOLACE', float_refundableSCP1 / signatureObj.price)
-      console.log('scpBalance - minScpRequired SOLACE', float_refundableSCP2 / signatureObj.price)
-    }
+    // const nr = await getBalanceOfNonRefundable(account)
+    // let refundableSCP1 = ZERO
+    // let refundableSCP2 = ZERO
+    // if (parseUnits(scpBalance, 18).gt(nr)) {
+    //   refundableSCP1 = parseUnits(scpBalance, 18).sub(nr)
+    //   const float_refundableSCP1 = floatUnits(refundableSCP1, 18)
+    //   refundableSCP2 = parseUnits(scpBalance, 18).sub(minReqScpBal)
+    //   const float_refundableSCP2 = floatUnits(refundableSCP2, 18)
+    //   console.log('current cover limit', floatUnits(curCoverageLimit, 18))
+    //   console.log('mrab', floatUnits(minReqAccBal, 18))
+    //   console.log('scpBalance', scpBalance)
+    //   console.log('nonrefundable', floatUnits(nr, 18))
+    //   console.log('minScpRequired', floatUnits(minReqScpBal, 18))
+    //   console.log('scpBalance - nonrefundable SCP', float_refundableSCP1)
+    //   console.log('scpBalance - minScpRequired SCP', float_refundableSCP2)
+    //   console.log('refundableSOLACEAmount SOLACE', floatUnits(refundableSOLACEAmount, 18))
+    //   console.log('scpBalance - nonrefundable SOLACE', float_refundableSCP1 / signatureObj.price)
+    //   console.log('scpBalance - minScpRequired SOLACE', float_refundableSCP2 / signatureObj.price)
+    // }
     await withdraw(account, amountToWithdraw, tokenSignature.price, tokenSignature.deadline, tokenSignature.signature)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callWithdraw', err, FunctionName.COVER_WITHDRAW))

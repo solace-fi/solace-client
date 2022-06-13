@@ -15,7 +15,7 @@ import { filterAmount, formatAmount } from '../../utils/formatting'
 import { useCoverageContext } from './CoverageContext'
 import { BalanceDropdownOptions, DropdownInputSection } from './Dropdown'
 
-export const CldModal = ({ show }: { show: boolean }) => {
+export const CldModal = () => {
   const { account } = useWeb3React()
   const { appTheme } = useGeneral()
   const { activeNetwork } = useNetwork()

@@ -19,7 +19,7 @@ import { useGeneral } from '../../context/GeneralManager'
 import AddProtocolForm from './AddProtocolForm'
 import mapEditableProtocols from '../../utils/mapEditableProtocols'
 
-export const PortfolioSimulator = ({ show }: { show: boolean }): JSX.Element => {
+export const PortfolioSimulator = (): JSX.Element => {
   const { appTheme } = useGeneral()
 
   const { active } = useWeb3React()
