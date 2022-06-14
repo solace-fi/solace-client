@@ -1,7 +1,9 @@
 import { SolaceRiskProtocol } from '@solace-fi/sdk-nightly'
 import React, { useEffect, useState } from 'react'
+import { Button } from '../../components/atoms/Button'
 import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
+import { LoaderText } from '../../components/molecules/LoaderText'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
 import { useTierColors } from '../../hooks/internal/useTierColors'
@@ -11,9 +13,10 @@ import { ReadOnlyProtocol } from './Protocol'
 
 export const Portfolio = (): JSX.Element => {
   const { appTheme } = useGeneral()
-  const { intrface, portfolioKit } = useCoverageContext()
-  const { handleShowPortfolioModal } = intrface
+  const { intrface, portfolioKit, styles } = useCoverageContext()
+  const { portfolioLoading, handleShowPortfolioModal, handleShowSimulatorModal } = intrface
   const { curPortfolio, curUsdBalanceSum } = portfolioKit
+  const { gradientStyle } = styles
 
   const [protocols, setProtocols] = useState<SolaceRiskProtocol[]>([])
 
@@ -65,13 +68,35 @@ export const Portfolio = (): JSX.Element => {
           height: '100%',
           // why this height specifically? i have no clue, but it works pixel-perfectly and it's responive (??)
           // height: `calc(100% - ${376}px)`,
+          justifyContent: protocols.length == 0 ? 'center' : 'unset',
         }}
         bgLightGray
       >
-        {protocols.map((protocol: SolaceRiskProtocol) => {
-          const riskColor = getColorByTier(protocol.tier)
-          return <ReadOnlyProtocol key={protocol.appId} protocol={protocol} riskColor={riskColor} />
-        })}
+        {portfolioLoading && <LoaderText />}
+        {!portfolioLoading &&
+          protocols.length >= 0 &&
+          protocols.map((protocol: SolaceRiskProtocol) => {
+            const riskColor = getColorByTier(protocol.tier)
+            return <ReadOnlyProtocol key={protocol.appId} protocol={protocol} riskColor={riskColor} />
+          })}
+        {!portfolioLoading && protocols.length == 0 && (
+          <Flex col stretch gap={5}>
+            <Text textAlignCenter>Your portfolio is empty.</Text>
+            <Text textAlignCenter>To estimate your cost of coverage, you may use our portfolio simulator.</Text>
+            <Button
+              {...gradientStyle}
+              secondary
+              noborder
+              p={20}
+              onClick={() => {
+                handleShowPortfolioModal(false)
+                handleShowSimulatorModal(true)
+              }}
+            >
+              <Text t2>Open Portfolio Editor</Text>
+            </Button>
+          </Flex>
+        )}
       </Flex>
     </Flex>
   )

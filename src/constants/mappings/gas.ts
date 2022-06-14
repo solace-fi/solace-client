@@ -1,5 +1,7 @@
 export const FunctionGasLimits: { [key: string]: number } = {
   ['coverPaymentManager.withdraw']: 114016,
+  ['coverPaymentManager.depositStable']: 197272,
+  ['coverPaymentManager.depositNonStable']: 205480,
   ['cpFarm.depositCp']: 189538,
   ['cpFarm.depositEth']: 243022,
   ['cpFarm.withdrawCp']: 189538,

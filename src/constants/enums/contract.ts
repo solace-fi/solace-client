@@ -22,6 +22,8 @@ export enum FunctionName {
   // coverage v3
   COVER_PURCHASE_WITH_STABLE = 'PurchaseWithStable',
   COVER_PURCHASE_WITH_NON_STABLE = 'PurchaseWithNonStable',
+  COVER_DEPOSIT_STABLE = 'DepositStable',
+  COVER_DEPOSIT_NON_STABLE = 'DepositNonStable',
   COVER_PURCHASE = 'Purchase',
   COVER_CANCEL = 'Cancel',
   COVER_WITHDRAW = 'Withdraw',
