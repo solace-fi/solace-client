@@ -15,9 +15,9 @@ export const Projections = ({
   coverageLimit: BigNumber
 }): JSX.Element => {
   const { intrface, input, portfolioKit } = useCoverageContext()
-  const { handleShowSimCoverModal } = intrface
+  const { handleShowSimCoverModal, handleShowCLDModal, handleShowSimulatorModal } = intrface
   const { handleEnteredCoverLimit } = input
-  const { handleSimPortfolio } = portfolioKit
+  const { handleSimPortfolio, handleImportCounter } = portfolioKit
 
   const usdBalanceSum = useMemo(
     () =>
@@ -53,7 +53,12 @@ export const Projections = ({
           icon={<StyledExport height={12} width={12} />}
           value={`Import Limit`}
           techy
-          onClick={() => handleEnteredCoverLimit(coverageLimit)}
+          onClick={() => {
+            handleEnteredCoverLimit(coverageLimit)
+            handleImportCounter()
+            handleShowSimulatorModal(false)
+            handleShowCLDModal(true)
+          }}
         />
         <SmallCardTemplate
           icon={<StyledClose height={12} width={12} />}

@@ -10,12 +10,7 @@ import { accurateMultiply, filterAmount } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { Text } from '../../components/atoms/Typography'
 import useDebounce from '@rooks/use-debounce'
-
-enum ChosenLimit {
-  Custom,
-  MaxPosition,
-  Recommended,
-}
+import { ChosenLimit } from '../../constants/enums'
 
 const ChosenLimitLength = Object.values(ChosenLimit).filter((x) => typeof x === 'number').length
 
