@@ -4,8 +4,10 @@ import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndW
 import { BKPT_6 } from '../../../constants'
 import { Theme } from '../../../styles/themes'
 import { ThinScrollbarCss } from '../Scrollbar/ThinScrollbar'
+import { ButtonAppearanceCss, ButtonProps } from '../Button'
 
 export interface FlexProps {
+  button?: boolean
   between?: boolean
   around?: boolean
   evenly?: boolean
@@ -59,22 +61,24 @@ export interface FlexProps {
 // }
 
 // prettier-ignore
-export const Flex = styled.div<FlexProps>`
+export const Flex = styled.div<FlexProps & ButtonProps>`
   display: flex;
-  ${({ justifyStart })  => justifyStart  !== undefined ? css`justify-content: flex-start;` : ""}
-  ${({ justifyCenter }) => justifyCenter !== undefined ? css`justify-content: center;` : ""}
-  ${({ justifyEnd })    => justifyEnd    !== undefined ? css`justify-content: flex-end;` : ""}
-  ${({ itemsCenter })   => itemsCenter   !== undefined ? css`align-items: center;` : ""}
-  ${({ itemsEnd })      => itemsEnd      !== undefined ? css`align-items: flex-end;` : ""}
-  ${({ center })        => center        !== undefined ? css`justify-content: center;` : ""}
-  ${({ column })        => column        !== undefined ? css`flex-direction: column;` : ""}
-  ${({ col })           => col           !== undefined ? css`flex-direction: column;` : ""}
-  ${({ stretch })       => stretch       !== undefined ? css`align-items: stretch;` : ""}
-  ${({ wrap })          => wrap          !== undefined ? css`flex-wrap: wrap;` : ""}
-  ${({ between })       => between       !== undefined ? css`justify-content: space-between;` : ""}
-  ${({ around })        => around        !== undefined ? css`justify-content: space-around;` : ""}
-  ${({ evenly })        => evenly        !== undefined ? css`justify-content: space-evenly;` : ""}
-  ${({ marginAuto })    => marginAuto    !== undefined ? css`margin: auto;` : ""}
+  ${({ button })        => button                      ? ButtonAppearanceCss : ""}
+  ${({ button })        => button                      ? css`min-height: auto; min-width: auto;` : ""}
+  ${({ justifyStart })  => justifyStart                ? css`justify-content: flex-start;` : ""}
+  ${({ justifyCenter }) => justifyCenter               ? css`justify-content: center;` : ""}
+  ${({ justifyEnd })    => justifyEnd                  ? css`justify-content: flex-end;` : ""}
+  ${({ itemsCenter })   => itemsCenter                 ? css`align-items: center;` : ""}
+  ${({ itemsEnd })      => itemsEnd                    ? css`align-items: flex-end;` : ""}
+  ${({ center })        => center                      ? css`justify-content: center;` : ""}
+  ${({ column })        => column                      ? css`flex-direction: column;` : ""}
+  ${({ col, button })   => col                         ? css`flex-direction: column;` : (button ? css`flex-direction: column;` : "")}
+  ${({ stretch })       => stretch                     ? css`align-items: stretch;` : ""}
+  ${({ wrap })          => wrap                        ? css`flex-wrap: wrap;` : ""}
+  ${({ between })       => between                     ? css`justify-content: space-between;` : ""}
+  ${({ around })        => around                      ? css`justify-content: space-around;` : ""}
+  ${({ evenly })        => evenly                      ? css`justify-content: space-evenly;` : ""}
+  ${({ marginAuto })    => marginAuto                  ? css`margin: auto;` : ""}
   ${({ m })             => m             !== undefined ? css`margin: ${m}px;` : ""}
   ${({ mb })            => mb            !== undefined ? css`margin-bottom: ${mb}px;` : ""}
   ${({ mt })            => mt            !== undefined ? css`margin-top: ${mt}px;` : ""}

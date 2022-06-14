@@ -1,104 +1,11 @@
-import React, { ReactNode, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { BigNumber, utils } from 'ethers'
-import { Flex, Grid, VerticalSeparator } from '../../components/atoms/Layout'
+import { Flex, Grid } from '../../components/atoms/Layout'
 import { useCoverageContext } from './CoverageContext'
-import { Text, TextSpan } from '../../components/atoms/Typography'
 import { SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { floatUnits, truncateValue } from '../../utils/formatting'
-import { StyledTooltip } from '../../components/molecules/Tooltip'
-import { StyledClock, StyledClose, StyledExport, StyledOptions } from '../../components/atoms/Icon'
-
-function CardTemplate({
-  hasIcon,
-  title,
-  children,
-  techy,
-  unit,
-  onClick,
-}: {
-  title: string
-  children: string | React.ReactNode
-  hasIcon?: true
-  techy?: true
-  unit?: string
-  onClick?: () => void
-}) {
-  return (
-    <Flex
-      col
-      bgRaised
-      p={16}
-      gap={4}
-      rounded
-      style={{
-        cursor: hasIcon ? 'pointer' : 'default',
-      }}
-      onClick={onClick}
-    >
-      <Flex between>
-        <Text
-          t6s
-          techygradient={techy}
-          bold
-          style={{
-            lineHeight: '13.62px',
-            maxWidth: '75px',
-          }}
-        >
-          {title}
-        </Text>
-        {hasIcon && <StyledOptions height={12} width={12} />}
-      </Flex>
-      <Text
-        t4s
-        techygradient={techy}
-        bold
-        style={{
-          lineHeight: '19.07px',
-        }}
-      >
-        {children}
-        <Text ml={3} inline t6s style={{ fontWeight: '400' }} dark>
-          {unit}
-        </Text>
-      </Text>
-    </Flex>
-  )
-}
-
-function SmallCardTemplate({
-  icon,
-  value,
-  techy,
-  error,
-  onClick,
-}: {
-  icon: ReactNode
-  value: string
-  techy?: true
-  error?: true
-  onClick?: () => void
-}) {
-  return (
-    <Flex
-      itemsCenter
-      bgRaised
-      // py={9.75}
-      px={12}
-      // p={16}
-      gap={12}
-      rounded
-      onClick={onClick}
-      style={{ cursor: onClick ? 'pointer' : 'default' }}
-      flex1
-    >
-      {icon}
-      <Text t5s techygradient={techy} error={error} bold>
-        {value}
-      </Text>
-    </Flex>
-  )
-}
+import { StyledClose, StyledExport } from '../../components/atoms/Icon'
+import { CardTemplate, SmallCardTemplate } from '../../components/atoms/Card/CardTemplate'
 
 export const Projections = ({
   portfolioScore,

@@ -13,6 +13,7 @@ import { PolicyContent } from './PolicyContent'
 import { CldModal } from './CldModal'
 import { SimCoverModal } from './SimCoverModal'
 import { Portfolio } from './Portfolio'
+import ReferralModal from './ReferralModal'
 
 function VisibilityController({ show, children }: { show: boolean; children: React.ReactNode }) {
   return <div style={{ display: show ? 'block' : 'none' }}>{children}</div>
@@ -20,18 +21,28 @@ function VisibilityController({ show, children }: { show: boolean; children: Rea
 
 const CoverageContent = () => {
   const { intrface } = useCoverageContext()
-  const { showPortfolioModal, showCLDModal, showSimulatorModal, showSimCoverModal } = intrface
+  const { showPortfolioModal, showCLDModal, showSimulatorModal, showSimCoverModal, showReferralModal } = intrface
 
-  const _showCldModal = showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal
-  const _showSimulatorModal = showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal
-  const _showSimCoverModal = showSimulatorModal && !showCLDModal && showSimCoverModal && !showPortfolioModal
-  const _showPortfolioModal = showPortfolioModal && !showCLDModal && !showSimulatorModal && !showSimCoverModal
-  const _showDefault = !showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal
+  // const _showCldModal =
+  //   showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal && !showReferralModal
+  // const _showSimulatorModal =
+  //   showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && !showReferralModal
+  // const _showSimCoverModal =
+  //   showSimulatorModal && !showCLDModal && showSimCoverModal && !showPortfolioModal && !showReferralModal
+  // const _showPortfolioModal =
+  //   showPortfolioModal && !showCLDModal && !showSimulatorModal && !showSimCoverModal && !showReferralModal
+  // const _showDefault =
+  //   !showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && !showReferralModal
 
-  // const _showCldModal = false
-  // const _showSimulatorModal = false
-  // const _showSimCoverModal = true
-  // const _showDefault = false
+  // const _showReferralModal =
+  //   showReferralModal && !showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal
+
+  const _showReferralModal = true
+  const _showCldModal = false
+  const _showSimulatorModal = false
+  const _showSimCoverModal = false
+  const _showDefault = false
+  const _showPortfolioModal = false
 
   return (
     <Content>
@@ -51,6 +62,9 @@ const CoverageContent = () => {
           </VisibilityController>
           <VisibilityController show={_showDefault}>
             <CoveragePage />
+          </VisibilityController>
+          <VisibilityController show={_showReferralModal}>
+            <ReferralModal />
           </VisibilityController>
         </Flex>
       </Flex>

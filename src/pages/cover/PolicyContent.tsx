@@ -41,6 +41,7 @@ export const PolicyContent = (): JSX.Element => {
     handleShowCLDModal,
     handleShowSimulatorModal,
     handleTransactionLoading,
+    handleShowReferralModal,
   } = intrface
   const { bigButtonStyle, gradientStyle } = styles
   const {
@@ -454,6 +455,14 @@ export const PolicyContent = (): JSX.Element => {
                     </Text>
                   </TileCard>
                 </div>
+              </Flex>
+              <Flex button noborder py={6.5} px={16} mx={20} mt={12} bgRaised style={{ borderRadius: '8px' }}>
+                <Text t5s bold info>
+                  <Flex itemsCenter gap={12} onClick={() => handleShowReferralModal(true)}>
+                    <StyledOptions width={12} />
+                    <Flex>Manage your referrals</Flex>
+                  </Flex>
+                </Text>
               </Flex>
               <div style={{ margin: '16px 20px auto' }}>
                 <Flex shadow bgSecondary col rounded px={24} py={16}>

@@ -42,6 +42,8 @@ type CoverageContextType = {
     handleShowSimulatorModal: (show: boolean) => void
     showSimCoverModal: boolean
     handleShowSimCoverModal: (show: boolean) => void
+    showReferralModal: boolean
+    handleShowReferralModal: (show: boolean) => void
     interfaceState: InterfaceState
     userState: InterfaceState
     handleUserState: (state: InterfaceState) => void
@@ -124,6 +126,8 @@ const CoverageContext = createContext<CoverageContextType>({
     handleShowSimulatorModal: () => undefined,
     showSimCoverModal: false,
     handleShowSimCoverModal: () => undefined,
+    showReferralModal: false,
+    handleShowReferralModal: () => undefined,
     interfaceState: InterfaceState.NEW_USER,
     userState: InterfaceState.NEW_USER,
     handleUserState: () => undefined,
@@ -246,6 +250,7 @@ const CoverageManager: React.FC = (props) => {
   const [showSimulatorModal, setShowSimulatorModal] = useState(false)
   const [showCLDModal, setShowCLDModal] = useState(false)
   const [showSimCoverModal, setShowSimCoverModal] = useState(false)
+  const [showReferralModal, setShowReferralModal] = useState(false)
 
   const [coinsOpen, setCoinsOpen] = useState(false)
   const {
@@ -411,6 +416,10 @@ const CoverageManager: React.FC = (props) => {
     setShowSimCoverModal(show)
   }, [])
 
+  const handleShowReferralModal = useCallback((show: boolean) => {
+    setShowReferralModal(show)
+  }, [])
+
   useEffect(() => {
     const tokenWithHighestBalance = batchBalanceData.reduce((pn, cn) => (cn.balance.gt(pn.balance) ? cn : pn), {
       ...coinOptions[0],
@@ -512,6 +521,7 @@ const CoverageManager: React.FC = (props) => {
         showSimulatorModal, // show simulator modal
         showCLDModal, // show cover limit and deposit modal
         showSimCoverModal, // show simulated cover limit modal
+        showReferralModal, // show referral modal
         interfaceState, // current interface state controlling page components
         userState, // different users see different things on the interface
         portfolioLoading,
@@ -524,6 +534,7 @@ const CoverageManager: React.FC = (props) => {
         handleShowSimulatorModal,
         handleShowCLDModal,
         handleShowSimCoverModal,
+        handleShowReferralModal,
         handleUserState, // change type of user
         handleCtaState, // is the user depositing, withdrawing, or neither?
         handleTransactionLoading,
