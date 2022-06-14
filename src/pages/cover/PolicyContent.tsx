@@ -463,7 +463,6 @@ export const PolicyContent = (): JSX.Element => {
                         My Subscription Cost
                       </Text>
                     </Flex>
-
                     <Text bold t4 {...gradientStyle}>
                       ${truncateValue(curDailyCost, 2)}
                       <Text t7s style={{ backgroundColor: 'green' }} techygradient inline ml={2}>
