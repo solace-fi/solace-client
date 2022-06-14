@@ -411,16 +411,15 @@ export const PolicyContent = (): JSX.Element => {
                       marginTop: '6.5px',
                       marginRight: '6.5px',
                     }}
+                    onClick={() => handleShowPortfolioModal(true)}
                   >
                     <Flex between style={{ alignItems: 'center' }}>
                       <Text bold t6s>
                         My Portfolio
                       </Text>
-                      <Button width={35} height={35} noborder onClick={() => handleShowPortfolioModal(true)}>
-                        <Text info>
-                          <StyledExpand size={12} />
-                        </Text>
-                      </Button>
+                      <Text info>
+                        <StyledExpand size={12} />
+                      </Text>
                     </Flex>
                     {portfolioLoading ? (
                       <LoaderText text={'Fetching'} />
@@ -439,16 +438,15 @@ export const PolicyContent = (): JSX.Element => {
                       marginTop: '6.5px',
                       marginRight: '6.5px',
                     }}
+                    onClick={() => handleShowCLDModal(true)}
                   >
                     <Flex between style={{ alignItems: 'center' }}>
                       <Text bold t6s>
                         {curUserState ? `My Cover Limit` : `Entered Cover Limit`}
                       </Text>
-                      <Button width={35} height={35} noborder onClick={() => handleShowCLDModal(true)}>
-                        <Text info>
-                          <StyledOptions size={12} />
-                        </Text>
-                      </Button>
+                      <Text info>
+                        <StyledOptions size={12} />
+                      </Text>
                     </Flex>
                     <Text t4s style={{ lineHeight: '14px' }} bold {...gradientStyle}>
                       ${truncateValue(floatUnits(curUserState ? curCoverageLimit : enteredCoverLimit, 18), 2)}
