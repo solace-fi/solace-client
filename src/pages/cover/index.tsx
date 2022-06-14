@@ -23,26 +23,26 @@ const CoverageContent = () => {
   const { intrface } = useCoverageContext()
   const { showPortfolioModal, showCLDModal, showSimulatorModal, showSimCoverModal, showReferralModal } = intrface
 
-  // const _showCldModal =
-  //   showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal && !showReferralModal
-  // const _showSimulatorModal =
-  //   showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && !showReferralModal
-  // const _showSimCoverModal =
-  //   showSimulatorModal && !showCLDModal && showSimCoverModal && !showPortfolioModal && !showReferralModal
-  // const _showPortfolioModal =
-  //   showPortfolioModal && !showCLDModal && !showSimulatorModal && !showSimCoverModal && !showReferralModal
-  // const _showDefault =
-  //   !showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && !showReferralModal
+  const _showCldModal =
+    showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal && !showReferralModal
+  const _showSimulatorModal =
+    showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && !showReferralModal
+  const _showSimCoverModal =
+    showSimulatorModal && !showCLDModal && showSimCoverModal && !showPortfolioModal && !showReferralModal
+  const _showPortfolioModal =
+    showPortfolioModal && !showCLDModal && !showSimulatorModal && !showSimCoverModal && !showReferralModal
+  const _showDefault =
+    !showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && !showReferralModal
 
-  // const _showReferralModal =
-  //   showReferralModal && !showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal
+  const _showReferralModal =
+    showReferralModal && !showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal
 
-  const _showReferralModal = true
-  const _showCldModal = false
-  const _showSimulatorModal = false
-  const _showSimCoverModal = false
-  const _showDefault = false
-  const _showPortfolioModal = false
+  // const _showReferralModal = true
+  // const _showCldModal = false
+  // const _showSimulatorModal = false
+  // const _showSimCoverModal = false
+  // const _showDefault = false
+  // const _showPortfolioModal = false
 
   return (
     <Content>
