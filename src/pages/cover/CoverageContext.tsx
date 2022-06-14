@@ -1,5 +1,5 @@
 import { Price, SCP, SolaceRiskProtocol, SolaceRiskSeries } from '@solace-fi/sdk-nightly'
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { BKPT_2, BKPT_NAVBAR, MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
 import { FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
 import { coinsMap } from '../../constants/mappings/coverageStablecoins'
@@ -78,6 +78,7 @@ type CoverageContextType = {
     gradientStyle: any
   }
   portfolioKit: {
+    importCounter: number
     curPortfolio?: SolaceRiskScore
     simPortfolio?: SolaceRiskScore
     riskScores: (balances: SolaceRiskBalance[]) => Promise<SolaceRiskScore | undefined>
@@ -90,6 +91,7 @@ type CoverageContextType = {
     simDailyRate: number
     simDailyCost: number
     handleSimPortfolio: (portfolio: SolaceRiskScore | undefined) => void
+    handleImportCounter: () => void
   }
   seriesKit: {
     series?: SolaceRiskSeries
@@ -160,6 +162,7 @@ const CoverageContext = createContext<CoverageContextType>({
     gradientStyle: {},
   },
   portfolioKit: {
+    importCounter: 0,
     curPortfolio: undefined,
     simPortfolio: undefined,
     riskScores: () => Promise.reject(),
@@ -172,6 +175,7 @@ const CoverageContext = createContext<CoverageContextType>({
     simHighestPosition: undefined,
     simDailyRate: 0,
     simDailyCost: 0,
+    handleImportCounter: () => undefined,
   },
   seriesKit: {
     series: undefined,
@@ -224,6 +228,7 @@ const CoverageManager: React.FC = (props) => {
   const [simCoverLimit, setSimCoverLimit] = useState<BigNumber>(ZERO)
   const [scpObj, setScpObj] = useState<SCP | undefined>(undefined)
   const [signatureObj, setSignatureObj] = useState<any>(undefined)
+  const [importCounter, setImportCounter] = useState<number>(0)
 
   const {
     highestPosition: curHighestPosition,
@@ -253,6 +258,7 @@ const CoverageManager: React.FC = (props) => {
     network: existingPolicyNetwork,
     loading: existingPolicyLoading,
   } = useExistingPolicy()
+  const mounting = useRef(true)
 
   const coinOptions = useMemo(
     () => [
@@ -411,6 +417,10 @@ const CoverageManager: React.FC = (props) => {
     setShowSimCoverModal(show)
   }, [])
 
+  const handleImportCounter = useCallback(() => {
+    setImportCounter((prev) => prev + 1)
+  }, [])
+
   useEffect(() => {
     const tokenWithHighestBalance = batchBalanceData.reduce((pn, cn) => (cn.balance.gt(pn.balance) ? cn : pn), {
       ...coinOptions[0],
@@ -420,19 +430,13 @@ const CoverageManager: React.FC = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchBalanceData])
 
-  useEffect(() => {
-    if (!curHighestPosition) return
-    const bnBal = BigNumber.from(accurateMultiply(curHighestPosition.balanceUSD, 18))
-    const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
-    handleEnteredCoverLimit(bnHigherBal)
-  }, [curHighestPosition, handleEnteredCoverLimit])
-
-  useEffect(() => {
-    if (!simHighestPosition) return
-    const bnBal = BigNumber.from(accurateMultiply(simHighestPosition.balanceUSD, 18))
-    const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
-    handleSimCoverLimit(bnHigherBal)
-  }, [simHighestPosition, handleSimCoverLimit])
+  // useEffect(() => {
+  //   if (!simHighestPosition || !mounting.current) return
+  //   mounting.current = false
+  //   const bnBal = BigNumber.from(accurateMultiply(simHighestPosition.balanceUSD, 18))
+  //   const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
+  //   handleSimCoverLimit(bnHigherBal)
+  // }, [simHighestPosition, handleSimCoverLimit])
 
   useEffect(() => {
     const init = async () => {
@@ -552,6 +556,7 @@ const CoverageManager: React.FC = (props) => {
         gradientStyle,
       },
       portfolioKit: {
+        importCounter, // flag to change real CL
         curPortfolio, // current portfolio score
         simPortfolio, // simulated portfolio score
         curUsdBalanceSum, // current usd sum of current portfolio
@@ -564,6 +569,7 @@ const CoverageManager: React.FC = (props) => {
         simDailyCost, // simulated daily cost of simulated portfolio
         riskScores, // function to get risk scores of a portfolio
         handleSimPortfolio,
+        handleImportCounter,
       },
       seriesKit: {
         series,
@@ -636,6 +642,7 @@ const CoverageManager: React.FC = (props) => {
       scpObj,
       signatureObj,
       depositApproval,
+      importCounter,
       handleEnteredCoverLimit,
       handleSimPortfolio,
       handleSimCoverLimit,
@@ -651,6 +658,7 @@ const CoverageManager: React.FC = (props) => {
       handleShowSimCoverModal,
       handleTransactionLoading,
       unlimitedApproveCPM,
+      handleImportCounter,
     ]
   )
   return <CoverageContext.Provider value={value}>{props.children}</CoverageContext.Provider>

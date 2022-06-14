@@ -1,13 +1,12 @@
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
-import { Flex } from '../../components/atoms/Layout'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
 import { CoverageLimitSelector2 } from '../soteria/CoverageLimitSelector'
 import { Text } from '../../components/atoms/Typography'
-import { FunctionName } from '../../constants/enums'
+import { FunctionName, InterfaceState } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
@@ -21,6 +20,19 @@ import {
 import { useCoverageContext } from './CoverageContext'
 import { BalanceDropdownOptions, DropdownInputSection } from './Dropdown'
 import { BigNumber } from 'ethers'
+import { Flex, ShadowDiv } from '../../components/atoms/Layout'
+import { GraySquareButton } from '../../components/atoms/Button'
+import { GenericInputSection } from '../../components/molecules/InputSection'
+import { ZERO } from '../../constants'
+import { StyledArrowIosBackOutline, StyledArrowIosForwardOutline } from '../../components/atoms/Icon'
+import { SolaceRiskScore } from '@solace-fi/sdk-nightly'
+import { ChosenLimit } from '../../constants/enums'
+
+const ChosenLimitLength = Object.values(ChosenLimit).filter((x) => typeof x === 'number').length
+
+const nextChosenLimit = (chosenLimit: ChosenLimit) => ((chosenLimit + 1) % ChosenLimitLength) as ChosenLimit
+const prevChosenLimit = (chosenLimit: ChosenLimit) =>
+  ((chosenLimit - 1 + ChosenLimitLength) % ChosenLimitLength) as ChosenLimit
 
 export const CldModal = () => {
   const { account } = useWeb3React()
@@ -28,7 +40,7 @@ export const CldModal = () => {
   const { activeNetwork } = useNetwork()
   const { purchaseWithStable, purchaseWithNonStable, purchase } = useCoverageFunctions()
   const { intrface, portfolioKit, input, dropdowns, styles, policy } = useCoverageContext()
-  const { handleShowCLDModal, transactionLoading, handleTransactionLoading } = intrface
+  const { userState, showCLDModal, handleShowCLDModal, transactionLoading, handleTransactionLoading } = intrface
   const {
     enteredDeposit,
     handleEnteredDeposit,
@@ -38,13 +50,33 @@ export const CldModal = () => {
     handleSelectedCoin,
     selectedCoinPrice,
   } = input
-  const { curPortfolio } = portfolioKit
+  const { curPortfolio, importCounter } = portfolioKit
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
   const { signatureObj, depositApproval, minReqAccBal, scpBalance } = policy
 
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [localCoinsOpen, setLocalCoinsOpen] = useState<boolean>(false)
+
+  const curUserState = useMemo(() => [InterfaceState.CURRENT_USER].includes(userState), [userState])
+  const newUserState = useMemo(() => [InterfaceState.NEW_USER].includes(userState), [userState])
+  const returningUserState = useMemo(() => [InterfaceState.RETURNING_USER].includes(userState), [userState])
+
+  const [chosenLimit, setChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
+
+  const [highestAmount, setHighestAmount] = useState<BigNumber>(ZERO)
+  const [recommendedAmount, setRecommendedAmount] = useState<BigNumber>(ZERO)
+  const [customInputAmount, setCustomInputAmount] = useState<string>('')
+
+  const [localNewCoverageLimit, setLocalNewCoverageLimit] = useState<string>('')
+
+  const highestPosition = useMemo(
+    () =>
+      curPortfolio?.protocols?.length && curPortfolio.protocols.length > 0
+        ? curPortfolio.protocols.reduce((pn, cn) => (cn.balanceUSD > pn.balanceUSD ? cn : pn))
+        : undefined,
+    [curPortfolio]
+  )
 
   const scpBalanceMeetsMrab = useMemo(() => {
     return minReqAccBal.lte(parseUnits(scpBalance, 18))
@@ -63,10 +95,31 @@ export const CldModal = () => {
     return '0'
   }, [scpBalance, minReqAccBal, enteredDeposit, selectedCoinPrice])
 
+  const handleInputChange = (input: string) => {
+    // allow only numbers and decimals
+    const filtered = filterAmount(input, customInputAmount)
+
+    // if filtered is only "0." or "." or '', filtered becomes '0.0'
+    // const formatted = formatAmount(filtered)
+
+    // if number has more than max decimal places, do not update
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
+
+    // if number is greater than available cover capacity, do not update
+    // if (parseUnits(formatted, 18).gt(availableCoverCapacity)) return
+
+    const bnFiltered = BigNumber.from(accurateMultiply(filtered, 18))
+    setLocalNewCoverageLimit(filtered)
+    setCustomInputAmount(filtered)
+    if (!recommendedAmount.eq(bnFiltered) && !highestAmount.eq(bnFiltered)) {
+      setChosenLimit(ChosenLimit.Custom)
+    }
+  }
+
   const callPurchase = async () => {
     if (!account) return
     handleTransactionLoading(true)
-    await purchase(account, enteredCoverLimit)
+    await purchase(account, parseUnits(localNewCoverageLimit, 18))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
   }
@@ -76,7 +129,7 @@ export const CldModal = () => {
     handleTransactionLoading(true)
     await purchaseWithStable(
       account,
-      enteredCoverLimit,
+      parseUnits(localNewCoverageLimit, 18),
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals)
     )
@@ -91,7 +144,7 @@ export const CldModal = () => {
     handleTransactionLoading(true)
     await purchaseWithNonStable(
       account,
-      enteredCoverLimit,
+      parseUnits(localNewCoverageLimit, 18),
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals),
       tokenSignature.price,
@@ -123,6 +176,38 @@ export const CldModal = () => {
     handleContractCallError(functionName, err, txType)
     handleTransactionLoading(false)
   }
+
+  useEffect(() => {
+    if (!highestPosition) return
+    /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(highestPosition.balanceUSD, 18))
+    /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
+    setHighestAmount(bnBal)
+    setRecommendedAmount(bnHigherBal)
+  }, [highestPosition])
+
+  useEffect(() => {
+    if (importCounter > 0) {
+      setCustomInputAmount(formatUnits(enteredCoverLimit, 18))
+      setLocalNewCoverageLimit(formatUnits(enteredCoverLimit, 18))
+      setChosenLimit(ChosenLimit.Custom)
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [importCounter])
+
+  useEffect(() => {
+    switch (chosenLimit) {
+      case ChosenLimit.Recommended:
+        setLocalNewCoverageLimit(formatUnits(recommendedAmount, 18))
+        break
+      case ChosenLimit.MaxPosition:
+        setLocalNewCoverageLimit(formatUnits(highestAmount, 18))
+        break
+      case ChosenLimit.Custom:
+        setLocalNewCoverageLimit(customInputAmount)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chosenLimit, highestAmount, recommendedAmount, customInputAmount])
 
   return (
     // <Modal isOpen={show} modalTitle={'Set Cover Limit'} handleClose={() => handleShowCLDModal(false)}>
@@ -181,7 +266,81 @@ export const CldModal = () => {
           Set Cover Limit
         </Text>
       </Flex>
-      <CoverageLimitSelector2 portfolioScore={curPortfolio} setNewCoverageLimit={handleEnteredCoverLimit} />
+      <Flex col stretch>
+        <Flex justifyCenter>
+          <Text t4s textAlignCenter>
+            Maximum payout in the case of an exploit.
+          </Text>
+        </Flex>
+        <Flex col stretch between mt={36}>
+          <Flex between>
+            <ShadowDiv>
+              <GraySquareButton
+                onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}
+                width={48}
+                height={48}
+                noborder
+              >
+                <StyledArrowIosBackOutline height={22} />
+              </GraySquareButton>
+            </ShadowDiv>
+            <Flex col itemsCenter>
+              <Text techygradient t3 bold>
+                {
+                  {
+                    [ChosenLimit.Recommended]: 'Extra safe',
+                    [ChosenLimit.MaxPosition]: 'Highest position',
+                    [ChosenLimit.Custom]: 'Manual',
+                  }[chosenLimit]
+                }
+              </Text>
+              <Text t5s>
+                {
+                  {
+                    [ChosenLimit.Recommended]: (
+                      <>
+                        Highest Position
+                        <Text success inline>
+                          {' '}
+                          + 20%
+                        </Text>
+                      </>
+                    ),
+                    [ChosenLimit.MaxPosition]: `in Portfolio`,
+                    [ChosenLimit.Custom]: `Enter amount below`,
+                  }[chosenLimit]
+                }
+              </Text>
+            </Flex>
+            <ShadowDiv>
+              <GraySquareButton
+                onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}
+                width={48}
+                height={48}
+                noborder
+                actuallyWhite
+              >
+                <StyledArrowIosForwardOutline height={22} />
+              </GraySquareButton>
+            </ShadowDiv>
+          </Flex>
+          <GenericInputSection
+            onChange={(e) => handleInputChange(e.target.value)}
+            value={localNewCoverageLimit}
+            disabled={false}
+            style={{
+              marginTop: '20px',
+            }}
+            icon={
+              <Text success big3>
+                $
+              </Text>
+            }
+            iconAndTextWidth={20}
+            displayIconOnMobile
+          />
+        </Flex>
+      </Flex>
       {scpBalanceMeetsMrab && (
         <ButtonWrapper>
           <Button
@@ -190,15 +349,15 @@ export const CldModal = () => {
             secondary
             noborder
             onClick={callPurchase}
-            disabled={enteredCoverLimit.isZero()}
+            disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0}
           >
-            Save
+            {curUserState ? `Save` : newUserState ? `Subscribe to Policy` : returningUserState ? `Activate Policy` : ``}
           </Button>
         </ButtonWrapper>
       )}
       {lackingScp != '0' && (
         <Text textAlignCenter pt={16}>
-          You need at least ${lackingScp} to set the desired cover limit. Use the form below to deposit the additional
+          You need at least ${lackingScp} for the desired cover limit. Use the form below to deposit the additional
           premium.
         </Text>
       )}
@@ -231,9 +390,19 @@ export const CldModal = () => {
               secondary
               noborder
               onClick={handlePurchase}
-              disabled={enteredCoverLimit.isZero() || lackingScp != '0'}
+              disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0 || lackingScp != '0'}
             >
-              <Text>Deposit &amp; Save</Text>
+              {/* <Text>Deposit &amp; Save</Text> */}
+              <Text>
+                {' '}
+                {curUserState
+                  ? `Deposit & Save`
+                  : newUserState
+                  ? `Deposit & Subscribe`
+                  : returningUserState
+                  ? `Deposit & Activate`
+                  : ``}
+              </Text>
             </Button>
           </ButtonWrapper>
         </Flex>

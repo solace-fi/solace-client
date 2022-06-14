@@ -441,7 +441,7 @@ export const PolicyContent = (): JSX.Element => {
                   >
                     <Flex between style={{ alignItems: 'center' }}>
                       <Text bold t6s>
-                        My Cover Limit
+                        {curUserState ? `My Cover Limit` : `Entered Cover Limit`}
                       </Text>
                       <Button width={35} height={35} noborder onClick={() => handleShowCLDModal(true)}>
                         <Text info>
@@ -450,7 +450,7 @@ export const PolicyContent = (): JSX.Element => {
                       </Button>
                     </Flex>
                     <Text t4s style={{ lineHeight: '14px' }} bold {...gradientStyle}>
-                      ${truncateValue(floatUnits(curCoverageLimit, 18), 2)}
+                      ${truncateValue(floatUnits(curUserState ? curCoverageLimit : enteredCoverLimit, 18), 2)}
                     </Text>
                   </TileCard>
                 </div>
