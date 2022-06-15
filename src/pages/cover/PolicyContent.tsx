@@ -70,7 +70,7 @@ export const PolicyContent = (): JSX.Element => {
     unlimitedApproveCPM,
   } = policy
   const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
-  const { curPortfolio, curDailyCost, curUsdBalanceSum } = portfolioKit
+  const { curPortfolio, curDailyCost, curUsdBalanceSum, fetchStatus } = portfolioKit
 
   const [enteredWithdrawal, setEnteredWithdrawal] = useState<string>(asyncEnteredWithdrawal)
 
@@ -104,6 +104,26 @@ export const PolicyContent = (): JSX.Element => {
 
   const depositCta = useMemo(() => [InterfaceState.DEPOSITING].includes(interfaceState), [interfaceState])
   const withdrawCta = useMemo(() => [InterfaceState.WITHDRAWING].includes(interfaceState), [interfaceState])
+
+  const portfolioFetchStatus = useMemo(() => {
+    let message = undefined
+    switch (fetchStatus) {
+      case 2:
+        message = 'No account found'
+        break
+      case 3:
+        message = 'Cannot fetch balances'
+        break
+      case 4:
+        message = 'Cannot fetch scores'
+        break
+      case 1:
+      case 0:
+      default:
+        message = undefined
+    }
+    return message
+  }, [fetchStatus])
 
   // MANUALLY ADJUST INTERFACE STATE HERE FOR NOW
   // const newUserState = false
@@ -423,9 +443,13 @@ export const PolicyContent = (): JSX.Element => {
                     </Flex>
                     {portfolioLoading ? (
                       <LoaderText text={'Fetching'} />
-                    ) : (
+                    ) : !portfolioFetchStatus ? (
                       <Text t4s style={{ lineHeight: '14px' }} bold {...gradientStyle}>
                         ${truncateValue(curUsdBalanceSum, 2)}
+                      </Text>
+                    ) : (
+                      <Text t4s style={{ lineHeight: '14px' }} bold error>
+                        {portfolioFetchStatus}
                       </Text>
                     )}
                   </TileCard>
@@ -458,7 +482,7 @@ export const PolicyContent = (): JSX.Element => {
                 <Text t5s bold info>
                   <Flex itemsCenter gap={12} onClick={() => handleShowReferralModal(true)}>
                     <StyledOptions width={12} />
-                    <Flex>Manage your referrals</Flex>
+                    <Flex>Manage your referrals (Work In Progress)</Flex>
                   </Flex>
                 </Text>
               </Flex>
@@ -675,7 +699,7 @@ export const PolicyContent = (): JSX.Element => {
                         </ButtonWrapper>
                       )}
                       {curUserState && !depositCta && !withdrawCta && (
-                        <Button {...bigButtonStyle} error onClick={callCancel}>
+                        <Button {...bigButtonStyle} error onClick={callCancel} disabled>
                           Deactivate Policy
                         </Button>
                       )}

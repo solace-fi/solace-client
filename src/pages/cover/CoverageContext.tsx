@@ -82,6 +82,7 @@ type CoverageContextType = {
     gradientStyle: any
   }
   portfolioKit: {
+    fetchStatus: number
     importCounter: number
     simCounter: number
     simChosenLimit: ChosenLimit
@@ -174,6 +175,7 @@ const CoverageContext = createContext<CoverageContextType>({
     gradientStyle: {},
   },
   portfolioKit: {
+    fetchStatus: 0,
     importCounter: 0,
     simCounter: 0,
     simChosenLimit: ChosenLimit.Recommended,
@@ -224,7 +226,7 @@ const CoverageManager: React.FC = (props) => {
   const { makeTxToast } = useNotifications()
 
   const { width } = useWindowDimensions()
-  const { portfolio: curPortfolio, riskScores, loading: portfolioLoading } = usePortfolio()
+  const { portfolio: curPortfolio, riskScores, loading: portfolioLoading, fetchStatus } = usePortfolio()
   const [simPortfolio, setSimPortfolio] = useState<SolaceRiskScore | undefined>(undefined)
   const { series, loading: seriesLoading } = useRiskSeries()
   const [transactionLoading, setTransactionLoading] = useState<boolean>(false)
@@ -598,6 +600,7 @@ const CoverageManager: React.FC = (props) => {
         gradientStyle,
       },
       portfolioKit: {
+        fetchStatus, // status flag on risk balances fetch
         importCounter, // flag to change real CL
         simCounter, // flag of simulation
         simChosenLimit, // chosen limit for simulation
@@ -693,6 +696,7 @@ const CoverageManager: React.FC = (props) => {
       importCounter,
       simCounter,
       simChosenLimit,
+      fetchStatus,
       handleSimChosenLimit,
       handleImportedCoverLimit,
       handleSimPortfolio,
