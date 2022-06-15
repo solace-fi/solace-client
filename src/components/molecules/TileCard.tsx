@@ -63,21 +63,40 @@ export function TileCard({
     alignItems: 'stretch',
   }
 
-  return !noShadow ? (
-    <ShadowDiv style={combinedStyle} {...rest} onClick={onClick}>
-      <RaisedBox style={horiz ? rowStyle : colStyle}>
-        <Flex p={!noPadding ? padding ?? 24 : undefined} column={!horiz} stretch flex1 gap={gap} style={innerStyle}>
-          {children}
-        </Flex>
-      </RaisedBox>
-    </ShadowDiv>
-  ) : (
-    <Flex style={combinedStyle} {...rest} col>
-      <RaisedBox style={horiz ? rowStyle : colStyle}>
-        <Flex p={!noPadding ? padding ?? 24 : undefined} column={!horiz} stretch flex1 gap={gap}>
-          {children}
-        </Flex>
-      </RaisedBox>
+  return (
+    <Flex
+      shadow={!noShadow}
+      bgRaised
+      style={combinedStyle}
+      gap={gap ?? 4}
+      onClick={onClick}
+      {...rest}
+      p={!noPadding ? padding ?? 24 : undefined}
+      column={!horiz}
+      row={horiz}
+      stretch
+      button={!!onClick}
+      noborder={!!onClick}
+    >
+      {children}
     </Flex>
   )
+
+  // return !noShadow ? (
+  //   <ShadowDiv style={combinedStyle} {...rest} onClick={onClick}>
+  //     <RaisedBox style={horiz ? rowStyle : colStyle}>
+  //       <Flex p={!noPadding ? padding ?? 24 : undefined} column={!horiz} stretch flex1 gap={gap} style={innerStyle} col>
+  //         {children}
+  //       </Flex>
+  //     </RaisedBox>
+  //   </ShadowDiv>
+  // ) : (
+  //   <Flex style={combinedStyle} {...rest} col>
+  //     <RaisedBox style={horiz ? rowStyle : colStyle}>
+  //       <Flex p={!noPadding ? padding ?? 24 : undefined} column={!horiz} stretch flex1 gap={gap ?? 4} col>
+  //         {children}
+  //       </Flex>
+  //     </RaisedBox>
+  //   </Flex>
+  // )
 }

@@ -4,6 +4,7 @@ import { Close } from '@styled-icons/material-rounded/Close'
 import { Checkmark } from '@styled-icons/evaicons-solid/Checkmark'
 import { Clock } from '@styled-icons/bootstrap/Clock'
 import { CoinStack } from '@styled-icons/boxicons-solid/CoinStack'
+import { ShareAlt } from '@styled-icons/boxicons-solid/ShareAlt'
 import { Copy } from '@styled-icons/boxicons-regular/Copy'
 import { DarkMode } from '@styled-icons/material-outlined/DarkMode'
 import { ModelTraining } from '@styled-icons/material-outlined/ModelTraining'
@@ -130,6 +131,8 @@ export const StyledRefresh = styled(Refresh)``
 export const StyledMultiselect = styled(Multiselect)``
 
 export const StyledCopy = styled(Copy)``
+
+export const StyledShare = styled(ShareAlt)``
 
 export const InfoCopy = styled(Copy)`
   color: ${(props) => props.theme.typography.infoText};

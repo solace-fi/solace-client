@@ -14,6 +14,7 @@ import { CldModal } from './CldModal'
 import { SimCoverModal } from './SimCoverModal'
 import { Portfolio } from './Portfolio'
 import ReferralModal from './ReferralModal'
+import ShareModal from './ShareModal'
 
 function VisibilityController({ show, children }: { show: boolean; children: React.ReactNode }) {
   return <div style={{ display: show ? 'block' : 'none' }}>{children}</div>
@@ -21,21 +22,61 @@ function VisibilityController({ show, children }: { show: boolean; children: Rea
 
 const CoverageContent = () => {
   const { intrface } = useCoverageContext()
-  const { showPortfolioModal, showCLDModal, showSimulatorModal, showSimCoverModal, showReferralModal } = intrface
+  const {
+    showPortfolioModal,
+    showCLDModal,
+    showSimulatorModal,
+    showSimCoverModal,
+    showReferralModal,
+    showShareReferralModal,
+  } = intrface
 
   const _showCldModal =
-    showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal && !showReferralModal
+    showCLDModal &&
+    !showSimulatorModal &&
+    !showSimCoverModal &&
+    !showPortfolioModal &&
+    !showReferralModal &&
+    !showShareReferralModal
   const _showSimulatorModal =
-    showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && !showReferralModal
+    showSimulatorModal &&
+    !showCLDModal &&
+    !showSimCoverModal &&
+    !showPortfolioModal &&
+    !showReferralModal &&
+    !showShareReferralModal
   const _showSimCoverModal =
-    showSimulatorModal && !showCLDModal && showSimCoverModal && !showPortfolioModal && !showReferralModal
+    showSimulatorModal &&
+    !showCLDModal &&
+    showSimCoverModal &&
+    !showPortfolioModal &&
+    !showReferralModal &&
+    !showShareReferralModal
   const _showPortfolioModal =
-    showPortfolioModal && !showCLDModal && !showSimulatorModal && !showSimCoverModal && !showReferralModal
+    showPortfolioModal &&
+    !showCLDModal &&
+    !showSimulatorModal &&
+    !showSimCoverModal &&
+    !showReferralModal &&
+    !showShareReferralModal
   const _showDefault =
-    !showSimulatorModal && !showCLDModal && !showSimCoverModal && !showPortfolioModal && !showReferralModal
+    !showSimulatorModal &&
+    !showCLDModal &&
+    !showSimCoverModal &&
+    !showPortfolioModal &&
+    !showReferralModal &&
+    !showShareReferralModal
 
   const _showReferralModal =
-    showReferralModal && !showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal
+    showReferralModal &&
+    !showCLDModal &&
+    !showSimulatorModal &&
+    !showSimCoverModal &&
+    !showPortfolioModal &&
+    !showShareReferralModal
+
+  const _showShareReferralModal =
+    showShareReferralModal && !showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal
 
   // const _showReferralModal = true
   // const _showCldModal = false
@@ -65,6 +106,9 @@ const CoverageContent = () => {
           </VisibilityController>
           <VisibilityController show={_showReferralModal}>
             <ReferralModal />
+          </VisibilityController>
+          <VisibilityController show={_showShareReferralModal}>
+            <ShareModal />
           </VisibilityController>
         </Flex>
       </Flex>
