@@ -308,7 +308,7 @@ export const PortfolioSimulator = (): JSX.Element => {
     <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative', overflow: 'hidden' }}>
       <Flex py={18} itemsCenter between px={20} zIndex={3} bgSecondary>
         <Text t1s mont semibold>
-          Portfolio Simulator
+          Quote Simulator
         </Text>
         <Flex onClick={() => handleShowSimulatorModal(false)}>
           <ModalCloseButton lightColor={appTheme == 'dark'} />

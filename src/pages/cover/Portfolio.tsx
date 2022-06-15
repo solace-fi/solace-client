@@ -82,7 +82,7 @@ export const Portfolio = (): JSX.Element => {
         {!portfolioLoading && protocols.length == 0 && (
           <Flex col stretch gap={5}>
             <Text textAlignCenter>Your portfolio is empty.</Text>
-            <Text textAlignCenter>To estimate your cost of coverage, you may use our portfolio simulator.</Text>
+            <Text textAlignCenter>To estimate your cost of coverage, you may use our quote simulator.</Text>
             <Button
               {...gradientStyle}
               secondary

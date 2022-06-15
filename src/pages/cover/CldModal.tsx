@@ -27,6 +27,7 @@ import { ZERO } from '../../constants'
 import { StyledArrowIosBackOutline, StyledArrowIosForwardOutline } from '../../components/atoms/Icon'
 import { SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { ChosenLimit } from '../../constants/enums'
+import usePrevious from '../../hooks/internal/usePrevious'
 
 const ChosenLimitLength = Object.values(ChosenLimit).filter((x) => typeof x === 'number').length
 
@@ -40,7 +41,14 @@ export const CldModal = () => {
   const { activeNetwork } = useNetwork()
   const { purchaseWithStable, purchaseWithNonStable, purchase, getMinRequiredAccountBalance } = useCoverageFunctions()
   const { intrface, portfolioKit, input, dropdowns, styles, policy } = useCoverageContext()
-  const { userState, showCLDModal, handleShowCLDModal, transactionLoading, handleTransactionLoading } = intrface
+  const {
+    userState,
+    showCLDModal,
+    handleShowCLDModal,
+    transactionLoading,
+    handleTransactionLoading,
+    handleShowSimulatorModal,
+  } = intrface
   const {
     enteredDeposit,
     handleEnteredDeposit,
@@ -52,7 +60,7 @@ export const CldModal = () => {
   const { curPortfolio, importCounter } = portfolioKit
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
-  const { signatureObj, depositApproval, scpBalance } = policy
+  const { signatureObj, depositApproval, scpBalance, status } = policy
 
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [localCoinsOpen, setLocalCoinsOpen] = useState<boolean>(false)
@@ -66,10 +74,12 @@ export const CldModal = () => {
   const [highestAmount, setHighestAmount] = useState<BigNumber>(ZERO)
   const [recommendedAmount, setRecommendedAmount] = useState<BigNumber>(ZERO)
   const [customInputAmount, setCustomInputAmount] = useState<string>('')
+  const [isImportOrigin, setIsImportOrigin] = useState<boolean>(false)
 
   const [localNewCoverageLimit, setLocalNewCoverageLimit] = useState<string>('')
   const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
 
+  const importCounterPrev = usePrevious(importCounter)
   const highestPosition = useMemo(
     () =>
       curPortfolio?.protocols?.length && curPortfolio.protocols.length > 0
@@ -219,6 +229,12 @@ export const CldModal = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localNewCoverageLimit])
 
+  useEffect(() => {
+    if (importCounter > (importCounterPrev ?? 0)) {
+      setIsImportOrigin(true)
+    }
+  }, [importCounter, importCounterPrev])
+
   return (
     // <Modal isOpen={show} modalTitle={'Set Cover Limit'} handleClose={() => handleShowCLDModal(false)}>
     //   <CoverageLimitSelector portfolioScore={curPortfolio} setNewCoverageLimit={handleEnteredCoverLimit} />
@@ -267,13 +283,19 @@ export const CldModal = () => {
           width: '50px',
         }}
       >
-        <Flex onClick={() => handleShowCLDModal(false)}>
+        <Flex
+          onClick={() => {
+            if (isImportOrigin) handleShowSimulatorModal(true)
+            handleShowCLDModal(false)
+            setIsImportOrigin(false)
+          }}
+        >
           <ModalCloseButton lightColor={appTheme == 'dark'} />
         </Flex>
       </Flex>
       <Flex justifyCenter mb={4}>
         <Text big3 mont semibold style={{ lineHeight: '29.26px' }}>
-          Set Cover Limit
+          {status ? `Update Cover Limit` : `Purchase Policy`}
         </Text>
       </Flex>
       <Flex col stretch>
@@ -361,7 +383,7 @@ export const CldModal = () => {
             onClick={callPurchase}
             disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0}
           >
-            {curUserState ? `Save` : newUserState ? `Subscribe to Policy` : returningUserState ? `Activate Policy` : ``}
+            {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}
           </Button>
         </ButtonWrapper>
       )}
@@ -403,16 +425,7 @@ export const CldModal = () => {
               disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0 || lackingScp != '0'}
             >
               {/* <Text>Deposit &amp; Save</Text> */}
-              <Text>
-                {' '}
-                {curUserState
-                  ? `Deposit & Save`
-                  : newUserState
-                  ? `Deposit & Subscribe`
-                  : returningUserState
-                  ? `Deposit & Activate`
-                  : ``}
-              </Text>
+              <Text> {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}</Text>
             </Button>
           </ButtonWrapper>
         </Flex>

@@ -17,7 +17,7 @@ export const Projections = ({
   portfolioScore?: SolaceRiskScore
   coverageLimit: BigNumber
 }): JSX.Element => {
-  const { intrface, input, portfolioKit } = useCoverageContext()
+  const { intrface, input, portfolioKit, policy } = useCoverageContext()
   const { handleShowSimCoverModal, handleShowCLDModal, handleShowSimulatorModal } = intrface
   const { handleImportedCoverLimit, handleSimCoverLimit } = input
   const {
@@ -27,6 +27,7 @@ export const Projections = ({
     curHighestPosition,
     simChosenLimit,
   } = portfolioKit
+  const { status } = policy
 
   const usdBalanceSum = useMemo(
     () =>
@@ -72,7 +73,7 @@ export const Projections = ({
       <Flex col gap={12}>
         <SmallCardTemplate
           icon={<StyledExport height={12} width={12} />}
-          value={`Import Limit`}
+          value={status ? `Import Limit` : `Buy Now`}
           techy
           onClick={() => {
             handleImportedCoverLimit(coverageLimit)
