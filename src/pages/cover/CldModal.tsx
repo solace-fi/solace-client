@@ -38,14 +38,13 @@ export const CldModal = () => {
   const { account } = useWeb3React()
   const { appTheme } = useGeneral()
   const { activeNetwork } = useNetwork()
-  const { purchaseWithStable, purchaseWithNonStable, purchase } = useCoverageFunctions()
+  const { purchaseWithStable, purchaseWithNonStable, purchase, getMinRequiredAccountBalance } = useCoverageFunctions()
   const { intrface, portfolioKit, input, dropdowns, styles, policy } = useCoverageContext()
   const { userState, showCLDModal, handleShowCLDModal, transactionLoading, handleTransactionLoading } = intrface
   const {
     enteredDeposit,
     handleEnteredDeposit,
-    enteredCoverLimit,
-    handleEnteredCoverLimit,
+    importedCoverLimit,
     selectedCoin,
     handleSelectedCoin,
     selectedCoinPrice,
@@ -53,7 +52,7 @@ export const CldModal = () => {
   const { curPortfolio, importCounter } = portfolioKit
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
-  const { signatureObj, depositApproval, minReqAccBal, scpBalance } = policy
+  const { signatureObj, depositApproval, scpBalance } = policy
 
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [localCoinsOpen, setLocalCoinsOpen] = useState<boolean>(false)
@@ -69,6 +68,7 @@ export const CldModal = () => {
   const [customInputAmount, setCustomInputAmount] = useState<string>('')
 
   const [localNewCoverageLimit, setLocalNewCoverageLimit] = useState<string>('')
+  const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
 
   const highestPosition = useMemo(
     () =>
@@ -187,8 +187,8 @@ export const CldModal = () => {
 
   useEffect(() => {
     if (importCounter > 0) {
-      setCustomInputAmount(formatUnits(enteredCoverLimit, 18))
-      setLocalNewCoverageLimit(formatUnits(enteredCoverLimit, 18))
+      setCustomInputAmount(formatUnits(importedCoverLimit, 18))
+      setLocalNewCoverageLimit(formatUnits(importedCoverLimit, 18))
       setChosenLimit(ChosenLimit.Custom)
     }
 
@@ -208,6 +208,15 @@ export const CldModal = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chosenLimit, highestAmount, recommendedAmount, customInputAmount])
+
+  useEffect(() => {
+    const init = async () => {
+      const mrab = await getMinRequiredAccountBalance(parseUnits(formatAmount(localNewCoverageLimit), 18))
+      setMinReqAccBal(mrab)
+    }
+    init()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localNewCoverageLimit])
 
   return (
     // <Modal isOpen={show} modalTitle={'Set Cover Limit'} handleClose={() => handleShowCLDModal(false)}>

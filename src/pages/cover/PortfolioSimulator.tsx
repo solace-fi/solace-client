@@ -27,7 +27,7 @@ export const PortfolioSimulator = (): JSX.Element => {
   const { series } = seriesKit
   const { simCoverLimit } = input
   const { portfolioLoading, handleShowSimulatorModal } = intrface
-  const { curPortfolio: portfolioScore, simPortfolio, riskScores, handleSimPortfolio } = portfolioKit
+  const { curPortfolio: portfolioScore, simPortfolio, riskScores, handleSimPortfolio, handleSimCounter } = portfolioKit
   const { bigButtonStyle, gradientStyle } = styles
   const [canSimulate, setCanSimulate] = useState(false)
   const [editingItem, setEditingItem] = useState<string | undefined>(undefined)
@@ -279,7 +279,8 @@ export const PortfolioSimulator = (): JSX.Element => {
     setCompiling(false)
     setCanSimulate(false)
     setSimulating(false)
-  }, [editableProtocols, portfolioLoading, active, riskScores, handleSimPortfolio])
+    handleSimCounter()
+  }, [editableProtocols, portfolioLoading, active, riskScores, handleSimPortfolio, handleSimCounter])
 
   const handleEditingItem = useCallback((appId: string | undefined) => {
     setEditingItem(appId)

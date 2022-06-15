@@ -47,7 +47,7 @@ export const PolicyContent = (): JSX.Element => {
   const {
     enteredDeposit,
     enteredWithdrawal: asyncEnteredWithdrawal,
-    enteredCoverLimit,
+    importedCoverLimit,
     handleEnteredDeposit,
     handleEnteredWithdrawal,
     isAcceptableDeposit,
@@ -61,12 +61,12 @@ export const PolicyContent = (): JSX.Element => {
     status,
     curCoverageLimit,
     scpBalance,
-    doesMeetMinReqAccBal,
+    impDoesMeetMinReqAccBal,
     scpObj,
     signatureObj,
     depositApproval,
     minReqScpBal,
-    minReqAccBal,
+    impMinReqAccBal,
     unlimitedApproveCPM,
   } = policy
   const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
@@ -159,7 +159,7 @@ export const PolicyContent = (): JSX.Element => {
   const callPurchase = async () => {
     if (!account) return
     handleTransactionLoading(true)
-    await purchase(account, enteredCoverLimit)
+    await purchase(account, importedCoverLimit)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
   }
@@ -169,7 +169,7 @@ export const PolicyContent = (): JSX.Element => {
     handleTransactionLoading(true)
     await purchaseWithStable(
       account,
-      enteredCoverLimit,
+      importedCoverLimit,
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals)
     )
@@ -184,7 +184,7 @@ export const PolicyContent = (): JSX.Element => {
     handleTransactionLoading(true)
     await purchaseWithNonStable(
       account,
-      enteredCoverLimit,
+      importedCoverLimit,
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals),
       tokenSignature.price,
@@ -234,7 +234,7 @@ export const PolicyContent = (): JSX.Element => {
       refundableSCP2 = parseUnits(scpBalance, 18).sub(minReqScpBal)
       const float_refundableSCP2 = floatUnits(refundableSCP2, 18)
       console.log('current cover limit', floatUnits(curCoverageLimit, 18))
-      console.log('mrab', floatUnits(minReqAccBal, 18))
+      console.log('mrab', floatUnits(impMinReqAccBal, 18))
       console.log('scpBalance', scpBalance)
       console.log('nonrefundable', floatUnits(nr, 18))
       console.log('minScpRequired', floatUnits(minReqScpBal, 18))
@@ -449,7 +449,7 @@ export const PolicyContent = (): JSX.Element => {
                       </Text>
                     </Flex>
                     <Text t4s style={{ lineHeight: '14px' }} bold {...gradientStyle}>
-                      ${truncateValue(floatUnits(curUserState ? curCoverageLimit : enteredCoverLimit, 18), 2)}
+                      ${truncateValue(floatUnits(curUserState ? curCoverageLimit : importedCoverLimit, 18), 2)}
                     </Text>
                   </TileCard>
                 </div>
@@ -556,9 +556,9 @@ export const PolicyContent = (): JSX.Element => {
                           noborder
                           onClick={handlePurchase}
                           disabled={
-                            enteredCoverLimit.isZero() ||
+                            importedCoverLimit.isZero() ||
                             portfolioLoading ||
-                            !doesMeetMinReqAccBal ||
+                            !impDoesMeetMinReqAccBal ||
                             (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
                               !isAcceptableDeposit)
                           }
@@ -574,9 +574,9 @@ export const PolicyContent = (): JSX.Element => {
                           {...bigButtonStyle}
                           onClick={handlePurchase}
                           disabled={
-                            enteredCoverLimit.isZero() ||
+                            importedCoverLimit.isZero() ||
                             portfolioLoading ||
-                            !doesMeetMinReqAccBal ||
+                            !impDoesMeetMinReqAccBal ||
                             (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
                               !isAcceptableDeposit)
                           }
