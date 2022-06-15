@@ -168,6 +168,7 @@ export const CldModal = () => {
   }
 
   const _handleToast = (tx: any, localTx: any) => {
+    handleEnteredDeposit('')
     handleTransactionLoading(false)
     handleToast(tx, localTx)
   }
