@@ -404,7 +404,7 @@ export const PolicyContent = (): JSX.Element => {
                 >
                   <TileCard
                     bigger
-                    noPadding
+                    padding={16}
                     innerStyle={{
                       paddingLeft: '16px',
                       paddingBottom: '16px',
@@ -431,7 +431,7 @@ export const PolicyContent = (): JSX.Element => {
                   </TileCard>
                   <TileCard
                     bigger
-                    noPadding
+                    padding={16}
                     innerStyle={{
                       paddingLeft: '16px',
                       paddingBottom: '16px',

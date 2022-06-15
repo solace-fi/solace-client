@@ -94,9 +94,9 @@ export function SmallCardTemplate({
       px={12}
       // p={16}
       gap={12}
-      rounded
+      // rounded
       onClick={onClick}
-      style={{ cursor: onClick ? 'pointer' : 'default' }}
+      style={{ cursor: onClick ? 'pointer' : 'default', borderRadius: '8px' }}
       flex1
     >
       <Flex style={{}} gap={12} itemsCenter>
@@ -105,6 +105,59 @@ export function SmallCardTemplate({
           {value}
         </Text>
       </Flex>
+    </Flex>
+  )
+}
+
+export function ThinCardTemplate2({
+  icon,
+  value1,
+  value2,
+  techy,
+  info,
+  error,
+  onClick,
+}: {
+  icon: ReactNode
+  value1: string
+  value2: string
+  techy?: true
+  info?: true
+  error?: true
+  onClick?: () => void
+}): JSX.Element {
+  return (
+    <Flex
+      bgRaised
+      button={!!onClick}
+      noborder={!!onClick}
+      // justifyCenter={!!onClick}
+      row
+      between
+      py={7}
+      itemsCenter
+      // py={9.75}
+      px={12}
+      // p={16}
+      gap={12}
+      // rounded
+      onClick={onClick}
+      style={{ cursor: onClick ? 'pointer' : 'default', borderRadius: '8px' }}
+      flex1
+    >
+      {/* <Flex gap={12} between py={7} px={12} itemsCenter> */}
+      <Text t5s techygradient={techy} error={error} info={info} bold>
+        {value1}
+      </Text>
+      <Flex itemsCenter gap={8}>
+        <Text info t4s>
+          {value2}
+        </Text>
+        <Text info>
+          <Flex itemsCenter>{icon}</Flex>
+        </Text>
+      </Flex>
+      {/* </Flex> */}
     </Flex>
   )
 }

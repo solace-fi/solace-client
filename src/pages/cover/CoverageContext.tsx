@@ -44,6 +44,8 @@ type CoverageContextType = {
     handleShowSimCoverModal: (show: boolean) => void
     showReferralModal: boolean
     handleShowReferralModal: (show: boolean) => void
+    showShareReferralModal: boolean
+    handleShowShareReferralModal: (show: boolean) => void
     interfaceState: InterfaceState
     userState: InterfaceState
     handleUserState: (state: InterfaceState) => void
@@ -130,6 +132,8 @@ const CoverageContext = createContext<CoverageContextType>({
     handleShowSimCoverModal: () => undefined,
     showReferralModal: false,
     handleShowReferralModal: () => undefined,
+    showShareReferralModal: false,
+    handleShowShareReferralModal: () => undefined,
     interfaceState: InterfaceState.NEW_USER,
     userState: InterfaceState.NEW_USER,
     handleUserState: () => undefined,
@@ -256,6 +260,7 @@ const CoverageManager: React.FC = (props) => {
   const [showCLDModal, setShowCLDModal] = useState(false)
   const [showSimCoverModal, setShowSimCoverModal] = useState(false)
   const [showReferralModal, setShowReferralModal] = useState(false)
+  const [showShareReferralModal, setShowShareReferralModal] = useState(false)
 
   const [coinsOpen, setCoinsOpen] = useState(false)
   const {
@@ -426,6 +431,14 @@ const CoverageManager: React.FC = (props) => {
     setShowReferralModal(show)
   }, [])
 
+  const handleShowShareReferralModal = useCallback((show: boolean) => {
+    setShowShareReferralModal(show)
+  }, [])
+
+  // const handleShowShareModal = useCallback((show: boolean) => {
+  //   setShow
+  // }
+
   const handleImportCounter = useCallback(() => {
     setImportCounter((prev) => prev + 1)
   }, [])
@@ -526,6 +539,7 @@ const CoverageManager: React.FC = (props) => {
         showCLDModal, // show cover limit and deposit modal
         showSimCoverModal, // show simulated cover limit modal
         showReferralModal, // show referral modal
+        showShareReferralModal, // show share referral modal
         interfaceState, // current interface state controlling page components
         userState, // different users see different things on the interface
         portfolioLoading,
@@ -539,6 +553,7 @@ const CoverageManager: React.FC = (props) => {
         handleShowCLDModal,
         handleShowSimCoverModal,
         handleShowReferralModal,
+        handleShowShareReferralModal,
         handleUserState, // change type of user
         handleCtaState, // is the user depositing, withdrawing, or neither?
         handleTransactionLoading,
@@ -651,6 +666,7 @@ const CoverageManager: React.FC = (props) => {
       showSimulatorModal,
       showSimCoverModal,
       showReferralModal,
+      showShareReferralModal,
       scpObj,
       signatureObj,
       depositApproval,
@@ -669,6 +685,7 @@ const CoverageManager: React.FC = (props) => {
       handleShowSimulatorModal,
       handleShowSimCoverModal,
       handleShowReferralModal,
+      handleShowShareReferralModal,
       handleTransactionLoading,
       unlimitedApproveCPM,
       handleImportCounter,
