@@ -1,24 +1,29 @@
 import { useWeb3React } from '@web3-react/core'
 import { useState, useEffect, useCallback } from 'react'
+import { useLocalStorage } from 'react-use-storage'
 import { useNetwork } from '../../../context/NetworkManager'
 import { useCheckIsCoverageActive } from '../useSolaceCoverProductV3'
 import { GetByUserResponse } from './GetByUserResponse'
 import { InfoResponse } from './InfoResponse'
 
-export default function useReferralsApi(): {
+export default function useReferralApi(): {
   referralCode: string | undefined
   earnedAmount: number | undefined
   referredCount: number | undefined
   appliedCode: string | undefined
+  cookieCode: string | undefined
+  setCookieCode: (code: string) => void
 } {
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { policyId } = useCheckIsCoverageActive()
+  const [cookiedRef] = useLocalStorage<string>('sol_data_referral_code', '')
 
   const [referralCode, setReferralCode] = useState<string | undefined>(undefined)
   const [earnedAmount, setEarnedAmount] = useState<number | undefined>(undefined)
   const [referredCount, setReferredCount] = useState<number | undefined>(undefined)
   const [appliedCode, setAppliedCode] = useState<string | undefined>(undefined)
+  const [cookieCode, setCookieCode] = useState<string | undefined>(undefined)
 
   const baseApiUrl = 'https://2vo3wfced8.execute-api.us-west-2.amazonaws.com/prod/'
 
@@ -76,6 +81,13 @@ export default function useReferralsApi(): {
   }, [account])
 
   useEffect(() => {
+    const code = cookiedRef
+    if (code && code !== 'null' && code !== 'undefined' && code !== '') {
+      setCookieCode(code)
+    } else {
+      setCookieCode(undefined)
+    }
+
     setTimeout(() => {
       // GET OWN CODE
       getUserReferralCode()
@@ -83,6 +95,6 @@ export default function useReferralsApi(): {
       // GET EARNED AMOUNT, REFERRED COUNT and APPLIED CODE
       getInfo()
     }, 400)
-  }, [getInfo, getUserReferralCode, account, activeNetwork])
-  return { referralCode, earnedAmount, referredCount, appliedCode }
+  }, [getInfo, getUserReferralCode, account, activeNetwork, policyId, cookiedRef])
+  return { referralCode, earnedAmount, referredCount, appliedCode, cookieCode, setCookieCode }
 }

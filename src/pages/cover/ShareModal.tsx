@@ -8,7 +8,7 @@ import { Button } from '../../components/atoms/Button'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 import { StyledCopy, StyledShare } from '../../components/atoms/Icon'
-import useReferralsApi from '../../hooks/policy/useReferralsApi'
+import useReferralApi from '../../hooks/policy/useReferralApi'
 import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
 
 export default function ShareModal() {
@@ -16,7 +16,7 @@ export default function ShareModal() {
   const { handleShowShareReferralModal } = intrface
   const { appTheme } = useGeneral()
   const [browserSupportsShare, setBrowserSupportsShare] = React.useState(false)
-  const { referralCode } = useReferralsApi()
+  const { referralCode } = useReferralApi()
   const [isCopied, setCopied] = useCopyClipboard()
 
   useEffect(() => {
