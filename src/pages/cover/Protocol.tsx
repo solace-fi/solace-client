@@ -190,7 +190,7 @@ export const Protocol: React.FC<{
             handleEditingItem(protocol.appId)
           }
         }}
-        style={{ position: 'relative', width: '100%', cursor: isEditing ? 'default' : 'pointer' }}
+        style={{ position: 'relative', cursor: isEditing ? 'default' : 'pointer' }}
       >
         {/* <Button
           {...gradientStyle}

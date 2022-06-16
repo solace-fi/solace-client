@@ -34,11 +34,12 @@ export default function useReferralsApi(): {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'x-api-key': 'NGfQrbxj5D9h6W7XS9NBU7BnMkyp9jNkafkx0mSQ',
             },
             body: JSON.stringify({
               user: account,
-              chain_id: 137,
-              policy_id: 0,
+              chain_id: 4,
+              policy_id: 12,
             }),
           })
           const data = (await response.json()) as InfoResponse

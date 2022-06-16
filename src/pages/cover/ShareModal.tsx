@@ -8,12 +8,14 @@ import { Button } from '../../components/atoms/Button'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 import { StyledCopy, StyledShare } from '../../components/atoms/Icon'
+import useReferralsApi from '../../hooks/policy/useReferralsApi'
 
 export default function ShareModal() {
   const { intrface, styles } = useCoverageContext()
   const { handleShowShareReferralModal } = intrface
   const { appTheme } = useGeneral()
   const [browserSupportsShare, setBrowserSupportsShare] = React.useState(false)
+  const { referralCode } = useReferralsApi()
 
   useEffect(() => {
     if ((window as { navigator?: { share?: any } }).navigator?.share) {
@@ -53,9 +55,15 @@ export default function ShareModal() {
             flex1
             style={{ cursor: 'default', userSelect: 'none' }}
           >
-            solace.fi...C9m13X
+            solace.fi...{referralCode}
           </Flex>
-          <Button techygradient noborder secondary width={141}>
+          <Button
+            techygradient
+            noborder
+            secondary
+            width={141}
+            onClick={() => prompt('Copy referral link:', `https://app.solace.fi?r_code=${referralCode}`)}
+          >
             Copy link
           </Button>
         </Flex>
@@ -67,7 +75,7 @@ export default function ShareModal() {
 
         <Flex gap={12}>
           <a
-            href={`https://t.me/share/url?url=https://app.solace.fi?r_code=${22}&text=Use my referral code to get $50 in Solace Portfolio Coverage balance!`}
+            href={`https://t.me/share/url?url=https://app.solace.fi?r_code=${referralCode}&text=Use my referral code to get $50 in Solace Portfolio Coverage balance!`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ flex: 1 }}
@@ -86,7 +94,7 @@ export default function ShareModal() {
             </Flex>
           </a>
           <a
-            href={`https://twitter.com/intent/tweet?text=Use my referral code to get $50 in Solace Portfolio Coverage balance!&url=https://app.solace.fi?r_code=${22}&hashtags=Solace`}
+            href={`https://twitter.com/intent/tweet?text=Use my referral code to get $50 in Solace Portfolio Coverage balance!&url=https://app.solace.fi?r_code=${referralCode}&hashtags=Solace`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ flex: 1 }}
@@ -119,7 +127,7 @@ export default function ShareModal() {
               window.navigator.share({
                 title: 'Use my referral code to get $50 in Solace Portfolio Coverage balance!',
                 text: 'Use my referral code to get $50 in Solace Portfolio Coverage balance!',
-                url: 'https://app.solace.fi?r_code=${22}',
+                url: `https://app.solace.fi?r_code=${referralCode}`,
               })
             }}
           >
@@ -129,9 +137,9 @@ export default function ShareModal() {
         <ThinCardTemplate2
           icon={<StyledCopy width={12} height={12} />}
           value1="Your referral code:"
-          value2="A1g97C"
+          value2={referralCode ?? 'none yet'}
           info
-          onClick={() => handleShowShareReferralModal(true)}
+          onClick={() => prompt('Copy referral code:', referralCode)}
         />
       </Flex>
     </Flex>
