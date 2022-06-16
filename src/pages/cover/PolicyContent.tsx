@@ -122,6 +122,7 @@ export const PolicyContent = (): JSX.Element => {
         break
       case 1:
       case 0:
+      case 5:
       default:
         message = undefined
     }
@@ -184,7 +185,7 @@ export const PolicyContent = (): JSX.Element => {
   const callPurchase = async () => {
     if (!account) return
     handleTransactionLoading(true)
-    await purchase(account, importedCoverLimit)
+    await purchase(account, suggestedCoverLimit)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
   }
@@ -194,7 +195,7 @@ export const PolicyContent = (): JSX.Element => {
     handleTransactionLoading(true)
     await purchaseWithStable(
       account,
-      importedCoverLimit,
+      suggestedCoverLimit,
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals)
     )
@@ -209,7 +210,7 @@ export const PolicyContent = (): JSX.Element => {
     handleTransactionLoading(true)
     await purchaseWithNonStable(
       account,
-      importedCoverLimit,
+      suggestedCoverLimit,
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals),
       tokenSignature.price,
@@ -366,7 +367,7 @@ export const PolicyContent = (): JSX.Element => {
             </TileCard>
           ) : (
             <>
-              {curPortfolio && curPortfolio.protocols.length == 0 && newUserState && (
+              {[2, 3, 4, 5].includes(fetchStatus) && newUserState && (
                 <Flex col gap={16} marginAuto style={{ width: '100%' }}>
                   <Flex col gap={0} marginAuto>
                     <Text t4s textAlignCenter>
@@ -772,7 +773,7 @@ export const PolicyContent = (): JSX.Element => {
                   </Flex>
                 </Flex>
               </div>
-              {curPortfolio && curPortfolio.protocols.length > 0 && (
+              {[2, 3, 4, 5].includes(fetchStatus) && !newUserState && (
                 <Flex col gap={16} marginAuto pt={36} px={44}>
                   <Text t4 textAlignCenter>
                     Get a quote for future portfolio positions by simulating a portfolio.

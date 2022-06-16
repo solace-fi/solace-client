@@ -93,7 +93,7 @@ export const Portfolio = (): JSX.Element => {
                 handleShowSimulatorModal(true)
               }}
             >
-              <Text t2>Open Portfolio Editor</Text>
+              <Text t2>Quote Simulator</Text>
             </Button>
           </Flex>
         )}

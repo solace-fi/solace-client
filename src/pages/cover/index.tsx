@@ -151,7 +151,7 @@ const CoveragePage = (): JSX.Element => {
           <Flex justifyCenter>
             <HeroContainer>
               <Button {...gradientStyle} secondary noborder p={20} onClick={() => handleShowSimulatorModal(true)}>
-                <Text t2>Open Portfolio Editor</Text>
+                <Text t2>Quote Simulator</Text>
               </Button>
             </HeroContainer>
           </Flex>
