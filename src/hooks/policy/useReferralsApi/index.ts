@@ -54,7 +54,12 @@ export default function useReferralsApi(): {
     // GET EARNED AMOUNT, REFERRED COUNT and APPLIED CODE
     const getInfoUrl = `${baseApiUrl}info?user=${account}`
     const getInfo = async () => {
-      const response = await fetch(getInfoUrl)
+      const response = await fetch(getInfoUrl, {
+        method: 'GET',
+        headers: {
+          'X-API-KEY': 'NGfQrbxj5D9h6W7XS9NBU7BnMkyp9jNkafkx0mSQ',
+        },
+      })
       const data = (await response.json()) as InfoResponse
       const _earnedAmount = data.result?.reward_accounting?.promo_rewards
       const _referredCount = data.result?.reward_accounting?.referred_count
