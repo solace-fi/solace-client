@@ -184,7 +184,7 @@ export const PolicyContent = (): JSX.Element => {
   const callPurchase = async () => {
     if (!account) return
     handleTransactionLoading(true)
-    await purchase(account, importedCoverLimit)
+    await purchase(account, suggestedCoverLimit)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
   }
@@ -194,7 +194,7 @@ export const PolicyContent = (): JSX.Element => {
     handleTransactionLoading(true)
     await purchaseWithStable(
       account,
-      importedCoverLimit,
+      suggestedCoverLimit,
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals)
     )
@@ -209,7 +209,7 @@ export const PolicyContent = (): JSX.Element => {
     handleTransactionLoading(true)
     await purchaseWithNonStable(
       account,
-      importedCoverLimit,
+      suggestedCoverLimit,
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals),
       tokenSignature.price,
