@@ -457,7 +457,7 @@ export const usePortfolio = (): {
       }
       setScore(scores)
       console.log('usePortFolio: portfolio fetched successfully')
-      setFetchStatus(0)
+      setFetchStatus(5)
       setLoading(false)
       fetching.current = false
     }
