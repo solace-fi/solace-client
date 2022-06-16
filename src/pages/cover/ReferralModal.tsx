@@ -19,7 +19,15 @@ export default function ReferralModal(): JSX.Element {
   const { appTheme } = useGeneral()
   const [code, setCode] = React.useState<string>('')
   const { gradientStyle } = styles
-  const { appliedCode, earnedAmount, referredCount, referralCode, cookieCode, setCookieCode } = useReferralApi()
+  const {
+    appliedCode,
+    earnedAmount,
+    referredCount,
+    referralCode,
+    cookieCode,
+    setCookieCode,
+    applyCode,
+  } = useReferralApi()
 
   return (
     <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative', overflow: 'hidden' }}>
@@ -135,7 +143,9 @@ export default function ReferralModal(): JSX.Element {
           // else disabled
           disabled={code === '' || code === cookieCode}
           noborder
-          onClick={() => {
+          onClick={async () => {
+            // const success = await applyCode(code)
+            // console.log({ success })
             setCookieCode(code)
           }}
           mt={12}
@@ -143,7 +153,7 @@ export default function ReferralModal(): JSX.Element {
           pb={16}
           {...gradientStyle}
         >
-          <Text>Apply code</Text>
+          <Text>Apply codes</Text>
         </ButtonAppearance>
       </Flex>
     </Flex>
