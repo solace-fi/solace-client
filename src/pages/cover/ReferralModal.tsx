@@ -13,7 +13,8 @@ import { Button } from '../../components/atoms/Button'
 import useReferralsApi from '../../hooks/policy/useReferralsApi'
 
 export default function ReferralModal(): JSX.Element {
-  const { intrface, styles } = useCoverageContext()
+  const { intrface, styles, policy } = useCoverageContext()
+  const { status } = policy
   const { handleShowReferralModal, handleShowShareReferralModal } = intrface
   const { appTheme } = useGeneral()
   const [code, setCode] = React.useState<string>('')
@@ -61,59 +62,80 @@ export default function ReferralModal(): JSX.Element {
             />
           </Flex> */}
         </Grid>
-        <ThinCardTemplate2
-          icon={<StyledShare width={12} height={12} />}
-          value1="Your referral code:"
-          value2={referralCode ?? 'none yet'}
-          info
-          onClick={() => handleShowShareReferralModal(true)}
-        />
+        {!referralCode && (
+          <ThinCardTemplate2
+            icon={<StyledShare width={12} height={12} />}
+            value1="Your referral code:"
+            value2={referralCode ?? 'none yet'}
+            info
+            onClick={() => handleShowShareReferralModal(true)}
+          />
+        )}
       </Flex>
-      <Flex mt={20} mx={37} col>
-        <Text t5s info>
-          Please note:
-        </Text>
-        <ul>
-          <li>
-            <Text t5s info>
-              You can only apply this code once
-            </Text>
-          </li>
-          <li>
-            <Text t5s info>
-              You will not be able to edit/remove it afterwards
-            </Text>
-          </li>
-          <li>
-            <Text t5s info>
-              The earned amount cannot be withdrawn
-            </Text>
-          </li>
-          <li>
-            <Text t5s info>
-              The earned amount will be consumed as balance for your policy
-            </Text>
-          </li>
-        </ul>
-        <Flex mt={12} gap={5} col>
-          <Text t5s semibold>
-            Apply a promo code to your policy
+      {!status ? (
+        !appliedCode ? null : (
+          <Flex mx={20}>
+            <ThinCardTemplate2
+              icon={<StyledCopy width={12} height={12} />}
+              value1="Your applied referral code:"
+              value2={appliedCode || 'no referral applied'}
+              info
+              copy
+            />
+          </Flex>
+        )
+      ) : (
+        <Flex mt={20} mx={37} col>
+          <Text t5s info>
+            Please note:
           </Text>
-          <GenericInputSection value={code} onChange={(e) => setCode(e.target.value)} placeholder="Enter code" h={52} />
+          <ul>
+            <li>
+              <Text t5s info>
+                You can only apply this code once
+              </Text>
+            </li>
+            <li>
+              <Text t5s info>
+                You will not be able to edit/remove it afterwards
+              </Text>
+            </li>
+            <li>
+              <Text t5s info>
+                The earned amount cannot be withdrawn
+              </Text>
+            </li>
+            <li>
+              <Text t5s info>
+                The earned amount will be consumed as balance for your policy
+              </Text>
+            </li>
+          </ul>
+          <Flex mt={12} gap={5} col>
+            <Text t5s semibold>
+              Apply a {!status ? 'referral' : 'promo'} code to your policy
+            </Text>
+            <GenericInputSection
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="Enter code"
+              h={52}
+            />
+          </Flex>
+          <Button
+            techygradient
+            secondary
+            noborder
+            onClick={() => alert('apply')}
+            mt={12}
+            pt={16}
+            pb={16}
+            {...gradientStyle}
+          >
+            <Text>Apply code</Text>
+          </Button>
         </Flex>
-        <Button
-          techygradient
-          secondary
-          noborder
-          onClick={() => alert('apply')}
-          mt={12}
-          pt={16}
-          pb={16}
-          {...gradientStyle}
-        >
-          <Text>Apply code</Text>
-        </Button>
-      </Flex>
+      )}
     </Flex>
   )
 }

@@ -1,7 +1,8 @@
 import React, { ReactNode } from 'react'
 import { Flex } from '../Layout'
 import { Text } from '../Typography'
-import { StyledOptions } from '../Icon'
+import { StyledCheckmark, StyledCopy, StyledOptions } from '../Icon'
+import useCopyClipboard from '../../../hooks/internal/useCopyToClipboard'
 
 export function CardTemplate({
   hasIcon,
@@ -118,6 +119,7 @@ export function ThinCardTemplate2({
   error,
   shadow,
   onClick,
+  copy,
 }: {
   icon: ReactNode
   value1: string
@@ -127,10 +129,13 @@ export function ThinCardTemplate2({
   error?: true
   shadow?: boolean
   onClick?: () => void
+  copy?: boolean
 }): JSX.Element {
+  const [isCopied, setCopied] = useCopyClipboard()
   return (
     <Flex
-      bgRaised
+      bgRaised={!isCopied}
+      bgSuccess={isCopied}
       button={!!onClick}
       noborder={!!onClick}
       shadow={shadow}
@@ -144,20 +149,35 @@ export function ThinCardTemplate2({
       // p={16}
       gap={12}
       // rounded
-      onClick={onClick}
-      style={{ cursor: onClick ? 'pointer' : 'default', borderRadius: '8px' }}
+      onClick={
+        !copy
+          ? onClick
+          : () => {
+              setCopied(value2)
+              console.log('copied')
+            }
+      }
+      style={{ cursor: onClick || (copy && !isCopied) ? 'pointer' : 'default', borderRadius: '8px' }}
       flex1
     >
       {/* <Flex gap={12} between py={7} px={12} itemsCenter> */}
-      <Text t5s techygradient={techy} error={error} info={info} bold>
+      <Text t5s techygradient={techy} error={error} info={info} dark={isCopied} bold>
         {value1}
       </Text>
       <Flex itemsCenter gap={8}>
-        <Text info t4s>
+        <Text info t4s dark={isCopied}>
           {value2}
         </Text>
-        <Text info>
-          <Flex itemsCenter>{icon}</Flex>
+        <Text info dark={isCopied}>
+          <Flex itemsCenter>
+            {!copy ? (
+              icon
+            ) : !isCopied ? (
+              <StyledCopy height={12} width={12} />
+            ) : (
+              <StyledCheckmark height={12} width={12} />
+            )}
+          </Flex>
         </Text>
       </Flex>
       {/* </Flex> */}

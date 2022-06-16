@@ -54,6 +54,7 @@ export interface FlexProps {
   bgTechy?: boolean
   bgWarm?: boolean
   bgInfo?: boolean
+  bgSuccess?: boolean
   bgError?: boolean
   bgLightGray?: boolean
 }
@@ -114,13 +115,14 @@ export const Flex = styled.div<FlexProps & ButtonProps>`
   ${({ thinScrollbar }) => thinScrollbar               ? ThinScrollbarCss                                                 : ""}
   ${({ zIndex })        => zIndex        !== undefined ? css`z-index: ${zIndex};`                                         : ""}
   
-  ${(props)             => props.bgRaised    !== undefined ? css`background-color: ${(props.theme as Theme).v2.raised};` : ""}
-  ${(props)             => props.bgSecondary !== undefined ? css`background-color: ${(props.theme as Theme).body.bg_color};` : ""}
-  ${(props)             => props.bgTechy     !== undefined ? css`background-image: linear-gradient(to bottom right, ${(props.theme as Theme).typography.techyGradientA}, ${(props.theme as Theme).typography.techyGradientB});` : ""}
-  ${(props)             => props.bgWarm      !== undefined ? css`background-image: linear-gradient(to bottom right, ${(props.theme as Theme).typography.warmGradientA}, ${(props.theme as Theme).typography.warmGradientB});` : ""}
-  ${(props)             => props.bgInfo      !== undefined ? css`background-color: ${(props.theme as Theme).typography.infoText};` : ""}
-  ${(props)             => props.bgError     !== undefined ? css`background-color: ${(props.theme as Theme).typography.errorText};` : ""}
-  ${(props)             => props.bgLightGray !== undefined ? css`background-color: ${(props.theme as Theme).typography.lightGray};` : ""}
+  ${(props)             => props.bgRaised              ? css`background-color: ${(props.theme as Theme).v2.raised};` : ""}
+  ${(props)             => props.bgSecondary           ? css`background-color: ${(props.theme as Theme).body.bg_color};` : ""}
+  ${(props)             => props.bgTechy               ? css`background-image: linear-gradient(to bottom right, ${(props.theme as Theme).typography.techyGradientA}, ${(props.theme as Theme).typography.techyGradientB});` : ""}
+  ${(props)             => props.bgWarm                ? css`background-image: linear-gradient(to bottom right, ${(props.theme as Theme).typography.warmGradientA}, ${(props.theme as Theme).typography.warmGradientB});` : ""}
+  ${(props)             => props.bgInfo                ? css`background-color: ${(props.theme as Theme).typography.infoText};` : ""}
+  ${(props)             => props.bgError               ? css`background-color: ${(props.theme as Theme).typography.errorText};` : ""}
+  ${(props)             => props.bgSuccess             ? css`background-color: ${(props.theme as Theme).typography.successText};` : ""}
+  ${(props)             => props.bgLightGray           ? css`background-color: ${(props.theme as Theme).typography.lightGray};` : ""}
 `
 
 export const GridOrRow = styled(Flex)<{ preferredWidth?: number }>`

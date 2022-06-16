@@ -9,6 +9,7 @@ import { ModalCloseButton } from '../../components/molecules/Modal'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 import { StyledCopy, StyledShare } from '../../components/atoms/Icon'
 import useReferralsApi from '../../hooks/policy/useReferralsApi'
+import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
 
 export default function ShareModal() {
   const { intrface, styles } = useCoverageContext()
@@ -16,6 +17,7 @@ export default function ShareModal() {
   const { appTheme } = useGeneral()
   const [browserSupportsShare, setBrowserSupportsShare] = React.useState(false)
   const { referralCode } = useReferralsApi()
+  const [isCopied, setCopied] = useCopyClipboard()
 
   useEffect(() => {
     if ((window as { navigator?: { share?: any } }).navigator?.share) {
@@ -55,16 +57,22 @@ export default function ShareModal() {
             flex1
             style={{ cursor: 'default', userSelect: 'none' }}
           >
-            solace.fi...{referralCode}
+            solace.fi...{referralCode ?? 'you have no ref code'}
           </Flex>
           <Button
-            techygradient
+            techygradient={!isCopied}
+            success={isCopied}
             noborder
             secondary
             width={141}
-            onClick={() => prompt('Copy referral link:', `https://app.solace.fi?r_code=${referralCode}`)}
+            // copy link on click
+            onClick={() => {
+              setCopied(`${(window as any).location.href}?rc=${referralCode}`)
+              console.log('copied link')
+            }}
+            // onClick={() => prompt('Copy referral link:', `https://app.solace.fi?r_code=${referralCode}`)}
           >
-            Copy link
+            {!isCopied ? 'Copy link' : 'Link copied'}
           </Button>
         </Flex>
       </Flex>
@@ -134,13 +142,15 @@ export default function ShareModal() {
             Share
           </Flex>
         )}
-        <ThinCardTemplate2
-          icon={<StyledCopy width={12} height={12} />}
-          value1="Your referral code:"
-          value2={referralCode ?? 'none yet'}
-          info
-          onClick={() => prompt('Copy referral code:', referralCode)}
-        />
+        {!referralCode && (
+          <ThinCardTemplate2
+            icon={<StyledCopy width={12} height={12} />}
+            value1="Your referral code:"
+            value2={referralCode ?? 'none yet'}
+            info
+            copy
+          />
+        )}
       </Flex>
     </Flex>
   )

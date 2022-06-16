@@ -29,6 +29,7 @@ export default function useReferralsApi(): {
     const response = await fetch(getUserReferralCodeUrl)
     const data = (await response.json()) as GetByUserResponse
     const _referralCode = data.result?.[0]?.referral_code
+
     // if there is no referral code, then we must set it by calling baseUrl + referral-codes
     // on success, we will have either Message or `result.referral_code`
     if (!_referralCode) {
