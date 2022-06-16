@@ -83,6 +83,6 @@ export default function useReferralsApi(): {
       // GET EARNED AMOUNT, REFERRED COUNT and APPLIED CODE
       getInfo()
     }, 400)
-  }, [getInfo, getUserReferralCode])
+  }, [getInfo, getUserReferralCode, account, activeNetwork])
   return { referralCode, earnedAmount, referredCount, appliedCode }
 }
