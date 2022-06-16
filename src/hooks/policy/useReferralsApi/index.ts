@@ -45,6 +45,7 @@ export default function useReferralsApi(): {
           const _referralCode = data.result?.referral_codes?.[0]?.referral_code
           _referralCode && setReferralCode(_referralCode)
         }
+        postReferralCode()
       } else setReferralCode(_referralCode)
     }
     getUserReferralCode()
