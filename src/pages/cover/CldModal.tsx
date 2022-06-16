@@ -60,7 +60,7 @@ export const CldModal = () => {
   const { curPortfolio, importCounter } = portfolioKit
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
-  const { signatureObj, depositApproval, scpBalance, status } = policy
+  const { signatureObj, depositApproval, scpBalance, status, unlimitedApproveCPM } = policy
 
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [localCoinsOpen, setLocalCoinsOpen] = useState<boolean>(false)
@@ -148,7 +148,7 @@ export const CldModal = () => {
   }
 
   const callPurchaseWithNonStable = async () => {
-    if (!account || !depositApproval || !signatureObj) return
+    if (!account || !signatureObj) return
     const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
     const tokenSignature: any = Object.values(signature)[0]
     handleTransactionLoading(true)
@@ -236,41 +236,6 @@ export const CldModal = () => {
   }, [importCounter, importCounterPrev])
 
   return (
-    // <Modal isOpen={show} modalTitle={'Set Cover Limit'} handleClose={() => handleShowCLDModal(false)}>
-    //   <CoverageLimitSelector portfolioScore={curPortfolio} setNewCoverageLimit={handleEnteredCoverLimit} />
-    //   <ButtonWrapper>
-    //     <Button {...gradientStyle} {...bigButtonStyle} onClick={callPurchase} secondary noborder>
-    //       Save
-    //     </Button>
-    //   </ButtonWrapper>
-    //   <Flex col gap={12}>
-    //     <div>
-    //       <DropdownInputSection
-    //         hasArrow
-    //         isOpen={localCoinsOpen}
-    //         placeholder={'Enter amount'}
-    //         icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
-    //         text={selectedCoin.symbol}
-    //         value={enteredDeposit}
-    //         onChange={(e) => setEnteredDeposit(filterAmount(e.target.value, enteredDeposit))}
-    //         onClick={() => setLocalCoinsOpen(!localCoinsOpen)}
-    //       />
-    //       <BalanceDropdownOptions
-    //         isOpen={localCoinsOpen}
-    //         searchedList={batchBalanceData}
-    //         onClick={(value: string) => {
-    //           handleSelectedCoin(value)
-    //           setLocalCoinsOpen(false)
-    //         }}
-    //       />
-    //     </div>
-    //     <ButtonWrapper style={{ width: '100%' }} p={0}>
-    //       <Button {...bigButtonStyle} {...gradientStyle} secondary noborder onClick={handlePurchase}>
-    //         <Text>Deposit &amp; Save</Text>
-    //       </Button>
-    //     </ButtonWrapper>
-    //   </Flex>
-    // </Modal>
     <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative' }} justifyCenter>
       <Flex
         itemsCenter
@@ -380,16 +345,23 @@ export const CldModal = () => {
       )}
       {scpBalanceMeetsMrab && (
         <ButtonWrapper>
-          <Button
-            {...gradientStyle}
-            {...bigButtonStyle}
-            secondary
-            noborder
-            onClick={callPurchase}
-            disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0}
-          >
-            {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}
-          </Button>
+          {depositApproval && (
+            <Button
+              {...gradientStyle}
+              {...bigButtonStyle}
+              secondary
+              noborder
+              onClick={callPurchase}
+              disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0}
+            >
+              {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}
+            </Button>
+          )}
+          {!depositApproval && (
+            <Button {...gradientStyle} {...bigButtonStyle} secondary noborder onClick={unlimitedApproveCPM}>
+              Approve
+            </Button>
+          )}
         </ButtonWrapper>
       )}
       {lackingScp != '-1' && lackingScp != '0' && (
@@ -421,17 +393,24 @@ export const CldModal = () => {
             />
           </div>
           <ButtonWrapper style={{ width: '100%' }} p={0}>
-            <Button
-              {...bigButtonStyle}
-              {...gradientStyle}
-              secondary
-              noborder
-              onClick={handlePurchase}
-              disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0 || lackingScp != '-1'}
-            >
-              {/* <Text>Deposit &amp; Save</Text> */}
-              <Text> {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}</Text>
-            </Button>
+            {depositApproval && (
+              <Button
+                {...bigButtonStyle}
+                {...gradientStyle}
+                secondary
+                noborder
+                onClick={handlePurchase}
+                disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0 || lackingScp != '-1'}
+              >
+                {/* <Text>Deposit &amp; Save</Text> */}
+                <Text> {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}</Text>
+              </Button>
+            )}
+            {!depositApproval && (
+              <Button {...gradientStyle} {...bigButtonStyle} secondary noborder onClick={unlimitedApproveCPM}>
+                Approve
+              </Button>
+            )}
           </ButtonWrapper>
         </Flex>
       )}

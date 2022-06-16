@@ -19,7 +19,7 @@ import {
 import { BigNumber, Contract } from 'ethers'
 import { SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { useCachedData } from '../../context/CachedDataManager'
-import { accurateMultiply, convertSciNotaToPrecise, formatAmount } from '../../utils/formatting'
+import { accurateMultiply, convertSciNotaToPrecise, formatAmount, truncateValue } from '../../utils/formatting'
 import { parseUnits } from 'ethers/lib/utils'
 import { useWeb3React } from '@web3-react/core'
 import { usePortfolioAnalysis } from '../../hooks/policy/usePortfolioAnalysis'
@@ -398,11 +398,13 @@ const CoverageManager: React.FC = (props) => {
     (addr: string) => {
       const coin = coinOptions.find((c) => c.address === addr)
       if (coin) {
-        resetDeposit()
+        if (coin.decimals < selectedCoin.decimals) {
+          handleEnteredDeposit(truncateValue(formatAmount(enteredDeposit), coin.decimals, false))
+        }
         setSelectedCoin(coin)
       }
     },
-    [coinOptions, resetDeposit]
+    [coinOptions, enteredDeposit, selectedCoin.decimals, handleEnteredDeposit]
   )
 
   const handleTransactionLoading = useCallback((setLoading: boolean) => {

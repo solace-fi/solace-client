@@ -67,9 +67,7 @@ export const PolicyContent = (): JSX.Element => {
     unlimitedApproveCPM,
   } = policy
   const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
-  const { curPortfolio, curDailyCost, curUsdBalanceSum, curHighestPosition, fetchStatus } = portfolioKit
-
-  // const [enteredWithdrawal, setEnteredWithdrawal] = useState<string>(asyncEnteredWithdrawal)
+  const { curDailyCost, curUsdBalanceSum, curHighestPosition, fetchStatus } = portfolioKit
 
   const { account } = useWeb3React()
   const { activeNetwork, changeNetwork } = useNetwork()
@@ -147,33 +145,31 @@ export const PolicyContent = (): JSX.Element => {
     return true
   }, [enteredWithdrawal, refundableSOLACEAmount])
 
-  const handleDeposit = async (depositAll: boolean) => {
+  const handleDeposit = async () => {
     if (selectedCoin.stablecoin) {
-      await callDepositStable(depositAll)
+      await callDepositStable()
     } else {
-      await callDepositNonStable(depositAll)
+      await callDepositNonStable()
     }
   }
 
-  const callDepositStable = async (depositAll: boolean) => {
+  const callDepositStable = async () => {
     if (!account) return
-    const amountToDeposit = depositAll ? selectedCoinBalance : parseUnits(enteredDeposit, selectedCoin.decimals)
     handleTransactionLoading(true)
-    await depositStable(selectedCoin.address, account, amountToDeposit)
+    await depositStable(selectedCoin.address, account, parseUnits(enteredDeposit, selectedCoin.decimals))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositStable', err, FunctionName.COVER_DEPOSIT_STABLE))
   }
 
-  const callDepositNonStable = async (depositAll: boolean) => {
+  const callDepositNonStable = async () => {
     if (!account || !depositApproval) return
-    const amountToDeposit = depositAll ? selectedCoinBalance : parseUnits(enteredDeposit, selectedCoin.decimals)
     const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
     const tokenSignature: any = Object.values(signature)[0]
     handleTransactionLoading(true)
     await depositNonStable(
       selectedCoin.address,
       account,
-      amountToDeposit,
+      parseUnits(enteredDeposit, selectedCoin.decimals),
       tokenSignature.price,
       tokenSignature.deadline,
       tokenSignature.signature
@@ -527,43 +523,28 @@ export const PolicyContent = (): JSX.Element => {
                   )}
                   <Flex col gap={12}>
                     {(depositCta || newUserState) && (
-                      <Flex col gap={8}>
-                        <Flex between>
-                          <Flex col>
-                            <Text t4>Balance:</Text>
-                          </Flex>
-                          <Flex col>
-                            <Text t4>
-                              {truncateValue(formatUnits(selectedCoinBalance, selectedCoin.decimals), 2)}{' '}
-                              {selectedCoin.symbol}
-                            </Text>
-                          </Flex>
-                        </Flex>
-                        <div>
-                          <DropdownInputSection
-                            hasArrow
-                            isOpen={coinsOpen}
-                            placeholder={'Enter amount'}
-                            icon={
-                              <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
-                            }
-                            text={selectedCoin.symbol}
-                            value={enteredDeposit}
-                            onChange={(e) =>
-                              handleEnteredDeposit(filterAmount(e.target.value, enteredDeposit), selectedCoin.decimals)
-                            }
-                            onClick={() => setCoinsOpen(!coinsOpen)}
-                          />
-                          <BalanceDropdownOptions
-                            isOpen={coinsOpen}
-                            searchedList={batchBalanceData}
-                            onClick={(value: string) => {
-                              handleSelectedCoin(value)
-                              setCoinsOpen(false)
-                            }}
-                          />
-                        </div>
-                      </Flex>
+                      <div>
+                        <DropdownInputSection
+                          hasArrow
+                          isOpen={coinsOpen}
+                          placeholder={'Enter amount'}
+                          icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
+                          text={selectedCoin.symbol}
+                          value={enteredDeposit}
+                          onChange={(e) =>
+                            handleEnteredDeposit(filterAmount(e.target.value, enteredDeposit), selectedCoin.decimals)
+                          }
+                          onClick={() => setCoinsOpen(!coinsOpen)}
+                        />
+                        <BalanceDropdownOptions
+                          isOpen={coinsOpen}
+                          searchedList={batchBalanceData}
+                          onClick={(value: string) => {
+                            handleSelectedCoin(value)
+                            setCoinsOpen(false)
+                          }}
+                        />
+                      </div>
                     )}
                     {withdrawCta && (
                       <Flex col gap={8}>
@@ -605,12 +586,13 @@ export const PolicyContent = (): JSX.Element => {
                           </Text>
                         </Button>
                       )}
-                      {returningUserState && !depositCta && !withdrawCta && depositApproval && (
+                      {returningUserState && !depositCta && !withdrawCta && (
                         <Button
                           success
                           {...bigButtonStyle}
                           onClick={handlePurchase}
                           disabled={
+                            !depositApproval ||
                             importedCoverLimit.isZero() ||
                             portfolioLoading ||
                             !impDoesMeetMinReqAccBal ||
@@ -636,7 +618,7 @@ export const PolicyContent = (): JSX.Element => {
                           </Text>
                         </Button>
                       )}
-                      {depositApproval && (curUserState || returningUserState) && !depositCta && !withdrawCta && (
+                      {(curUserState || returningUserState) && !depositCta && !withdrawCta && (
                         <Button
                           {...gradientStyle}
                           {...bigButtonStyle}
@@ -663,18 +645,35 @@ export const PolicyContent = (): JSX.Element => {
                         </Button>
                       )}
                       {depositCta && (
-                        <Flex col>
-                          <Button
-                            {...bigButtonStyle}
-                            matchBg
-                            secondary
-                            noborder
-                            onClick={() => handleDeposit(false)}
-                            disabled={!isAcceptableDeposit}
-                          >
-                            <Text {...gradientStyle}>Deposit</Text>
-                          </Button>{' '}
-                          <ButtonWrapper style={{ width: '100%' }} p={0}>
+                        <>
+                          {!depositApproval && (
+                            <Button
+                              {...gradientStyle}
+                              {...bigButtonStyle}
+                              secondary
+                              noborder
+                              onClick={() => unlimitedApproveCPM(selectedCoin.address)}
+                              widthP={100}
+                            >
+                              <Text bold t4s>
+                                Approve
+                              </Text>
+                            </Button>
+                          )}
+                          {depositApproval && (
+                            <Button
+                              {...bigButtonStyle}
+                              matchBg
+                              secondary
+                              noborder
+                              onClick={handleDeposit}
+                              disabled={!isAcceptableDeposit}
+                              widthP={100}
+                            >
+                              <Text {...gradientStyle}>Deposit</Text>
+                            </Button>
+                          )}
+                          <ButtonWrapper>
                             <Button
                               pt={16}
                               pb={16}
@@ -683,43 +682,30 @@ export const PolicyContent = (): JSX.Element => {
                                 handleCtaState(undefined)
                                 handleEnteredDeposit('')
                               }}
+                              widthP={100}
                             >
                               Cancel
                             </Button>
                             {depositApproval && (
-                              <>
-                                <Button
-                                  {...bigButtonStyle}
-                                  matchBg
-                                  secondary
-                                  noborder
-                                  onClick={() =>
-                                    handleEnteredDeposit(
-                                      formatUnits(selectedCoinBalance, selectedCoin.decimals),
-                                      selectedCoin.decimals
-                                    )
-                                  }
-                                  disabled={selectedCoinBalance.isZero()}
-                                >
-                                  <Text {...gradientStyle}>MAX</Text>
-                                </Button>
-                              </>
-                            )}
-                            {!depositApproval && (
                               <Button
-                                {...gradientStyle}
                                 {...bigButtonStyle}
+                                matchBg
                                 secondary
                                 noborder
-                                onClick={() => unlimitedApproveCPM(selectedCoin.address)}
+                                onClick={() =>
+                                  handleEnteredDeposit(
+                                    formatUnits(selectedCoinBalance, selectedCoin.decimals),
+                                    selectedCoin.decimals
+                                  )
+                                }
+                                widthP={100}
+                                disabled={selectedCoinBalance.isZero()}
                               >
-                                <Text bold t4s>
-                                  Approve
-                                </Text>
+                                <Text {...gradientStyle}>MAX</Text>
                               </Button>
                             )}
                           </ButtonWrapper>
-                        </Flex>
+                        </>
                       )}
                       {withdrawCta && (
                         <Flex col>
