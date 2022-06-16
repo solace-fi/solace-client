@@ -86,33 +86,33 @@ const CoverageContent = () => {
   // const _showPortfolioModal = false
 
   return (
-    <Content>
-      <Flex justifyCenter>
-        <Flex col w={375}>
-          <VisibilityController show={_showCldModal}>
-            <CldModal />
-          </VisibilityController>
-          <VisibilityController show={_showPortfolioModal}>
-            <Portfolio />
-          </VisibilityController>
-          <VisibilityController show={_showSimulatorModal}>
-            <PortfolioSimulator />
-          </VisibilityController>
-          <VisibilityController show={_showSimCoverModal}>
-            <SimCoverModal />
-          </VisibilityController>
-          <VisibilityController show={_showDefault}>
-            <CoveragePage />
-          </VisibilityController>
-          <VisibilityController show={_showReferralModal}>
-            <ReferralModal />
-          </VisibilityController>
-          <VisibilityController show={_showShareReferralModal}>
-            <ShareModal />
-          </VisibilityController>
-        </Flex>
+    // <Content>
+    <Flex justifyCenter>
+      <Flex col w={450}>
+        <VisibilityController show={_showCldModal}>
+          <CldModal />
+        </VisibilityController>
+        <VisibilityController show={_showPortfolioModal}>
+          <Portfolio />
+        </VisibilityController>
+        <VisibilityController show={_showSimulatorModal}>
+          <PortfolioSimulator />
+        </VisibilityController>
+        <VisibilityController show={_showSimCoverModal}>
+          <SimCoverModal />
+        </VisibilityController>
+        <VisibilityController show={_showDefault}>
+          <CoveragePage />
+        </VisibilityController>
+        <VisibilityController show={_showReferralModal}>
+          <ReferralModal />
+        </VisibilityController>
+        <VisibilityController show={_showShareReferralModal}>
+          <ShareModal />
+        </VisibilityController>
       </Flex>
-    </Content>
+    </Flex>
+    // </Content>
   )
 }
 

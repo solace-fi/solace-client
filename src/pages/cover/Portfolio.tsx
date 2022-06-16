@@ -41,7 +41,7 @@ export const Portfolio = (): JSX.Element => {
   }, [curPortfolio])
 
   return (
-    <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative', overflow: 'hidden' }}>
+    <Flex col style={{ height: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
       <Flex py={18} itemsCenter between px={20} zIndex={3} bgSecondary>
         <Flex gap={8}>
           <Text t3s mont semibold>

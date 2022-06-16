@@ -23,7 +23,7 @@ export const ReadOnlyProtocol: React.FC<{
 }> = ({ protocol, riskColor }): JSX.Element => {
   return (
     <div>
-      <TileCard padding={16} style={{ position: 'relative', width: '100%' }}>
+      <TileCard padding={16} style={{ position: 'relative' }}>
         <Flex col gap={8}>
           <Flex stretch between gap={10}>
             <div

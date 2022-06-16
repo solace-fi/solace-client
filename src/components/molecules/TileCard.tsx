@@ -67,6 +67,7 @@ export function TileCard({
     <Flex
       shadow={!noShadow}
       bgRaised
+      rounded
       style={combinedStyle}
       gap={gap ?? 4}
       onClick={onClick}
