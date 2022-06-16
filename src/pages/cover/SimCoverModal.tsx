@@ -136,7 +136,7 @@ export const SimCoverModal = () => {
       <Flex col stretch>
         <Flex justifyCenter>
           <Text t4s textAlignCenter>
-            Maximum payout in the case of an exploit.
+            In case of an exploit, what amount would you like to be covered up to?
           </Text>
         </Flex>
         <Flex col stretch between mt={36}>

@@ -99,10 +99,10 @@ export const CldModal = () => {
     const BN_Scp_Plus_Deposit = parsedScpBalance.add(
       BigNumber.from(accurateMultiply(convertSciNotaToPrecise(`${depositUSDEquivalent}`), 18))
     )
-    if (minReqAccBal.gt(BN_Scp_Plus_Deposit)) {
+    if (minReqAccBal.isZero() && BN_Scp_Plus_Deposit.isZero()) return '0'
+    if (minReqAccBal.gt(BN_Scp_Plus_Deposit))
       return truncateValue(formatUnits(minReqAccBal.sub(BN_Scp_Plus_Deposit)), 2)
-    }
-    return '0'
+    return '-1'
   }, [scpBalance, minReqAccBal, enteredDeposit, selectedCoinPrice])
 
   const handleInputChange = (input: string) => {
@@ -301,7 +301,7 @@ export const CldModal = () => {
       <Flex col stretch>
         <Flex justifyCenter>
           <Text t4s textAlignCenter>
-            Maximum payout in the case of an exploit.
+            In case of an exploit, what amount would you like to be covered up to?
           </Text>
         </Flex>
         <Flex col stretch between mt={36}>
@@ -373,6 +373,11 @@ export const CldModal = () => {
           />
         </Flex>
       </Flex>
+      {lackingScp == '0' && (
+        <Text textAlignCenter pt={16}>
+          You cannot purchase a policy with a cover limit of 0.
+        </Text>
+      )}
       {scpBalanceMeetsMrab && (
         <ButtonWrapper>
           <Button
@@ -387,7 +392,7 @@ export const CldModal = () => {
           </Button>
         </ButtonWrapper>
       )}
-      {lackingScp != '0' && (
+      {lackingScp != '-1' && lackingScp != '0' && (
         <Text textAlignCenter pt={16}>
           You need at least ${lackingScp} for the desired cover limit. Use the form below to deposit the additional
           premium.
@@ -422,7 +427,7 @@ export const CldModal = () => {
               secondary
               noborder
               onClick={handlePurchase}
-              disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0 || lackingScp != '0'}
+              disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0 || lackingScp != '-1'}
             >
               {/* <Text>Deposit &amp; Save</Text> */}
               <Text> {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}</Text>
