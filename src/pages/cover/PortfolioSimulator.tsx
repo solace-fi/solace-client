@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { Flex } from '../../components/atoms/Layout'
 import { useCoverageContext } from './CoverageContext'
@@ -33,6 +33,8 @@ export const PortfolioSimulator = (): JSX.Element => {
   const [editingItem, setEditingItem] = useState<string | undefined>(undefined)
   const [simulating, setSimulating] = useState(false)
   const [compiling, setCompiling] = useState(false)
+
+  const mounting = useRef(true)
 
   const scoreToUse = useMemo(() => simPortfolio ?? portfolioScore, [portfolioScore, simPortfolio])
 
@@ -273,7 +275,6 @@ export const PortfolioSimulator = (): JSX.Element => {
         network: p.network,
         balanceUSD: p.balanceUSD,
       }))
-    if (riskBalances.length === 0) return
     const score: SolaceRiskScore | undefined = await riskScores(riskBalances)
     handleSimPortfolio(score)
     setCompiling(false)
@@ -295,12 +296,10 @@ export const PortfolioSimulator = (): JSX.Element => {
   }, [canSimulate])
 
   useEffect(() => {
-    if (portfolioScore && simPortfolio == undefined) {
+    if (portfolioScore && simPortfolio == undefined && mounting.current) {
+      mounting.current = false
       setEditableProtocols([...portfolioScore.protocols].map((p, i) => ({ ...p, index: i })))
       handleSimPortfolio(portfolioScore)
-    }
-    if (simPortfolio) {
-      setEditableProtocols([...simPortfolio.protocols].map((p, i) => ({ ...p, index: i })))
     }
   }, [portfolioScore, simPortfolio, handleSimPortfolio])
 
@@ -340,7 +339,7 @@ export const PortfolioSimulator = (): JSX.Element => {
         {(portfolioLoading && active) || compiling || simulating ? (
           <LoaderText text={portfolioLoading && active ? 'Loading' : simulating ? 'Simulating' : 'Compiling'} t6 />
         ) : (
-          <Projections portfolioScore={scoreToUse} coverageLimit={simCoverLimit} />
+          <Projections portfolioScore={simPortfolio} coverageLimit={simCoverLimit} />
         )}
         {/* <TileCard>
           <CoverageLimitSelector2 portfolioScore={scoreToUse} setNewCoverageLimit={editCoverageLimit} />

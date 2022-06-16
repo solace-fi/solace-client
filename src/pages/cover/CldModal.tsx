@@ -398,7 +398,7 @@ export const CldModal = () => {
           premium.
         </Text>
       )}
-      {curPortfolio && curPortfolio.protocols.length > 0 && !scpBalanceMeetsMrab && (
+      {!scpBalanceMeetsMrab && (
         <Flex col gap={12} pt={16}>
           <div>
             <DropdownInputSection

@@ -79,14 +79,19 @@ export const SimCoverModal = () => {
   }
 
   useEffect(() => {
-    if (!highestPosition) return
-    /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(highestPosition.balanceUSD, 18))
-    /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
-    setHighestAmount(bnBal)
-    setRecommendedAmount(bnHigherBal)
-    if (startup.current) {
-      handleSimCoverLimit(bnHigherBal)
-      startup.current = false
+    if (!highestPosition) {
+      setHighestAmount(ZERO)
+      setRecommendedAmount(ZERO)
+      return
+    } else {
+      /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(highestPosition.balanceUSD, 18))
+      /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
+      setHighestAmount(bnBal)
+      setRecommendedAmount(bnHigherBal)
+      if (startup.current) {
+        handleSimCoverLimit(bnHigherBal)
+        startup.current = false
+      }
     }
   }, [highestPosition, handleSimCoverLimit])
 
