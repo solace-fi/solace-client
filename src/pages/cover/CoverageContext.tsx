@@ -1,7 +1,7 @@
 import { Price, SCP, SolaceRiskProtocol, SolaceRiskSeries } from '@solace-fi/sdk-nightly'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { BKPT_2, BKPT_NAVBAR, MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
-import { FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
+import { ChosenLimit, FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
 import { coinsMap } from '../../constants/mappings/coverageStablecoins'
 import { NetworkConfig, ReadToken, TokenInfo } from '../../constants/types'
 import { useGeneral } from '../../context/GeneralManager'
@@ -61,12 +61,12 @@ type CoverageContextType = {
   input: {
     enteredDeposit: string
     enteredWithdrawal: string
-    enteredCoverLimit: BigNumber
+    importedCoverLimit: BigNumber
     simCoverLimit: BigNumber
     handleEnteredDeposit: (input: string, maxDecimals?: number, maxBalance?: string) => void
     handleEnteredWithdrawal: (input: string, maxDecimals?: number, maxBalance?: string) => void
     handleSimCoverLimit: (coverageLimit: BigNumber) => void
-    handleEnteredCoverLimit: (coverageLimit: BigNumber) => void
+    handleImportedCoverLimit: (coverageLimit: BigNumber) => void
     isAcceptableDeposit: boolean
     selectedCoin: ReadToken & { stablecoin: boolean }
     selectedCoinPrice: number
@@ -82,7 +82,10 @@ type CoverageContextType = {
     gradientStyle: any
   }
   portfolioKit: {
+    fetchStatus: number
     importCounter: number
+    simCounter: number
+    simChosenLimit: ChosenLimit
     curPortfolio?: SolaceRiskScore
     simPortfolio?: SolaceRiskScore
     riskScores: (balances: SolaceRiskBalance[]) => Promise<SolaceRiskScore | undefined>
@@ -96,6 +99,8 @@ type CoverageContextType = {
     simDailyCost: number
     handleSimPortfolio: (portfolio: SolaceRiskScore | undefined) => void
     handleImportCounter: () => void
+    handleSimCounter: () => void
+    handleSimChosenLimit: (limit: ChosenLimit) => void
   }
   seriesKit: {
     series?: SolaceRiskSeries
@@ -107,9 +112,9 @@ type CoverageContextType = {
     curCoverageLimit: BigNumber
     existingPolicyId: BigNumber
     existingPolicyNetwork: NetworkConfig
-    minReqAccBal: BigNumber
-    doesMeetMinReqAccBal: boolean
     minReqScpBal: BigNumber
+    impDoesMeetMinReqAccBal: boolean
+    impMinReqAccBal: BigNumber
     availCovCap: BigNumber
     scpBalance: string
     scpObj?: SCP
@@ -149,11 +154,11 @@ const CoverageContext = createContext<CoverageContextType>({
   input: {
     enteredDeposit: '',
     enteredWithdrawal: '',
-    enteredCoverLimit: ZERO,
+    importedCoverLimit: ZERO,
     simCoverLimit: ZERO,
     handleEnteredDeposit: () => undefined,
     handleEnteredWithdrawal: () => undefined,
-    handleEnteredCoverLimit: () => undefined,
+    handleImportedCoverLimit: () => undefined,
     handleSimCoverLimit: () => undefined,
     isAcceptableDeposit: false,
     selectedCoin: { ...coinsMap[1][0], stablecoin: true },
@@ -170,7 +175,10 @@ const CoverageContext = createContext<CoverageContextType>({
     gradientStyle: {},
   },
   portfolioKit: {
+    fetchStatus: 0,
     importCounter: 0,
+    simCounter: 0,
+    simChosenLimit: ChosenLimit.Recommended,
     curPortfolio: undefined,
     simPortfolio: undefined,
     riskScores: () => Promise.reject(),
@@ -184,6 +192,8 @@ const CoverageContext = createContext<CoverageContextType>({
     simDailyRate: 0,
     simDailyCost: 0,
     handleImportCounter: () => undefined,
+    handleSimCounter: () => undefined,
+    handleSimChosenLimit: () => undefined,
   },
   seriesKit: {
     series: undefined,
@@ -195,8 +205,8 @@ const CoverageContext = createContext<CoverageContextType>({
     curCoverageLimit: ZERO,
     existingPolicyId: ZERO,
     existingPolicyNetwork: networks[0],
-    minReqAccBal: ZERO,
-    doesMeetMinReqAccBal: false,
+    impMinReqAccBal: ZERO,
+    impDoesMeetMinReqAccBal: false,
     minReqScpBal: ZERO,
     availCovCap: ZERO,
     scpBalance: '',
@@ -216,7 +226,7 @@ const CoverageManager: React.FC = (props) => {
   const { makeTxToast } = useNotifications()
 
   const { width } = useWindowDimensions()
-  const { portfolio: curPortfolio, riskScores, loading: portfolioLoading } = usePortfolio()
+  const { portfolio: curPortfolio, riskScores, loading: portfolioLoading, fetchStatus } = usePortfolio()
   const [simPortfolio, setSimPortfolio] = useState<SolaceRiskScore | undefined>(undefined)
   const { series, loading: seriesLoading } = useRiskSeries()
   const [transactionLoading, setTransactionLoading] = useState<boolean>(false)
@@ -232,11 +242,13 @@ const CoverageManager: React.FC = (props) => {
   const { policyId, status, coverageLimit: curCoverageLimit, mounting: coverageLoading } = useCheckIsCoverageActive()
   const { handleContractCallError } = useTransactionExecution()
 
-  const [enteredCoverLimit, setEnteredCoverLimit] = useState<BigNumber>(ZERO)
+  const [importedCoverLimit, setImportedCoverLimit] = useState<BigNumber>(ZERO)
   const [simCoverLimit, setSimCoverLimit] = useState<BigNumber>(ZERO)
   const [scpObj, setScpObj] = useState<SCP | undefined>(undefined)
   const [signatureObj, setSignatureObj] = useState<any>(undefined)
   const [importCounter, setImportCounter] = useState<number>(0)
+  const [simCounter, setSimCounter] = useState<number>(0)
+  const [simChosenLimit, setSimChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
 
   const {
     highestPosition: curHighestPosition,
@@ -252,7 +264,7 @@ const CoverageManager: React.FC = (props) => {
   } = usePortfolioAnalysis(simPortfolio, simCoverLimit)
 
   const [availCovCap, setAvailCovCap] = useState<BigNumber>(ZERO)
-  const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
+  const [impMinReqAccBal, setImpMinReqAccBal] = useState<BigNumber>(ZERO)
   const [minReqScpBal, setMinReqScpBal] = useState<BigNumber>(ZERO)
 
   const [showPortfolioModal, setShowPortfolioModal] = useState(false)
@@ -268,7 +280,6 @@ const CoverageManager: React.FC = (props) => {
     network: existingPolicyNetwork,
     loading: existingPolicyLoading,
   } = useExistingPolicy()
-  const mounting = useRef(true)
 
   const coinOptions = useMemo(
     () => [
@@ -326,15 +337,15 @@ const CoverageManager: React.FC = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchBalances, enteredDeposit, selectedCoin.address, selectedCoin.decimals])
 
-  const doesMeetMinReqAccBal = useMemo(() => {
+  const impDoesMeetMinReqAccBal = useMemo(() => {
     const parsedScpBalance = parseUnits(scpBalance, 18)
     const float_enteredDeposit = parseFloat(formatAmount(enteredDeposit))
     const depositUSDEquivalent = float_enteredDeposit * selectedCoinPrice
     const BN_Scp_Plus_Deposit = parsedScpBalance.add(
       BigNumber.from(accurateMultiply(convertSciNotaToPrecise(`${depositUSDEquivalent}`), 18))
     )
-    return minReqAccBal.lte(BN_Scp_Plus_Deposit)
-  }, [minReqAccBal, enteredDeposit, scpBalance, selectedCoinPrice])
+    return impMinReqAccBal.lte(BN_Scp_Plus_Deposit)
+  }, [impMinReqAccBal, enteredDeposit, scpBalance, selectedCoinPrice])
 
   const bigButtonStyle = useMemo(() => {
     return {
@@ -379,8 +390,8 @@ const CoverageManager: React.FC = (props) => {
     setSimCoverLimit(coverageLimit)
   }, [])
 
-  const handleEnteredCoverLimit = useCallback((coverageLimit: BigNumber) => {
-    setEnteredCoverLimit(coverageLimit)
+  const handleImportedCoverLimit = useCallback((coverageLimit: BigNumber) => {
+    setImportedCoverLimit(coverageLimit)
   }, [])
 
   const handleSelectedCoin = useCallback(
@@ -443,6 +454,14 @@ const CoverageManager: React.FC = (props) => {
     setImportCounter((prev) => prev + 1)
   }, [])
 
+  const handleSimCounter = useCallback(() => {
+    setSimCounter((prev) => prev + 1)
+  }, [])
+
+  const handleSimChosenLimit = useCallback((chosenLimit: ChosenLimit) => {
+    setSimChosenLimit(chosenLimit)
+  }, [])
+
   useEffect(() => {
     const tokenWithHighestBalance = batchBalanceData.reduce((pn, cn) => (cn.balance.gt(pn.balance) ? cn : pn), {
       ...coinOptions[0],
@@ -452,13 +471,12 @@ const CoverageManager: React.FC = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchBalanceData])
 
-  // useEffect(() => {
-  //   if (!simHighestPosition || !mounting.current) return
-  //   mounting.current = false
-  //   const bnBal = BigNumber.from(accurateMultiply(simHighestPosition.balanceUSD, 18))
-  //   const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
-  //   handleSimCoverLimit(bnHigherBal)
-  // }, [simHighestPosition, handleSimCoverLimit])
+  useEffect(() => {
+    if (!curHighestPosition) return
+    const bnBal = BigNumber.from(accurateMultiply(curHighestPosition.balanceUSD, 18))
+    const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
+    handleImportedCoverLimit(bnHigherBal)
+  }, [curHighestPosition, handleImportedCoverLimit])
 
   useEffect(() => {
     const init = async () => {
@@ -471,12 +489,12 @@ const CoverageManager: React.FC = (props) => {
 
   useEffect(() => {
     const init = async () => {
-      const mrab = await getMinRequiredAccountBalance(enteredCoverLimit)
-      setMinReqAccBal(mrab)
+      const mrab = await getMinRequiredAccountBalance(importedCoverLimit)
+      setImpMinReqAccBal(mrab)
     }
     init()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enteredCoverLimit])
+  }, [importedCoverLimit])
 
   useEffect(() => {
     const init = async () => {
@@ -561,14 +579,14 @@ const CoverageManager: React.FC = (props) => {
       input: {
         enteredDeposit, // amount of deposit entered, in units of selected coin
         enteredWithdrawal, // amount of withdrawal entered, currently in units of SOLACE
-        enteredCoverLimit, // amount of cover limit entered, in units of USD
+        importedCoverLimit, // amount of cover limit entered, in units of USD
         simCoverLimit, // amount of simulated cover limit entered, in units of USD
         isAcceptableDeposit, // check if deposit is acceptable
         selectedCoin, // selected token to use for deposit (stablecoin or token)
         selectedCoinPrice, // price of selected token ($1 if stablecoin)
         handleEnteredDeposit,
         handleEnteredWithdrawal,
-        handleEnteredCoverLimit,
+        handleImportedCoverLimit,
         handleSimCoverLimit,
         handleSelectedCoin,
       },
@@ -582,7 +600,10 @@ const CoverageManager: React.FC = (props) => {
         gradientStyle,
       },
       portfolioKit: {
+        fetchStatus, // status flag on risk balances fetch
         importCounter, // flag to change real CL
+        simCounter, // flag of simulation
+        simChosenLimit, // chosen limit for simulation
         curPortfolio, // current portfolio score
         simPortfolio, // simulated portfolio score
         curUsdBalanceSum, // current usd sum of current portfolio
@@ -596,6 +617,8 @@ const CoverageManager: React.FC = (props) => {
         riskScores, // function to get risk scores of a portfolio
         handleSimPortfolio,
         handleImportCounter,
+        handleSimCounter,
+        handleSimChosenLimit,
       },
       seriesKit: {
         series,
@@ -607,8 +630,8 @@ const CoverageManager: React.FC = (props) => {
         curCoverageLimit, // current cover limit on policy
         existingPolicyId, // id of an existing policy across all supported chains
         existingPolicyNetwork, // network of an existing policy across all supported chains
-        minReqAccBal, // minimum account balance required to support an entered cover limit
-        doesMeetMinReqAccBal, // check if the entered cover limit meets requirement
+        impMinReqAccBal, // minimum account balance required to support an imported cover limit
+        impDoesMeetMinReqAccBal, // check if the imported cover limit meets requirement
         minReqScpBal, // check how much scp should stay on the account
         availCovCap, // available cover capacity for this chain
         scpBalance, // the user's scp balance
@@ -645,7 +668,7 @@ const CoverageManager: React.FC = (props) => {
       enteredDeposit,
       enteredWithdrawal,
       isAcceptableDeposit,
-      enteredCoverLimit,
+      importedCoverLimit,
       availCovCap,
       scpBalance,
       curPortfolio,
@@ -660,8 +683,8 @@ const CoverageManager: React.FC = (props) => {
       simDailyCost,
       simCoverLimit,
       showCLDModal,
-      minReqAccBal,
-      doesMeetMinReqAccBal,
+      impMinReqAccBal,
+      impDoesMeetMinReqAccBal,
       minReqScpBal,
       showSimulatorModal,
       showSimCoverModal,
@@ -671,7 +694,11 @@ const CoverageManager: React.FC = (props) => {
       signatureObj,
       depositApproval,
       importCounter,
-      handleEnteredCoverLimit,
+      simCounter,
+      simChosenLimit,
+      fetchStatus,
+      handleSimChosenLimit,
+      handleImportedCoverLimit,
       handleSimPortfolio,
       handleSimCoverLimit,
       handleShowCLDModal,
@@ -689,6 +716,7 @@ const CoverageManager: React.FC = (props) => {
       handleTransactionLoading,
       unlimitedApproveCPM,
       handleImportCounter,
+      handleSimCounter,
     ]
   )
   return <CoverageContext.Provider value={value}>{props.children}</CoverageContext.Provider>

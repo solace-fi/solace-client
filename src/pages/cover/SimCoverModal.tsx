@@ -34,11 +34,11 @@ const prevChosenLimit = (chosenLimit: ChosenLimit) =>
 
 export const SimCoverModal = () => {
   const { appTheme } = useGeneral()
-  const { intrface, portfolioKit, input, dropdowns, styles, policy } = useCoverageContext()
+  const { intrface, portfolioKit, input, styles } = useCoverageContext()
   const { gradientStyle, bigButtonStyle } = styles
-  const { showSimCoverModal, handleShowSimCoverModal, transactionLoading, handleTransactionLoading } = intrface
-  const { simPortfolio, curPortfolio } = portfolioKit
-  const { simCoverLimit, handleSimCoverLimit } = input
+  const { handleShowSimCoverModal, transactionLoading, handleTransactionLoading } = intrface
+  const { simPortfolio, simCounter, simChosenLimit, handleSimChosenLimit } = portfolioKit
+  const { handleSimCoverLimit } = input
 
   const [chosenLimit, setChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
 
@@ -47,6 +47,7 @@ export const SimCoverModal = () => {
   const [customInputAmount, setCustomInputAmount] = useState<string>('')
 
   const [localNewCoverageLimit, setLocalNewCoverageLimit] = useState<string>('')
+  const startup = useRef(true)
 
   const highestPosition = useMemo(
     () =>
@@ -83,7 +84,11 @@ export const SimCoverModal = () => {
     /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
     setHighestAmount(bnBal)
     setRecommendedAmount(bnHigherBal)
-  }, [highestPosition])
+    if (startup.current) {
+      handleSimCoverLimit(bnHigherBal)
+      startup.current = false
+    }
+  }, [highestPosition, handleSimCoverLimit])
 
   useEffect(() => {
     switch (chosenLimit) {
@@ -99,16 +104,12 @@ export const SimCoverModal = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chosenLimit, highestAmount, recommendedAmount])
 
+  // change cover limit on simulation
   useEffect(() => {
-    if (chosenLimit == ChosenLimit.Recommended) {
-      setLocalNewCoverageLimit(formatUnits(recommendedAmount, 18))
-      handleSimCoverLimit(recommendedAmount)
-    }
-    if (chosenLimit == ChosenLimit.MaxPosition) {
-      setLocalNewCoverageLimit(formatUnits(highestAmount, 18))
-      handleSimCoverLimit(highestAmount)
-    }
-  }, [recommendedAmount, chosenLimit, handleSimCoverLimit, highestAmount])
+    if (simChosenLimit == ChosenLimit.Recommended) handleSimCoverLimit(recommendedAmount)
+    if (simChosenLimit == ChosenLimit.MaxPosition) handleSimCoverLimit(highestAmount)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [simCounter])
 
   return (
     <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative' }} justifyCenter>
@@ -135,7 +136,7 @@ export const SimCoverModal = () => {
       <Flex col stretch>
         <Flex justifyCenter>
           <Text t4s textAlignCenter>
-            Maximum payout in the case of an exploit.
+            In case of an exploit, what amount would you like to be covered up to?
           </Text>
         </Flex>
         <Flex col stretch between mt={36}>
@@ -154,9 +155,9 @@ export const SimCoverModal = () => {
               <Text techygradient t3 bold>
                 {
                   {
-                    [ChosenLimit.Recommended]: 'Extra safe',
-                    [ChosenLimit.MaxPosition]: 'Highest position',
-                    [ChosenLimit.Custom]: 'Manual',
+                    [ChosenLimit.Recommended]: 'Recommended',
+                    [ChosenLimit.MaxPosition]: 'Base',
+                    [ChosenLimit.Custom]: 'Custom',
                   }[chosenLimit]
                 }
               </Text>
@@ -172,7 +173,7 @@ export const SimCoverModal = () => {
                         </Text>
                       </>
                     ),
-                    [ChosenLimit.MaxPosition]: `in Portfolio`,
+                    [ChosenLimit.MaxPosition]: `Highest Position`,
                     [ChosenLimit.Custom]: `Enter amount below`,
                   }[chosenLimit]
                 }
@@ -213,6 +214,7 @@ export const SimCoverModal = () => {
           {...bigButtonStyle}
           onClick={() => {
             handleSimCoverLimit(parseUnits(localNewCoverageLimit, 18))
+            handleSimChosenLimit(chosenLimit)
             handleShowSimCoverModal(false)
           }}
           secondary
