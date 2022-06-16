@@ -110,7 +110,7 @@ export const Flex = styled.div<FlexProps & ButtonProps>`
   ${({ baseline })      => baseline                    ? css`display: inline-block;`                                      : ""}
   ${({ flex1 })         => flex1                       ? css`flex: 1;`                                                    : ""}
   ${({ rounded })       => rounded       !== undefined ? css`border-radius: ${isNum(rounded) ? rounded : 10}px;`          : ""}
-  ${({ shadow })        => shadow                      ? css`box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);`                : ""}
+  ${({ shadow })        => shadow                      ? css`box-shadow: 0px 0px 30px -10px rgba(138, 138, 138, 0.15);`                : ""}
   ${({ thinScrollbar }) => thinScrollbar               ? ThinScrollbarCss                                                 : ""}
   ${({ zIndex })        => zIndex        !== undefined ? css`z-index: ${zIndex};`                                         : ""}
   

@@ -116,6 +116,7 @@ export function ThinCardTemplate2({
   techy,
   info,
   error,
+  shadow,
   onClick,
 }: {
   icon: ReactNode
@@ -124,6 +125,7 @@ export function ThinCardTemplate2({
   techy?: true
   info?: true
   error?: true
+  shadow?: boolean
   onClick?: () => void
 }): JSX.Element {
   return (
@@ -131,6 +133,7 @@ export function ThinCardTemplate2({
       bgRaised
       button={!!onClick}
       noborder={!!onClick}
+      shadow={shadow}
       // justifyCenter={!!onClick}
       row
       between

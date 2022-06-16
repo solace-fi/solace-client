@@ -4,12 +4,13 @@ import { Text } from '../../components/atoms/Typography'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useCoverageContext } from './CoverageContext'
 import { useGeneral } from '../../context/GeneralManager'
-import { utils } from 'ethers'
+import { BigNumber, utils } from 'ethers'
 import { CardTemplate, SmallCardTemplate, ThinCardTemplate2 } from '../../components/atoms/Card/CardTemplate'
 import { StyledExport, StyledClose, StyledCopy, StyledShare } from '../../components/atoms/Icon'
 import { truncateValue } from '../../utils/formatting'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 import { Button } from '../../components/atoms/Button'
+import useReferralsApi from '../../hooks/policy/useReferralsApi'
 
 export default function ReferralModal(): JSX.Element {
   const { intrface, styles } = useCoverageContext()
@@ -17,6 +18,7 @@ export default function ReferralModal(): JSX.Element {
   const { appTheme } = useGeneral()
   const [code, setCode] = React.useState<string>('')
   const { gradientStyle } = styles
+  const { appliedCode, earnedAmount, referredCount, referralCode } = useReferralsApi()
 
   return (
     <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative', overflow: 'hidden' }}>
@@ -29,11 +31,12 @@ export default function ReferralModal(): JSX.Element {
         </Flex>
       </Flex>
 
-      <Flex col shadow pb={20} px={20} gap={12}>
+      <Flex col pb={20} px={20} gap={12}>
         <Grid columns={2} gap={12}>
-          <CardTemplate title="People you've referred">{`${truncateValue(123, 2)}`}</CardTemplate>
+          <CardTemplate title="People you've referred">{referredCount ?? 0}</CardTemplate>
           <CardTemplate title="Earned by referring" hasIcon onClick={() => handleShowReferralModal(true)}>
-            {`$${truncateValue(utils.formatUnits(123), 2)}`}{' '}
+            ${earnedAmount ?? 0}
+            {/* {`$${truncateValue(utils.formatUnits(BigNumber.from(125).mul(BigNumber.from(10).pow(18))), 2)}`}{' '} */}
             {/* <Text success inline>
               (+$83)
             </Text> */}
@@ -61,7 +64,7 @@ export default function ReferralModal(): JSX.Element {
         <ThinCardTemplate2
           icon={<StyledShare width={12} height={12} />}
           value1="Your referral code:"
-          value2="A1g97C"
+          value2={referralCode ?? 'none yet'}
           info
           onClick={() => handleShowShareReferralModal(true)}
         />
@@ -96,7 +99,7 @@ export default function ReferralModal(): JSX.Element {
           <Text t5s semibold>
             Apply a promo code to your policy
           </Text>
-          <GenericInputSection value={code} onChange={(e) => setCode(e.target.value)} placeholder="Enter code" />
+          <GenericInputSection value={code} onChange={(e) => setCode(e.target.value)} placeholder="Enter code" h={52} />
         </Flex>
         <Button
           techygradient
