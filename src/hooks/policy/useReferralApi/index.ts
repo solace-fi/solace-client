@@ -13,6 +13,7 @@ export default function useReferralApi(): {
   appliedCode: string | undefined
   cookieCode: string | undefined
   setCookieCode: (code: string) => void
+  applyCode: (code: string) => Promise<boolean>
 } {
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
@@ -96,5 +97,31 @@ export default function useReferralApi(): {
       getInfo()
     }, 400)
   }, [getInfo, getUserReferralCode, account, activeNetwork, policyId, cookiedRef])
-  return { referralCode, earnedAmount, referredCount, appliedCode, cookieCode, setCookieCode }
+
+  const applyCode = async (code: string) => {
+    if (!account || !policyId || policyId.isZero()) return false
+    // add: promo-codes/apply
+    const applyCodeUrl = `${baseApiUrl}promo-codes/apply`
+    const response = await fetch(applyCodeUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.REACT_APP_REFERRAL_API_KEY as string,
+      },
+      body: JSON.stringify({
+        user: account,
+        // chain_id: 4,
+        // policy_id: 1,
+        chain_id: activeNetwork.chainId,
+        policy_id: policyId.toNumber(),
+        promo_code: code,
+      }),
+    })
+    const data = (await response.json()) as InfoResponse
+    const _appliedCode = data.result?.applied_promo_codes?.[0]?.promo_code
+    _appliedCode && setAppliedCode(_appliedCode)
+    return _appliedCode ? true : false
+  }
+
+  return { referralCode, earnedAmount, referredCount, appliedCode, cookieCode, setCookieCode, applyCode }
 }
