@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { Flex } from '../../components/atoms/Layout'
 import { useCoverageContext } from './CoverageContext'
@@ -18,21 +18,26 @@ import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
 import AddProtocolForm from './AddProtocolForm'
 import mapEditableProtocols from '../../utils/mapEditableProtocols'
+import { useNetwork } from '../../context/NetworkManager'
 
 export const PortfolioSimulator = (): JSX.Element => {
   const { appTheme } = useGeneral()
 
-  const { active } = useWeb3React()
-  const { portfolioKit, input, styles, seriesKit, intrface } = useCoverageContext()
+  const { active, account } = useWeb3React()
+  const { activeNetwork } = useNetwork()
+  const { portfolioKit, simulator, input, styles, seriesKit, intrface } = useCoverageContext()
   const { series } = seriesKit
   const { simCoverLimit } = input
   const { portfolioLoading, handleShowSimulatorModal } = intrface
-  const { curPortfolio: portfolioScore, simPortfolio, riskScores, handleSimPortfolio, handleSimCounter } = portfolioKit
+  const { curPortfolio: portfolioScore, riskScores } = portfolioKit
+  const { handleSimPortfolio, handleSimCounter, simPortfolio, clearCounter } = simulator
   const { bigButtonStyle, gradientStyle } = styles
   const [canSimulate, setCanSimulate] = useState(false)
   const [editingItem, setEditingItem] = useState<string | undefined>(undefined)
   const [simulating, setSimulating] = useState(false)
   const [compiling, setCompiling] = useState(false)
+
+  const startup = useRef(true)
 
   const scoreToUse = useMemo(() => simPortfolio ?? portfolioScore, [portfolioScore, simPortfolio])
 
@@ -53,17 +58,7 @@ export const PortfolioSimulator = (): JSX.Element => {
     return mapEditableProtocols(editableProtocols)
   }, [editableProtocols])
 
-  // const editableProtocolLookup = useMemo(() => {
-  //   const lookup: { [key: string]: LocalSolaceRiskProtocol } = {}
-  //   editableProtocols.forEach((protocol) => {
-  //     lookup[protocol.appId.toLowerCase()] = protocol
-  //   })
-  //   return lookup
-  // }, [editableProtocols])
-
   const editableProtocolAppIds = useMemo(() => editableProtocols.map((p) => p.appId.toLowerCase()), [editableProtocols])
-
-  const portfolioPrev = usePrevious(scoreToUse)
 
   const tierColors = useTierColors(editableProtocols.map((p) => p.tier))
 
@@ -273,7 +268,6 @@ export const PortfolioSimulator = (): JSX.Element => {
         network: p.network,
         balanceUSD: p.balanceUSD,
       }))
-    if (riskBalances.length === 0) return
     const score: SolaceRiskScore | undefined = await riskScores(riskBalances)
     handleSimPortfolio(score)
     setCompiling(false)
@@ -294,15 +288,27 @@ export const PortfolioSimulator = (): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canSimulate])
 
+  // mounting flag reset on network or account change
   useEffect(() => {
-    if (portfolioScore && simPortfolio == undefined) {
+    if (startup.current == false) startup.current = true
+  }, [activeNetwork, account])
+
+  // on startup, copy cur portfolio into sim portfolio
+  useEffect(() => {
+    if (portfolioScore && startup.current) {
+      startup.current = false
       setEditableProtocols([...portfolioScore.protocols].map((p, i) => ({ ...p, index: i })))
       handleSimPortfolio(portfolioScore)
     }
-    if (simPortfolio) {
-      setEditableProtocols([...simPortfolio.protocols].map((p, i) => ({ ...p, index: i })))
-    }
   }, [portfolioScore, simPortfolio, handleSimPortfolio])
+
+  // on clear changes, copy cur portfolio into sim portfolio
+  useEffect(() => {
+    if (clearCounter > 0 && portfolioScore) {
+      setEditableProtocols([...portfolioScore.protocols].map((p, i) => ({ ...p, index: i })))
+      handleSimPortfolio(portfolioScore)
+    }
+  }, [clearCounter])
 
   return (
     <Flex col style={{ height: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
@@ -340,7 +346,7 @@ export const PortfolioSimulator = (): JSX.Element => {
         {(portfolioLoading && active) || compiling || simulating ? (
           <LoaderText text={portfolioLoading && active ? 'Loading' : simulating ? 'Simulating' : 'Compiling'} t6 />
         ) : (
-          <Projections portfolioScore={scoreToUse} coverageLimit={simCoverLimit} />
+          <Projections portfolioScore={simPortfolio} coverageLimit={simCoverLimit} />
         )}
         {/* <TileCard>
           <CoverageLimitSelector2 portfolioScore={scoreToUse} setNewCoverageLimit={editCoverageLimit} />

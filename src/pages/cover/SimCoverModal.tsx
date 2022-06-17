@@ -33,11 +33,13 @@ const prevChosenLimit = (chosenLimit: ChosenLimit) =>
   ((chosenLimit - 1 + ChosenLimitLength) % ChosenLimitLength) as ChosenLimit
 
 export const SimCoverModal = () => {
+  const { account } = useWeb3React()
   const { appTheme } = useGeneral()
-  const { intrface, portfolioKit, input, styles } = useCoverageContext()
+  const { activeNetwork } = useNetwork()
+  const { intrface, simulator, input, styles } = useCoverageContext()
   const { gradientStyle, bigButtonStyle } = styles
   const { handleShowSimCoverModal, transactionLoading, handleTransactionLoading } = intrface
-  const { simPortfolio, simCounter, simChosenLimit, handleSimChosenLimit } = portfolioKit
+  const { simPortfolio, simCounter, simChosenLimit, handleSimChosenLimit } = simulator
   const { handleSimCoverLimit } = input
 
   const [chosenLimit, setChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
@@ -79,14 +81,23 @@ export const SimCoverModal = () => {
   }
 
   useEffect(() => {
-    if (!highestPosition) return
-    /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(highestPosition.balanceUSD, 18))
-    /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
-    setHighestAmount(bnBal)
-    setRecommendedAmount(bnHigherBal)
-    if (startup.current) {
-      handleSimCoverLimit(bnHigherBal)
-      startup.current = false
+    startup.current = true
+  }, [activeNetwork, account])
+
+  useEffect(() => {
+    if (!highestPosition) {
+      setHighestAmount(ZERO)
+      setRecommendedAmount(ZERO)
+      return
+    } else {
+      /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(highestPosition.balanceUSD, 18))
+      /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
+      setHighestAmount(bnBal)
+      setRecommendedAmount(bnHigherBal)
+      if (startup.current) {
+        handleSimCoverLimit(bnHigherBal)
+        startup.current = false
+      }
     }
   }, [highestPosition, handleSimCoverLimit])
 

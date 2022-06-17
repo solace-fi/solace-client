@@ -8,7 +8,6 @@ import { StyledClose, StyledExport } from '../../components/atoms/Icon'
 import { CardTemplate, SmallCardTemplate } from '../../components/atoms/Card/CardTemplate'
 import { ZERO } from '../../constants'
 import { ChosenLimit } from '../../constants/enums'
-import { Text } from '../../components/atoms/Typography'
 
 export const Projections = ({
   portfolioScore,
@@ -17,16 +16,11 @@ export const Projections = ({
   portfolioScore?: SolaceRiskScore
   coverageLimit: BigNumber
 }): JSX.Element => {
-  const { intrface, input, portfolioKit, policy } = useCoverageContext()
+  const { intrface, input, portfolioKit, simulator, policy } = useCoverageContext()
   const { handleShowSimCoverModal, handleShowCLDModal, handleShowSimulatorModal } = intrface
   const { handleImportedCoverLimit, handleSimCoverLimit } = input
-  const {
-    handleSimPortfolio,
-    handleImportCounter,
-    handleSimChosenLimit,
-    curHighestPosition,
-    simChosenLimit,
-  } = portfolioKit
+  const { curHighestPosition } = portfolioKit
+  const { handleImportCounter, handleSimChosenLimit, handleClearCounter, simChosenLimit } = simulator
   const { status } = policy
 
   const usdBalanceSum = useMemo(
@@ -87,7 +81,7 @@ export const Projections = ({
           value={`Clear Changes`}
           error
           onClick={() => {
-            handleSimPortfolio(undefined)
+            handleClearCounter()
             handleSimChosenLimit(ChosenLimit.Recommended)
             if (curHighestPosition) {
               const bnBal = BigNumber.from(accurateMultiply(curHighestPosition.balanceUSD, 18))

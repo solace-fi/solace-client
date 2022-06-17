@@ -19,7 +19,7 @@ import {
 import { BigNumber, Contract } from 'ethers'
 import { SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { useCachedData } from '../../context/CachedDataManager'
-import { accurateMultiply, convertSciNotaToPrecise, formatAmount } from '../../utils/formatting'
+import { accurateMultiply, convertSciNotaToPrecise, formatAmount, truncateValue } from '../../utils/formatting'
 import { parseUnits } from 'ethers/lib/utils'
 import { useWeb3React } from '@web3-react/core'
 import { usePortfolioAnalysis } from '../../hooks/policy/usePortfolioAnalysis'
@@ -83,22 +83,26 @@ type CoverageContextType = {
   }
   portfolioKit: {
     fetchStatus: number
-    importCounter: number
-    simCounter: number
-    simChosenLimit: ChosenLimit
     curPortfolio?: SolaceRiskScore
-    simPortfolio?: SolaceRiskScore
-    riskScores: (balances: SolaceRiskBalance[]) => Promise<SolaceRiskScore | undefined>
     curUsdBalanceSum: number
     curHighestPosition?: SolaceRiskProtocol
     curDailyRate: number
     curDailyCost: number
+    riskScores: (balances: SolaceRiskBalance[]) => Promise<SolaceRiskScore | undefined>
+  }
+  simulator: {
+    importCounter: number
+    simCounter: number
+    clearCounter: number
+    simChosenLimit: ChosenLimit
+    simPortfolio?: SolaceRiskScore
     simUsdBalanceSum: number
     simHighestPosition?: SolaceRiskProtocol
     simDailyRate: number
     simDailyCost: number
     handleSimPortfolio: (portfolio: SolaceRiskScore | undefined) => void
     handleImportCounter: () => void
+    handleClearCounter: () => void
     handleSimCounter: () => void
     handleSimChosenLimit: (limit: ChosenLimit) => void
   }
@@ -176,24 +180,28 @@ const CoverageContext = createContext<CoverageContextType>({
   },
   portfolioKit: {
     fetchStatus: 0,
-    importCounter: 0,
-    simCounter: 0,
-    simChosenLimit: ChosenLimit.Recommended,
     curPortfolio: undefined,
-    simPortfolio: undefined,
-    riskScores: () => Promise.reject(),
-    handleSimPortfolio: () => undefined,
     curUsdBalanceSum: 0,
     curHighestPosition: undefined,
     curDailyRate: 0,
     curDailyCost: 0,
+    riskScores: () => Promise.reject(),
+  },
+  simulator: {
+    importCounter: 0,
+    simCounter: 0,
+    clearCounter: 0,
+    simChosenLimit: ChosenLimit.Recommended,
+    simPortfolio: undefined,
     simUsdBalanceSum: 0,
     simHighestPosition: undefined,
     simDailyRate: 0,
     simDailyCost: 0,
     handleImportCounter: () => undefined,
     handleSimCounter: () => undefined,
+    handleClearCounter: () => undefined,
     handleSimChosenLimit: () => undefined,
+    handleSimPortfolio: () => undefined,
   },
   seriesKit: {
     series: undefined,
@@ -248,6 +256,7 @@ const CoverageManager: React.FC = (props) => {
   const [signatureObj, setSignatureObj] = useState<any>(undefined)
   const [importCounter, setImportCounter] = useState<number>(0)
   const [simCounter, setSimCounter] = useState<number>(0)
+  const [clearCounter, setClearCounter] = useState<number>(0)
   const [simChosenLimit, setSimChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
 
   const {
@@ -398,11 +407,13 @@ const CoverageManager: React.FC = (props) => {
     (addr: string) => {
       const coin = coinOptions.find((c) => c.address === addr)
       if (coin) {
-        resetDeposit()
+        if (coin.decimals < selectedCoin.decimals) {
+          handleEnteredDeposit(truncateValue(formatAmount(enteredDeposit), coin.decimals, false))
+        }
         setSelectedCoin(coin)
       }
     },
-    [coinOptions, resetDeposit]
+    [coinOptions, enteredDeposit, selectedCoin.decimals, handleEnteredDeposit]
   )
 
   const handleTransactionLoading = useCallback((setLoading: boolean) => {
@@ -456,6 +467,10 @@ const CoverageManager: React.FC = (props) => {
 
   const handleSimCounter = useCallback(() => {
     setSimCounter((prev) => prev + 1)
+  }, [])
+
+  const handleClearCounter = useCallback(() => {
+    setClearCounter((prev) => prev + 1)
   }, [])
 
   const handleSimChosenLimit = useCallback((chosenLimit: ChosenLimit) => {
@@ -601,22 +616,26 @@ const CoverageManager: React.FC = (props) => {
       },
       portfolioKit: {
         fetchStatus, // status flag on risk balances fetch
-        importCounter, // flag to change real CL
-        simCounter, // flag of simulation
-        simChosenLimit, // chosen limit for simulation
         curPortfolio, // current portfolio score
-        simPortfolio, // simulated portfolio score
         curUsdBalanceSum, // current usd sum of current portfolio
         curHighestPosition, // current highest position in portfolio
         curDailyRate, // current daily rate of current portfolio
         curDailyCost, // current daily cost of current portfolio
+        riskScores, // function to get risk scores of a portfolio
+      },
+      simulator: {
+        importCounter, // flag to change real CL
+        simCounter, // flag of simulation
+        clearCounter, // flag to clear simulator changes
+        simChosenLimit, // chosen limit for simulation
+        simPortfolio, // simulated portfolio score
         simUsdBalanceSum, // simulated usd sum of simulated portfolio
         simHighestPosition, // simulated highest position in portfolio
         simDailyRate, // simulated daily rate of simulated portfolio
         simDailyCost, // simulated daily cost of simulated portfolio
-        riskScores, // function to get risk scores of a portfolio
         handleSimPortfolio,
         handleImportCounter,
+        handleClearCounter,
         handleSimCounter,
         handleSimChosenLimit,
       },
@@ -697,6 +716,8 @@ const CoverageManager: React.FC = (props) => {
       simCounter,
       simChosenLimit,
       fetchStatus,
+      clearCounter,
+      handleClearCounter,
       handleSimChosenLimit,
       handleImportedCoverLimit,
       handleSimPortfolio,
