@@ -116,7 +116,8 @@ export const Protocol: React.FC<{
   const protocolOptions = useMemo(() => seriesLogos, [seriesLogos])
 
   const activeList = useMemo(
-    () => (searchTerm ? protocolOptions.filter((item) => item.label.includes(searchTerm)) : protocolOptions),
+    () =>
+      searchTerm ? protocolOptions.filter((item) => item.label.includes(searchTerm.toLowerCase())) : protocolOptions,
     [searchTerm, protocolOptions]
   )
 
@@ -231,6 +232,10 @@ export const Protocol: React.FC<{
                           </Flex>
                         )}
                       </Text>
+                      <StyledArrowDropDown
+                        style={{ transform: accordionOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                        size={18}
+                      />
                     </Flex>
                   </ThinButton>
                 </div>

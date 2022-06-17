@@ -46,7 +46,8 @@ export default function AddProtocolForm({
   const protocolOptions = useMemo(() => seriesLogos, [seriesLogos])
 
   const activeList = useMemo(
-    () => (searchTerm ? protocolOptions.filter((item) => item.label.includes(searchTerm)) : protocolOptions),
+    () =>
+      searchTerm ? protocolOptions.filter((item) => item.label.includes(searchTerm.toLowerCase())) : protocolOptions,
     [searchTerm, protocolOptions]
   )
 
