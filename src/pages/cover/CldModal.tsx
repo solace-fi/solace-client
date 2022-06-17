@@ -5,7 +5,7 @@ import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
 import { Text } from '../../components/atoms/Typography'
-import { FunctionName, InterfaceState } from '../../constants/enums'
+import { FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
@@ -26,6 +26,9 @@ import { ZERO } from '../../constants'
 import { StyledArrowIosBackOutline, StyledArrowIosForwardOutline } from '../../components/atoms/Icon'
 import { ChosenLimit } from '../../constants/enums'
 import usePrevious from '../../hooks/internal/usePrevious'
+import { TransactionResponse } from '@ethersproject/providers'
+import { LocalTx } from '../../constants/types'
+import NotificationsManager, { useNotifications } from '../../context/NotificationsManager'
 
 const ChosenLimitLength = Object.values(ChosenLimit).filter((x) => typeof x === 'number').length
 
@@ -37,8 +40,15 @@ export const CldModal = () => {
   const { account } = useWeb3React()
   const { appTheme } = useGeneral()
   const { activeNetwork } = useNetwork()
-  const { purchaseWithStable, purchaseWithNonStable, purchase, getMinRequiredAccountBalance } = useCoverageFunctions()
-  const { intrface, portfolioKit, simulator, input, dropdowns, styles, policy } = useCoverageContext()
+  const { makeApiToast } = useNotifications()
+  const {
+    purchaseWithStable,
+    purchaseWithNonStable,
+    purchase,
+    getMinRequiredAccountBalance,
+    policyOf,
+  } = useCoverageFunctions()
+  const { intrface, portfolioKit, simulator, input, dropdowns, styles, referral, policy } = useCoverageContext()
   const {
     userState,
     handleShowCLDModal,
@@ -58,6 +68,7 @@ export const CldModal = () => {
   const { importCounter } = simulator
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
+  const { cookieReferralCode, appliedReferralCode, applyReferralCode } = referral
   const { signatureObj, depositApproval, scpBalance, status, availCovCap, unlimitedApproveCPM } = policy
 
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -122,6 +133,7 @@ export const CldModal = () => {
     if (!account) return
     handleTransactionLoading(true)
     await purchase(account, parseUnits(localNewCoverageLimit, 18))
+      .then((res) => handleReferralApplication(res))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
   }
@@ -135,6 +147,7 @@ export const CldModal = () => {
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals)
     )
+      .then((res) => handleReferralApplication(res))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
   }
@@ -153,10 +166,26 @@ export const CldModal = () => {
       tokenSignature.deadline,
       tokenSignature.signature
     )
+      .then((res) => handleReferralApplication(res))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) =>
         _handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
       )
+  }
+
+  const handleReferralApplication = async (res: { tx: TransactionResponse | null; localTx: LocalTx | null }) => {
+    if (!account || !cookieReferralCode || appliedReferralCode) return res
+    const policyId: BigNumber = await policyOf(account)
+    const date = Date.now()
+    makeApiToast('Applying Referral Code - Do not exit', TransactionCondition.PENDING, date)
+    await applyReferralCode(cookieReferralCode, policyId.toNumber(), activeNetwork.chainId).then((r) => {
+      if (r) {
+        makeApiToast('Referral Code Applied', TransactionCondition.SUCCESS, date)
+      } else {
+        makeApiToast('Referral Code Failed', TransactionCondition.FAILURE, date)
+      }
+    })
+    return res
   }
 
   const handlePurchase = async () => {

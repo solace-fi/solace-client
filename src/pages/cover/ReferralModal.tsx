@@ -140,7 +140,7 @@ export default function ReferralModal(): JSX.Element {
           // techy if `code` is not equal to cookieCode and if `code` is not empty
           techygradient={code !== cookieReferralCode && code !== ''}
           // else disabled
-          disabled={code === '' || code === cookieReferralCode || hasPolicy}
+          disabled={code === '' || code === cookieReferralCode}
           noborder
           onClick={async () => {
             // const success = await applyCode(code)
@@ -152,7 +152,7 @@ export default function ReferralModal(): JSX.Element {
           pb={16}
           {...gradientStyle}
         >
-          <Text>Apply codes</Text>
+          <Text>Apply code</Text>
         </ButtonAppearance>
       </Flex>
     </Flex>

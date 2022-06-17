@@ -128,7 +128,7 @@ type CoverageContextType = {
     referralCode?: string
     cookieReferralCode?: string
     handleCookieReferralCode: (code: string) => void
-    applyReferralCode: (code: string) => Promise<boolean>
+    applyReferralCode: (referral_code: string, policy_id: number, chain_id: number) => Promise<boolean>
   }
 }
 

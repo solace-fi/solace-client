@@ -7,7 +7,7 @@ import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
 import { ZERO } from '../../constants'
-import { FunctionName, InterfaceState } from '../../constants/enums'
+import { FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useCoverageFunctions, useExistingPolicy } from '../../hooks/policy/useSolaceCoverProductV3'
@@ -30,10 +30,13 @@ import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import { useCachedData } from '../../context/CachedDataManager'
+import { TransactionResponse } from '@ethersproject/providers'
+import { LocalTx } from '../../constants/types'
+import { useNotifications } from '../../context/NotificationsManager'
 
 export const PolicyContent = (): JSX.Element => {
   const { latestBlock } = useProvider()
-  const { intrface, styles, input, dropdowns, policy, portfolioKit } = useCoverageContext()
+  const { intrface, styles, input, dropdowns, policy, referral, portfolioKit } = useCoverageContext()
   const {
     navbarThreshold,
     coverageLoading,
@@ -76,10 +79,12 @@ export const PolicyContent = (): JSX.Element => {
   } = policy
   const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
   const { curDailyCost, curUsdBalanceSum, curHighestPosition, fetchStatus } = portfolioKit
+  const { cookieReferralCode, appliedReferralCode, applyReferralCode } = referral
 
   const { account } = useWeb3React()
   const { activeNetwork, changeNetwork } = useNetwork()
   const { version } = useCachedData()
+  const { makeApiToast } = useNotifications()
   const { isMobile } = useWindowDimensions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
@@ -92,6 +97,7 @@ export const PolicyContent = (): JSX.Element => {
     depositStable,
     depositNonStable,
     getMinRequiredAccountBalance,
+    policyOf,
   } = useCoverageFunctions()
 
   const [showExistingPolicyMessage, setShowExistingPolicyMessage] = useState<boolean>(true)
@@ -204,10 +210,26 @@ export const PolicyContent = (): JSX.Element => {
       .catch((err) => _handleContractCallError('callDepositNonStable', err, FunctionName.COVER_DEPOSIT_NON_STABLE))
   }
 
+  const handleReferralApplication = async (res: { tx: TransactionResponse | null; localTx: LocalTx | null }) => {
+    if (!account || !cookieReferralCode || appliedReferralCode) return res
+    const policyId: BigNumber = await policyOf(account)
+    if (policyId?.isZero()) return res
+    const date = Date.now()
+    await applyReferralCode(cookieReferralCode, policyId.toNumber(), activeNetwork.chainId).then((r) => {
+      if (r) {
+        makeApiToast('Referral Code Applied', TransactionCondition.SUCCESS, date)
+      } else {
+        makeApiToast('Referral Code Failed', TransactionCondition.FAILURE, date)
+      }
+    })
+    return res
+  }
+
   const callPurchase = async () => {
     if (!account) return
     handleTransactionLoading(true)
     await purchase(account, suggestedCoverLimit)
+      .then((res) => handleReferralApplication(res))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
   }
@@ -221,6 +243,7 @@ export const PolicyContent = (): JSX.Element => {
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals)
     )
+      .then((res) => handleReferralApplication(res))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
   }
@@ -239,6 +262,7 @@ export const PolicyContent = (): JSX.Element => {
       tokenSignature.deadline,
       tokenSignature.signature
     )
+      .then((res) => handleReferralApplication(res))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) =>
         _handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)

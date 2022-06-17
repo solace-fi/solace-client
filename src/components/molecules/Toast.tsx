@@ -10,7 +10,7 @@
 
     AppToast
       
-    NotificationToast
+    TransactionToast
       custom hooks
       local functions
 
@@ -45,7 +45,7 @@ interface AppToastProps {
   icon: any
 }
 
-interface NotificationToastProps {
+interface TransactionToastProps {
   txType: string
   condition: TransactionCondition
   txHash?: string
@@ -61,7 +61,39 @@ export const AppToast: React.FC<AppToastProps> = ({ message, icon }) => {
   )
 }
 
-export const NotificationToast: React.FC<NotificationToastProps> = ({ txType, condition, txHash, errObj }) => {
+export const ApiToast = ({ message, condition }: { message: string; condition: TransactionCondition }): JSX.Element => {
+  const getStateFromCondition = (condition: TransactionCondition): string => {
+    switch (condition) {
+      case TransactionCondition.SUCCESS:
+        return 'successful'
+      case TransactionCondition.FAILURE:
+        return 'failed'
+      case TransactionCondition.PENDING:
+        return 'pending'
+      case TransactionCondition.CANCELLED:
+      default:
+        return 'cancelled'
+    }
+  }
+
+  return (
+    <ToastWrapper>
+      <FlexedToastMessage light>{message}</FlexedToastMessage>
+      <FlexedToastMessage light>Operation {getStateFromCondition(condition)}</FlexedToastMessage>
+      <FlexedToastMessage light>
+        {condition == TransactionCondition.PENDING ? (
+          <Loader width={10} height={10} isLight />
+        ) : condition == TransactionCondition.SUCCESS ? (
+          <StyledCheckmark size={30} />
+        ) : (
+          <StyledWarning size={30} />
+        )}
+      </FlexedToastMessage>
+    </ToastWrapper>
+  )
+}
+
+export const TransactionToast: React.FC<TransactionToastProps> = ({ txType, condition, txHash, errObj }) => {
   /*************************************************************************************
 
    custom hooks

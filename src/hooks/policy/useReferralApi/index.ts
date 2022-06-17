@@ -13,12 +13,12 @@ export default function useReferralApi(): {
   appliedReferralCode: string | undefined
   cookieReferralCode: string | undefined
   setCookieReferralCode: (code: string) => void
-  applyReferralCode: (code: string) => Promise<boolean>
+  applyReferralCode: (referral_code: string, policy_id: number, chain_id: number) => Promise<boolean>
 } {
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { policyId } = useCheckIsCoverageActive()
-  const [localStorageReferralCode] = useLocalStorage<string>('sol_data_referral_code', '')
+  const [localStorageReferralCode] = useLocalStorage<string>('sol_data_referral_code_v3', '')
 
   const [referralCode, setReferralCode] = useState<string | undefined>(undefined)
   const [earnedAmount, setEarnedAmount] = useState<number | undefined>(undefined)
@@ -75,7 +75,7 @@ export default function useReferralApi(): {
     const data = (await response.json()) as InfoResponse
     const _earnedAmount = data.result?.reward_accounting?.promo_rewards
     const _referredCount = data.result?.reward_accounting?.referred_count
-    const _appliedCode = data.result?.applied_promo_codes?.[0]?.promo_code
+    const _appliedCode = data.result?.applied_referral_codes?.[0]?.referral_code
     _earnedAmount ? setEarnedAmount(_earnedAmount) : setEarnedAmount(0)
     _referredCount ? setReferredCount(_referredCount) : setReferredCount(0)
     _appliedCode ? setAppliedCode(_appliedCode) : setAppliedCode('')
@@ -98,8 +98,12 @@ export default function useReferralApi(): {
     }, 400)
   }, [getInfo, getUserReferralCode, account, activeNetwork, policyId, localStorageReferralCode])
 
-  const applyCode = async (code: string) => {
+  const applyCode = async (referral_code: string, policy_id: number, chain_id: number) => {
+    console.log('referral - applying code', referral_code)
+    console.log('referral - policy_id', policy_id)
+    console.log('referral - chain_id', chain_id)
     if (!account || !policyId || policyId.isZero()) return false
+    console.log('referral - account found, policyId found')
     // add: promo-codes/apply
     const applyCodeUrl = `${baseApiUrl}referral-codes/apply`
     const response = await fetch(applyCodeUrl, {
@@ -112,14 +116,16 @@ export default function useReferralApi(): {
         user: account,
         // chain_id: 4,
         // policy_id: 1,
-        chain_id: activeNetwork.chainId,
-        policy_id: policyId.toNumber(),
-        referral_code: code,
+        chain_id,
+        policy_id,
+        referral_code,
       }),
     })
     const data = (await response.json()) as InfoResponse
+    console.log('referral - api response', data)
     const _appliedCode = data.result?.applied_referral_codes?.[0]?.referral_code
     _appliedCode && setAppliedCode(_appliedCode)
+    console.log('referral - applied code', _appliedCode)
     return _appliedCode ? true : false
   }
 
