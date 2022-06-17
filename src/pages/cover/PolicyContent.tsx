@@ -22,6 +22,7 @@ import { LoaderText } from '../../components/molecules/LoaderText'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
+import { useCachedData } from '../../context/CachedDataManager'
 
 export const PolicyContent = (): JSX.Element => {
   const { latestBlock } = useProvider()
@@ -71,6 +72,7 @@ export const PolicyContent = (): JSX.Element => {
 
   const { account } = useWeb3React()
   const { activeNetwork, changeNetwork } = useNetwork()
+  const { version } = useCachedData()
   const { isMobile } = useWindowDimensions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
@@ -80,7 +82,6 @@ export const PolicyContent = (): JSX.Element => {
     purchase,
     cancel,
     withdraw,
-    getBalanceOfNonRefundable,
     depositStable,
     depositNonStable,
   } = useCoverageFunctions()
@@ -231,12 +232,46 @@ export const PolicyContent = (): JSX.Element => {
 
   const callCancel = async () => {
     if (!account || !signatureObj) return
-    const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
-    const tokenSignature: any = Object.values(signature)[0]
+    const test1 = {
+      premium_usd: 3.5900359601031178,
+      premium: 3590035960103117800,
+      policyholder: '0x1271e2acD0d209FA490692F5578239583Cde4073',
+      deadline: 1655506122,
+      signature:
+        '0x5f76b378d2d59d7a7a71842af8e8dee223b93bde4a1a335e565b0d2d3bc03b587bf55de13a89c237ccb0e279bfa5d665a8e66713ee07275a1c9f076f6364624d1c',
+    }
+
+    const test2 = {
+      premium_usd: 3.833,
+      premium: 3833000000000000000,
+      policyholder: '0xfb5cAAe76af8D3CE730f3D62c6442744853d43Ef',
+      deadline: 1655506228,
+      signature:
+        '0x88e2ba2e6021e358b3e9514a773f916c986e4713b43ece883bda036677587ec611f246c8d0502a0079e36a5be4f9342a81e8ed522644401694b39237fef5ac001b',
+    }
+
+    const test3 = {
+      premium_usd: 2.95,
+      premium: 2950000000000000000,
+      policyholder: '0x501AcE0e8D16B92236763E2dEd7aE3bc2DFfA276',
+      deadline: 1655506267,
+      signature:
+        '0xe2638905d37e28580ad40c169a78ec823e36a3706980cdbacc1e3e3b0c0cfc5132751671abbb033fb46c8d5a00ec482d0319956e761ad6f601fdf6f7e26ac96a1c',
+    }
+
+    const test4 = {
+      premium_usd: 4.920385,
+      premium: 4920385000000000000,
+      policyholder: '0x34Bb9e91dC8AC1E13fb42A0e23f7236999e063D4',
+      deadline: 1655506319,
+      signature:
+        '0x1c30441912b44044f95d8c6b6490652a5808e9ed076077b2875e80c91d46b99c7b37d9d7608c15837eac22020594f8eca8e22c8e9e60e3b65cd1472c7f5975af1c',
+    }
+
     handleTransactionLoading(true)
-    // await cancel()
-    //   .then((res) => _handleToast(res.tx, res.localTx))
-    //   .catch((err) => _handleContractCallError('callCancel', err, FunctionName.COVER_CANCEL))
+    await cancel(test4.premium.toString(), test4.policyholder, test4.deadline, test4.signature)
+      .then((res) => _handleToast(res.tx, res.localTx))
+      .catch((err) => _handleContractCallError('callCancel', err, FunctionName.COVER_CANCEL))
   }
 
   const callWithdraw = async () => {
@@ -294,7 +329,7 @@ export const PolicyContent = (): JSX.Element => {
 
   useEffect(() => {
     _getRefundableSOLACEAmount()
-  }, [latestBlock])
+  }, [version, latestBlock])
 
   useEffect(() => {
     if (!policyId || policyId?.eq(ZERO)) {
@@ -304,7 +339,7 @@ export const PolicyContent = (): JSX.Element => {
     } else {
       handleUserState(InterfaceState.CURRENT_USER)
     }
-  }, [policyId, status, handleUserState])
+  }, [policyId, status, handleUserState, version, latestBlock])
 
   useEffect(() => {
     setShowExistingPolicyMessage(true)
@@ -475,7 +510,7 @@ export const PolicyContent = (): JSX.Element => {
                   <Flex stretch between pb={16}>
                     <Flex col>
                       <Text bold t4 {...gradientStyle}>
-                        My Subscription Cost
+                        Premium Cost
                       </Text>
                     </Flex>
                     <Text bold t4 {...gradientStyle}>
@@ -485,7 +520,7 @@ export const PolicyContent = (): JSX.Element => {
                       </Text>
                     </Text>
                   </Flex>
-                  {(curUserState || returningUserState) && (
+                  {!newUserState && (
                     <Flex bgRaised py={16} px={20} rounded stretch between mb={16}>
                       <Flex col gap={4}>
                         <Text bold t7s textAlignCenter>
@@ -586,6 +621,19 @@ export const PolicyContent = (): JSX.Element => {
                           </Text>
                         </Button>
                       )}
+                      {newUserState && !depositApproval && (
+                        <Button
+                          {...gradientStyle}
+                          {...bigButtonStyle}
+                          secondary
+                          noborder
+                          onClick={() => unlimitedApproveCPM(selectedCoin.address)}
+                        >
+                          <Text bold t4s>
+                            Approve
+                          </Text>
+                        </Button>
+                      )}
                       {returningUserState && !depositCta && !withdrawCta && (
                         <Button
                           success
@@ -602,19 +650,6 @@ export const PolicyContent = (): JSX.Element => {
                         >
                           <Text bold t4s>
                             Activate Policy
-                          </Text>
-                        </Button>
-                      )}
-                      {!depositApproval && newUserState && (
-                        <Button
-                          {...gradientStyle}
-                          {...bigButtonStyle}
-                          secondary
-                          noborder
-                          onClick={() => unlimitedApproveCPM(selectedCoin.address)}
-                        >
-                          <Text bold t4s>
-                            Approve
                           </Text>
                         </Button>
                       )}
@@ -662,18 +697,18 @@ export const PolicyContent = (): JSX.Element => {
                           )}
                           {depositApproval && (
                             <Button
+                              {...gradientStyle}
                               {...bigButtonStyle}
-                              matchBg
                               secondary
                               noborder
                               onClick={handleDeposit}
                               disabled={!isAcceptableDeposit}
                               widthP={100}
                             >
-                              <Text {...gradientStyle}>Deposit</Text>
+                              <Text>Deposit</Text>
                             </Button>
                           )}
-                          <ButtonWrapper>
+                          <ButtonWrapper p={0} style={{ width: '100%' }}>
                             <Button
                               pt={16}
                               pb={16}
@@ -708,10 +743,10 @@ export const PolicyContent = (): JSX.Element => {
                         </>
                       )}
                       {withdrawCta && (
-                        <Flex col>
+                        <>
                           <Button
+                            {...gradientStyle}
                             {...bigButtonStyle}
-                            matchBg
                             secondary
                             noborder
                             onClick={callWithdraw}
@@ -721,9 +756,9 @@ export const PolicyContent = (): JSX.Element => {
                               withdrawingMoreThanRefundable
                             }
                           >
-                            <Text {...gradientStyle}>Withdraw</Text>
+                            <Text>Withdraw</Text>
                           </Button>
-                          <ButtonWrapper p={0}>
+                          <ButtonWrapper p={0} style={{ width: '100%' }}>
                             <Button
                               pt={16}
                               pb={16}
@@ -748,10 +783,10 @@ export const PolicyContent = (): JSX.Element => {
                               <Text {...gradientStyle}>MAX</Text>
                             </Button>
                           </ButtonWrapper>
-                        </Flex>
+                        </>
                       )}
                       {curUserState && !depositCta && !withdrawCta && (
-                        <Button {...bigButtonStyle} error onClick={callCancel} disabled noborder>
+                        <Button {...bigButtonStyle} error onClick={callCancel} noborder nohover>
                           Deactivate Policy
                         </Button>
                       )}

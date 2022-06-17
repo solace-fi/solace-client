@@ -18,23 +18,33 @@ import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
 import AddProtocolForm from './AddProtocolForm'
 import mapEditableProtocols from '../../utils/mapEditableProtocols'
+import { useNetwork } from '../../context/NetworkManager'
 
 export const PortfolioSimulator = (): JSX.Element => {
   const { appTheme } = useGeneral()
 
-  const { active } = useWeb3React()
+  const { active, account } = useWeb3React()
+  const { activeNetwork } = useNetwork()
   const { portfolioKit, input, styles, seriesKit, intrface } = useCoverageContext()
   const { series } = seriesKit
   const { simCoverLimit } = input
   const { portfolioLoading, handleShowSimulatorModal } = intrface
-  const { curPortfolio: portfolioScore, simPortfolio, riskScores, handleSimPortfolio, handleSimCounter } = portfolioKit
+  const {
+    curPortfolio: portfolioScore,
+    simPortfolio,
+    clearCounter,
+    riskScores,
+    handleSimPortfolio,
+    handleSimCounter,
+    handleClearCounter,
+  } = portfolioKit
   const { bigButtonStyle, gradientStyle } = styles
   const [canSimulate, setCanSimulate] = useState(false)
   const [editingItem, setEditingItem] = useState<string | undefined>(undefined)
   const [simulating, setSimulating] = useState(false)
   const [compiling, setCompiling] = useState(false)
 
-  const mounting = useRef(true)
+  const startup = useRef(true)
 
   const scoreToUse = useMemo(() => simPortfolio ?? portfolioScore, [portfolioScore, simPortfolio])
 
@@ -295,13 +305,27 @@ export const PortfolioSimulator = (): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canSimulate])
 
+  // mounting flag reset on network or account change
   useEffect(() => {
-    if (portfolioScore && simPortfolio == undefined && mounting.current) {
-      mounting.current = false
+    if (startup.current == false) startup.current = true
+  }, [activeNetwork, account])
+
+  // on startup, copy cur portfolio into sim portfolio
+  useEffect(() => {
+    if (portfolioScore && startup.current) {
+      startup.current = false
       setEditableProtocols([...portfolioScore.protocols].map((p, i) => ({ ...p, index: i })))
       handleSimPortfolio(portfolioScore)
     }
   }, [portfolioScore, simPortfolio, handleSimPortfolio])
+
+  // on clear changes, copy cur portfolio into sim portfolio
+  useEffect(() => {
+    if (clearCounter > 0 && portfolioScore) {
+      setEditableProtocols([...portfolioScore.protocols].map((p, i) => ({ ...p, index: i })))
+      handleSimPortfolio(portfolioScore)
+    }
+  }, [clearCounter])
 
   return (
     <Flex col style={{ height: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>

@@ -85,6 +85,7 @@ type CoverageContextType = {
     fetchStatus: number
     importCounter: number
     simCounter: number
+    clearCounter: number
     simChosenLimit: ChosenLimit
     curPortfolio?: SolaceRiskScore
     simPortfolio?: SolaceRiskScore
@@ -99,6 +100,7 @@ type CoverageContextType = {
     simDailyCost: number
     handleSimPortfolio: (portfolio: SolaceRiskScore | undefined) => void
     handleImportCounter: () => void
+    handleClearCounter: () => void
     handleSimCounter: () => void
     handleSimChosenLimit: (limit: ChosenLimit) => void
   }
@@ -178,6 +180,7 @@ const CoverageContext = createContext<CoverageContextType>({
     fetchStatus: 0,
     importCounter: 0,
     simCounter: 0,
+    clearCounter: 0,
     simChosenLimit: ChosenLimit.Recommended,
     curPortfolio: undefined,
     simPortfolio: undefined,
@@ -193,6 +196,7 @@ const CoverageContext = createContext<CoverageContextType>({
     simDailyCost: 0,
     handleImportCounter: () => undefined,
     handleSimCounter: () => undefined,
+    handleClearCounter: () => undefined,
     handleSimChosenLimit: () => undefined,
   },
   seriesKit: {
@@ -248,6 +252,7 @@ const CoverageManager: React.FC = (props) => {
   const [signatureObj, setSignatureObj] = useState<any>(undefined)
   const [importCounter, setImportCounter] = useState<number>(0)
   const [simCounter, setSimCounter] = useState<number>(0)
+  const [clearCounter, setClearCounter] = useState<number>(0)
   const [simChosenLimit, setSimChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
 
   const {
@@ -460,6 +465,10 @@ const CoverageManager: React.FC = (props) => {
     setSimCounter((prev) => prev + 1)
   }, [])
 
+  const handleClearCounter = useCallback(() => {
+    setClearCounter((prev) => prev + 1)
+  }, [])
+
   const handleSimChosenLimit = useCallback((chosenLimit: ChosenLimit) => {
     setSimChosenLimit(chosenLimit)
   }, [])
@@ -605,6 +614,7 @@ const CoverageManager: React.FC = (props) => {
         fetchStatus, // status flag on risk balances fetch
         importCounter, // flag to change real CL
         simCounter, // flag of simulation
+        clearCounter, // flag to clear simulator changes
         simChosenLimit, // chosen limit for simulation
         curPortfolio, // current portfolio score
         simPortfolio, // simulated portfolio score
@@ -619,6 +629,7 @@ const CoverageManager: React.FC = (props) => {
         riskScores, // function to get risk scores of a portfolio
         handleSimPortfolio,
         handleImportCounter,
+        handleClearCounter,
         handleSimCounter,
         handleSimChosenLimit,
       },
@@ -699,6 +710,8 @@ const CoverageManager: React.FC = (props) => {
       simCounter,
       simChosenLimit,
       fetchStatus,
+      clearCounter,
+      handleClearCounter,
       handleSimChosenLimit,
       handleImportedCoverLimit,
       handleSimPortfolio,

@@ -33,7 +33,9 @@ const prevChosenLimit = (chosenLimit: ChosenLimit) =>
   ((chosenLimit - 1 + ChosenLimitLength) % ChosenLimitLength) as ChosenLimit
 
 export const SimCoverModal = () => {
+  const { account } = useWeb3React()
   const { appTheme } = useGeneral()
+  const { activeNetwork } = useNetwork()
   const { intrface, portfolioKit, input, styles } = useCoverageContext()
   const { gradientStyle, bigButtonStyle } = styles
   const { handleShowSimCoverModal, transactionLoading, handleTransactionLoading } = intrface
@@ -77,6 +79,10 @@ export const SimCoverModal = () => {
       setChosenLimit(ChosenLimit.Custom)
     }
   }
+
+  useEffect(() => {
+    startup.current = true
+  }, [activeNetwork, account])
 
   useEffect(() => {
     if (!highestPosition) {
