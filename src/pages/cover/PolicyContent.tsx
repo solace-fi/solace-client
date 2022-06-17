@@ -54,7 +54,6 @@ export const PolicyContent = (): JSX.Element => {
   const {
     enteredDeposit,
     enteredWithdrawal,
-    importedCoverLimit,
     handleEnteredDeposit,
     handleEnteredWithdrawal,
     isAcceptableDeposit,
@@ -72,6 +71,7 @@ export const PolicyContent = (): JSX.Element => {
     scpObj,
     signatureObj,
     depositApproval,
+    availCovCap,
     unlimitedApproveCPM,
   } = policy
   const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
@@ -102,16 +102,18 @@ export const PolicyContent = (): JSX.Element => {
   ])
 
   const [sugMinReqAccBal, setSugMinReqAccBal] = useState<BigNumber>(ZERO)
-
-  const sugDoesMeetMinReqAccBal = useMemo(() => {
+  const lackingScp = useMemo(() => {
     const parsedScpBalance = parseUnits(scpBalance, 18)
     const float_enteredDeposit = parseFloat(formatAmount(enteredDeposit))
     const depositUSDEquivalent = float_enteredDeposit * selectedCoinPrice
     const BN_Scp_Plus_Deposit = parsedScpBalance.add(
       BigNumber.from(accurateMultiply(convertSciNotaToPrecise(`${depositUSDEquivalent}`), 18))
     )
-    return sugMinReqAccBal.lte(BN_Scp_Plus_Deposit)
-  }, [sugMinReqAccBal, enteredDeposit, scpBalance, selectedCoinPrice])
+    if (sugMinReqAccBal.isZero() && BN_Scp_Plus_Deposit.isZero()) return 'both zeroes'
+    if (sugMinReqAccBal.gt(BN_Scp_Plus_Deposit))
+      return truncateValue(formatUnits(sugMinReqAccBal.sub(BN_Scp_Plus_Deposit)), 2)
+    return 'meets requirement'
+  }, [scpBalance, sugMinReqAccBal, enteredDeposit, selectedCoinPrice])
 
   const selectedCoinBalance = useMemo(
     () => batchBalanceData.find((d) => d.address.toLowerCase() == selectedCoin.address.toLowerCase())?.balance ?? ZERO,
@@ -125,6 +127,8 @@ export const PolicyContent = (): JSX.Element => {
 
   const depositCta = useMemo(() => [InterfaceState.DEPOSITING].includes(interfaceState), [interfaceState])
   const withdrawCta = useMemo(() => [InterfaceState.WITHDRAWING].includes(interfaceState), [interfaceState])
+  const homeCta = useMemo(() => !depositCta && !withdrawCta, [depositCta, withdrawCta])
+
   const [suggestedCoverLimit, setSuggestedCoverLimit] = useState<BigNumber>(ZERO)
 
   const portfolioFetchStatus = useMemo(() => {
@@ -158,6 +162,7 @@ export const PolicyContent = (): JSX.Element => {
 
   const [refundableSOLACEAmount, setRefundableSOLACEAmount] = useState<BigNumber>(ZERO)
   const [withdrawingMoreThanRefundable, setWithdrawingMoreThanRefundable] = useState<boolean>(false)
+  const [insufficientCovCap, setInsufficientCovCap] = useState<boolean>(false)
 
   const isAcceptableWithdrawal = useMemo(() => {
     const BN_enteredWithdrawal = parseUnits(formatAmount(enteredWithdrawal), 18)
@@ -334,18 +339,9 @@ export const PolicyContent = (): JSX.Element => {
     setRefundableSOLACEAmount(refundableSOLACEAmount)
   }, [account, scpObj, signatureObj, activeNetwork])
 
-  // const _editWithdrawal = useDebounce(() => {
-  //   handleEnteredWithdrawal(enteredWithdrawal)
-  // }, 200)
-
   const _getRefundableSOLACEAmount = useDebounce(() => {
     getRefundableSOLACEAmount()
   }, 300)
-
-  // useEffect(() => {
-  //   _editWithdrawal()
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [enteredWithdrawal])
 
   useEffect(() => {
     _getRefundableSOLACEAmount()
@@ -366,10 +362,13 @@ export const PolicyContent = (): JSX.Element => {
   }, [activeNetwork.chainId])
 
   useEffect(() => {
-    if (!curHighestPosition) return
-    const bnBal = BigNumber.from(accurateMultiply(curHighestPosition.balanceUSD, 18))
-    const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
-    setSuggestedCoverLimit(bnHigherBal)
+    if (!curHighestPosition) {
+      setSuggestedCoverLimit(ZERO)
+    } else {
+      const bnBal = BigNumber.from(accurateMultiply(curHighestPosition.balanceUSD, 18))
+      const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
+      setSuggestedCoverLimit(bnHigherBal)
+    }
   }, [curHighestPosition])
 
   useEffect(() => {
@@ -380,6 +379,14 @@ export const PolicyContent = (): JSX.Element => {
     init()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [suggestedCoverLimit])
+
+  useEffect(() => {
+    if (suggestedCoverLimit.gt(availCovCap)) {
+      setInsufficientCovCap(true)
+    } else {
+      setInsufficientCovCap(false)
+    }
+  }, [availCovCap, suggestedCoverLimit])
 
   return (
     // <Content>
@@ -585,6 +592,17 @@ export const PolicyContent = (): JSX.Element => {
                       </Flex>
                     </Flex>
                   )}
+                  {(newUserState || returningUserState) &&
+                    (insufficientCovCap ? (
+                      <Text textAlignCenter pb={12}>
+                        Please choose a lower cover limit to activate the policy.
+                      </Text>
+                    ) : lackingScp != 'meets requirement' && lackingScp != 'both zeroes' ? (
+                      <Text textAlignCenter pb={12}>
+                        You need at least ${lackingScp} for the suggested cover limit. Lower the value or use the form
+                        below to deposit the additional premium.
+                      </Text>
+                    ) : null)}
                   <Flex col gap={12}>
                     {(depositCta || newUserState) && (
                       <div>
@@ -630,7 +648,7 @@ export const PolicyContent = (): JSX.Element => {
                       </Flex>
                     )}
                     <ButtonWrapper isColumn p={0}>
-                      {newUserState && depositApproval && (
+                      {newUserState && depositApproval && homeCta && (
                         <Button
                           {...gradientStyle}
                           {...bigButtonStyle}
@@ -638,19 +656,37 @@ export const PolicyContent = (): JSX.Element => {
                           noborder
                           onClick={handlePurchase}
                           disabled={
-                            importedCoverLimit.isZero() ||
+                            suggestedCoverLimit.isZero() ||
                             portfolioLoading ||
-                            !sugDoesMeetMinReqAccBal ||
+                            lackingScp != 'meets requirement' ||
                             (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
                               !isAcceptableDeposit)
                           }
                         >
                           <Text bold t4s>
-                            Subscribe to Policy
+                            Activate Policy
                           </Text>
                         </Button>
                       )}
-                      {newUserState && !depositApproval && (
+                      {returningUserState && depositApproval && homeCta && (
+                        <Button
+                          success
+                          {...bigButtonStyle}
+                          onClick={handlePurchase}
+                          disabled={
+                            suggestedCoverLimit.isZero() ||
+                            portfolioLoading ||
+                            lackingScp != 'meets requirement' ||
+                            (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
+                              !isAcceptableDeposit)
+                          }
+                        >
+                          <Text bold t4s>
+                            Activate Policy
+                          </Text>
+                        </Button>
+                      )}
+                      {(newUserState || returningUserState) && !depositApproval && homeCta && (
                         <Button
                           {...gradientStyle}
                           {...bigButtonStyle}
@@ -663,26 +699,7 @@ export const PolicyContent = (): JSX.Element => {
                           </Text>
                         </Button>
                       )}
-                      {returningUserState && !depositCta && !withdrawCta && (
-                        <Button
-                          success
-                          {...bigButtonStyle}
-                          onClick={handlePurchase}
-                          disabled={
-                            !depositApproval ||
-                            importedCoverLimit.isZero() ||
-                            portfolioLoading ||
-                            !sugDoesMeetMinReqAccBal ||
-                            (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
-                              !isAcceptableDeposit)
-                          }
-                        >
-                          <Text bold t4s>
-                            Activate Policy
-                          </Text>
-                        </Button>
-                      )}
-                      {(curUserState || returningUserState) && !depositCta && !withdrawCta && (
+                      {(curUserState || returningUserState) && homeCta && (
                         <Button
                           {...gradientStyle}
                           {...bigButtonStyle}
@@ -695,7 +712,7 @@ export const PolicyContent = (): JSX.Element => {
                           </Text>
                         </Button>
                       )}
-                      {(curUserState || returningUserState) && !depositCta && !withdrawCta && (
+                      {(curUserState || returningUserState) && homeCta && (
                         <Button
                           secondary
                           matchBg
@@ -814,7 +831,7 @@ export const PolicyContent = (): JSX.Element => {
                           </ButtonWrapper>
                         </>
                       )}
-                      {curUserState && !depositCta && !withdrawCta && (
+                      {curUserState && homeCta && (
                         <Button {...bigButtonStyle} error onClick={callCancel} noborder nohover>
                           Deactivate Policy
                         </Button>

@@ -1,17 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
-import { CoverageLimitSelector2 } from '../soteria/CoverageLimitSelector'
 import { Text } from '../../components/atoms/Typography'
 import { useCoverageContext } from './CoverageContext'
 import { ButtonWrapper, Button } from '../../components/atoms/Button'
 import { BigNumber } from 'ethers'
-import { useWeb3React } from '@web3-react/core'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
-import { FunctionName, InterfaceState } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
-import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
-import { useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
 import { accurateMultiply, filterAmount, formatAmount } from '../../utils/formatting'
 import { Flex, ShadowDiv } from '../../components/atoms/Layout'
 import { GraySquareButton } from '../../components/atoms/Button'
@@ -27,12 +22,11 @@ const prevChosenLimit = (chosenLimit: ChosenLimit) =>
   ((chosenLimit - 1 + ChosenLimitLength) % ChosenLimitLength) as ChosenLimit
 
 export const SimCoverModal = () => {
-  const { account } = useWeb3React()
   const { appTheme } = useGeneral()
   const { activeNetwork } = useNetwork()
   const { intrface, simulator, input, styles } = useCoverageContext()
   const { gradientStyle, bigButtonStyle } = styles
-  const { handleShowSimCoverModal, transactionLoading, handleTransactionLoading } = intrface
+  const { showSimCoverModal, handleShowSimCoverModal, transactionLoading, handleTransactionLoading } = intrface
   const { simPortfolio, simCounter, simChosenLimit, handleSimChosenLimit } = simulator
   const { handleSimCoverLimit } = input
 
@@ -74,10 +68,12 @@ export const SimCoverModal = () => {
     }
   }
 
+  // startup flag reset on account change
   useEffect(() => {
-    startup.current = true
-  }, [activeNetwork, account])
+    if (startup.current == false) startup.current = true
+  }, [activeNetwork])
 
+  // set up amounts and initializes sim cover limit on startup
   useEffect(() => {
     if (!highestPosition) {
       setHighestAmount(ZERO)
@@ -95,16 +91,18 @@ export const SimCoverModal = () => {
     }
   }, [highestPosition, handleSimCoverLimit])
 
+  // on change of chosen limit, change cover limit
   useEffect(() => {
     switch (chosenLimit) {
       case ChosenLimit.Recommended:
         setLocalNewCoverageLimit(formatUnits(recommendedAmount, 18))
-        setCustomInputAmount(formatUnits(recommendedAmount, 18))
         break
       case ChosenLimit.MaxPosition:
         setLocalNewCoverageLimit(formatUnits(highestAmount, 18))
-        setCustomInputAmount(formatUnits(highestAmount, 18))
         break
+      case ChosenLimit.Custom:
+      default:
+        setLocalNewCoverageLimit(customInputAmount)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chosenLimit, highestAmount, recommendedAmount])
@@ -115,6 +113,12 @@ export const SimCoverModal = () => {
     if (simChosenLimit == ChosenLimit.MaxPosition) handleSimCoverLimit(highestAmount)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [simCounter])
+
+  // on opening the sim cover modal, change the chosen limit to the current sim limit
+  useEffect(() => {
+    if (showSimCoverModal) setChosenLimit(simChosenLimit)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showSimCoverModal])
 
   return (
     <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative' }} justifyCenter>

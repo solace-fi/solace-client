@@ -67,7 +67,7 @@ export const Projections = ({
       <Flex col gap={12}>
         <SmallCardTemplate
           icon={<StyledExport height={12} width={12} />}
-          value={status ? `Import Limit` : `Buy Now`}
+          value={status ? `Update Limit` : `Buy Now`}
           techy
           onClick={() => {
             handleImportedCoverLimit(coverageLimit)

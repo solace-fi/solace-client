@@ -134,9 +134,7 @@ export const PortfolioSimulator = (): JSX.Element => {
             index: targetProtocol.index < p.index ? p.index - 1 : p.index,
           }))
       )
-      if (!targetProtocol.appId.includes('Empty') && targetProtocol.balanceUSD >= 0) {
-        setCanSimulate(true)
-      }
+      if (!targetProtocol.appId.includes('Empty') && targetProtocol.balanceUSD >= 0) setCanSimulate(true)
     },
     [editableProtocols, _mapEditableProtocols]
   )
@@ -172,10 +170,10 @@ export const PortfolioSimulator = (): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canSimulate])
 
-  // mounting flag reset on network or account change
+  // startup flag reset on account change
   useEffect(() => {
     if (startup.current == false) startup.current = true
-  }, [activeNetwork, account])
+  }, [account])
 
   // on startup, copy cur portfolio into sim portfolio
   useEffect(() => {

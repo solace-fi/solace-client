@@ -4,7 +4,6 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
-import { CoverageLimitSelector2 } from '../soteria/CoverageLimitSelector'
 import { Text } from '../../components/atoms/Typography'
 import { FunctionName, InterfaceState } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
@@ -25,7 +24,6 @@ import { GraySquareButton } from '../../components/atoms/Button'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 import { ZERO } from '../../constants'
 import { StyledArrowIosBackOutline, StyledArrowIosForwardOutline } from '../../components/atoms/Icon'
-import { SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { ChosenLimit } from '../../constants/enums'
 import usePrevious from '../../hooks/internal/usePrevious'
 
@@ -43,7 +41,6 @@ export const CldModal = () => {
   const { intrface, portfolioKit, simulator, input, dropdowns, styles, policy } = useCoverageContext()
   const {
     userState,
-    showCLDModal,
     handleShowCLDModal,
     transactionLoading,
     handleTransactionLoading,
@@ -61,7 +58,7 @@ export const CldModal = () => {
   const { importCounter } = simulator
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
-  const { signatureObj, depositApproval, scpBalance, status, unlimitedApproveCPM } = policy
+  const { signatureObj, depositApproval, scpBalance, status, availCovCap, unlimitedApproveCPM } = policy
 
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [localCoinsOpen, setLocalCoinsOpen] = useState<boolean>(false)
@@ -76,6 +73,7 @@ export const CldModal = () => {
   const [recommendedAmount, setRecommendedAmount] = useState<BigNumber>(ZERO)
   const [customInputAmount, setCustomInputAmount] = useState<string>('')
   const [isImportOrigin, setIsImportOrigin] = useState<boolean>(false)
+  const [insufficientCovCap, setInsufficientCovCap] = useState<boolean>(false)
 
   const [localNewCoverageLimit, setLocalNewCoverageLimit] = useState<string>('')
   const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
@@ -182,12 +180,18 @@ export const CldModal = () => {
     handleTransactionLoading(false)
   }
 
+  // sets up amounts
   useEffect(() => {
-    if (!curHighestPosition) return
-    /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(curHighestPosition.balanceUSD, 18))
-    /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
-    setHighestAmount(bnBal)
-    setRecommendedAmount(bnHigherBal)
+    if (!curHighestPosition) {
+      setHighestAmount(ZERO)
+      setRecommendedAmount(ZERO)
+      return
+    } else {
+      /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(curHighestPosition.balanceUSD, 18))
+      /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
+      setHighestAmount(bnBal)
+      setRecommendedAmount(bnHigherBal)
+    }
   }, [curHighestPosition])
 
   useEffect(() => {
@@ -209,6 +213,7 @@ export const CldModal = () => {
         setLocalNewCoverageLimit(formatUnits(highestAmount, 18))
         break
       case ChosenLimit.Custom:
+      default:
         setLocalNewCoverageLimit(customInputAmount)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -222,6 +227,14 @@ export const CldModal = () => {
     init()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localNewCoverageLimit])
+
+  useEffect(() => {
+    if (parseUnits(formatAmount(localNewCoverageLimit), 18).gt(availCovCap)) {
+      setInsufficientCovCap(true)
+    } else {
+      setInsufficientCovCap(false)
+    }
+  }, [availCovCap, localNewCoverageLimit])
 
   useEffect(() => {
     if (importCounter > (importCounterPrev ?? 0)) {
@@ -332,11 +345,15 @@ export const CldModal = () => {
           />
         </Flex>
       </Flex>
-      {lackingScp == 'both zeroes' && (
+      {insufficientCovCap ? (
+        <Text textAlignCenter pt={16}>
+          Your desired cover limit is too high.
+        </Text>
+      ) : lackingScp == 'both zeroes' ? (
         <Text textAlignCenter pt={16}>
           You cannot purchase a policy with a cover limit of 0.
         </Text>
-      )}
+      ) : null}
       {scpBalanceMeetsMrab && (
         <ButtonWrapper>
           {depositApproval && (
@@ -346,7 +363,7 @@ export const CldModal = () => {
               secondary
               noborder
               onClick={callPurchase}
-              disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0}
+              disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0 || insufficientCovCap}
             >
               {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}
             </Button>
@@ -360,8 +377,8 @@ export const CldModal = () => {
       )}
       {lackingScp != 'meets requirement' && lackingScp != 'both zeroes' && (
         <Text textAlignCenter pt={16}>
-          You need at least ${lackingScp} for the desired cover limit. Use the form below to deposit the additional
-          premium.
+          You need at least ${lackingScp} for the desired cover limit. Lower the value or use the form below to deposit
+          the additional premium.
         </Text>
       )}
       {!scpBalanceMeetsMrab && (
@@ -394,7 +411,11 @@ export const CldModal = () => {
                 secondary
                 noborder
                 onClick={handlePurchase}
-                disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0 || lackingScp != 'meets requirement'}
+                disabled={
+                  parseFloat(formatAmount(localNewCoverageLimit)) == 0 ||
+                  lackingScp != 'meets requirement' ||
+                  insufficientCovCap
+                }
               >
                 {/* <Text>Deposit &amp; Save</Text> */}
                 <Text> {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}</Text>

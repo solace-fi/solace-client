@@ -21,7 +21,6 @@ import { SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { useCachedData } from '../../context/CachedDataManager'
 import { accurateMultiply, formatAmount, truncateValue } from '../../utils/formatting'
 import { parseUnits } from 'ethers/lib/utils'
-import { useWeb3React } from '@web3-react/core'
 import { usePortfolioAnalysis } from '../../hooks/policy/usePortfolioAnalysis'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { useProvider } from '../../context/ProviderManager'
@@ -115,7 +114,6 @@ type CoverageContextType = {
     curCoverageLimit: BigNumber
     existingPolicyId: BigNumber
     existingPolicyNetwork: NetworkConfig
-    minReqScpBal: BigNumber
     availCovCap: BigNumber
     scpBalance: string
     scpObj?: SCP
@@ -219,7 +217,6 @@ const CoverageContext = createContext<CoverageContextType>({
     curCoverageLimit: ZERO,
     existingPolicyId: ZERO,
     existingPolicyNetwork: networks[0],
-    minReqScpBal: ZERO,
     availCovCap: ZERO,
     scpBalance: '',
     scpObj: undefined,
@@ -239,7 +236,6 @@ const CoverageContext = createContext<CoverageContextType>({
 })
 
 const CoverageManager: React.FC = (props) => {
-  const { account } = useWeb3React()
   const { appTheme, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
   const { tokenPriceMapping, minute } = useCachedData()
@@ -257,7 +253,7 @@ const CoverageManager: React.FC = (props) => {
     handleInputChange: handleEnteredDeposit,
   } = useInputAmount()
   const { amount: enteredWithdrawal, handleInputChange: handleEnteredWithdrawal } = useInputAmount()
-  const { getAvailableCoverCapacity, getMinScpRequired } = useCoverageFunctions()
+  const { getAvailableCoverCapacity } = useCoverageFunctions()
   const { policyId, status, coverageLimit: curCoverageLimit, mounting: coverageLoading } = useCheckIsCoverageActive()
 
   const {
@@ -294,7 +290,6 @@ const CoverageManager: React.FC = (props) => {
   const { unlimitedApprove } = useTokenInfiniteApprove(setTransactionLoading)
 
   const [availCovCap, setAvailCovCap] = useState<BigNumber>(ZERO)
-  const [minReqScpBal, setMinReqScpBal] = useState<BigNumber>(ZERO)
 
   const [showPortfolioModal, setShowPortfolioModal] = useState(false)
   const [showSimulatorModal, setShowSimulatorModal] = useState(false)
@@ -450,10 +445,6 @@ const CoverageManager: React.FC = (props) => {
     setShowShareReferralModal(show)
   }, [])
 
-  // const handleShowShareModal = useCallback((show: boolean) => {
-  //   setShow
-  // }
-
   const handleImportCounter = useCallback(() => {
     setImportCounter((prev) => prev + 1)
   }, [])
@@ -485,10 +476,13 @@ const CoverageManager: React.FC = (props) => {
   }, [batchBalanceData])
 
   useEffect(() => {
-    if (!curHighestPosition) return
-    const bnBal = BigNumber.from(accurateMultiply(curHighestPosition.balanceUSD, 18))
-    const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
-    handleImportedCoverLimit(bnHigherBal)
+    if (!curHighestPosition) {
+      handleImportedCoverLimit(ZERO)
+    } else {
+      const bnBal = BigNumber.from(accurateMultiply(curHighestPosition.balanceUSD, 18))
+      const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
+      handleImportedCoverLimit(bnHigherBal)
+    }
   }, [curHighestPosition, handleImportedCoverLimit])
 
   useEffect(() => {
@@ -498,17 +492,7 @@ const CoverageManager: React.FC = (props) => {
     }
     init()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [minute])
-
-  useEffect(() => {
-    const init = async () => {
-      if (!account) return
-      const msr = await getMinScpRequired(account)
-      setMinReqScpBal(msr)
-    }
-    init()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [minute, account])
+  }, [minute, activeNetwork])
 
   useEffect(() => {
     const price = tokenPriceMapping[selectedCoin.name.toLowerCase()]
@@ -638,7 +622,6 @@ const CoverageManager: React.FC = (props) => {
         curCoverageLimit, // current cover limit on policy
         existingPolicyId, // id of an existing policy across all supported chains
         existingPolicyNetwork, // network of an existing policy across all supported chains
-        minReqScpBal, // check how much scp should stay on the account
         availCovCap, // available cover capacity for this chain
         scpBalance, // the user's scp balance
         scpObj,
@@ -698,7 +681,6 @@ const CoverageManager: React.FC = (props) => {
       simDailyCost,
       simCoverLimit,
       showCLDModal,
-      minReqScpBal,
       showSimulatorModal,
       showSimCoverModal,
       showReferralModal,
