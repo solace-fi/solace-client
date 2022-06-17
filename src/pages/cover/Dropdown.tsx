@@ -230,7 +230,7 @@ export const DropdownOptionsUnique = ({
       noBackgroundColor
       thinScrollbar
     >
-      <Flex col gap={8} p={12}>
+      <Flex col gap={8} px={12}>
         {/* <ScrollContainer className="scroll-container"> */}
         {searchedList.map((item) => (
           <ButtonAppearance

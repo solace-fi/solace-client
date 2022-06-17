@@ -165,9 +165,9 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
   //   `
   // }
 
-  let textColor = `${theme.typography.contrastText}`
-  let hoverTextColor = `${theme.typography.analogicalText}`
-  let hoverBgColor = `${theme.typography.contrastText}`
+  let textColor: string = (theme as Theme).typography.contrastText
+  let hoverTextColor: string = (theme as Theme).typography.contrastText
+  let hoverBgColor: string = (theme as Theme).button.hover_color
 
   if (props.light) textColor = `${theme.typography.lightText}`
   if (props.dark) textColor = `${theme.typography.darkText}`

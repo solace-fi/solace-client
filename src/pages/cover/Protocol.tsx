@@ -184,47 +184,18 @@ export const Protocol: React.FC<{
     <div>
       <TileCard
         padding={16}
-        onClick={() => {
-          if (!isEditing) {
-            setIsEditing(true)
-            handleEditingItem(protocol.appId)
-          }
-        }}
+        onClick={
+          isEditing
+            ? undefined
+            : () => {
+                if (!isEditing) {
+                  setIsEditing(true)
+                  handleEditingItem(protocol.appId)
+                }
+              }
+        }
         style={{ position: 'relative', cursor: isEditing ? 'default' : 'pointer' }}
       >
-        {/* <Button
-          {...gradientStyle}
-          width={30}
-          height={30}
-          onClick={() => addItem(protocol.index - 1)}
-          noborder
-          nohover
-          style={{ position: 'absolute', top: '0px', left: '0px' }}
-        >
-          <StyledAdd size={20} />
-        </Button> */}
-        {/* <Button
-          {...gradientStyle}
-          width={30}
-          height={30}
-          onClick={() => addItem(protocol.index)}
-          noborder
-          nohover
-          style={{ position: 'absolute', bottom: '0px', left: '0px' }}
-        >
-          <StyledAdd size={20} />
-        </Button> */}
-        {/* <Button
-          width={30}
-          height={30}
-          style={{ position: 'absolute', top: '0px', right: '0px' }}
-          noborder
-          nohover
-          error
-          onClick={() => deleteItem(protocol.appId)}
-        >
-          <StyledClose size={16} />
-        </Button> */}
         <Flex col gap={8}>
           <Flex stretch between gap={10}>
             {isEditing ? (

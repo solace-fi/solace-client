@@ -23,7 +23,7 @@ export default function AddProtocolForm({
 }): React.ReactElement {
   const { seriesKit } = useCoverageContext()
   const { series, seriesLogos } = seriesKit
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(true)
   const [searchTerm, setSearchTerm] = useState<string>('')
 
   const [enteredBalance, setEnteredBalance] = useState<string>('')
@@ -125,6 +125,7 @@ export default function AddProtocolForm({
           style={{
             width: '100%',
             border: 'none',
+            marginTop: '5px',
           }}
         />
       )}
