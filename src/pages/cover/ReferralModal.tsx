@@ -42,7 +42,7 @@ export default function ReferralModal(): JSX.Element {
       <Flex col pb={20} px={20} gap={12}>
         <Grid columns={2} gap={12}>
           <CardTemplate title="People you've referred">{referredCount ?? 0}</CardTemplate>
-          <CardTemplate title="Earned by referring" hasIcon onClick={() => handleShowReferralModal(true)}>
+          <CardTemplate title="Earned by referring">
             ${earnedAmount ?? 0}
             {/* {`$${truncateValue(utils.formatUnits(BigNumber.from(125).mul(BigNumber.from(10).pow(18))), 2)}`}{' '} */}
             {/* <Text success inline>

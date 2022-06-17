@@ -58,12 +58,12 @@ export const Projections = ({
   return (
     <Grid columns={2} gap={12}>
       <CardTemplate title="Simulated Portfolio Total">{`$${truncateValue(usdBalanceSum, 2)}`}</CardTemplate>
+      <CardTemplate techy title="Simulated Policy Price" unit="/ Day">{`$${truncateValue(dailyCost, 2)}`}</CardTemplate>
       <CardTemplate
         title={`${chosenLimit} Cover Limit`}
         hasIcon
         onClick={() => handleShowSimCoverModal(true)}
       >{`$${truncateValue(utils.formatUnits(coverageLimit), 2)}`}</CardTemplate>
-      <CardTemplate techy title="Simulated Policy Price" unit="/ Day">{`$${truncateValue(dailyCost, 2)}`}</CardTemplate>
       <Flex col gap={12}>
         <SmallCardTemplate
           icon={<StyledExport height={12} width={12} />}

@@ -535,27 +535,29 @@ export const PolicyContent = (): JSX.Element => {
               </Flex>
               <Flex button noborder py={6.5} px={16} mx={20} mt={12} bgRaised style={{ borderRadius: '8px' }}>
                 <Text t5s bold info>
-                  <Flex itemsCenter gap={12} onClick={() => handleShowReferralModal(true)}>
-                    <StyledOptions width={12} />
+                  <Flex between gap={12} onClick={() => handleShowReferralModal(true)}>
                     <Flex>Manage your referrals (Work In Progress)</Flex>
+                    <StyledOptions width={12} />
                   </Flex>
                 </Text>
               </Flex>
               <div style={{ margin: '16px 20px auto' }}>
                 <Flex shadow bgSecondary col rounded px={24} py={16}>
-                  <Flex stretch between pb={16}>
-                    <Flex col>
+                  {!newUserState && (
+                    <Flex stretch between pb={16}>
+                      <Flex col>
+                        <Text bold t4 {...gradientStyle}>
+                          Premium Cost
+                        </Text>
+                      </Flex>
                       <Text bold t4 {...gradientStyle}>
-                        Premium Cost
+                        ${truncateValue(curDailyCost, 2)}
+                        <Text t7s style={{ backgroundColor: 'green' }} techygradient inline ml={2}>
+                          / Day
+                        </Text>
                       </Text>
                     </Flex>
-                    <Text bold t4 {...gradientStyle}>
-                      ${truncateValue(curDailyCost, 2)}
-                      <Text t7s style={{ backgroundColor: 'green' }} techygradient inline ml={2}>
-                        / Day
-                      </Text>
-                    </Text>
-                  </Flex>
+                  )}
                   {!newUserState && (
                     <Flex bgRaised py={16} px={20} rounded stretch between mb={16}>
                       <Flex col gap={4}>
@@ -632,10 +634,18 @@ export const PolicyContent = (): JSX.Element => {
                       <Flex col gap={8}>
                         <Flex between>
                           <Flex col>
-                            <Text t4>Withdrawable:</Text>
+                            <Text t5s>Withdrawable:</Text>
                           </Flex>
                           <Flex col>
-                            <Text t4>{truncateValue(formatUnits(refundableSOLACEAmount, 18), 2)} SOLACE</Text>
+                            <Text t5s>{truncateValue(formatUnits(refundableSOLACEAmount, 18), 2)} SOLACE</Text>
+                          </Flex>
+                          <Flex col>
+                            <Text t5s>{`~ $${truncateValue(
+                              signatureObj.price > 0
+                                ? parseFloat(formatUnits(refundableSOLACEAmount, 18)) / signatureObj.price
+                                : 0,
+                              2
+                            )}`}</Text>
                           </Flex>
                         </Flex>
                         <DropdownInputSection

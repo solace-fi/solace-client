@@ -127,9 +127,9 @@ export default function useReferralApi(): {
     referralCode,
     earnedAmount,
     referredCount,
-    appliedReferralCode: appliedCode,
-    cookieReferralCode: cookieCode,
-    setCookieReferralCode: setCookieCode,
+    appliedReferralCode: appliedCode, // the returned code from the server
     applyReferralCode: applyCode,
+    cookieReferralCode: cookieCode, // the referral code on storage
+    setCookieReferralCode: setCookieCode,
   }
 }
