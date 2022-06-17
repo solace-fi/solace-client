@@ -25,19 +25,12 @@ export const PortfolioSimulator = (): JSX.Element => {
 
   const { active, account } = useWeb3React()
   const { activeNetwork } = useNetwork()
-  const { portfolioKit, input, styles, seriesKit, intrface } = useCoverageContext()
+  const { portfolioKit, simulator, input, styles, seriesKit, intrface } = useCoverageContext()
   const { series } = seriesKit
   const { simCoverLimit } = input
   const { portfolioLoading, handleShowSimulatorModal } = intrface
-  const {
-    curPortfolio: portfolioScore,
-    simPortfolio,
-    clearCounter,
-    riskScores,
-    handleSimPortfolio,
-    handleSimCounter,
-    handleClearCounter,
-  } = portfolioKit
+  const { curPortfolio: portfolioScore, riskScores } = portfolioKit
+  const { handleSimPortfolio, handleSimCounter, simPortfolio, clearCounter } = simulator
   const { bigButtonStyle, gradientStyle } = styles
   const [canSimulate, setCanSimulate] = useState(false)
   const [editingItem, setEditingItem] = useState<string | undefined>(undefined)
@@ -65,17 +58,7 @@ export const PortfolioSimulator = (): JSX.Element => {
     return mapEditableProtocols(editableProtocols)
   }, [editableProtocols])
 
-  // const editableProtocolLookup = useMemo(() => {
-  //   const lookup: { [key: string]: LocalSolaceRiskProtocol } = {}
-  //   editableProtocols.forEach((protocol) => {
-  //     lookup[protocol.appId.toLowerCase()] = protocol
-  //   })
-  //   return lookup
-  // }, [editableProtocols])
-
   const editableProtocolAppIds = useMemo(() => editableProtocols.map((p) => p.appId.toLowerCase()), [editableProtocols])
-
-  const portfolioPrev = usePrevious(scoreToUse)
 
   const tierColors = useTierColors(editableProtocols.map((p) => p.tier))
 

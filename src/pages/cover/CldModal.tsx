@@ -40,7 +40,7 @@ export const CldModal = () => {
   const { appTheme } = useGeneral()
   const { activeNetwork } = useNetwork()
   const { purchaseWithStable, purchaseWithNonStable, purchase, getMinRequiredAccountBalance } = useCoverageFunctions()
-  const { intrface, portfolioKit, input, dropdowns, styles, policy } = useCoverageContext()
+  const { intrface, portfolioKit, simulator, input, dropdowns, styles, policy } = useCoverageContext()
   const {
     userState,
     showCLDModal,
@@ -57,7 +57,8 @@ export const CldModal = () => {
     handleSelectedCoin,
     selectedCoinPrice,
   } = input
-  const { curPortfolio, importCounter } = portfolioKit
+  const { curPortfolio } = portfolioKit
+  const { importCounter } = simulator
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
   const { signatureObj, depositApproval, scpBalance, status, unlimitedApproveCPM } = policy

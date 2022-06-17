@@ -83,17 +83,19 @@ type CoverageContextType = {
   }
   portfolioKit: {
     fetchStatus: number
-    importCounter: number
-    simCounter: number
-    clearCounter: number
-    simChosenLimit: ChosenLimit
     curPortfolio?: SolaceRiskScore
-    simPortfolio?: SolaceRiskScore
-    riskScores: (balances: SolaceRiskBalance[]) => Promise<SolaceRiskScore | undefined>
     curUsdBalanceSum: number
     curHighestPosition?: SolaceRiskProtocol
     curDailyRate: number
     curDailyCost: number
+    riskScores: (balances: SolaceRiskBalance[]) => Promise<SolaceRiskScore | undefined>
+  }
+  simulator: {
+    importCounter: number
+    simCounter: number
+    clearCounter: number
+    simChosenLimit: ChosenLimit
+    simPortfolio?: SolaceRiskScore
     simUsdBalanceSum: number
     simHighestPosition?: SolaceRiskProtocol
     simDailyRate: number
@@ -178,18 +180,19 @@ const CoverageContext = createContext<CoverageContextType>({
   },
   portfolioKit: {
     fetchStatus: 0,
-    importCounter: 0,
-    simCounter: 0,
-    clearCounter: 0,
-    simChosenLimit: ChosenLimit.Recommended,
     curPortfolio: undefined,
-    simPortfolio: undefined,
-    riskScores: () => Promise.reject(),
-    handleSimPortfolio: () => undefined,
     curUsdBalanceSum: 0,
     curHighestPosition: undefined,
     curDailyRate: 0,
     curDailyCost: 0,
+    riskScores: () => Promise.reject(),
+  },
+  simulator: {
+    importCounter: 0,
+    simCounter: 0,
+    clearCounter: 0,
+    simChosenLimit: ChosenLimit.Recommended,
+    simPortfolio: undefined,
     simUsdBalanceSum: 0,
     simHighestPosition: undefined,
     simDailyRate: 0,
@@ -198,6 +201,7 @@ const CoverageContext = createContext<CoverageContextType>({
     handleSimCounter: () => undefined,
     handleClearCounter: () => undefined,
     handleSimChosenLimit: () => undefined,
+    handleSimPortfolio: () => undefined,
   },
   seriesKit: {
     series: undefined,
@@ -612,21 +616,23 @@ const CoverageManager: React.FC = (props) => {
       },
       portfolioKit: {
         fetchStatus, // status flag on risk balances fetch
-        importCounter, // flag to change real CL
-        simCounter, // flag of simulation
-        clearCounter, // flag to clear simulator changes
-        simChosenLimit, // chosen limit for simulation
         curPortfolio, // current portfolio score
-        simPortfolio, // simulated portfolio score
         curUsdBalanceSum, // current usd sum of current portfolio
         curHighestPosition, // current highest position in portfolio
         curDailyRate, // current daily rate of current portfolio
         curDailyCost, // current daily cost of current portfolio
+        riskScores, // function to get risk scores of a portfolio
+      },
+      simulator: {
+        importCounter, // flag to change real CL
+        simCounter, // flag of simulation
+        clearCounter, // flag to clear simulator changes
+        simChosenLimit, // chosen limit for simulation
+        simPortfolio, // simulated portfolio score
         simUsdBalanceSum, // simulated usd sum of simulated portfolio
         simHighestPosition, // simulated highest position in portfolio
         simDailyRate, // simulated daily rate of simulated portfolio
         simDailyCost, // simulated daily cost of simulated portfolio
-        riskScores, // function to get risk scores of a portfolio
         handleSimPortfolio,
         handleImportCounter,
         handleClearCounter,

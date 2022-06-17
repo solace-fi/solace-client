@@ -36,10 +36,10 @@ export const SimCoverModal = () => {
   const { account } = useWeb3React()
   const { appTheme } = useGeneral()
   const { activeNetwork } = useNetwork()
-  const { intrface, portfolioKit, input, styles } = useCoverageContext()
+  const { intrface, simulator, input, styles } = useCoverageContext()
   const { gradientStyle, bigButtonStyle } = styles
   const { handleShowSimCoverModal, transactionLoading, handleTransactionLoading } = intrface
-  const { simPortfolio, simCounter, simChosenLimit, handleSimChosenLimit } = portfolioKit
+  const { simPortfolio, simCounter, simChosenLimit, handleSimChosenLimit } = simulator
   const { handleSimCoverLimit } = input
 
   const [chosenLimit, setChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
