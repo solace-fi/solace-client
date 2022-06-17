@@ -29,6 +29,15 @@ export default function AddProtocolForm({
   const [enteredBalance, setEnteredBalance] = useState<string>('')
   const [enteredProtocolMap, setEnteredProtocolMap] = useState<ProtocolMap | undefined>(undefined)
 
+  // input ref to focus
+  const inputRef = React.useRef<HTMLInputElement>(null)
+  // when enteredProtocolMap changes and is not undefined, focus input
+  React.useEffect(() => {
+    if (enteredProtocolMap) {
+      inputRef.current?.focus()
+    }
+  }, [enteredProtocolMap])
+
   const isValidProtocol = useMemo(() => {
     if (!series) return false
     return series.data.protocolMap.find((p) => p.appId.toLowerCase() == enteredProtocolMap?.appId.toLowerCase())
@@ -82,7 +91,7 @@ export default function AddProtocolForm({
             </Text>
             <Text t5s style={{ width: '100%' }}>
               <Flex between>
-                <Text t5s>
+                <Text t5s techygradient mont>
                   {enteredProtocolMap ? processProtocolName(enteredProtocolMap.appId) : 'Choose Protocol'}
                 </Text>
                 <StyledArrowDropDown size={16} />
@@ -91,6 +100,7 @@ export default function AddProtocolForm({
           </Flex>
         </ThinButton>
         <SmallerInputSection
+          ref={inputRef}
           placeholder={'Enter amount'}
           value={enteredBalance}
           onChange={(e) => {
