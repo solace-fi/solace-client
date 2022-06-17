@@ -11,7 +11,7 @@ import { TileCard } from '../../components/molecules/TileCard'
 import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
 import { StyledArrowDropDown, StyledClose, StyledHelpCircle } from '../../components/atoms/Icon'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
-import usePrevious from '../../hooks/internal/usePrevious'
+import { networks } from '../../context/NetworkManager'
 
 function mapNumberToLetter(number: number): string {
   return String.fromCharCode(97 + number - 1).toUpperCase()
@@ -77,11 +77,14 @@ export const Protocol: React.FC<{
   editableProtocolAppIds: string[]
   riskColor: string
   simulating: boolean
-  editingItem: string | undefined
+  editingItem: {
+    appId?: string | undefined
+    network?: string | undefined
+  }
   // addItem: (index?: number | undefined) => void
   saveEditedItem: (targetAppId: string, newAppId: string, newAmount: string) => boolean
   deleteItem: (targetAppId: string) => void
-  handleEditingItem: (appId: string | undefined) => void
+  handleEditingItem: (appId?: string, network?: string) => void
 }> = ({
   protocol,
   editableProtocolAppIds,
@@ -93,9 +96,8 @@ export const Protocol: React.FC<{
   saveEditedItem,
   handleEditingItem,
 }): JSX.Element => {
-  const { seriesKit, styles } = useCoverageContext()
+  const { seriesKit } = useCoverageContext()
   const { series, seriesLogos } = seriesKit
-  const { gradientStyle } = styles
 
   const [isEditing, setIsEditing] = useState(false)
   const [accordionOpen, setAccordionOpen] = useState(false)
@@ -105,8 +107,9 @@ export const Protocol: React.FC<{
     protocol.balanceUSD.toString() == '0' ? '' : protocol.balanceUSD.toString()
   )
   const [searchTerm, setSearchTerm] = useState('')
-
-  const simulatingPrev = usePrevious(simulating)
+  const networkLogo = useMemo(() => {
+    return networks.find((n) => n.name.toLowerCase() === protocol.network.toLowerCase())?.logo
+  }, [protocol])
 
   const isValidProtocol = useMemo(() => {
     if (!series) return false
@@ -120,13 +123,6 @@ export const Protocol: React.FC<{
       searchTerm ? protocolOptions.filter((item) => item.label.includes(searchTerm.toLowerCase())) : protocolOptions,
     [searchTerm, protocolOptions]
   )
-
-  // const processListItem = (listItem: { label: string; value: string; icon: JSX.Element }) => ({
-  //   label: listItem.label,
-  //   value: listItem.value,
-  //   icon: listItem.icon,
-  //   name: processProtocolName(listItem.value),
-  // })
 
   const cachedDropdownOptions = useMemo(
     () => (
@@ -152,7 +148,7 @@ export const Protocol: React.FC<{
 
   const handleSaveEditedItem = useCallback(() => {
     const status = saveEditedItem(protocol.appId, enteredAppId, enteredAmount)
-    if (status) handleEditingItem(undefined)
+    if (status) handleEditingItem(undefined, undefined)
   }, [enteredAmount, enteredAppId, protocol.appId, saveEditedItem, handleEditingItem])
 
   useEffect(() => {
@@ -174,7 +170,10 @@ export const Protocol: React.FC<{
   }, [accordionOpen])
 
   useEffect(() => {
-    if (!editingItem || (editingItem && editingItem.toString() !== protocol.appId.toString())) {
+    if (
+      editingItem.appId?.toString() !== protocol.appId.toString() ||
+      editingItem.network?.toString() !== protocol.network.toString()
+    ) {
       setIsEditing(false)
       setAccordionOpen(false)
       setDropdownOpen(false)
@@ -191,7 +190,7 @@ export const Protocol: React.FC<{
             : () => {
                 if (!isEditing) {
                   setIsEditing(true)
-                  handleEditingItem(protocol.appId)
+                  handleEditingItem(protocol.appId, protocol.network)
                 }
               }
         }
@@ -215,10 +214,7 @@ export const Protocol: React.FC<{
                       <Text autoAlignVertical p={5}>
                         {isValidProtocol ? (
                           <img src={`https://assets.solace.fi/zapperLogos/${enteredAppId}`} height={16} />
-                        ) : (
-                          // <StyledHelpCircle size={16} />
-                          <></>
-                        )}
+                        ) : null}
                       </Text>
                       <Text t5s style={!isValidProtocol ? { width: '100%' } : {}}>
                         {isValidProtocol ? (
@@ -251,7 +247,13 @@ export const Protocol: React.FC<{
                   }}
                   asideBg
                 />
-                <GraySquareButton width={32} height={32} noborder onClick={() => handleEditingItem(undefined)} darkText>
+                <GraySquareButton
+                  width={32}
+                  height={32}
+                  noborder
+                  onClick={() => handleEditingItem(undefined, undefined)}
+                  darkText
+                >
                   <StyledClose size={16} />
                 </GraySquareButton>
               </>
@@ -264,13 +266,16 @@ export const Protocol: React.FC<{
                 <Flex between>
                   <Flex itemsCenter gap={8}>
                     {/* protocol icon */}
-                    <Text autoAlignVertical>
-                      {isValidProtocol ? (
-                        <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={36} />
-                      ) : (
-                        <StyledHelpCircle size={36} />
-                      )}
-                    </Text>
+                    <Flex>
+                      <Text autoAlignVertical>
+                        {isValidProtocol ? (
+                          <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={36} />
+                        ) : (
+                          <StyledHelpCircle size={36} />
+                        )}
+                      </Text>
+                      {networkLogo && <img src={networkLogo} width={20} height={20} />}
+                    </Flex>
                     <Flex col gap={5}>
                       {/* protocol name */}
                       <Text t5s bold>

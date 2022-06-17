@@ -33,7 +33,10 @@ export const PortfolioSimulator = (): JSX.Element => {
   const { handleSimPortfolio, handleSimCounter, simPortfolio, clearCounter } = simulator
   const { bigButtonStyle, gradientStyle } = styles
   const [canSimulate, setCanSimulate] = useState(false)
-  const [editingItem, setEditingItem] = useState<string | undefined>(undefined)
+  const [editingItem, setEditingItem] = useState<{
+    appId?: string
+    network?: string
+  }>({})
   const [simulating, setSimulating] = useState(false)
   const [compiling, setCompiling] = useState(false)
 
@@ -158,8 +161,8 @@ export const PortfolioSimulator = (): JSX.Element => {
     handleSimCounter()
   }, [editableProtocols, portfolioLoading, active, riskScores, handleSimPortfolio, handleSimCounter])
 
-  const handleEditingItem = useCallback((appId: string | undefined) => {
-    setEditingItem(appId)
+  const handleEditingItem = useCallback((appId?: string, network?: string) => {
+    setEditingItem({ appId, network })
   }, [])
 
   useEffect(() => {

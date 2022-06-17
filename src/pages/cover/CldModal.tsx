@@ -133,7 +133,7 @@ export const CldModal = () => {
     if (!account) return
     handleTransactionLoading(true)
     await purchase(account, parseUnits(localNewCoverageLimit, 18))
-      .then((res) => handleReferralApplication(res))
+      .then((res) => handleCodeApplication(res))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
   }
@@ -147,7 +147,7 @@ export const CldModal = () => {
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals)
     )
-      .then((res) => handleReferralApplication(res))
+      .then((res) => handleCodeApplication(res))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
   }
@@ -166,18 +166,18 @@ export const CldModal = () => {
       tokenSignature.deadline,
       tokenSignature.signature
     )
-      .then((res) => handleReferralApplication(res))
+      .then((res) => handleCodeApplication(res))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) =>
         _handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
       )
   }
 
-  const handleReferralApplication = async (res: { tx: TransactionResponse | null; localTx: LocalTx | null }) => {
+  const handleCodeApplication = async (res: { tx: TransactionResponse | null; localTx: LocalTx | null }) => {
+    if (!res.tx || !res.localTx) return res
     if (!account || !cookieReferralCode || appliedReferralCode) return res
     const policyId: BigNumber = await policyOf(account)
     const date = Date.now()
-    makeApiToast('Applying Referral Code - Do not exit', TransactionCondition.PENDING, date)
     await applyReferralCode(cookieReferralCode, policyId.toNumber(), activeNetwork.chainId).then((r) => {
       if (r) {
         makeApiToast('Referral Code Applied', TransactionCondition.SUCCESS, date)

@@ -210,7 +210,8 @@ export const PolicyContent = (): JSX.Element => {
       .catch((err) => _handleContractCallError('callDepositNonStable', err, FunctionName.COVER_DEPOSIT_NON_STABLE))
   }
 
-  const handleReferralApplication = async (res: { tx: TransactionResponse | null; localTx: LocalTx | null }) => {
+  const handleCodeApplication = async (res: { tx: TransactionResponse | null; localTx: LocalTx | null }) => {
+    if (!res.tx || !res.localTx) return res
     if (!account || !cookieReferralCode || appliedReferralCode) return res
     const policyId: BigNumber = await policyOf(account)
     if (policyId?.isZero()) return res
@@ -229,7 +230,7 @@ export const PolicyContent = (): JSX.Element => {
     if (!account) return
     handleTransactionLoading(true)
     await purchase(account, suggestedCoverLimit)
-      .then((res) => handleReferralApplication(res))
+      .then((res) => handleCodeApplication(res))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
   }
@@ -243,7 +244,7 @@ export const PolicyContent = (): JSX.Element => {
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals)
     )
-      .then((res) => handleReferralApplication(res))
+      .then((res) => handleCodeApplication(res))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
   }
@@ -262,7 +263,7 @@ export const PolicyContent = (): JSX.Element => {
       tokenSignature.deadline,
       tokenSignature.signature
     )
-      .then((res) => handleReferralApplication(res))
+      .then((res) => handleCodeApplication(res))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) =>
         _handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
