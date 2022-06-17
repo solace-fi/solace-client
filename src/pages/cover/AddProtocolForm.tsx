@@ -23,11 +23,20 @@ export default function AddProtocolForm({
 }): React.ReactElement {
   const { seriesKit } = useCoverageContext()
   const { series, seriesLogos } = seriesKit
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(true)
   const [searchTerm, setSearchTerm] = useState<string>('')
 
   const [enteredBalance, setEnteredBalance] = useState<string>('')
   const [enteredProtocolMap, setEnteredProtocolMap] = useState<ProtocolMap | undefined>(undefined)
+
+  // input ref to focus
+  const inputRef = React.useRef<HTMLInputElement>(null)
+  // when enteredProtocolMap changes and is not undefined, focus input
+  React.useEffect(() => {
+    if (enteredProtocolMap) {
+      inputRef.current?.focus()
+    }
+  }, [enteredProtocolMap])
 
   const isValidProtocol = useMemo(() => {
     if (!series) return false
@@ -82,7 +91,7 @@ export default function AddProtocolForm({
             </Text>
             <Text t5s style={{ width: '100%' }}>
               <Flex between>
-                <Text t5s>
+                <Text t5s techygradient mont>
                   {enteredProtocolMap ? processProtocolName(enteredProtocolMap.appId) : 'Choose Protocol'}
                 </Text>
                 <StyledArrowDropDown size={16} />
@@ -91,17 +100,18 @@ export default function AddProtocolForm({
           </Flex>
         </ThinButton>
         <SmallerInputSection
-          placeholder={'Held amount'}
+          ref={inputRef}
+          placeholder={'Enter amount'}
           value={enteredBalance}
           onChange={(e) => {
             const filtered = filterAmount(e.target.value, enteredBalance)
             setEnteredBalance(filtered)
           }}
           style={{
-            maxWidth: '106px',
-            width: '106px',
-            minWidth: '106px',
-            maxHeight: '32px',
+            maxWidth: '120px',
+            width: '120px',
+            minWidth: '120px',
+            maxHeight: '36px',
           }}
           asideBg
         />
@@ -125,6 +135,7 @@ export default function AddProtocolForm({
           style={{
             width: '100%',
             border: 'none',
+            marginTop: '5px',
           }}
         />
       )}

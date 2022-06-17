@@ -165,9 +165,9 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
   //   `
   // }
 
-  let textColor = `${theme.typography.contrastText}`
-  let hoverTextColor = `${theme.typography.analogicalText}`
-  let hoverBgColor = `${theme.typography.contrastText}`
+  let textColor: string = (theme as Theme).typography.contrastText
+  let hoverTextColor: string = (theme as Theme).typography.contrastText
+  let hoverBgColor: string = (theme as Theme).button.hover_color
 
   if (props.light) textColor = `${theme.typography.lightText}`
   if (props.dark) textColor = `${theme.typography.darkText}`
@@ -326,8 +326,8 @@ export const ThinButton = styled(Button)<{ hasBorder?: boolean; hasCustomBg?: bo
           background-color: ${theme.v2.raised};
         `}
   ${({ hasBorder }) => (hasBorder ? `border-width: 1px;` : `border-width: 0;`)}
-  box-shadow: 0px 0px 30px -5px rgba(138, 138, 138, 0.4);
+  box-shadow: 0px 0px 20px -10px rgba(138, 138, 138, 0.2);
   ${({ width }) => (width ? `min-width: ${width}px;` : 'width: 100%;')}
-  height: 30px;
+  height: 36px;
   border-radius: 8px;
 `
