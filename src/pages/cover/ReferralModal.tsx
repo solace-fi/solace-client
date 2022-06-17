@@ -14,19 +14,20 @@ import useReferralApi from '../../hooks/policy/useReferralApi'
 
 export default function ReferralModal(): JSX.Element {
   const { intrface, styles, policy } = useCoverageContext()
-  const { status } = policy
+  const { policyId } = policy
+  const hasPolicy = !policyId?.eq(BigNumber.from(0))
   const { handleShowReferralModal, handleShowShareReferralModal } = intrface
   const { appTheme } = useGeneral()
   const [code, setCode] = React.useState<string>('')
   const { gradientStyle } = styles
   const {
-    appliedCode,
+    appliedReferralCode: appliedCode,
     earnedAmount,
     referredCount,
     referralCode,
-    cookieCode,
-    setCookieCode,
-    applyCode,
+    cookieReferralCode,
+    setCookieReferralCode: setCookieCode,
+    applyReferralCode,
   } = useReferralApi()
 
   return (
@@ -95,7 +96,7 @@ export default function ReferralModal(): JSX.Element {
       // ) : ( */}
       <Flex mt={20} mx={37} col>
         <Text t5s info>
-          Regarding {!appliedCode ? 'referral' : 'promo'} codes, please note:
+          Regarding {!hasPolicy ? 'referral' : 'promo'} codes, please note:
         </Text>
         <ul>
           <li>
@@ -121,27 +122,27 @@ export default function ReferralModal(): JSX.Element {
         </ul>
         <Flex mt={12} gap={5} col>
           <Text t5s semibold>
-            Apply a {!status ? 'referral' : 'promo'} code to your policy
+            Apply a {!hasPolicy ? 'referral' : 'promo'} code to your policy
           </Text>
           <GenericInputSection
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder={!appliedCode && cookieCode ? cookieCode : 'Enter code'}
+            placeholder={!appliedCode && cookieReferralCode ? cookieReferralCode : 'Enter code'}
             h={52}
           />
-          {cookieCode && !appliedCode && (
+          {cookieReferralCode && !appliedCode && (
             <Text t5s success>
-              The current active referral code is {cookieCode}. If it&apos;s valid, you&apos;ll earn $50 upon purchasing
-              a policy.
+              The current active referral code is {cookieReferralCode}. If it&apos;s valid, you&apos;ll earn $50 upon
+              purchasing a policy.
             </Text>
           )}
         </Flex>
         <ButtonAppearance
           secondary
           // techy if `code` is not equal to cookieCode and if `code` is not empty
-          techygradient={code !== cookieCode && code !== ''}
+          techygradient={code !== cookieReferralCode && code !== ''}
           // else disabled
-          disabled={code === '' || code === cookieCode}
+          disabled={code === '' || code === cookieReferralCode || hasPolicy}
           noborder
           onClick={async () => {
             // const success = await applyCode(code)
