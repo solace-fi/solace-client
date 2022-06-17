@@ -10,15 +10,15 @@ export default function useReferralApi(): {
   referralCode: string | undefined
   earnedAmount: number | undefined
   referredCount: number | undefined
-  appliedCode: string | undefined
-  cookieCode: string | undefined
-  setCookieCode: (code: string) => void
-  applyCode: (code: string) => Promise<boolean>
+  appliedReferralCode: string | undefined
+  cookieReferralCode: string | undefined
+  setCookieReferralCode: (code: string) => void
+  applyReferralCode: (code: string) => Promise<boolean>
 } {
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { policyId } = useCheckIsCoverageActive()
-  const [cookiedRef] = useLocalStorage<string>('sol_data_referral_code', '')
+  const [localStorageReferralCode] = useLocalStorage<string>('sol_data_referral_code', '')
 
   const [referralCode, setReferralCode] = useState<string | undefined>(undefined)
   const [earnedAmount, setEarnedAmount] = useState<number | undefined>(undefined)
@@ -82,7 +82,7 @@ export default function useReferralApi(): {
   }, [account])
 
   useEffect(() => {
-    const code = cookiedRef
+    const code = localStorageReferralCode
     if (code && code !== 'null' && code !== 'undefined' && code !== '') {
       setCookieCode(code)
     } else {
@@ -96,12 +96,12 @@ export default function useReferralApi(): {
       // GET EARNED AMOUNT, REFERRED COUNT and APPLIED CODE
       getInfo()
     }, 400)
-  }, [getInfo, getUserReferralCode, account, activeNetwork, policyId, cookiedRef])
+  }, [getInfo, getUserReferralCode, account, activeNetwork, policyId, localStorageReferralCode])
 
   const applyCode = async (code: string) => {
     if (!account || !policyId || policyId.isZero()) return false
     // add: promo-codes/apply
-    const applyCodeUrl = `${baseApiUrl}promo-codes/apply`
+    const applyCodeUrl = `${baseApiUrl}referral-codes/apply`
     const response = await fetch(applyCodeUrl, {
       method: 'POST',
       headers: {
@@ -114,14 +114,22 @@ export default function useReferralApi(): {
         // policy_id: 1,
         chain_id: activeNetwork.chainId,
         policy_id: policyId.toNumber(),
-        promo_code: code,
+        referral_code: code,
       }),
     })
     const data = (await response.json()) as InfoResponse
-    const _appliedCode = data.result?.applied_promo_codes?.[0]?.promo_code
+    const _appliedCode = data.result?.applied_referral_codes?.[0]?.referral_code
     _appliedCode && setAppliedCode(_appliedCode)
     return _appliedCode ? true : false
   }
 
-  return { referralCode, earnedAmount, referredCount, appliedCode, cookieCode, setCookieCode, applyCode }
+  return {
+    referralCode,
+    earnedAmount,
+    referredCount,
+    appliedReferralCode: appliedCode,
+    cookieReferralCode: cookieCode,
+    setCookieReferralCode: setCookieCode,
+    applyReferralCode: applyCode,
+  }
 }
