@@ -144,7 +144,7 @@ export default function AddProtocolForm({
           </Flex>
         </ThinButton>
         <SmallerInputSection
-          placeholder={'Held amount'}
+          placeholder={'Enter amount'}
           value={enteredBalance}
           // onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
           onChange={(e) => {
