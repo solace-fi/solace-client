@@ -62,6 +62,7 @@ export function processProtocolName(str: string): string {
 import { TokenInfo } from '../../constants/types'
 import { formatUnits } from 'ethers/lib/utils'
 import { truncateValue } from '../../utils/formatting'
+import { StyledArrowDropDown } from '../../components/atoms/Icon'
 
 export const DropdownInputSection = ({
   hasArrow,
@@ -131,13 +132,14 @@ export const DropdownInputSection = ({
               </Text>
             )}
             {hasArrow && (
-              <Text
-                autoAlignVertical
-                {...gradientStyle}
-                style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: '10px' }}
-              >
-                ⯆
-              </Text>
+              // <Text
+              //   autoAlignVertical
+              //   {...gradientStyle}
+              //   style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: '10px' }}
+              // >
+              //   ⯆
+              // </Text>
+              <StyledArrowDropDown style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} size={18} />
             )}
           </Flex>
         </Button>
