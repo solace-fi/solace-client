@@ -1,13 +1,13 @@
 import { Price, SCP, SolaceRiskProtocol, SolaceRiskSeries } from '@solace-fi/sdk-nightly'
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { BKPT_2, BKPT_NAVBAR, MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
-import { ChosenLimit, FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { BKPT_2, BKPT_NAVBAR, ZERO } from '../../constants'
+import { ChosenLimit, InterfaceState } from '../../constants/enums'
 import { coinsMap } from '../../constants/mappings/coverageStablecoins'
 import { NetworkConfig, ReadToken, TokenInfo } from '../../constants/types'
 import { useGeneral } from '../../context/GeneralManager'
 import { networks, useNetwork } from '../../context/NetworkManager'
 import { useBatchBalances, useScpBalance } from '../../hooks/balance/useBalance'
-import { useInputAmount, useTransactionExecution } from '../../hooks/internal/useInputAmount'
+import { useInputAmount } from '../../hooks/internal/useInputAmount'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import {
   usePortfolio,
@@ -19,17 +19,15 @@ import {
 import { BigNumber, Contract } from 'ethers'
 import { SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { useCachedData } from '../../context/CachedDataManager'
-import { accurateMultiply, convertSciNotaToPrecise, formatAmount, truncateValue } from '../../utils/formatting'
+import { accurateMultiply, formatAmount, truncateValue } from '../../utils/formatting'
 import { parseUnits } from 'ethers/lib/utils'
-import { useWeb3React } from '@web3-react/core'
 import { usePortfolioAnalysis } from '../../hooks/policy/usePortfolioAnalysis'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { useProvider } from '../../context/ProviderManager'
 import IERC20 from '../../constants/metadata/IERC20Metadata.json'
-import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
-import { useNotifications } from '../../context/NotificationsManager'
-import { useTokenAllowance } from '../../hooks/contract/useToken'
+import { useTokenAllowance, useTokenInfiniteApprove } from '../../hooks/contract/useToken'
 import SOLACE from '../../constants/metadata/SOLACE.json'
+import useReferralApi from '../../hooks/policy/useReferralApi'
 
 type CoverageContextType = {
   intrface: {
@@ -116,15 +114,21 @@ type CoverageContextType = {
     curCoverageLimit: BigNumber
     existingPolicyId: BigNumber
     existingPolicyNetwork: NetworkConfig
-    minReqScpBal: BigNumber
-    impDoesMeetMinReqAccBal: boolean
-    impMinReqAccBal: BigNumber
     availCovCap: BigNumber
     scpBalance: string
     scpObj?: SCP
     signatureObj: any
     depositApproval: boolean
     unlimitedApproveCPM: (tokenAddr: string) => void
+  }
+  referral: {
+    appliedReferralCode?: string
+    earnedAmount?: number
+    referredCount?: number
+    referralCode?: string
+    cookieReferralCode?: string
+    handleCookieReferralCode: (code: string) => void
+    applyReferralCode: (code: string) => Promise<boolean>
   }
 }
 
@@ -213,9 +217,6 @@ const CoverageContext = createContext<CoverageContextType>({
     curCoverageLimit: ZERO,
     existingPolicyId: ZERO,
     existingPolicyNetwork: networks[0],
-    impMinReqAccBal: ZERO,
-    impDoesMeetMinReqAccBal: false,
-    minReqScpBal: ZERO,
     availCovCap: ZERO,
     scpBalance: '',
     scpObj: undefined,
@@ -223,15 +224,22 @@ const CoverageContext = createContext<CoverageContextType>({
     depositApproval: false,
     unlimitedApproveCPM: () => undefined,
   },
+  referral: {
+    appliedReferralCode: undefined,
+    earnedAmount: 0,
+    referredCount: 0,
+    referralCode: undefined,
+    cookieReferralCode: undefined,
+    handleCookieReferralCode: () => undefined,
+    applyReferralCode: () => Promise.reject(),
+  },
 })
 
 const CoverageManager: React.FC = (props) => {
-  const { account } = useWeb3React()
   const { appTheme, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
-  const { tokenPriceMapping, minute, reload } = useCachedData()
+  const { tokenPriceMapping, minute } = useCachedData()
   const { signer, latestBlock } = useProvider()
-  const { makeTxToast } = useNotifications()
 
   const { width } = useWindowDimensions()
   const { portfolio: curPortfolio, riskScores, loading: portfolioLoading, fetchStatus } = usePortfolio()
@@ -245,9 +253,18 @@ const CoverageManager: React.FC = (props) => {
     handleInputChange: handleEnteredDeposit,
   } = useInputAmount()
   const { amount: enteredWithdrawal, handleInputChange: handleEnteredWithdrawal } = useInputAmount()
-  const { getAvailableCoverCapacity, getMinRequiredAccountBalance, getMinScpRequired } = useCoverageFunctions()
+  const { getAvailableCoverCapacity } = useCoverageFunctions()
   const { policyId, status, coverageLimit: curCoverageLimit, mounting: coverageLoading } = useCheckIsCoverageActive()
-  const { handleContractCallError } = useTransactionExecution()
+
+  const {
+    appliedReferralCode,
+    earnedAmount,
+    referredCount,
+    referralCode,
+    cookieReferralCode,
+    setCookieReferralCode,
+    applyReferralCode,
+  } = useReferralApi()
 
   const [importedCoverLimit, setImportedCoverLimit] = useState<BigNumber>(ZERO)
   const [simCoverLimit, setSimCoverLimit] = useState<BigNumber>(ZERO)
@@ -270,10 +287,9 @@ const CoverageManager: React.FC = (props) => {
     dailyRate: simDailyRate,
     dailyCost: simDailyCost,
   } = usePortfolioAnalysis(simPortfolio, simCoverLimit)
+  const { unlimitedApprove } = useTokenInfiniteApprove(setTransactionLoading)
 
   const [availCovCap, setAvailCovCap] = useState<BigNumber>(ZERO)
-  const [impMinReqAccBal, setImpMinReqAccBal] = useState<BigNumber>(ZERO)
-  const [minReqScpBal, setMinReqScpBal] = useState<BigNumber>(ZERO)
 
   const [showPortfolioModal, setShowPortfolioModal] = useState(false)
   const [showSimulatorModal, setShowSimulatorModal] = useState(false)
@@ -345,16 +361,6 @@ const CoverageManager: React.FC = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchBalances, enteredDeposit, selectedCoin.address, selectedCoin.decimals])
 
-  const impDoesMeetMinReqAccBal = useMemo(() => {
-    const parsedScpBalance = parseUnits(scpBalance, 18)
-    const float_enteredDeposit = parseFloat(formatAmount(enteredDeposit))
-    const depositUSDEquivalent = float_enteredDeposit * selectedCoinPrice
-    const BN_Scp_Plus_Deposit = parsedScpBalance.add(
-      BigNumber.from(accurateMultiply(convertSciNotaToPrecise(`${depositUSDEquivalent}`), 18))
-    )
-    return impMinReqAccBal.lte(BN_Scp_Plus_Deposit)
-  }, [impMinReqAccBal, enteredDeposit, scpBalance, selectedCoinPrice])
-
   const bigButtonStyle = useMemo(() => {
     return {
       pt: 16,
@@ -372,26 +378,9 @@ const CoverageManager: React.FC = (props) => {
   const unlimitedApproveCPM = useCallback(
     async (tokenAddr: string) => {
       if (!scpObj) return
-      const tokenContract = new Contract(tokenAddr, IERC20.abi, signer)
-      try {
-        const tx: TransactionResponse = await tokenContract.approve(
-          scpObj.coverPaymentManager.address,
-          MAX_APPROVAL_AMOUNT
-        )
-        const txHash = tx.hash
-        setTransactionLoading(true)
-        makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
-        await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
-          const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-          makeTxToast(FunctionName.APPROVE, status, txHash)
-          reload()
-        })
-        setTransactionLoading(false)
-      } catch (e) {
-        handleContractCallError('approve', e, FunctionName.APPROVE)
-      }
+      await unlimitedApprove(tokenAddr, IERC20.abi, scpObj.coverPaymentManager.address)
     },
-    [activeNetwork, signer, scpObj]
+    [scpObj, unlimitedApprove]
   )
 
   const handleSimCoverLimit = useCallback((coverageLimit: BigNumber) => {
@@ -456,10 +445,6 @@ const CoverageManager: React.FC = (props) => {
     setShowShareReferralModal(show)
   }, [])
 
-  // const handleShowShareModal = useCallback((show: boolean) => {
-  //   setShow
-  // }
-
   const handleImportCounter = useCallback(() => {
     setImportCounter((prev) => prev + 1)
   }, [])
@@ -476,6 +461,11 @@ const CoverageManager: React.FC = (props) => {
     setSimChosenLimit(chosenLimit)
   }, [])
 
+  const handleCookieReferralCode = useCallback((referralCode: string) => {
+    setCookieReferralCode(referralCode)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   useEffect(() => {
     const tokenWithHighestBalance = batchBalanceData.reduce((pn, cn) => (cn.balance.gt(pn.balance) ? cn : pn), {
       ...coinOptions[0],
@@ -486,10 +476,13 @@ const CoverageManager: React.FC = (props) => {
   }, [batchBalanceData])
 
   useEffect(() => {
-    if (!curHighestPosition) return
-    const bnBal = BigNumber.from(accurateMultiply(curHighestPosition.balanceUSD, 18))
-    const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
-    handleImportedCoverLimit(bnHigherBal)
+    if (!curHighestPosition) {
+      handleImportedCoverLimit(ZERO)
+    } else {
+      const bnBal = BigNumber.from(accurateMultiply(curHighestPosition.balanceUSD, 18))
+      const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
+      handleImportedCoverLimit(bnHigherBal)
+    }
   }, [curHighestPosition, handleImportedCoverLimit])
 
   useEffect(() => {
@@ -499,26 +492,7 @@ const CoverageManager: React.FC = (props) => {
     }
     init()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [minute])
-
-  useEffect(() => {
-    const init = async () => {
-      const mrab = await getMinRequiredAccountBalance(importedCoverLimit)
-      setImpMinReqAccBal(mrab)
-    }
-    init()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [importedCoverLimit])
-
-  useEffect(() => {
-    const init = async () => {
-      if (!account) return
-      const msr = await getMinScpRequired(account)
-      setMinReqScpBal(msr)
-    }
-    init()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [minute, account])
+  }, [minute, activeNetwork])
 
   useEffect(() => {
     const price = tokenPriceMapping[selectedCoin.name.toLowerCase()]
@@ -648,15 +622,21 @@ const CoverageManager: React.FC = (props) => {
         curCoverageLimit, // current cover limit on policy
         existingPolicyId, // id of an existing policy across all supported chains
         existingPolicyNetwork, // network of an existing policy across all supported chains
-        impMinReqAccBal, // minimum account balance required to support an imported cover limit
-        impDoesMeetMinReqAccBal, // check if the imported cover limit meets requirement
-        minReqScpBal, // check how much scp should stay on the account
         availCovCap, // available cover capacity for this chain
         scpBalance, // the user's scp balance
         scpObj,
         signatureObj,
         depositApproval,
         unlimitedApproveCPM,
+      },
+      referral: {
+        appliedReferralCode,
+        earnedAmount,
+        referredCount,
+        referralCode, // referral code entered
+        cookieReferralCode,
+        handleCookieReferralCode,
+        applyReferralCode,
       },
     }),
     [
@@ -701,9 +681,6 @@ const CoverageManager: React.FC = (props) => {
       simDailyCost,
       simCoverLimit,
       showCLDModal,
-      impMinReqAccBal,
-      impDoesMeetMinReqAccBal,
-      minReqScpBal,
       showSimulatorModal,
       showSimCoverModal,
       showReferralModal,
@@ -716,6 +693,13 @@ const CoverageManager: React.FC = (props) => {
       simChosenLimit,
       fetchStatus,
       clearCounter,
+      earnedAmount,
+      referredCount,
+      referralCode,
+      appliedReferralCode,
+      cookieReferralCode,
+      handleCookieReferralCode,
+      applyReferralCode,
       handleClearCounter,
       handleSimChosenLimit,
       handleImportedCoverLimit,
