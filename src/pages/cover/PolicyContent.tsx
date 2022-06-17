@@ -11,7 +11,14 @@ import { FunctionName, InterfaceState } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useCoverageFunctions, useExistingPolicy } from '../../hooks/policy/useSolaceCoverProductV3'
-import { accurateMultiply, filterAmount, floatUnits, formatAmount, truncateValue } from '../../utils/formatting'
+import {
+  accurateMultiply,
+  convertSciNotaToPrecise,
+  filterAmount,
+  floatUnits,
+  formatAmount,
+  truncateValue,
+} from '../../utils/formatting'
 import { useCoverageContext } from './CoverageContext'
 import { BalanceDropdownOptions, DropdownInputSection, DropdownOptions } from './Dropdown'
 
@@ -53,6 +60,7 @@ export const PolicyContent = (): JSX.Element => {
     isAcceptableDeposit,
     selectedCoin,
     handleSelectedCoin,
+    selectedCoinPrice,
   } = input
   const {
     policyId,
@@ -61,7 +69,6 @@ export const PolicyContent = (): JSX.Element => {
     status,
     curCoverageLimit,
     scpBalance,
-    impDoesMeetMinReqAccBal,
     scpObj,
     signatureObj,
     depositApproval,
@@ -84,6 +91,7 @@ export const PolicyContent = (): JSX.Element => {
     withdraw,
     depositStable,
     depositNonStable,
+    getMinRequiredAccountBalance,
   } = useCoverageFunctions()
 
   const [showExistingPolicyMessage, setShowExistingPolicyMessage] = useState<boolean>(true)
@@ -92,6 +100,18 @@ export const PolicyContent = (): JSX.Element => {
     curDailyCost,
     scpBalance,
   ])
+
+  const [sugMinReqAccBal, setSugMinReqAccBal] = useState<BigNumber>(ZERO)
+
+  const sugDoesMeetMinReqAccBal = useMemo(() => {
+    const parsedScpBalance = parseUnits(scpBalance, 18)
+    const float_enteredDeposit = parseFloat(formatAmount(enteredDeposit))
+    const depositUSDEquivalent = float_enteredDeposit * selectedCoinPrice
+    const BN_Scp_Plus_Deposit = parsedScpBalance.add(
+      BigNumber.from(accurateMultiply(convertSciNotaToPrecise(`${depositUSDEquivalent}`), 18))
+    )
+    return sugMinReqAccBal.lte(BN_Scp_Plus_Deposit)
+  }, [sugMinReqAccBal, enteredDeposit, scpBalance, selectedCoinPrice])
 
   const selectedCoinBalance = useMemo(
     () => batchBalanceData.find((d) => d.address.toLowerCase() == selectedCoin.address.toLowerCase())?.balance ?? ZERO,
@@ -352,6 +372,15 @@ export const PolicyContent = (): JSX.Element => {
     setSuggestedCoverLimit(bnHigherBal)
   }, [curHighestPosition])
 
+  useEffect(() => {
+    const init = async () => {
+      const mrab = await getMinRequiredAccountBalance(suggestedCoverLimit)
+      setSugMinReqAccBal(mrab)
+    }
+    init()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggestedCoverLimit])
+
   return (
     // <Content>
     <div>
@@ -611,7 +640,7 @@ export const PolicyContent = (): JSX.Element => {
                           disabled={
                             importedCoverLimit.isZero() ||
                             portfolioLoading ||
-                            !impDoesMeetMinReqAccBal ||
+                            !sugDoesMeetMinReqAccBal ||
                             (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
                               !isAcceptableDeposit)
                           }
@@ -643,7 +672,7 @@ export const PolicyContent = (): JSX.Element => {
                             !depositApproval ||
                             importedCoverLimit.isZero() ||
                             portfolioLoading ||
-                            !impDoesMeetMinReqAccBal ||
+                            !sugDoesMeetMinReqAccBal ||
                             (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
                               !isAcceptableDeposit)
                           }

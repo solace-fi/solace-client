@@ -10,10 +10,9 @@ import { StyledExport, StyledClose, StyledCopy, StyledShare } from '../../compon
 import { truncateValue } from '../../utils/formatting'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 import { Button, ButtonAppearance } from '../../components/atoms/Button'
-import useReferralApi from '../../hooks/policy/useReferralApi'
 
 export default function ReferralModal(): JSX.Element {
-  const { intrface, styles, policy } = useCoverageContext()
+  const { intrface, styles, policy, referral } = useCoverageContext()
   const { policyId } = policy
   const hasPolicy = !policyId?.eq(BigNumber.from(0))
   const { handleShowReferralModal, handleShowShareReferralModal } = intrface
@@ -21,14 +20,13 @@ export default function ReferralModal(): JSX.Element {
   const [code, setCode] = React.useState<string>('')
   const { gradientStyle } = styles
   const {
-    appliedReferralCode: appliedCode,
+    appliedReferralCode,
     earnedAmount,
     referredCount,
     referralCode,
     cookieReferralCode,
-    setCookieReferralCode: setCookieCode,
-    applyReferralCode,
-  } = useReferralApi()
+    handleCookieReferralCode,
+  } = referral
 
   return (
     <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative', overflow: 'hidden' }}>
@@ -82,12 +80,12 @@ export default function ReferralModal(): JSX.Element {
         )}
       </Flex>
 
-      {/* //   !appliedCode ? null : (
+      {/* //   !appliedReferralCode ? null : (
       //     <Flex mx={20}>
       //       <ThinCardTemplate2
       //         icon={<StyledCopy width={12} height={12} />}
       //         value1="Your applied referral code:"
-      //         value2={appliedCode || 'no referral applied'}
+      //         value2={appliedReferralCode || 'no referral applied'}
       //         info
       //         copy
       //       />
@@ -127,10 +125,10 @@ export default function ReferralModal(): JSX.Element {
           <GenericInputSection
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder={!appliedCode && cookieReferralCode ? cookieReferralCode : 'Enter code'}
+            placeholder={!appliedReferralCode && cookieReferralCode ? cookieReferralCode : 'Enter code'}
             h={52}
           />
-          {cookieReferralCode && !appliedCode && (
+          {cookieReferralCode && !appliedReferralCode && (
             <Text t5s success>
               The current active referral code is {cookieReferralCode}. If it&apos;s valid, you&apos;ll earn $50 upon
               purchasing a policy.
@@ -147,7 +145,7 @@ export default function ReferralModal(): JSX.Element {
           onClick={async () => {
             // const success = await applyCode(code)
             // console.log({ success })
-            setCookieCode(code)
+            handleCookieReferralCode(code)
           }}
           mt={12}
           pt={16}
