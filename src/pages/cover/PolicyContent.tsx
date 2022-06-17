@@ -339,12 +339,8 @@ export const PolicyContent = (): JSX.Element => {
     setRefundableSOLACEAmount(refundableSOLACEAmount)
   }, [account, scpObj, signatureObj, activeNetwork])
 
-  const _getRefundableSOLACEAmount = useDebounce(() => {
-    getRefundableSOLACEAmount()
-  }, 300)
-
   useEffect(() => {
-    _getRefundableSOLACEAmount()
+    getRefundableSOLACEAmount()
   }, [version, latestBlock])
 
   useEffect(() => {
@@ -634,18 +630,20 @@ export const PolicyContent = (): JSX.Element => {
                       <Flex col gap={8}>
                         <Flex between>
                           <Flex col>
-                            <Text t5s>Withdrawable:</Text>
+                            <Text t4>Withdrawable:</Text>
                           </Flex>
-                          <Flex col>
-                            <Text t5s>{truncateValue(formatUnits(refundableSOLACEAmount, 18), 2)} SOLACE</Text>
-                          </Flex>
-                          <Flex col>
-                            <Text t5s>{`~ $${truncateValue(
-                              signatureObj.price > 0
-                                ? parseFloat(formatUnits(refundableSOLACEAmount, 18)) / signatureObj.price
-                                : 0,
-                              2
-                            )}`}</Text>
+                          <Flex gap={5}>
+                            <Flex col>
+                              <Text t4>{truncateValue(formatUnits(refundableSOLACEAmount, 18), 2)} SOLACE</Text>
+                            </Flex>
+                            <Flex col>
+                              <Text t4>{`~ $${truncateValue(
+                                signatureObj.price > 0
+                                  ? parseFloat(formatUnits(refundableSOLACEAmount, 18)) * signatureObj.price
+                                  : 0,
+                                2
+                              )}`}</Text>
+                            </Flex>
                           </Flex>
                         </Flex>
                         <DropdownInputSection
