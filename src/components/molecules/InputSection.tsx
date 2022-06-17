@@ -140,7 +140,7 @@ export const GenericInputSection = ({
 export const SmallerInputSection = styled.input<{ asideBg?: boolean; theme: Theme }>`
   border-color: ${({ theme }: { theme: Theme }) => theme.separator.bg_color} !important;
   width: 100% !important;
-  height: 32px !important;
+  height: 36px !important;
   border-radius: 8px !important;
   border-width: 1px !important;
   border-style: solid !important;
@@ -151,8 +151,10 @@ export const SmallerInputSection = styled.input<{ asideBg?: boolean; theme: Them
   color: ${({ theme }: { theme: Theme }) => theme.typography.darkText} !important;
   background-color: ${({ theme }: { theme: Theme }) => theme.v2.raised} !important;
   outline: none !important;
-  &:focus {
+  &:focus,
+  &:hover {
     border-color: ${({ theme }: { theme: Theme }) => theme.separator.bg_color} !important;
+    filter: brightness(120%);
   }
   ${({ theme, asideBg }: { theme: Theme; asideBg?: boolean }) =>
     asideBg && `background-color: ${theme.body.bg_color} !important;`}
