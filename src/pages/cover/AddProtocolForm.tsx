@@ -87,7 +87,7 @@ export default function AddProtocolForm({
           <Flex style={{ width: '100%' }} itemsCenter>
             <Text autoAlignVertical p={5}>
               {enteredProtocolMap && isValidProtocol && (
-                <img src={`https://assets.solace.fi/zapperLogos/${enteredProtocolMap.appId}.png`} height={16} />
+                <img src={`https://assets.solace.fi/zapperLogos/${enteredProtocolMap.appId}`} height={16} />
               )}
             </Text>
             <Text t5s style={{ width: '100%' }}>
