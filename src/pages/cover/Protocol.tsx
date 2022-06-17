@@ -239,10 +239,10 @@ export const Protocol: React.FC<{
                   value={enteredAmount}
                   onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
                   style={{
-                    maxWidth: '106px',
-                    width: '106px',
-                    minWidth: '106px',
-                    maxHeight: '32px',
+                    maxWidth: '110px',
+                    width: '110px',
+                    minWidth: '110px',
+                    maxHeight: '36px',
                   }}
                   asideBg
                 />

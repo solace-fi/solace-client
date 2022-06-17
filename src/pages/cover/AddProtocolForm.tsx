@@ -108,10 +108,10 @@ export default function AddProtocolForm({
             setEnteredBalance(filtered)
           }}
           style={{
-            maxWidth: '106px',
-            width: '106px',
-            minWidth: '106px',
-            maxHeight: '32px',
+            maxWidth: '120px',
+            width: '120px',
+            minWidth: '120px',
+            maxHeight: '36px',
           }}
           asideBg
         />

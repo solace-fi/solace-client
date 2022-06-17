@@ -326,8 +326,8 @@ export const ThinButton = styled(Button)<{ hasBorder?: boolean; hasCustomBg?: bo
           background-color: ${theme.v2.raised};
         `}
   ${({ hasBorder }) => (hasBorder ? `border-width: 1px;` : `border-width: 0;`)}
-  box-shadow: 0px 0px 30px -5px rgba(138, 138, 138, 0.4);
+  box-shadow: 0px 0px 20px -10px rgba(138, 138, 138, 0.2);
   ${({ width }) => (width ? `min-width: ${width}px;` : 'width: 100%;')}
-  height: 30px;
+  height: 36px;
   border-radius: 8px;
 `
