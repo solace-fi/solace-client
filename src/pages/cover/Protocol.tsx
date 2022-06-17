@@ -40,7 +40,7 @@ export const ReadOnlyProtocol: React.FC<{
                   {/* protocol icon */}
                   <Flex>
                     <Text autoAlignVertical>
-                      <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={36} />
+                      <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}.png`} height={36} />
                     </Text>
                     {networkLogo && <img src={networkLogo} width={20} height={20} />}
                   </Flex>
@@ -220,7 +220,7 @@ export const Protocol: React.FC<{
                     <Flex itemsCenter={!!isValidProtocol} style={!isValidProtocol ? { width: '100%' } : {}}>
                       <Text autoAlignVertical p={5}>
                         {isValidProtocol ? (
-                          <img src={`https://assets.solace.fi/zapperLogos/${enteredAppId}`} height={16} />
+                          <img src={`https://assets.solace.fi/zapperLogos/${enteredAppId}.png`} height={16} />
                         ) : null}
                       </Text>
                       <Text t5s style={!isValidProtocol ? { width: '100%' } : {}}>
@@ -276,7 +276,7 @@ export const Protocol: React.FC<{
                     <Flex>
                       <Text autoAlignVertical>
                         {isValidProtocol ? (
-                          <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={36} />
+                          <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}.png`} height={36} />
                         ) : (
                           <StyledHelpCircle size={36} />
                         )}
