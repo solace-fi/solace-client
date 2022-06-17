@@ -257,7 +257,7 @@ export const PortfolioSimulator = (): JSX.Element => {
           const riskColor = getColorByTier(protocol.tier)
           return (
             <Protocol
-              key={protocol.appId}
+              key={protocol.appId.concat(protocol.network)}
               protocol={protocol}
               editableProtocolAppIds={editableProtocolAppIds}
               riskColor={riskColor}

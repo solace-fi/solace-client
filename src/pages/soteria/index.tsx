@@ -16,7 +16,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useProvider } from '../../context/ProviderManager'
 import { DAI_TOKEN, FRAX_TOKEN } from '../../constants/mappings/token'
 import { useNetwork } from '../../context/NetworkManager'
-import IERC20 from '../../constants/metadata/IERC20Metadata.json'
+import { ERC20_ABI } from '../../constants/abi'
 import { queryBalance } from '../../utils/contract'
 import useDebounce from '@rooks/use-debounce'
 import { useContracts } from '../../context/ContractsManager'
@@ -171,7 +171,7 @@ export default function Soteria(): JSX.Element {
 
   const _getAvailableFunds = useDebounce(async () => {
     if (!signer || !account) return
-    const tokenContract = new Contract(stableCoinData.address, IERC20.abi, signer)
+    const tokenContract = new Contract(stableCoinData.address, ERC20_ABI, signer)
     const balance = await queryBalance(tokenContract, account)
     setWalletAssetBalance(balance)
     setContractForAllowance(tokenContract)

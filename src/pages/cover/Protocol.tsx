@@ -21,6 +21,10 @@ export const ReadOnlyProtocol: React.FC<{
   protocol: SolaceRiskProtocol
   riskColor: string
 }> = ({ protocol, riskColor }): JSX.Element => {
+  const networkLogo = useMemo(() => {
+    return networks.find((n) => n.name.toLowerCase() === protocol.network.toLowerCase())?.logo
+  }, [protocol])
+
   return (
     <div>
       <TileCard padding={16} style={{ position: 'relative' }}>
@@ -34,9 +38,12 @@ export const ReadOnlyProtocol: React.FC<{
               <Flex between>
                 <Flex itemsCenter gap={8}>
                   {/* protocol icon */}
-                  <Text autoAlignVertical>
-                    <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={36} />
-                  </Text>
+                  <Flex>
+                    <Text autoAlignVertical>
+                      <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={36} />
+                    </Text>
+                    {networkLogo && <img src={networkLogo} width={20} height={20} />}
+                  </Flex>
                   <Flex col gap={5}>
                     {/* protocol name */}
                     <Text t5s bold>

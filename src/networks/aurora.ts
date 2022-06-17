@@ -5,14 +5,13 @@ import { hexValue } from 'ethers/lib/utils'
 import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/aurora'
 import { NEAR_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 
-import solaceABI from '../constants/metadata/SOLACE.json'
-import xSolaceABI from '../constants/metadata/xSOLACE.json'
-import xsLockerABI from '../constants/metadata/xsLocker.json'
-import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
-import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
-import IERC20 from '../constants/metadata/IERC20Metadata.json'
+import solaceABI from '../constants/abi/SOLACE.json'
+import xSolaceABI from '../constants/abi/xSOLACE.json'
+import bridgeWrapperABI from '../constants/abi/BridgeWrapper.json'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/aurora'
 import { AURORASCAN_API_KEY } from '../constants'
+
+import { xsLocker_ABI, StakingRewards_ABI, ERC20_ABI } from '../constants/abi'
 
 const chainId = 1313161554
 
@@ -47,11 +46,11 @@ export const AuroraNetwork: NetworkConfig = {
       },
       xsLocker: {
         addr: KEY_ADDRS.XSLOCKER,
-        abi: xsLockerABI.abi,
+        abi: xsLocker_ABI,
       },
       stakingRewards: {
         addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: stakingRewardsABI.abi,
+        abi: StakingRewards_ABI,
       },
     },
     restrictedFeatures: {
@@ -70,7 +69,7 @@ export const AuroraNetwork: NetworkConfig = {
     specialContracts: {
       bSolace: {
         addr: SPECIAL_ADDRS.BSOLACE,
-        abi: IERC20.abi,
+        abi: ERC20_ABI,
       },
       bridgeWrapper: {
         addr: SPECIAL_ADDRS.BRIDGE_WRAPPER,

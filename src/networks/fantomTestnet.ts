@@ -2,25 +2,34 @@ import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/fantomTestnet'
 import { Unit } from '../constants/enums'
 import { WFTM_TOKEN } from '../constants/mappings/token'
 
-import solaceABI from '../constants/metadata/SOLACE.json'
-import xSolaceABI from '../constants/metadata/xSOLACE.json'
-import xsLockerABI from '../constants/metadata/xsLocker.json'
-import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
+import solaceABI from '../constants/abi/SOLACE.json'
+import xSolaceABI from '../constants/abi/xSOLACE.json'
+// import xsLockerABI from '../constants/abi/xsLocker.json'
+// import stakingRewardsABI from '../constants/abi/StakingRewards.json'
 import { hexValue } from 'ethers/lib/utils'
 
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/fantomTestnet'
 import { FTMSCAN_API_KEY } from '../constants'
 import { NetworkConfig } from '../constants/types'
 import FantomLogo from '../resources/svg/networks/fantom-logo.svg'
-import solaceCoverProductV2ABI from '../constants/metadata/SolaceCoverProductV2.json'
-import solaceCoverProductV3ABI from '../constants/metadata/SolaceCoverProductV3.json'
-import coverPaymentManagerABI from '../constants/metadata/CoverPaymentManager.json'
-import stakingRewardsV2ABI from '../constants/metadata/StakingRewardsV2.json'
+// import solaceCoverProductV2ABI from '../constants/abi/SolaceCoverProductV2.json'
+// import solaceCoverProductV3ABI from '../constants/abi/SolaceCoverProductV3.json'
+// import coverPaymentManagerABI from '../constants/abi/CoverPaymentManager.json'
+// import stakingRewardsV2ABI from '../constants/abi/StakingRewardsV2.json'
 import {
   COVER_PAYMENT_MANAGER_ADDRESS,
   SOLACE_COVER_PRODUCT_V3_ADDRESS,
   STAKING_REWARDS_V2_ADDRESS,
 } from '@solace-fi/sdk-nightly'
+
+import {
+  xsLocker_ABI,
+  StakingRewards_ABI,
+  StakingRewardsV2_ABI,
+  CoverPaymentManager_ABI,
+  SolaceCoverProductV2_ABI,
+  SolaceCoverProductV3_ABI,
+} from '../constants/abi'
 
 const chainId = 4002
 
@@ -55,28 +64,28 @@ export const FantomTestnetNetwork: NetworkConfig = {
       },
       xsLocker: {
         addr: KEY_ADDRS.XSLOCKER,
-        abi: xsLockerABI.abi,
+        abi: xsLocker_ABI,
       },
       solaceCoverProduct: {
         addr: SPECIAL_ADDRS.SOLACE_COVER_PRODUCT_V2,
-        abi: solaceCoverProductV2ABI.abi,
+        abi: SolaceCoverProductV2_ABI,
         additionalInfo: 'v2',
       },
       stakingRewards: {
         addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: stakingRewardsABI.abi,
+        abi: StakingRewards_ABI,
       },
       solaceCoverProductV3: {
         addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
-        abi: solaceCoverProductV3ABI,
+        abi: SolaceCoverProductV3_ABI,
       },
       coverPaymentManager: {
         addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
-        abi: coverPaymentManagerABI,
+        abi: CoverPaymentManager_ABI,
       },
       stakingRewardsV2: {
         addr: STAKING_REWARDS_V2_ADDRESS[chainId],
-        abi: stakingRewardsV2ABI,
+        abi: StakingRewardsV2_ABI,
       },
     },
     specialContracts: {},

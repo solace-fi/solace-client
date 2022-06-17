@@ -12,14 +12,10 @@ import {
   WETH9_TOKEN,
 } from '../token'
 
-import bondTellerErc20Abi_V1 from '../../metadata/BondTellerErc20.json'
-import bondTellerErc20Abi_V2 from '../../metadata/BondTellerErc20_V2.json'
-import bondTellerEthAbi_V1 from '../../metadata/BondTellerEth.json'
-import bondTellerEthAbi_V2 from '../../metadata/BondTellerEth_V2.json'
-
-import ierc20Json from '../../metadata/IERC20Metadata.json'
-import weth9 from '../../metadata/WETH9.json'
-import sushiswapLpAbi from '../../metadata/ISushiswapMetadataAlt.json'
+import bondTellerErc20Abi_V1 from '../../abi/BondTellerErc20.json'
+import bondTellerEthAbi_V1 from '../../abi/BondTellerEth.json'
+import sushiswapLpAbi from '../../abi/ISushiswapMetadataAlt.json'
+import { BondTellerErc20_ABI, BondTellerEth_ABI, ERC20_ABI, WETH9_ABI } from '../../abi'
 
 const chainId = 42
 
@@ -29,7 +25,7 @@ export const tellerToTokenMapping: {
   [TELLER_ADDRS_V1.DAI_TELLER]: {
     name: BondName.DAI,
     addr: DAI_TOKEN.address[chainId],
-    principalAbi: ierc20Json.abi,
+    principalAbi: ERC20_ABI,
     tellerAbi: bondTellerErc20Abi_V1,
     mainnetAddr: DAI_TOKEN.address[1],
     tokenId: 'dai',
@@ -41,7 +37,7 @@ export const tellerToTokenMapping: {
   [TELLER_ADDRS_V1.ETH_TELLER]: {
     name: BondName.ETH,
     addr: WETH9_TOKEN.address[chainId],
-    principalAbi: weth9,
+    principalAbi: WETH9_ABI,
     tellerAbi: bondTellerEthAbi_V1,
     mainnetAddr: WETH9_TOKEN.address[1],
     tokenId: 'ethereum',
@@ -53,7 +49,7 @@ export const tellerToTokenMapping: {
   [TELLER_ADDRS_V1.USDC_TELLER]: {
     name: BondName.USDC,
     addr: USDC_TOKEN.address[chainId],
-    principalAbi: ierc20Json.abi,
+    principalAbi: ERC20_ABI,
     tellerAbi: bondTellerErc20Abi_V1,
     mainnetAddr: USDC_TOKEN.address[1],
     tokenId: '',
@@ -78,7 +74,7 @@ export const tellerToTokenMapping: {
   [TELLER_ADDRS_V1.SCP_TELLER]: {
     name: BondName.SCP,
     addr: SCP_TOKEN.address[chainId],
-    principalAbi: ierc20Json.abi,
+    principalAbi: ERC20_ABI,
     tellerAbi: bondTellerErc20Abi_V1,
     mainnetAddr: SCP_TOKEN.address[1],
     tokenId: '',
@@ -90,7 +86,7 @@ export const tellerToTokenMapping: {
   [TELLER_ADDRS_V1.WBTC_TELLER]: {
     name: BondName.WBTC,
     addr: WBTC_TOKEN.address[chainId],
-    principalAbi: ierc20Json.abi,
+    principalAbi: ERC20_ABI,
     tellerAbi: bondTellerErc20Abi_V1,
     mainnetAddr: WBTC_TOKEN.address[1],
     tokenId: '',
@@ -102,7 +98,7 @@ export const tellerToTokenMapping: {
   [TELLER_ADDRS_V1.USDT_TELLER]: {
     name: BondName.USDT,
     addr: USDT_TOKEN.address[chainId],
-    principalAbi: ierc20Json.abi,
+    principalAbi: ERC20_ABI,
     tellerAbi: bondTellerErc20Abi_V1,
     mainnetAddr: USDT_TOKEN.address[1],
     tokenId: 'tether',
@@ -114,8 +110,8 @@ export const tellerToTokenMapping: {
   [TELLER_ADDRS_V2.DAI_TELLER]: {
     name: BondName.DAI,
     addr: DAI_TOKEN.address[chainId],
-    principalAbi: ierc20Json.abi,
-    tellerAbi: bondTellerErc20Abi_V2.abi,
+    principalAbi: ERC20_ABI,
+    tellerAbi: BondTellerErc20_ABI,
     mainnetAddr: DAI_TOKEN.address[1],
     tokenId: 'dai',
     isBondTellerErc20: true,
@@ -126,8 +122,8 @@ export const tellerToTokenMapping: {
   [TELLER_ADDRS_V2.ETH_TELLER]: {
     name: BondName.ETH,
     addr: WETH9_TOKEN.address[chainId],
-    principalAbi: weth9,
-    tellerAbi: bondTellerEthAbi_V2.abi,
+    principalAbi: WETH9_ABI,
+    tellerAbi: BondTellerEth_ABI,
     mainnetAddr: WETH9_TOKEN.address[1],
     tokenId: 'ethereum',
     isBondTellerErc20: false,
@@ -138,8 +134,8 @@ export const tellerToTokenMapping: {
   [TELLER_ADDRS_V2.USDC_TELLER]: {
     name: BondName.USDC,
     addr: USDC_TOKEN.address[chainId],
-    principalAbi: ierc20Json.abi,
-    tellerAbi: bondTellerErc20Abi_V2.abi,
+    principalAbi: ERC20_ABI,
+    tellerAbi: BondTellerErc20_ABI,
     mainnetAddr: USDC_TOKEN.address[1],
     tokenId: '',
     isBondTellerErc20: true,
@@ -150,8 +146,8 @@ export const tellerToTokenMapping: {
   [TELLER_ADDRS_V2.SCP_TELLER]: {
     name: BondName.SCP,
     addr: SCP_TOKEN.address[chainId],
-    principalAbi: ierc20Json.abi,
-    tellerAbi: bondTellerErc20Abi_V2.abi,
+    principalAbi: ERC20_ABI,
+    tellerAbi: BondTellerErc20_ABI,
     mainnetAddr: SCP_TOKEN.address[1],
     tokenId: '',
     isBondTellerErc20: true,
@@ -162,8 +158,8 @@ export const tellerToTokenMapping: {
   [TELLER_ADDRS_V2.WBTC_TELLER]: {
     name: BondName.WBTC,
     addr: WBTC_TOKEN.address[chainId],
-    principalAbi: ierc20Json.abi,
-    tellerAbi: bondTellerErc20Abi_V2.abi,
+    principalAbi: ERC20_ABI,
+    tellerAbi: BondTellerErc20_ABI,
     mainnetAddr: WBTC_TOKEN.address[1],
     tokenId: '',
     isBondTellerErc20: true,
@@ -174,8 +170,8 @@ export const tellerToTokenMapping: {
   [TELLER_ADDRS_V2.USDT_TELLER]: {
     name: BondName.USDT,
     addr: USDT_TOKEN.address[chainId],
-    principalAbi: ierc20Json.abi,
-    tellerAbi: bondTellerErc20Abi_V2.abi,
+    principalAbi: ERC20_ABI,
+    tellerAbi: BondTellerErc20_ABI,
     mainnetAddr: USDT_TOKEN.address[1],
     tokenId: 'tether',
     isBondTellerErc20: true,
@@ -186,8 +182,8 @@ export const tellerToTokenMapping: {
   [TELLER_ADDRS_V2.FRAX_TELLER]: {
     name: BondName.FRAX,
     addr: FRAX_TOKEN.address[chainId],
-    principalAbi: ierc20Json.abi,
-    tellerAbi: bondTellerErc20Abi_V2.abi,
+    principalAbi: ERC20_ABI,
+    tellerAbi: BondTellerErc20_ABI,
     mainnetAddr: FRAX_TOKEN.address[1],
     tokenId: 'frax',
     isBondTellerErc20: true,

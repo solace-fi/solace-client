@@ -319,7 +319,7 @@ export const PolicyContent = (): JSX.Element => {
     }
 
     handleTransactionLoading(true)
-    await cancel(test4.premium.toString(), test4.policyholder, test4.deadline, test4.signature)
+    await cancel(test4.premium.toString(), test4.deadline, test4.signature)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callCancel', err, FunctionName.COVER_CANCEL))
   }
@@ -681,30 +681,13 @@ export const PolicyContent = (): JSX.Element => {
                       </Flex>
                     )}
                     <ButtonWrapper isColumn p={0}>
-                      {newUserState && depositApproval && homeCta && (
+                      {(newUserState || returningUserState) && depositApproval && homeCta && (
                         <Button
                           {...gradientStyle}
                           {...bigButtonStyle}
-                          secondary
-                          noborder
-                          onClick={handlePurchase}
-                          disabled={
-                            suggestedCoverLimit.isZero() ||
-                            portfolioLoading ||
-                            lackingScp != 'meets requirement' ||
-                            (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
-                              !isAcceptableDeposit)
-                          }
-                        >
-                          <Text bold t4s>
-                            Activate Policy
-                          </Text>
-                        </Button>
-                      )}
-                      {returningUserState && depositApproval && homeCta && (
-                        <Button
-                          success
-                          {...bigButtonStyle}
+                          secondary={newUserState}
+                          noborder={newUserState}
+                          success={returningUserState}
                           onClick={handlePurchase}
                           disabled={
                             suggestedCoverLimit.isZero() ||

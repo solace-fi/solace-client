@@ -24,9 +24,9 @@ import { parseUnits } from 'ethers/lib/utils'
 import { usePortfolioAnalysis } from '../../hooks/policy/usePortfolioAnalysis'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { useProvider } from '../../context/ProviderManager'
-import IERC20 from '../../constants/metadata/IERC20Metadata.json'
+import { ERC20_ABI } from '../../constants/abi'
 import { useTokenAllowance, useTokenInfiniteApprove } from '../../hooks/contract/useToken'
-import SOLACE from '../../constants/metadata/SOLACE.json'
+import SOLACE from '../../constants/abi/SOLACE.json'
 import useReferralApi from '../../hooks/policy/useReferralApi'
 
 type CoverageContextType = {
@@ -378,7 +378,7 @@ const CoverageManager: React.FC = (props) => {
   const unlimitedApproveCPM = useCallback(
     async (tokenAddr: string) => {
       if (!scpObj) return
-      await unlimitedApprove(tokenAddr, IERC20.abi, scpObj.coverPaymentManager.address)
+      await unlimitedApprove(tokenAddr, ERC20_ABI, scpObj.coverPaymentManager.address)
     },
     [scpObj, unlimitedApprove]
   )
@@ -507,7 +507,7 @@ const CoverageManager: React.FC = (props) => {
         abi = SOLACE
         break
       default:
-        abi = IERC20.abi
+        abi = ERC20_ABI
     }
     setContractForAllowance(new Contract(selectedCoin.address, abi, signer))
   }, [selectedCoin, tokenPriceMapping, signer])

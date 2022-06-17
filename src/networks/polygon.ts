@@ -4,19 +4,17 @@ import PolygonLogo from '../resources/svg/networks/polygon-matic-logo.svg'
 import { ALCHEMY_POLYGON_API_KEY, POLYGONSCAN_API_KEY } from '../constants'
 import { hexValue } from 'ethers/lib/utils'
 
-import solaceABI from '../constants/metadata/SOLACE.json'
-import xSolaceABI from '../constants/metadata/xSOLACE.json'
-import xsLockerABI from '../constants/metadata/xsLocker.json'
-import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
-import solaceCoverProductV2ABI from '../constants/metadata/SolaceCoverProductV2.json'
+import solaceABI from '../constants/abi/SOLACE.json'
+import xSolaceABI from '../constants/abi/xSOLACE.json'
 
 import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/polygon'
 
-import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
+import bridgeWrapperABI from '../constants/abi/BridgeWrapper.json'
 
-import ierc20Json from '../constants/metadata/IERC20Metadata.json'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/polygon'
 import { FRAX_TOKEN } from '../constants/mappings/token'
+
+import { xsLocker_ABI, StakingRewards_ABI, SolaceCoverProductV2_ABI, ERC20_ABI } from '../constants/abi'
 
 const chainId = 137
 
@@ -51,15 +49,15 @@ export const PolygonNetwork: NetworkConfig = {
       },
       xsLocker: {
         addr: KEY_ADDRS.XSLOCKER,
-        abi: xsLockerABI.abi,
+        abi: xsLocker_ABI,
       },
       stakingRewards: {
         addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: stakingRewardsABI.abi,
+        abi: StakingRewards_ABI,
       },
       solaceCoverProduct: {
         addr: SPECIAL_ADDRS.SOLACE_COVER_PRODUCT_V2,
-        abi: solaceCoverProductV2ABI.abi,
+        abi: SolaceCoverProductV2_ABI,
         additionalInfo: 'v2',
       },
     },
@@ -79,7 +77,7 @@ export const PolygonNetwork: NetworkConfig = {
     specialContracts: {
       bSolace: {
         addr: SPECIAL_ADDRS.BSOLACE,
-        abi: ierc20Json.abi,
+        abi: ERC20_ABI,
       },
       bridgeWrapper: {
         addr: SPECIAL_ADDRS.BRIDGE_WRAPPER,

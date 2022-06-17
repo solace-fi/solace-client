@@ -77,7 +77,13 @@ export const Portfolio = (): JSX.Element => {
           protocols.length >= 0 &&
           protocols.map((protocol: SolaceRiskProtocol) => {
             const riskColor = getColorByTier(protocol.tier)
-            return <ReadOnlyProtocol key={protocol.appId} protocol={protocol} riskColor={riskColor} />
+            return (
+              <ReadOnlyProtocol
+                key={protocol.appId.concat(protocol.network)}
+                protocol={protocol}
+                riskColor={riskColor}
+              />
+            )
           })}
         {!portfolioLoading && protocols.length == 0 && (
           <Flex col stretch gap={5}>

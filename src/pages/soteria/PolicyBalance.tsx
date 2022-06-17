@@ -26,7 +26,7 @@ import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { parseUnits } from 'ethers/lib/utils'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
-import IERC20 from '../../constants/metadata/IERC20Metadata.json'
+import { ERC20_ABI } from '../../constants/abi'
 import useDebounce from '@rooks/use-debounce'
 import { formatUnits } from 'ethers/lib/utils'
 import { CheckboxData } from '../../constants/types'
@@ -172,7 +172,7 @@ export function PolicyBalance({
 
   const unlimitedApprove = async () => {
     if (!solaceCoverProduct || !signer) return
-    const stablecoinContract = new Contract(stableCoinData.address, IERC20.abi, signer)
+    const stablecoinContract = new Contract(stableCoinData.address, ERC20_ABI, signer)
     try {
       const tx: TransactionResponse = await stablecoinContract.approve(solaceCoverProduct.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash

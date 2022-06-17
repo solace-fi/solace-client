@@ -136,7 +136,7 @@ export const useCoverageFunctions = () => {
   const purchase = async (account: string, coverLimit: BigNumberish) => {
     if (!coverageObj) return { tx: null, localTx: null }
     // const estGas = await coverageObj.solaceCoverProduct.estimateGas.purchase(account, coverLimit)
-    const tx = await coverageObj.purchase([account], [coverLimit], {
+    const tx = await coverageObj.purchase(account, coverLimit, {
       ...gasConfig,
       // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       gasLimit: FunctionGasLimits['solaceCoverProductV3.purchase'],
@@ -149,10 +149,10 @@ export const useCoverageFunctions = () => {
     return { tx, localTx }
   }
 
-  const cancel = async (_premium: BigNumberish, _policyholder: string, _deadline: BigNumberish, _signature: string) => {
+  const cancel = async (_premium: BigNumberish, _deadline: BigNumberish, _signature: string) => {
     if (!coverageObj) return { tx: null, localTx: null }
     // const estGas = await coverageObj.solaceCoverProduct.estimateGas.cancel()
-    const tx = await coverageObj.cancel(_premium, _policyholder, _deadline, _signature, {
+    const tx = await coverageObj.cancel(_premium, _deadline, _signature, {
       ...gasConfig,
       // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       gasLimit: FunctionGasLimits['solaceCoverProductV3.cancel'],

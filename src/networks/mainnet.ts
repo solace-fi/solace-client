@@ -5,17 +5,15 @@ import { hexValue } from '@ethersproject/bytes'
 import { NetworkConfig } from '../constants/types'
 
 /* core contract abi */
-import farmControllerABI from '../constants/metadata/FarmController.json'
-import farmRewardsABI from '../constants/metadata/FarmRewardsV2.json'
-import vaultABI from '../constants/metadata/Vault.json'
-import solaceABI from '../constants/metadata/SOLACE.json'
-import xSolaceABI from '../constants/metadata/xSOLACE.json'
-import xSolaceV1ABI from '../constants/metadata/xSOLACEV1.json'
-import xsLockerABI from '../constants/metadata/xsLocker.json'
-import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
-import xSolaceMigratorABI from '../constants/metadata/xSolaceMigrator.json'
-import cpFarmABI from '../constants/metadata/CpFarm.json'
-import solaceCoverProductABI from '../constants/metadata/SolaceCoverProduct.json'
+import farmControllerABI from '../constants/abi/FarmController.json'
+import farmRewardsABI from '../constants/abi/FarmRewardsV2.json'
+import solaceABI from '../constants/abi/SOLACE.json'
+import xSolaceABI from '../constants/abi/xSOLACE.json'
+import xSolaceV1ABI from '../constants/abi/xSOLACEV1.json'
+import xSolaceMigratorABI from '../constants/abi/xSolaceMigrator.json'
+import cpFarmABI from '../constants/abi/CpFarm.json'
+
+import { xsLocker_ABI, StakingRewards_ABI, Vault_ABI, SolaceCoverProduct_ABI } from '../constants/abi'
 
 import { KEY_ADDRS } from '../constants/addresses/mainnet'
 import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
@@ -60,7 +58,7 @@ export const MainNetwork: NetworkConfig = {
       },
       vault: {
         addr: KEY_ADDRS.VAULT,
-        abi: vaultABI,
+        abi: Vault_ABI,
       },
       solace: {
         addr: KEY_ADDRS.SOLACE,
@@ -76,11 +74,11 @@ export const MainNetwork: NetworkConfig = {
       },
       xsLocker: {
         addr: KEY_ADDRS.XSLOCKER,
-        abi: xsLockerABI.abi,
+        abi: xsLocker_ABI,
       },
       stakingRewards: {
         addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: stakingRewardsABI.abi,
+        abi: StakingRewards_ABI,
       },
       xSolaceMigrator: {
         addr: KEY_ADDRS.XSOLACE_MIGRATOR,
@@ -92,7 +90,7 @@ export const MainNetwork: NetworkConfig = {
       },
       solaceCoverProduct: {
         addr: KEY_ADDRS.SOLACE_COVER_PRODUCT,
-        abi: solaceCoverProductABI.abi,
+        abi: SolaceCoverProduct_ABI,
       },
     },
     restrictedFeatures: { noCoverageV3: true, noStakingRewardsV2: true },

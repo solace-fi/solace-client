@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { queryBalance } from '../../utils/contract'
 import { networks, useNetwork } from '../../context/NetworkManager'
-// import SafeServiceClient from '@gnosis.pm/safe-service-client'
 import { useProvider } from '../../context/ProviderManager'
 import { useBridge } from './useBridge'
 import { withBackoffRetries } from '../../utils/time'
@@ -14,7 +13,7 @@ import { SCP, UnderwritingPoolUSDBalances } from '@solace-fi/sdk-nightly'
 import { useWeb3React } from '@web3-react/core'
 import { NetworkConfig } from '../../constants/types'
 import { BigNumber, Contract } from 'ethers'
-import IERC20 from '../../constants/metadata/IERC20Metadata.json'
+import { ERC20_ABI } from '../../constants/abi'
 
 export const useNativeTokenBalance = (): string => {
   const { provider } = useProvider()
@@ -299,7 +298,7 @@ export const useBatchBalances = (
       if (activeNetwork.config.restrictedFeatures.noCoverageV3 || !account || loading) return
       setLoading(true)
       const batchBalances = await Promise.all(
-        addresses.map((address) => queryBalance(new Contract(address, IERC20.abi, provider), account))
+        addresses.map((address) => queryBalance(new Contract(address, ERC20_ABI, provider), account))
       )
       setBatchBalances(
         addresses.map((addr, i) => {

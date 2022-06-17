@@ -2,17 +2,19 @@ import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/fantom'
 import { Unit } from '../constants/enums'
 import { WFTM_TOKEN } from '../constants/mappings/token'
 
-import solaceABI from '../constants/metadata/SOLACE.json'
-import xSolaceABI from '../constants/metadata/xSOLACE.json'
-import xsLockerABI from '../constants/metadata/xsLocker.json'
-import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
+import solaceABI from '../constants/abi/SOLACE.json'
+import xSolaceABI from '../constants/abi/xSOLACE.json'
+// import xsLockerABI from '../constants/abi/xsLocker.json'
+// import stakingRewardsABI from '../constants/abi/StakingRewards.json'
 import { hexValue } from 'ethers/lib/utils'
 
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/fantom'
 import { FTMSCAN_API_KEY } from '../constants'
 import { NetworkConfig } from '../constants/types'
 import FantomLogo from '../resources/svg/networks/fantom-logo.svg'
-import solaceCoverProductV2ABI from '../constants/metadata/SolaceCoverProductV2.json'
+// import solaceCoverProductV2ABI from '../constants/abi/SolaceCoverProductV2.json'
+
+import { xsLocker_ABI, SolaceCoverProductV2_ABI, StakingRewards_ABI } from '../constants/abi'
 
 const chainId = 250
 
@@ -47,16 +49,16 @@ export const FantomNetwork: NetworkConfig = {
       },
       xsLocker: {
         addr: KEY_ADDRS.XSLOCKER,
-        abi: xsLockerABI.abi,
+        abi: xsLocker_ABI,
       },
       solaceCoverProduct: {
         addr: SPECIAL_ADDRS.SOLACE_COVER_PRODUCT_V2,
-        abi: solaceCoverProductV2ABI.abi,
+        abi: SolaceCoverProductV2_ABI,
         additionalInfo: 'v2',
       },
       stakingRewards: {
         addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: stakingRewardsABI.abi,
+        abi: StakingRewards_ABI,
       },
     },
     specialContracts: {},

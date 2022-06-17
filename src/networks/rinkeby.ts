@@ -5,20 +5,13 @@ import { hexValue } from '@ethersproject/bytes'
 import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 
 /*  core contract abi */
-import farmControllerABI from '../constants/metadata/FarmController.json'
-import farmRewardsABI from '../constants/metadata/FarmRewardsV2.json'
-import vaultABI from '../constants/metadata/Vault.json'
-import solaceABI from '../constants/metadata/SOLACE.json'
-import xSolaceABI from '../constants/metadata/xSOLACE.json'
-import xSolaceV1ABI from '../constants/metadata/xSOLACEV1.json'
-import xsLockerABI from '../constants/metadata/xsLocker.json'
-import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
-import xSolaceMigratorABI from '../constants/metadata/xSolaceMigrator.json'
-import cpFarmABI from '../constants/metadata/CpFarm.json'
-import solaceCoverProductABI from '../constants/metadata/SolaceCoverProduct.json'
-import solaceCoverProductV3ABI from '../constants/metadata/SolaceCoverProductV3.json'
-import coverPaymentManagerABI from '../constants/metadata/CoverPaymentManager.json'
-import stakingRewardsV2ABI from '../constants/metadata/StakingRewardsV2.json'
+import farmControllerABI from '../constants/abi/FarmController.json'
+import farmRewardsABI from '../constants/abi/FarmRewardsV2.json'
+import solaceABI from '../constants/abi/SOLACE.json'
+import xSolaceABI from '../constants/abi/xSOLACE.json'
+import xSolaceV1ABI from '../constants/abi/xSOLACEV1.json'
+import xSolaceMigratorABI from '../constants/abi/xSolaceMigrator.json'
+import cpFarmABI from '../constants/abi/CpFarm.json'
 
 import { KEY_ADDRS } from '../constants/addresses/rinkeby'
 import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
@@ -28,6 +21,16 @@ import {
   SOLACE_COVER_PRODUCT_V3_ADDRESS,
   STAKING_REWARDS_V2_ADDRESS,
 } from '@solace-fi/sdk-nightly'
+
+import {
+  Vault_ABI,
+  xsLocker_ABI,
+  StakingRewards_ABI,
+  SolaceCoverProduct_ABI,
+  SolaceCoverProductV3_ABI,
+  CoverPaymentManager_ABI,
+  StakingRewardsV2_ABI,
+} from '../constants/abi'
 
 const chainId = 4
 
@@ -62,7 +65,7 @@ export const RinkebyNetwork: NetworkConfig = {
       },
       vault: {
         addr: KEY_ADDRS.VAULT,
-        abi: vaultABI,
+        abi: Vault_ABI,
       },
       solace: {
         addr: KEY_ADDRS.SOLACE,
@@ -78,11 +81,11 @@ export const RinkebyNetwork: NetworkConfig = {
       },
       xsLocker: {
         addr: KEY_ADDRS.XSLOCKER,
-        abi: xsLockerABI.abi,
+        abi: xsLocker_ABI,
       },
       stakingRewards: {
         addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: stakingRewardsABI.abi,
+        abi: StakingRewards_ABI,
       },
       xSolaceMigrator: {
         addr: KEY_ADDRS.XSOLACE_MIGRATOR,
@@ -94,19 +97,19 @@ export const RinkebyNetwork: NetworkConfig = {
       },
       solaceCoverProduct: {
         addr: KEY_ADDRS.SOLACE_COVER_PRODUCT,
-        abi: solaceCoverProductABI.abi,
+        abi: SolaceCoverProduct_ABI,
       },
       solaceCoverProductV3: {
         addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
-        abi: solaceCoverProductV3ABI,
+        abi: SolaceCoverProductV3_ABI,
       },
       coverPaymentManager: {
         addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
-        abi: coverPaymentManagerABI,
+        abi: CoverPaymentManager_ABI,
       },
       stakingRewardsV2: {
         addr: STAKING_REWARDS_V2_ADDRESS[chainId],
-        abi: stakingRewardsV2ABI,
+        abi: StakingRewardsV2_ABI,
       },
     },
     restrictedFeatures: {},
