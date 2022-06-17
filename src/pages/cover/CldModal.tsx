@@ -57,7 +57,7 @@ export const CldModal = () => {
     handleSelectedCoin,
     selectedCoinPrice,
   } = input
-  const { curPortfolio } = portfolioKit
+  const { curHighestPosition } = portfolioKit
   const { importCounter } = simulator
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
@@ -81,13 +81,6 @@ export const CldModal = () => {
   const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
 
   const importCounterPrev = usePrevious(importCounter)
-  const highestPosition = useMemo(
-    () =>
-      curPortfolio?.protocols?.length && curPortfolio.protocols.length > 0
-        ? curPortfolio.protocols.reduce((pn, cn) => (cn.balanceUSD > pn.balanceUSD ? cn : pn))
-        : undefined,
-    [curPortfolio]
-  )
 
   const scpBalanceMeetsMrab = useMemo(() => {
     return minReqAccBal.lte(parseUnits(scpBalance, 18))
@@ -100,10 +93,10 @@ export const CldModal = () => {
     const BN_Scp_Plus_Deposit = parsedScpBalance.add(
       BigNumber.from(accurateMultiply(convertSciNotaToPrecise(`${depositUSDEquivalent}`), 18))
     )
-    if (minReqAccBal.isZero() && BN_Scp_Plus_Deposit.isZero()) return '0'
+    if (minReqAccBal.isZero() && BN_Scp_Plus_Deposit.isZero()) return 'both zeroes'
     if (minReqAccBal.gt(BN_Scp_Plus_Deposit))
       return truncateValue(formatUnits(minReqAccBal.sub(BN_Scp_Plus_Deposit)), 2)
-    return '-1'
+    return 'meets requirement'
   }, [scpBalance, minReqAccBal, enteredDeposit, selectedCoinPrice])
 
   const handleInputChange = (input: string) => {
@@ -190,12 +183,12 @@ export const CldModal = () => {
   }
 
   useEffect(() => {
-    if (!highestPosition) return
-    /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(highestPosition.balanceUSD, 18))
+    if (!curHighestPosition) return
+    /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(curHighestPosition.balanceUSD, 18))
     /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
     setHighestAmount(bnBal)
     setRecommendedAmount(bnHigherBal)
-  }, [highestPosition])
+  }, [curHighestPosition])
 
   useEffect(() => {
     if (importCounter > 0) {
@@ -339,7 +332,7 @@ export const CldModal = () => {
           />
         </Flex>
       </Flex>
-      {lackingScp == '0' && (
+      {lackingScp == 'both zeroes' && (
         <Text textAlignCenter pt={16}>
           You cannot purchase a policy with a cover limit of 0.
         </Text>
@@ -365,7 +358,7 @@ export const CldModal = () => {
           )}
         </ButtonWrapper>
       )}
-      {lackingScp != '-1' && lackingScp != '0' && (
+      {lackingScp != 'meets requirement' && lackingScp != 'both zeroes' && (
         <Text textAlignCenter pt={16}>
           You need at least ${lackingScp} for the desired cover limit. Use the form below to deposit the additional
           premium.
@@ -401,7 +394,7 @@ export const CldModal = () => {
                 secondary
                 noborder
                 onClick={handlePurchase}
-                disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0 || lackingScp != '-1'}
+                disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0 || lackingScp != 'meets requirement'}
               >
                 {/* <Text>Deposit &amp; Save</Text> */}
                 <Text> {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}</Text>

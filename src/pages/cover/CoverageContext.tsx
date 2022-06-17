@@ -243,7 +243,6 @@ const CoverageManager: React.FC = (props) => {
     amount: enteredDeposit,
     isAppropriateAmount: isAppropriateDeposit,
     handleInputChange: handleEnteredDeposit,
-    resetAmount: resetDeposit,
   } = useInputAmount()
   const { amount: enteredWithdrawal, handleInputChange: handleEnteredWithdrawal } = useInputAmount()
   const { getAvailableCoverCapacity, getMinRequiredAccountBalance, getMinScpRequired } = useCoverageFunctions()

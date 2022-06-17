@@ -39,8 +39,6 @@ export const PortfolioSimulator = (): JSX.Element => {
 
   const startup = useRef(true)
 
-  const scoreToUse = useMemo(() => simPortfolio ?? portfolioScore, [portfolioScore, simPortfolio])
-
   const [editableProtocols, setEditableProtocols] = useState<LocalSolaceRiskProtocol[]>([])
 
   const [bottomButtonHeight, setBottomButtonHeight] = useState(91)
@@ -71,54 +69,6 @@ export const PortfolioSimulator = (): JSX.Element => {
     }
   }
 
-  // const addItem = (index?: number) => {
-  //   // if adding with out index, or index is last, add to end
-  //   const time = Date.now().toString()
-  //   const data = {
-  //     appId: `Empty ${time}`,
-  //     balanceUSD: 0,
-  //     category: 'Unknown',
-  //     network: '',
-  //     riskLoad: 0,
-  //     rol: 0,
-  //     rrol: 0,
-  //     tier: 0,
-  //     'rp-usd': 0,
-  //     'risk-adj': 0,
-  //   }
-  //   if (index == undefined || index == editableProtocols.length - 1) {
-  //     setEditableProtocols((prev) => [
-  //       ...prev,
-  //       {
-  //         ...data,
-  //         index: prev.length,
-  //       },
-  //     ])
-  //   } else if (index == -1) {
-  //     // if adding before the first item, add to start
-  //     const temp = [{ ...data, index: 0 }, ...editableProtocols]
-  //     temp.forEach((protocol, i) => {
-  //       protocol.index = i
-  //     })
-  //     setEditableProtocols(temp)
-  //   } else {
-  //     // if adding with index in the middle, add insert into index, then reassign index numbers of all protocols
-  //     const temp = [
-  //       ...editableProtocols.slice(0, index + 1),
-  //       {
-  //         ...data,
-  //         index: index + 1,
-  //       },
-  //       ...editableProtocols.slice(index + 1),
-  //     ]
-  //     const newTemp = [
-  //       ...temp.slice(0, index + 1),
-  //       ...temp.slice(index + 1).map((protocol, i) => ({ ...protocol, index: i + index + 1 })),
-  //     ]
-  //     setEditableProtocols(newTemp)
-  //   }
-  // }
-
   function onAddProtocol(protocolMap: ProtocolMap, balance: string) {
     const data: LocalSolaceRiskProtocol = {
       index: 0,
@@ -138,72 +88,6 @@ export const PortfolioSimulator = (): JSX.Element => {
     setEditableProtocols(tmp)
     setCanSimulate(true)
   }
-
-  // const editCoverageLimit = useCallback(
-  //   (newCoverageLimit: BigNumber) => {
-  //     if (simCoverageLimit.eq(newCoverageLimit)) return
-  //     setSimCoverageLimit(newCoverageLimit)
-  //   },
-  //   [simCoverageLimit]
-  // )
-
-  // const saveId = useCallback(
-  //   (targetAppId: string, newAppId: string) => {
-  //     if (targetAppId === newAppId) return
-  //     const matchingProtocol = series?.data.protocolMap.find((p) => p.appId.toLowerCase() === newAppId.toLowerCase())
-  //     if (!matchingProtocol) return
-  //     let editedSomething = false
-
-  //     const targetProtocol = _mapEditableProtocols[targetAppId.toLowerCase()]
-  //     if (!targetProtocol) return
-  //     setCompiling(true)
-  //     setEditableProtocols(
-  //       editableProtocols.map((p) => {
-  //         if (p.appId === targetAppId) {
-  //           editedSomething = true
-  //           return {
-  //             ...p,
-  //             appId: newAppId,
-  //             category: matchingProtocol.category,
-
-  //             tier: matchingProtocol.tier,
-  //           }
-  //         } else {
-  //           return p
-  //         }
-  //       })
-  //     )
-  //     if (editedSomething) setCanSimulate(true)
-  //   },
-  //   [editableProtocols, _mapEditableProtocols, series]
-  // )
-
-  // const saveAmount = useCallback(
-  //   (targetAppId: string, newAmount: string) => {
-  //     const numberifiedNewAmount = parseFloat(formatAmount(newAmount))
-  //     let editedSomething = false
-
-  //     const targetProtocol = _mapEditableProtocols[targetAppId.toLowerCase()]
-  //     if (!targetProtocol) return
-  //     if (targetProtocol.balanceUSD.toString() === newAmount || !targetProtocol) return
-  //     if (!targetAppId.includes('Empty')) setCompiling(true)
-  //     setEditableProtocols(
-  //       editableProtocols.map((p) => {
-  //         if (p.appId === targetAppId) {
-  //           editedSomething = true
-  //           return {
-  //             ...p,
-  //             balanceUSD: numberifiedNewAmount,
-  //           }
-  //         } else {
-  //           return p
-  //         }
-  //       })
-  //     )
-  //     if (editedSomething && !targetAppId.includes('Empty')) setCanSimulate(true)
-  //   },
-  //   [editableProtocols, _mapEditableProtocols]
-  // )
 
   const saveEditedItem = useCallback(
     (targetAppId: string, newAppId: string, newAmount: string): boolean => {
@@ -308,6 +192,7 @@ export const PortfolioSimulator = (): JSX.Element => {
       setEditableProtocols([...portfolioScore.protocols].map((p, i) => ({ ...p, index: i })))
       handleSimPortfolio(portfolioScore)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clearCounter])
 
   return (
@@ -376,11 +261,8 @@ export const PortfolioSimulator = (): JSX.Element => {
               editableProtocolAppIds={editableProtocolAppIds}
               riskColor={riskColor}
               editingItem={editingItem}
-              // addItem={addItem}
               saveEditedItem={saveEditedItem}
               deleteItem={deleteItem}
-              // saveId={saveId}
-              // saveAmount={saveAmount}
               handleEditingItem={handleEditingItem}
               simulating={simulating}
             />

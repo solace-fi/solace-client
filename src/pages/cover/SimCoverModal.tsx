@@ -12,13 +12,7 @@ import { FunctionName, InterfaceState } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
-import {
-  accurateMultiply,
-  convertSciNotaToPrecise,
-  filterAmount,
-  formatAmount,
-  truncateValue,
-} from '../../utils/formatting'
+import { accurateMultiply, filterAmount, formatAmount } from '../../utils/formatting'
 import { Flex, ShadowDiv } from '../../components/atoms/Layout'
 import { GraySquareButton } from '../../components/atoms/Button'
 import { GenericInputSection } from '../../components/molecules/InputSection'
