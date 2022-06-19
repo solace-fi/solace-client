@@ -8,7 +8,7 @@ import { Button } from '../../components/atoms/Button'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 import { StyledCopy, StyledShare } from '../../components/atoms/Icon'
-import useReferralApi from '../../hooks/policy/useReferralApi'
+import useReferralApi from '../../hooks/api/useReferralApi'
 import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
 
 export default function ShareModal() {
@@ -16,7 +16,7 @@ export default function ShareModal() {
   const { handleShowShareReferralModal } = intrface
   const { appTheme } = useGeneral()
   const [browserSupportsShare, setBrowserSupportsShare] = React.useState(false)
-  const { referralCode } = useReferralApi()
+  const { userReferralCode } = useReferralApi()
   const [isCopied, setCopied] = useCopyClipboard()
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function ShareModal() {
             flex1
             style={{ cursor: 'default', userSelect: 'none' }}
           >
-            solace.fi...{referralCode ?? 'you have no ref code'}
+            solace.fi...{userReferralCode ?? 'you have no ref code'}
           </Flex>
           <Button
             techygradient={!isCopied}
@@ -67,10 +67,10 @@ export default function ShareModal() {
             width={141}
             // copy link on click
             onClick={() => {
-              setCopied(`${(window as any).location.href}?rc=${referralCode}`)
+              setCopied(`${(window as any).location.href}?rc=${userReferralCode}`)
               console.log('copied link')
             }}
-            // onClick={() => prompt('Copy referral link:', `https://app.solace.fi?r_code=${referralCode}`)}
+            // onClick={() => prompt('Copy referral link:', `https://app.solace.fi?r_code=${userReferralCode}`)}
           >
             {!isCopied ? 'Copy link' : 'Link copied'}
           </Button>
@@ -83,7 +83,7 @@ export default function ShareModal() {
 
         <Flex gap={12}>
           <a
-            href={`https://t.me/share/url?url=https://app.solace.fi?r_code=${referralCode}&text=Use my referral code to get $50 in Solace Portfolio Coverage balance!`}
+            href={`https://t.me/share/url?url=https://app.solace.fi?r_code=${userReferralCode}&text=Use my referral code to get $50 in Solace Portfolio Coverage balance!`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ flex: 1 }}
@@ -102,7 +102,7 @@ export default function ShareModal() {
             </Flex>
           </a>
           <a
-            href={`https://twitter.com/intent/tweet?text=Use my referral code to get $50 in Solace Portfolio Coverage balance!&url=https://app.solace.fi?r_code=${referralCode}&hashtags=Solace`}
+            href={`https://twitter.com/intent/tweet?text=Use my referral code to get $50 in Solace Portfolio Coverage balance!&url=https://app.solace.fi?r_code=${userReferralCode}&hashtags=Solace`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ flex: 1 }}
@@ -135,18 +135,18 @@ export default function ShareModal() {
               window.navigator.share({
                 title: 'Use my referral code to get $50 in Solace Portfolio Coverage balance!',
                 text: 'Use my referral code to get $50 in Solace Portfolio Coverage balance!',
-                url: `https://app.solace.fi?r_code=${referralCode}`,
+                url: `https://app.solace.fi?r_code=${userReferralCode}`,
               })
             }}
           >
             Share
           </Flex>
         )}
-        {!referralCode && (
+        {!userReferralCode && (
           <ThinCardTemplate2
             icon={<StyledCopy width={12} height={12} />}
             value1="Your referral code:"
-            value2={referralCode ?? 'none yet'}
+            value2={userReferralCode ?? 'none yet'}
             info
             copy
           />

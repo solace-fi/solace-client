@@ -5,7 +5,7 @@ import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
 import { Text } from '../../components/atoms/Typography'
-import { FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
+import { ApiStatus, FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
@@ -28,7 +28,6 @@ import { ChosenLimit } from '../../constants/enums'
 import usePrevious from '../../hooks/internal/usePrevious'
 import { TransactionResponse } from '@ethersproject/providers'
 import { LocalTx } from '../../constants/types'
-import NotificationsManager, { useNotifications } from '../../context/NotificationsManager'
 
 const ChosenLimitLength = Object.values(ChosenLimit).filter((x) => typeof x === 'number').length
 
@@ -40,7 +39,6 @@ export const CldModal = () => {
   const { account } = useWeb3React()
   const { appTheme } = useGeneral()
   const { activeNetwork } = useNetwork()
-  const { makeApiToast } = useNotifications()
   const {
     purchaseWithStable,
     purchaseWithNonStable,
@@ -55,6 +53,7 @@ export const CldModal = () => {
     transactionLoading,
     handleTransactionLoading,
     handleShowSimulatorModal,
+    handleShowCodeNoticeModal,
   } = intrface
   const {
     enteredDeposit,
@@ -68,7 +67,7 @@ export const CldModal = () => {
   const { importCounter } = simulator
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
-  const { cookieReferralCode, appliedReferralCode, applyReferralCode } = referral
+  const { cookieReferralCode, appliedReferralCode, applyReferralCode, handleCodeApplicationStatus } = referral
   const { signatureObj, depositApproval, scpBalance, status, availCovCap, unlimitedApproveCPM } = policy
 
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -133,8 +132,9 @@ export const CldModal = () => {
     if (!account) return
     handleTransactionLoading(true)
     await purchase(account, parseUnits(localNewCoverageLimit, 18))
+      .then(async (res) => await _handleToast(res.tx, res.localTx, true))
       .then((res) => handleCodeApplication(res))
-      .then((res) => _handleToast(res.tx, res.localTx))
+
       .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
   }
 
@@ -147,8 +147,9 @@ export const CldModal = () => {
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals)
     )
+      .then(async (res) => await _handleToast(res.tx, res.localTx, true))
       .then((res) => handleCodeApplication(res))
-      .then((res) => _handleToast(res.tx, res.localTx))
+
       .catch((err) => _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
   }
 
@@ -166,26 +167,12 @@ export const CldModal = () => {
       tokenSignature.deadline,
       tokenSignature.signature
     )
+      .then(async (res) => await _handleToast(res.tx, res.localTx, true))
       .then((res) => handleCodeApplication(res))
-      .then((res) => _handleToast(res.tx, res.localTx))
+
       .catch((err) =>
         _handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
       )
-  }
-
-  const handleCodeApplication = async (res: { tx: TransactionResponse | null; localTx: LocalTx | null }) => {
-    if (!res.tx || !res.localTx) return res
-    if (!account || !cookieReferralCode || appliedReferralCode) return res
-    const policyId: BigNumber = await policyOf(account)
-    const date = Date.now()
-    await applyReferralCode(cookieReferralCode, policyId.toNumber(), activeNetwork.chainId).then((r) => {
-      if (r) {
-        makeApiToast('Referral Code Applied', TransactionCondition.SUCCESS, date)
-      } else {
-        makeApiToast('Referral Code Failed', TransactionCondition.FAILURE, date)
-      }
-    })
-    return res
   }
 
   const handlePurchase = async () => {
@@ -198,15 +185,39 @@ export const CldModal = () => {
     }
   }
 
-  const _handleToast = (tx: any, localTx: any) => {
+  const _handleToast = async (tx: any, localTx: any, codeApplication?: boolean) => {
+    if (codeApplication && !appliedReferralCode && cookieReferralCode) {
+      handleCodeApplicationStatus(ApiStatus.PENDING)
+      handleShowCodeNoticeModal(true)
+    }
     handleEnteredDeposit('')
     handleTransactionLoading(false)
-    handleToast(tx, localTx)
+    return await handleToast(tx, localTx)
   }
 
   const _handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
     handleContractCallError(functionName, err, txType)
     handleTransactionLoading(false)
+  }
+
+  const handleCodeApplication = async (activationStatus: boolean) => {
+    if (!activationStatus || !account || !cookieReferralCode || appliedReferralCode) {
+      handleCodeApplicationStatus('activation failed')
+      return
+    }
+    const policyId: BigNumber = await policyOf(account)
+    if (policyId?.isZero()) {
+      handleCodeApplicationStatus('activation failed')
+      return
+    }
+    handleCodeApplicationStatus('handling referral')
+    await applyReferralCode(cookieReferralCode, policyId.toNumber(), activeNetwork.chainId).then((r) => {
+      if (r) {
+        handleCodeApplicationStatus(ApiStatus.OK)
+      } else {
+        handleCodeApplicationStatus(ApiStatus.ERROR)
+      }
+    })
   }
 
   // sets up amounts

@@ -1,7 +1,7 @@
 import { Price, SCP, SolaceRiskProtocol, SolaceRiskSeries } from '@solace-fi/sdk-nightly'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { BKPT_2, BKPT_NAVBAR, ZERO } from '../../constants'
-import { ChosenLimit, InterfaceState } from '../../constants/enums'
+import { ApiStatus, ChosenLimit, InterfaceState } from '../../constants/enums'
 import { coinsMap } from '../../constants/mappings/coverageStablecoins'
 import { NetworkConfig, ReadToken, TokenInfo } from '../../constants/types'
 import { useGeneral } from '../../context/GeneralManager'
@@ -27,7 +27,7 @@ import { useProvider } from '../../context/ProviderManager'
 import { ERC20_ABI } from '../../constants/abi'
 import { useTokenAllowance, useTokenInfiniteApprove } from '../../hooks/contract/useToken'
 import SOLACE from '../../constants/abi/SOLACE.json'
-import useReferralApi from '../../hooks/policy/useReferralApi'
+import useReferralApi from '../../hooks/api/useReferralApi'
 
 type CoverageContextType = {
   intrface: {
@@ -44,6 +44,8 @@ type CoverageContextType = {
     handleShowReferralModal: (show: boolean) => void
     showShareReferralModal: boolean
     handleShowShareReferralModal: (show: boolean) => void
+    showCodeNoticeModal: boolean
+    handleShowCodeNoticeModal: (show: boolean) => void
     interfaceState: InterfaceState
     userState: InterfaceState
     handleUserState: (state: InterfaceState) => void
@@ -125,10 +127,12 @@ type CoverageContextType = {
     appliedReferralCode?: string
     earnedAmount?: number
     referredCount?: number
-    referralCode?: string
+    userReferralCode?: string
     cookieReferralCode?: string
     handleCookieReferralCode: (code: string) => void
     applyReferralCode: (referral_code: string, policy_id: number, chain_id: number) => Promise<boolean>
+    codeApplicationStatus: string
+    handleCodeApplicationStatus: (status: string) => void
   }
 }
 
@@ -147,6 +151,8 @@ const CoverageContext = createContext<CoverageContextType>({
     handleShowReferralModal: () => undefined,
     showShareReferralModal: false,
     handleShowShareReferralModal: () => undefined,
+    showCodeNoticeModal: false,
+    handleShowCodeNoticeModal: () => undefined,
     interfaceState: InterfaceState.NEW_USER,
     userState: InterfaceState.NEW_USER,
     handleUserState: () => undefined,
@@ -228,10 +234,12 @@ const CoverageContext = createContext<CoverageContextType>({
     appliedReferralCode: undefined,
     earnedAmount: 0,
     referredCount: 0,
-    referralCode: undefined,
+    userReferralCode: undefined,
     cookieReferralCode: undefined,
     handleCookieReferralCode: () => undefined,
     applyReferralCode: () => Promise.reject(),
+    codeApplicationStatus: ApiStatus.IDLE,
+    handleCodeApplicationStatus: () => undefined,
   },
 })
 
@@ -260,7 +268,7 @@ const CoverageManager: React.FC = (props) => {
     appliedReferralCode,
     earnedAmount,
     referredCount,
-    referralCode,
+    userReferralCode,
     cookieReferralCode,
     setCookieReferralCode,
     applyReferralCode,
@@ -274,6 +282,7 @@ const CoverageManager: React.FC = (props) => {
   const [simCounter, setSimCounter] = useState<number>(0)
   const [clearCounter, setClearCounter] = useState<number>(0)
   const [simChosenLimit, setSimChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
+  const [codeApplicationStatus, setCodeApplicationStatus] = useState<string>(ApiStatus.IDLE)
 
   const {
     highestPosition: curHighestPosition,
@@ -297,6 +306,7 @@ const CoverageManager: React.FC = (props) => {
   const [showSimCoverModal, setShowSimCoverModal] = useState(false)
   const [showReferralModal, setShowReferralModal] = useState(false)
   const [showShareReferralModal, setShowShareReferralModal] = useState(false)
+  const [showCodeNoticeModal, setShowCodeNoticeModal] = useState(false)
 
   const [coinsOpen, setCoinsOpen] = useState(false)
   const {
@@ -421,6 +431,10 @@ const CoverageManager: React.FC = (props) => {
     if (state == InterfaceState.DEPOSITING || InterfaceState.WITHDRAWING || undefined) setCtaState(state)
   }, [])
 
+  const handleCodeApplicationStatus = useCallback((status: string) => {
+    setCodeApplicationStatus(status)
+  }, [])
+
   const handleShowPortfolioModal = useCallback((show: boolean) => {
     setShowPortfolioModal(show)
   }, [])
@@ -443,6 +457,10 @@ const CoverageManager: React.FC = (props) => {
 
   const handleShowShareReferralModal = useCallback((show: boolean) => {
     setShowShareReferralModal(show)
+  }, [])
+
+  const handleShowCodeNoticeModal = useCallback((show: boolean) => {
+    setShowCodeNoticeModal(show)
   }, [])
 
   const handleImportCounter = useCallback(() => {
@@ -546,6 +564,7 @@ const CoverageManager: React.FC = (props) => {
         showSimCoverModal, // show simulated cover limit modal
         showReferralModal, // show referral modal
         showShareReferralModal, // show share referral modal
+        showCodeNoticeModal,
         interfaceState, // current interface state controlling page components
         userState, // different users see different things on the interface
         portfolioLoading,
@@ -554,6 +573,7 @@ const CoverageManager: React.FC = (props) => {
         coverageLoading,
         transactionLoading,
         existingPolicyLoading,
+        handleShowCodeNoticeModal,
         handleShowPortfolioModal,
         handleShowSimulatorModal,
         handleShowCLDModal,
@@ -633,10 +653,12 @@ const CoverageManager: React.FC = (props) => {
         appliedReferralCode,
         earnedAmount,
         referredCount,
-        referralCode, // referral code entered
+        userReferralCode, // referral code entered
         cookieReferralCode,
         handleCookieReferralCode,
         applyReferralCode,
+        codeApplicationStatus,
+        handleCodeApplicationStatus,
       },
     }),
     [
@@ -685,6 +707,7 @@ const CoverageManager: React.FC = (props) => {
       showSimCoverModal,
       showReferralModal,
       showShareReferralModal,
+      showCodeNoticeModal,
       scpObj,
       signatureObj,
       depositApproval,
@@ -695,9 +718,11 @@ const CoverageManager: React.FC = (props) => {
       clearCounter,
       earnedAmount,
       referredCount,
-      referralCode,
+      userReferralCode,
       appliedReferralCode,
       cookieReferralCode,
+      codeApplicationStatus,
+      handleCodeApplicationStatus,
       handleCookieReferralCode,
       applyReferralCode,
       handleClearCounter,
@@ -714,6 +739,7 @@ const CoverageManager: React.FC = (props) => {
       handleEnteredWithdrawal,
       handleCtaState,
       handleShowSimulatorModal,
+      handleShowCodeNoticeModal,
       handleShowSimCoverModal,
       handleShowReferralModal,
       handleShowShareReferralModal,

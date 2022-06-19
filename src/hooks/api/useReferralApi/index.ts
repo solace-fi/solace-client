@@ -1,13 +1,14 @@
 import { useWeb3React } from '@web3-react/core'
 import { useState, useEffect, useCallback } from 'react'
 import { useLocalStorage } from 'react-use-storage'
+import { useGeneral } from '../../../context/GeneralManager'
 import { useNetwork } from '../../../context/NetworkManager'
-import { useCheckIsCoverageActive } from '../useSolaceCoverProductV3'
+import { useCheckIsCoverageActive } from '../../policy/useSolaceCoverProductV3'
 import { GetByUserResponse } from './GetByUserResponse'
 import { InfoResponse } from './InfoResponse'
 
 export default function useReferralApi(): {
-  referralCode: string | undefined
+  userReferralCode: string | undefined
   earnedAmount: number | undefined
   referredCount: number | undefined
   appliedReferralCode: string | undefined
@@ -16,11 +17,11 @@ export default function useReferralApi(): {
   applyReferralCode: (referral_code: string, policy_id: number, chain_id: number) => Promise<boolean>
 } {
   const { account } = useWeb3React()
+  const { referralCode: localStorageReferralCode } = useGeneral()
   const { activeNetwork } = useNetwork()
   const { policyId } = useCheckIsCoverageActive()
-  const [localStorageReferralCode] = useLocalStorage<string>('sol_data_referral_code_v3', '')
 
-  const [referralCode, setReferralCode] = useState<string | undefined>(undefined)
+  const [userReferralCode, setUserReferralCode] = useState<string | undefined>(undefined)
   const [earnedAmount, setEarnedAmount] = useState<number | undefined>(undefined)
   const [referredCount, setReferredCount] = useState<number | undefined>(undefined)
   const [appliedCode, setAppliedCode] = useState<string | undefined>(undefined)
@@ -57,10 +58,10 @@ export default function useReferralApi(): {
         })
         const data = (await response.json()) as InfoResponse
         const _referralCode = data.result?.referral_codes?.[0]?.referral_code
-        _referralCode && setReferralCode(_referralCode)
+        _referralCode && setUserReferralCode(_referralCode)
       }
       postReferralCode()
-    } else setReferralCode(_referralCode)
+    } else setUserReferralCode(_referralCode)
   }, [account, activeNetwork, policyId])
 
   const getInfo = useCallback(async () => {
@@ -104,6 +105,7 @@ export default function useReferralApi(): {
     console.log('referral - chain_id', chain_id)
     if (!account || !policyId || policyId.isZero()) return false
     console.log('referral - account found, policyId found')
+    if (appliedCode) return false
     // add: promo-codes/apply
     const applyCodeUrl = `${baseApiUrl}referral-codes/apply`
     const response = await fetch(applyCodeUrl, {
@@ -130,7 +132,7 @@ export default function useReferralApi(): {
   }
 
   return {
-    referralCode,
+    userReferralCode,
     earnedAmount,
     referredCount,
     appliedReferralCode: appliedCode, // the returned code from the server

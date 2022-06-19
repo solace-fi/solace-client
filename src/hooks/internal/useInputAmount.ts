@@ -19,14 +19,15 @@ export const useTransactionExecution = () => {
   const { activeNetwork } = useNetwork()
 
   const handleToast = async (tx: TransactionResponse | null, localTx: LocalTx | null) => {
-    if (!tx || !localTx) return
+    if (!tx || !localTx) return false
     addLocalTransactions(localTx)
     reload()
     makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
-    await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
+    return await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
       makeTxToast(localTx.type, status, localTx.hash)
       reload()
+      return status == TransactionCondition.SUCCESS ? true : false
     })
   }
 

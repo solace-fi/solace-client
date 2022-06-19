@@ -23,7 +23,7 @@ export default function ReferralModal(): JSX.Element {
     appliedReferralCode,
     earnedAmount,
     referredCount,
-    referralCode,
+    userReferralCode,
     cookieReferralCode,
     handleCookieReferralCode,
   } = referral
@@ -69,11 +69,11 @@ export default function ReferralModal(): JSX.Element {
             />
           </Flex> */}
         </Grid>
-        {referralCode && (
+        {userReferralCode && (
           <ThinCardTemplate2
             icon={<StyledShare width={12} height={12} />}
             value1="Your referral code:"
-            value2={referralCode ?? 'none yet'}
+            value2={userReferralCode ?? 'none yet'}
             info
             onClick={() => handleShowShareReferralModal(true)}
           />

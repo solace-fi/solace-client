@@ -7,7 +7,7 @@ import { TransactionCondition, Error, SystemNotice } from '../constants/enums'
 
 import '../styles/toast.css'
 import { StylizedToastContainer } from '../components/atoms/Message'
-import { AppToast, TransactionToast, ApiToast } from '../components/molecules/Toast'
+import { AppToast, TransactionToast } from '../components/molecules/Toast'
 import { StyledInfo, StyledWarning } from '../components/atoms/Icon'
 import { useGeneral } from './GeneralManager'
 import { ErrorData, SystemNoticeData } from '../constants/types'
@@ -22,7 +22,6 @@ if an error occurs.
 
 type ToastSystem = {
   makeTxToast: (txType: string, condition: TransactionCondition, txHash?: string, errObj?: any) => void
-  makeApiToast: (message: string, condition: TransactionCondition, timeStamp?: number) => void
   makeAppToast: (
     parsedData: SystemNoticeData | ErrorData,
     id: SystemNotice | Error,
@@ -40,7 +39,6 @@ type ToastSystem = {
 
 const ToastsContext = createContext<ToastSystem>({
   makeTxToast: () => undefined,
-  makeApiToast: () => undefined,
   makeAppToast: () => undefined,
   toastSettings: {
     txSuccess: undefined,
@@ -92,59 +90,6 @@ const ToastsProvider: React.FC = (props) => {
     closeButton: true,
     className: 'error-toast',
   }
-
-  const makeApiToast = useCallback((message: string, condition: TransactionCondition, timeStamp?: number) => {
-    const _toast = <ApiToast message={message} condition={condition} />
-    switch (condition) {
-      case 'Complete':
-        if (timeStamp) {
-          if (toast.isActive(timeStamp)) {
-            toast.update(timeStamp, {
-              render: _toast,
-              ...txSuccess,
-            })
-          } else {
-            toast(_toast, {
-              toastId: timeStamp,
-              ...txSuccess,
-            })
-          }
-        }
-        break
-      case 'Incomplete':
-        if (timeStamp) {
-          if (toast.isActive(timeStamp)) {
-            toast.update(timeStamp, {
-              render: _toast,
-              ...txError,
-            })
-          } else {
-            toast(_toast, {
-              toastId: timeStamp,
-              ...txError,
-            })
-          }
-        }
-        break
-      case 'Pending':
-        if (timeStamp) {
-          toast(_toast, {
-            toastId: timeStamp,
-            type: toast.TYPE.INFO,
-            autoClose: false,
-            position: toast.POSITION.BOTTOM_RIGHT,
-            closeOnClick: false,
-            closeButton: true,
-            className: 'info-toast',
-          })
-        }
-        break
-      default:
-        toast(_toast, {
-          ...txError,
-        })
-    }
-  }, [])
 
   const makeTxToast = useCallback((txType: string, condition: TransactionCondition, txHash?: string, errObj?: any) => {
     const _toast = <TransactionToast txType={txType} condition={condition} txHash={txHash} errObj={errObj} />
@@ -348,7 +293,6 @@ const ToastsProvider: React.FC = (props) => {
   const value = useMemo<ToastSystem>(
     () => ({
       makeTxToast,
-      makeApiToast,
       makeAppToast,
       toastSettings: {
         txSuccess,

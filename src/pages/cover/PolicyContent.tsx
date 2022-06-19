@@ -7,7 +7,7 @@ import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
 import { ZERO } from '../../constants'
-import { FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
+import { ApiStatus, FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useCoverageFunctions, useExistingPolicy } from '../../hooks/policy/useSolaceCoverProductV3'
@@ -32,7 +32,6 @@ import { BigNumber } from 'ethers'
 import { useCachedData } from '../../context/CachedDataManager'
 import { TransactionResponse } from '@ethersproject/providers'
 import { LocalTx } from '../../constants/types'
-import { useNotifications } from '../../context/NotificationsManager'
 
 export const PolicyContent = (): JSX.Element => {
   const { latestBlock } = useProvider()
@@ -52,6 +51,7 @@ export const PolicyContent = (): JSX.Element => {
     handleShowSimulatorModal,
     handleTransactionLoading,
     handleShowReferralModal,
+    handleShowCodeNoticeModal,
   } = intrface
   const { bigButtonStyle, gradientStyle } = styles
   const {
@@ -79,12 +79,11 @@ export const PolicyContent = (): JSX.Element => {
   } = policy
   const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
   const { curPortfolio, curDailyCost, curUsdBalanceSum, curHighestPosition, fetchStatus } = portfolioKit
-  const { cookieReferralCode, appliedReferralCode, applyReferralCode } = referral
+  const { cookieReferralCode, appliedReferralCode, applyReferralCode, handleCodeApplicationStatus } = referral
 
   const { account } = useWeb3React()
   const { activeNetwork, changeNetwork } = useNetwork()
   const { version } = useCachedData()
-  const { makeApiToast } = useNotifications()
   const { isMobile } = useWindowDimensions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
@@ -210,76 +209,6 @@ export const PolicyContent = (): JSX.Element => {
       .catch((err) => _handleContractCallError('callDepositNonStable', err, FunctionName.COVER_DEPOSIT_NON_STABLE))
   }
 
-  const handleCodeApplication = async (res: { tx: TransactionResponse | null; localTx: LocalTx | null }) => {
-    if (!res.tx || !res.localTx) return res
-    if (!account || !cookieReferralCode || appliedReferralCode) return res
-    const policyId: BigNumber = await policyOf(account)
-    if (policyId?.isZero()) return res
-    const date = Date.now()
-    await applyReferralCode(cookieReferralCode, policyId.toNumber(), activeNetwork.chainId).then((r) => {
-      if (r) {
-        makeApiToast('Referral Code Applied', TransactionCondition.SUCCESS, date)
-      } else {
-        makeApiToast('Referral Code Failed', TransactionCondition.FAILURE, date)
-      }
-    })
-    return res
-  }
-
-  const callPurchase = async () => {
-    if (!account) return
-    handleTransactionLoading(true)
-    await purchase(account, suggestedCoverLimit)
-      .then((res) => handleCodeApplication(res))
-      .then((res) => _handleToast(res.tx, res.localTx))
-      .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
-  }
-
-  const callPurchaseWithStable = async () => {
-    if (!account || !depositApproval) return
-    handleTransactionLoading(true)
-    await purchaseWithStable(
-      account,
-      suggestedCoverLimit,
-      selectedCoin.address,
-      parseUnits(enteredDeposit, selectedCoin.decimals)
-    )
-      .then((res) => handleCodeApplication(res))
-      .then((res) => _handleToast(res.tx, res.localTx))
-      .catch((err) => _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
-  }
-
-  const callPurchaseWithNonStable = async () => {
-    if (!account || !depositApproval || !signatureObj) return
-    const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
-    const tokenSignature: any = Object.values(signature)[0]
-    handleTransactionLoading(true)
-    await purchaseWithNonStable(
-      account,
-      suggestedCoverLimit,
-      selectedCoin.address,
-      parseUnits(enteredDeposit, selectedCoin.decimals),
-      tokenSignature.price,
-      tokenSignature.deadline,
-      tokenSignature.signature
-    )
-      .then((res) => handleCodeApplication(res))
-      .then((res) => _handleToast(res.tx, res.localTx))
-      .catch((err) =>
-        _handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
-      )
-  }
-
-  const handlePurchase = async () => {
-    if (parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero()) {
-      callPurchase()
-    } else if (selectedCoin.stablecoin) {
-      callPurchaseWithStable()
-    } else {
-      callPurchaseWithNonStable()
-    }
-  }
-
   const callCancel = async () => {
     if (!account || !signatureObj) return
     const test1 = {
@@ -336,16 +265,93 @@ export const PolicyContent = (): JSX.Element => {
       .catch((err) => _handleContractCallError('callWithdraw', err, FunctionName.COVER_WITHDRAW))
   }
 
-  const _handleToast = (tx: any, localTx: any) => {
-    handleEnteredWithdrawal('')
+  const callPurchase = async () => {
+    if (!account) return
+    handleTransactionLoading(true)
+    await purchase(account, suggestedCoverLimit)
+      .then(async (res) => await _handleToast(res.tx, res.localTx, true))
+      .then((res) => handleCodeApplication(res))
+      .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
+  }
+
+  const callPurchaseWithStable = async () => {
+    if (!account || !depositApproval) return
+    handleTransactionLoading(true)
+    await purchaseWithStable(
+      account,
+      suggestedCoverLimit,
+      selectedCoin.address,
+      parseUnits(enteredDeposit, selectedCoin.decimals)
+    )
+      .then(async (res) => await _handleToast(res.tx, res.localTx, true))
+      .then((res) => handleCodeApplication(res))
+      .catch((err) => _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
+  }
+
+  const callPurchaseWithNonStable = async () => {
+    if (!account || !depositApproval || !signatureObj) return
+    const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
+    const tokenSignature: any = Object.values(signature)[0]
+    handleTransactionLoading(true)
+    await purchaseWithNonStable(
+      account,
+      suggestedCoverLimit,
+      selectedCoin.address,
+      parseUnits(enteredDeposit, selectedCoin.decimals),
+      tokenSignature.price,
+      tokenSignature.deadline,
+      tokenSignature.signature
+    )
+      .then(async (res) => await _handleToast(res.tx, res.localTx, true))
+      .then((res) => handleCodeApplication(res))
+      .catch((err) =>
+        _handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
+      )
+  }
+
+  const handlePurchase = async () => {
+    if (parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero()) {
+      callPurchase()
+    } else if (selectedCoin.stablecoin) {
+      callPurchaseWithStable()
+    } else {
+      callPurchaseWithNonStable()
+    }
+  }
+
+  const _handleToast = async (tx: any, localTx: any, codeApplication?: boolean) => {
+    if (codeApplication && !appliedReferralCode && cookieReferralCode) {
+      handleCodeApplicationStatus(ApiStatus.PENDING)
+      handleShowCodeNoticeModal(true)
+    }
     handleEnteredDeposit('')
     handleTransactionLoading(false)
-    handleToast(tx, localTx)
+    return await handleToast(tx, localTx)
   }
 
   const _handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
     handleContractCallError(functionName, err, txType)
     handleTransactionLoading(false)
+  }
+
+  const handleCodeApplication = async (activationStatus: boolean) => {
+    if (!activationStatus || !account || !cookieReferralCode || appliedReferralCode) {
+      handleCodeApplicationStatus('activation failed')
+      return
+    }
+    const policyId: BigNumber = await policyOf(account)
+    if (policyId?.isZero()) {
+      handleCodeApplicationStatus('activation failed')
+      return
+    }
+    handleCodeApplicationStatus('handling referral')
+    await applyReferralCode(cookieReferralCode, policyId.toNumber(), activeNetwork.chainId).then((r) => {
+      if (r) {
+        handleCodeApplicationStatus(ApiStatus.OK)
+      } else {
+        handleCodeApplicationStatus(ApiStatus.ERROR)
+      }
+    })
   }
 
   const getRefundableSOLACEAmount = useCallback(async () => {
@@ -616,7 +622,11 @@ export const PolicyContent = (): JSX.Element => {
                     </Flex>
                   )}
                   {(newUserState || returningUserState) &&
-                    (insufficientCovCap ? (
+                    (suggestedCoverLimit.isZero() ? (
+                      <Text textAlignCenter pb={12}>
+                        You cannot purchase a policy with a cover limit of 0.
+                      </Text>
+                    ) : insufficientCovCap ? (
                       <Text textAlignCenter pb={12}>
                         Please choose a lower cover limit to activate the policy.
                       </Text>

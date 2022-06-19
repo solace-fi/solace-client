@@ -58,7 +58,7 @@ const GeneralProvider: React.FC = (props) => {
   const theme = appTheme == 'light' ? lightTheme : darkTheme
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [referralCode, setReferralCode] = useSessionStorage<string | undefined>('sol_data_referral_code')
+  const [referralCode, setReferralCode] = useSessionStorage<string | undefined>('sol_data_referral_code_v3')
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const referralCodeFromUrl = params.get('rc')

@@ -15,6 +15,7 @@ import { SimCoverModal } from './SimCoverModal'
 import { Portfolio } from './Portfolio'
 import ReferralModal from './ReferralModal'
 import ShareModal from './ShareModal'
+import { CodeNoticeModal } from './CodeNoticeModal'
 
 function VisibilityController({ show, children }: { show: boolean; children: React.ReactNode }) {
   return <div style={{ display: show ? 'block' : 'none' }}>{children}</div>
@@ -87,31 +88,34 @@ const CoverageContent = () => {
 
   return (
     // <Content>
-    <Flex justifyCenter>
-      <Flex col w={450}>
-        <VisibilityController show={_showCldModal}>
-          <CldModal />
-        </VisibilityController>
-        <VisibilityController show={_showPortfolioModal}>
-          <Portfolio />
-        </VisibilityController>
-        <VisibilityController show={_showSimulatorModal}>
-          <PortfolioSimulator />
-        </VisibilityController>
-        <VisibilityController show={_showSimCoverModal}>
-          <SimCoverModal />
-        </VisibilityController>
-        <VisibilityController show={_showDefault}>
-          <CoveragePage />
-        </VisibilityController>
-        <VisibilityController show={_showReferralModal}>
-          <ReferralModal />
-        </VisibilityController>
-        <VisibilityController show={_showShareReferralModal}>
-          <ShareModal />
-        </VisibilityController>
+    <>
+      <CodeNoticeModal />
+      <Flex justifyCenter>
+        <Flex col w={450}>
+          <VisibilityController show={_showCldModal}>
+            <CldModal />
+          </VisibilityController>
+          <VisibilityController show={_showPortfolioModal}>
+            <Portfolio />
+          </VisibilityController>
+          <VisibilityController show={_showSimulatorModal}>
+            <PortfolioSimulator />
+          </VisibilityController>
+          <VisibilityController show={_showSimCoverModal}>
+            <SimCoverModal />
+          </VisibilityController>
+          <VisibilityController show={_showDefault}>
+            <CoveragePage />
+          </VisibilityController>
+          <VisibilityController show={_showReferralModal}>
+            <ReferralModal />
+          </VisibilityController>
+          <VisibilityController show={_showShareReferralModal}>
+            <ShareModal />
+          </VisibilityController>
+        </Flex>
       </Flex>
-    </Flex>
+    </>
     // </Content>
   )
 }
