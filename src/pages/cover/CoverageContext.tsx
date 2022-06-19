@@ -129,7 +129,8 @@ type CoverageContextType = {
     referredCount?: number
     userReferralCode?: string
     cookieReferralCode?: string
-    handleCookieReferralCode: (code: string) => void
+    cookieCodeUsable: boolean
+    handleCookieReferralCode: (code: string | undefined) => void
     applyReferralCode: (referral_code: string, policy_id: number, chain_id: number) => Promise<boolean>
     codeApplicationStatus: string
     handleCodeApplicationStatus: (status: string) => void
@@ -236,6 +237,7 @@ const CoverageContext = createContext<CoverageContextType>({
     referredCount: 0,
     userReferralCode: undefined,
     cookieReferralCode: undefined,
+    cookieCodeUsable: false,
     handleCookieReferralCode: () => undefined,
     applyReferralCode: () => Promise.reject(),
     codeApplicationStatus: ApiStatus.IDLE,
@@ -272,6 +274,7 @@ const CoverageManager: React.FC = (props) => {
     cookieReferralCode,
     setCookieReferralCode,
     applyReferralCode,
+    cookieCodeUsable,
   } = useReferralApi()
 
   const [importedCoverLimit, setImportedCoverLimit] = useState<BigNumber>(ZERO)
@@ -479,7 +482,7 @@ const CoverageManager: React.FC = (props) => {
     setSimChosenLimit(chosenLimit)
   }, [])
 
-  const handleCookieReferralCode = useCallback((referralCode: string) => {
+  const handleCookieReferralCode = useCallback((referralCode: string | undefined) => {
     setCookieReferralCode(referralCode)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -658,6 +661,7 @@ const CoverageManager: React.FC = (props) => {
         handleCookieReferralCode,
         applyReferralCode,
         codeApplicationStatus,
+        cookieCodeUsable,
         handleCodeApplicationStatus,
       },
     }),
@@ -722,6 +726,7 @@ const CoverageManager: React.FC = (props) => {
       appliedReferralCode,
       cookieReferralCode,
       codeApplicationStatus,
+      cookieCodeUsable,
       handleCodeApplicationStatus,
       handleCookieReferralCode,
       applyReferralCode,

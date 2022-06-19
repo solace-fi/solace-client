@@ -5,7 +5,7 @@ import { useGeneral } from '../../../context/GeneralManager'
 import { useNetwork } from '../../../context/NetworkManager'
 import { useCheckIsCoverageActive } from '../../policy/useSolaceCoverProductV3'
 import { GetByUserResponse } from './GetByUserResponse'
-import { InfoResponse } from './InfoResponse'
+import { InfoResponse, InfoResponseArray } from './InfoResponse'
 
 export default function useReferralApi(): {
   userReferralCode: string | undefined
@@ -13,7 +13,8 @@ export default function useReferralApi(): {
   referredCount: number | undefined
   appliedReferralCode: string | undefined
   cookieReferralCode: string | undefined
-  setCookieReferralCode: (code: string) => void
+  setCookieReferralCode: (code: string | undefined) => void
+  cookieCodeUsable: boolean
   applyReferralCode: (referral_code: string, policy_id: number, chain_id: number) => Promise<boolean>
 } {
   const { account } = useWeb3React()
@@ -26,6 +27,7 @@ export default function useReferralApi(): {
   const [referredCount, setReferredCount] = useState<number | undefined>(undefined)
   const [appliedCode, setAppliedCode] = useState<string | undefined>(undefined)
   const [cookieCode, setCookieCode] = useState<string | undefined>(undefined)
+  const [cookieCodeUsable, setCookieCodeUsable] = useState<boolean>(false)
 
   const baseApiUrl = 'https://2vo3wfced8.execute-api.us-west-2.amazonaws.com/prod/'
 
@@ -82,11 +84,25 @@ export default function useReferralApi(): {
     _appliedCode ? setAppliedCode(_appliedCode) : setAppliedCode('')
   }, [account])
 
+  const checkReferralCodeUsability = useCallback(async (referral_code: string) => {
+    const url = `${baseApiUrl}referral-codes?referral_code=${referral_code}`
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'X-API-KEY': process.env.REACT_APP_REFERRAL_API_KEY as string,
+      },
+    })
+    const data = (await response.json()) as InfoResponseArray
+    const _referralCode = data.result?.length > 0
+    setCookieCodeUsable(_referralCode)
+  }, [])
+
   useEffect(() => {
     const code = localStorageReferralCode
     if (code && code !== 'null' && code !== 'undefined' && code !== '') {
       setCookieCode(code)
     } else {
+      setCookieCodeUsable(false)
       setCookieCode(undefined)
     }
 
@@ -98,6 +114,10 @@ export default function useReferralApi(): {
       getInfo()
     }, 400)
   }, [getInfo, getUserReferralCode, account, activeNetwork, policyId, localStorageReferralCode])
+
+  useEffect(() => {
+    if (cookieCode) checkReferralCodeUsability(cookieCode)
+  }, [cookieCode, checkReferralCodeUsability])
 
   const applyCode = async (referral_code: string, policy_id: number, chain_id: number) => {
     console.log('referral - applying code', referral_code)
@@ -138,6 +158,7 @@ export default function useReferralApi(): {
     appliedReferralCode: appliedCode, // the returned code from the server
     applyReferralCode: applyCode,
     cookieReferralCode: cookieCode, // the referral code on storage
+    cookieCodeUsable,
     setCookieReferralCode: setCookieCode,
   }
 }

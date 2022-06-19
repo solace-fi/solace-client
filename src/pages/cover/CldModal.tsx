@@ -67,7 +67,13 @@ export const CldModal = () => {
   const { importCounter } = simulator
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
-  const { cookieReferralCode, appliedReferralCode, applyReferralCode, handleCodeApplicationStatus } = referral
+  const {
+    cookieReferralCode,
+    appliedReferralCode,
+    cookieCodeUsable,
+    applyReferralCode,
+    handleCodeApplicationStatus,
+  } = referral
   const { signatureObj, depositApproval, scpBalance, status, availCovCap, unlimitedApproveCPM } = policy
 
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -394,6 +400,11 @@ export const CldModal = () => {
           You cannot purchase a policy with a cover limit of 0.
         </Text>
       ) : null}
+      {cookieReferralCode && !cookieCodeUsable && newUserState && (
+        <Text textAlignCenter pt={16}>
+          Cannot use invalid referral code
+        </Text>
+      )}
       {scpBalanceMeetsMrab && (
         <ButtonWrapper>
           {depositApproval && (
@@ -403,7 +414,11 @@ export const CldModal = () => {
               secondary
               noborder
               onClick={callPurchase}
-              disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0 || insufficientCovCap}
+              disabled={
+                parseFloat(formatAmount(localNewCoverageLimit)) == 0 ||
+                insufficientCovCap ||
+                (cookieReferralCode && !cookieCodeUsable && newUserState)
+              }
             >
               {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}
             </Button>
@@ -454,7 +469,8 @@ export const CldModal = () => {
                 disabled={
                   parseFloat(formatAmount(localNewCoverageLimit)) == 0 ||
                   lackingScp != 'meets requirement' ||
-                  insufficientCovCap
+                  insufficientCovCap ||
+                  (cookieReferralCode && !cookieCodeUsable && newUserState)
                 }
               >
                 {/* <Text>Deposit &amp; Save</Text> */}

@@ -79,7 +79,13 @@ export const PolicyContent = (): JSX.Element => {
   } = policy
   const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
   const { curPortfolio, curDailyCost, curUsdBalanceSum, curHighestPosition, fetchStatus } = portfolioKit
-  const { cookieReferralCode, appliedReferralCode, applyReferralCode, handleCodeApplicationStatus } = referral
+  const {
+    cookieReferralCode,
+    appliedReferralCode,
+    cookieCodeUsable,
+    applyReferralCode,
+    handleCodeApplicationStatus,
+  } = referral
 
   const { account } = useWeb3React()
   const { activeNetwork, changeNetwork } = useNetwork()
@@ -563,7 +569,27 @@ export const PolicyContent = (): JSX.Element => {
               <Flex button noborder py={6.5} px={16} mx={20} mt={12} bgRaised style={{ borderRadius: '8px' }}>
                 <Text t5s bold info>
                   <Flex between gap={12} onClick={() => handleShowReferralModal(true)}>
-                    <Flex>Manage your referrals (Work In Progress)</Flex>
+                    {!newUserState ? (
+                      <Text t4>Manage your referrals</Text>
+                    ) : cookieReferralCode && cookieCodeUsable ? (
+                      <Text success t4>
+                        Referral code active:{' '}
+                        {cookieReferralCode.length > 10
+                          ? `${cookieReferralCode.substring(0, 10)}...`
+                          : cookieReferralCode}
+                      </Text>
+                    ) : cookieReferralCode && !cookieCodeUsable ? (
+                      <Text error t4>
+                        Invalid referral code:{' '}
+                        {cookieReferralCode.length > 10
+                          ? `${cookieReferralCode.substring(0, 10)}...`
+                          : cookieReferralCode}
+                      </Text>
+                    ) : (
+                      <Text warning t4>
+                        No referral code detected
+                      </Text>
+                    )}
                     <StyledOptions width={12} />
                   </Flex>
                 </Text>
@@ -620,6 +646,11 @@ export const PolicyContent = (): JSX.Element => {
                         </Text>
                       </Flex>
                     </Flex>
+                  )}
+                  {cookieReferralCode && !cookieCodeUsable && newUserState && (
+                    <Text textAlignCenter pb={12}>
+                      Cannot use invalid referral code
+                    </Text>
                   )}
                   {(newUserState || returningUserState) &&
                     (suggestedCoverLimit.isZero() ? (
@@ -704,7 +735,8 @@ export const PolicyContent = (): JSX.Element => {
                             portfolioLoading ||
                             lackingScp != 'meets requirement' ||
                             (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
-                              !isAcceptableDeposit)
+                              !isAcceptableDeposit) ||
+                            (cookieReferralCode && !cookieCodeUsable && newUserState)
                           }
                         >
                           <Text bold t4s>
