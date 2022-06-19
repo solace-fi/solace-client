@@ -123,7 +123,7 @@ export default function useReferralApi(): {
     console.log('referral - applying code', referral_code)
     console.log('referral - policy_id', policy_id)
     console.log('referral - chain_id', chain_id)
-    if (!account || !policyId || policyId.isZero()) return false
+    if (!account) return false
     console.log('referral - account found, policyId found')
     if (appliedCode) return false
     // add: promo-codes/apply
@@ -143,9 +143,9 @@ export default function useReferralApi(): {
         referral_code,
       }),
     })
-    const data = (await response.json()) as InfoResponse
+    const data = (await response.json()) as InfoResponseArray
     console.log('referral - api response', data)
-    const _appliedCode = data.result?.applied_referral_codes?.[0]?.referral_code
+    const _appliedCode = data.result?.[0]?.referral_code
     _appliedCode && setAppliedCode(_appliedCode)
     console.log('referral - applied code', _appliedCode)
     return _appliedCode ? true : false

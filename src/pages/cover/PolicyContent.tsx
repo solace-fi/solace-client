@@ -467,7 +467,7 @@ export const PolicyContent = (): JSX.Element => {
             </TileCard>
           ) : (
             <>
-              {newUserState && curPortfolio && curPortfolio.protocols.length == 0 && (
+              {newUserState && [5].includes(fetchStatus) && curPortfolio && curPortfolio.protocols.length == 0 && (
                 <Flex col gap={16} marginAuto style={{ width: '100%' }}>
                   <Flex col gap={0} marginAuto>
                     <Text t4s textAlignCenter>
@@ -898,7 +898,8 @@ export const PolicyContent = (): JSX.Element => {
                   </Flex>
                 </Flex>
               </div>
-              {([2, 3, 4, 5].includes(fetchStatus) || (curPortfolio && curPortfolio.protocols.length > 0)) && (
+              {([2, 3, 4].includes(fetchStatus) ||
+                ([5].includes(fetchStatus) && curPortfolio && curPortfolio.protocols.length > 0)) && (
                 <Flex col gap={16} marginAuto pt={36} px={44}>
                   <Text t4 textAlignCenter>
                     Get a quote for future portfolio positions by simulating a portfolio.

@@ -28,6 +28,7 @@ import { ERC20_ABI } from '../../constants/abi'
 import { useTokenAllowance, useTokenInfiniteApprove } from '../../hooks/contract/useToken'
 import SOLACE from '../../constants/abi/SOLACE.json'
 import useReferralApi from '../../hooks/api/useReferralApi'
+import { useWeb3React } from '@web3-react/core'
 
 type CoverageContextType = {
   intrface: {
@@ -246,6 +247,7 @@ const CoverageContext = createContext<CoverageContextType>({
 })
 
 const CoverageManager: React.FC = (props) => {
+  const { account } = useWeb3React()
   const { appTheme, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
   const { tokenPriceMapping, minute } = useCachedData()
@@ -365,7 +367,7 @@ const CoverageManager: React.FC = (props) => {
       return { balance: b.balance, ...coinOptions[i] }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [batchBalances.length])
+  }, [batchBalances.length, account, activeNetwork])
 
   const isAcceptableDeposit = useMemo(() => {
     const selectedBalance = batchBalances.find((b) => b.addr === selectedCoin.address)

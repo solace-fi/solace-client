@@ -297,6 +297,7 @@ export const useBatchBalances = (
     const getBalances = async () => {
       if (activeNetwork.config.restrictedFeatures.noCoverageV3 || !account || loading) return
       setLoading(true)
+      console.log('CALLING', account)
       const batchBalances = await Promise.all(
         addresses.map((address) => queryBalance(new Contract(address, ERC20_ABI, provider), account))
       )
