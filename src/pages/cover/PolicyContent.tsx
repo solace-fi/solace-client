@@ -126,10 +126,9 @@ export const PolicyContent = (): JSX.Element => {
     return 'meets requirement'
   }, [scpBalance, sugMinReqAccBal, enteredDeposit, selectedCoinPrice])
 
-  const selectedCoinBalance = useMemo(
-    () => batchBalanceData.find((d) => d.address.toLowerCase() == selectedCoin.address.toLowerCase())?.balance ?? ZERO,
-    [batchBalanceData, selectedCoin]
-  )
+  const selectedCoinBalance = useMemo(() => {
+    return batchBalanceData.find((d) => d.address.toLowerCase() == selectedCoin.address.toLowerCase())?.balance ?? ZERO
+  }, [batchBalanceData, selectedCoin])
 
   // TODO - uncomment this when the smart functions are working
   const newUserState = useMemo(() => [InterfaceState.NEW_USER].includes(userState), [userState])
@@ -326,7 +325,7 @@ export const PolicyContent = (): JSX.Element => {
   }
 
   const _handleToast = async (tx: any, localTx: any, codeApplication?: boolean) => {
-    if (codeApplication && !appliedReferralCode && cookieReferralCode) {
+    if (codeApplication && !appliedReferralCode && cookieReferralCode && newUserState) {
       handleCodeApplicationStatus(ApiStatus.PENDING)
       handleShowCodeNoticeModal(true)
     }
@@ -341,7 +340,7 @@ export const PolicyContent = (): JSX.Element => {
   }
 
   const handleCodeApplication = async (activationStatus: boolean) => {
-    if (!activationStatus || !account || !cookieReferralCode || appliedReferralCode) {
+    if (!activationStatus || !account || !cookieReferralCode || appliedReferralCode || !newUserState) {
       handleCodeApplicationStatus('activation failed')
       return
     }
@@ -571,19 +570,23 @@ export const PolicyContent = (): JSX.Element => {
                   <Flex between gap={12} onClick={() => handleShowReferralModal(true)}>
                     {!newUserState ? (
                       <Text t4>Manage your referrals</Text>
-                    ) : cookieReferralCode && cookieCodeUsable ? (
+                    ) : cookieReferralCode && cookieCodeUsable && !appliedReferralCode ? (
                       <Text success t4>
                         Referral code active:{' '}
                         {cookieReferralCode.length > 10
                           ? `${cookieReferralCode.substring(0, 10)}...`
                           : cookieReferralCode}
                       </Text>
-                    ) : cookieReferralCode && !cookieCodeUsable ? (
+                    ) : cookieReferralCode && !cookieCodeUsable && !appliedReferralCode ? (
                       <Text error t4>
                         Invalid referral code:{' '}
                         {cookieReferralCode.length > 10
                           ? `${cookieReferralCode.substring(0, 10)}...`
                           : cookieReferralCode}
+                      </Text>
+                    ) : appliedReferralCode ? (
+                      <Text warning t4>
+                        This account has already used a referral code
                       </Text>
                     ) : (
                       <Text warning t4>

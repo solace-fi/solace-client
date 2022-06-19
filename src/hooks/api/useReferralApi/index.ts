@@ -82,6 +82,7 @@ export default function useReferralApi(): {
     _earnedAmount ? setEarnedAmount(_earnedAmount) : setEarnedAmount(0)
     _referredCount ? setReferredCount(_referredCount) : setReferredCount(0)
     _appliedCode ? setAppliedCode(_appliedCode) : setAppliedCode('')
+    console.log(_appliedCode)
   }, [account])
 
   const checkReferralCodeUsability = useCallback(async (referral_code: string) => {

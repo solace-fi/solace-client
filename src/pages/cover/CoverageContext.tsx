@@ -367,7 +367,7 @@ const CoverageManager: React.FC = (props) => {
       return { balance: b.balance, ...coinOptions[i] }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [batchBalances.length, account, activeNetwork])
+  }, [batchBalances])
 
   const isAcceptableDeposit = useMemo(() => {
     const selectedBalance = batchBalances.find((b) => b.addr === selectedCoin.address)

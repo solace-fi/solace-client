@@ -110,6 +110,15 @@ const coverageStablecoins_Rinkeby = [
   { address: '0x6D6DC3A8f02a1fEc0B9575e8dDE4135929Bd6e21', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
   { address: '0x8ad3aA5d5ff084307d28C8f514D7a193B2Bfe725', name: 'DAI Stablecoin', symbol: 'DAI', decimals: 18 },
   { address: '0xe28bef39f41c63b66cfd97bffdb6defc915b3c88', name: 'DAI Stablecoin', symbol: 'DAI', decimals: 18 },
+  { address: '0x638b7BaA3D0C7d235fb904B01523883F980f24Ce', name: 'Tether USD', symbol: 'USDT', decimals: 6 },
+  { address: '0x86E5B6485e28E52a0dEEd28Cc10772FeB9c4C400', name: 'Frax', symbol: 'FRAX', decimals: 18 },
+]
+
+const coverageStablecoins_Kovan = [
+  { address: '0x512d93ADc3DF4E24cb4b26c44A91682Ec073F559', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
+  { address: '0x31a1D59460a9619ec6965a5684C6d3Ae470D0fE5', name: 'DAI Stablecoin', symbol: 'DAI', decimals: 18 },
+  { address: '0xAEA2B0F4763c8Ffc33A4c454CD08F803B02B6B53', name: 'Tether USD', symbol: 'USDT', decimals: 6 },
+  { address: '0x58B23b32a9774153E1E344762751aDfdca2764DD', name: 'Frax', symbol: 'FRAX', decimals: 18 },
 ]
 
 const coverageStablecoins_Aurora = [
@@ -120,6 +129,14 @@ const coverageStablecoins_Aurora = [
   { address: '0xE4B9e004389d91e4134a28F19BD833cBA1d994B6', name: 'Frax', symbol: 'FRAX', decimals: 18 },
   { address: '0x5C92A4A7f59A9484AFD79DbE251AD2380E589783', name: 'BUSD BSC', symbol: 'abBUSD', decimals: 18 },
   { address: '0xdFA46478F9e5EA86d57387849598dbFB2e964b02', name: 'Mai Stablecoin', symbol: 'MAI', decimals: 18 },
+]
+
+const coverageStablecoins_Aurora_Testnet = [
+  { address: '0x87Eba7597721C156240Ae7d8aE26e269118AFdca', name: 'Dai Stablecoin', symbol: 'DAI', decimals: 18 },
+  { address: '0xd0062b097a077F1c9DC97aE082a7FE58a0Be03a8', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
+  { address: '0xb9D6BB8D150a566Eb93d097b9b65dc9b7455Dd67', name: 'Tether USD', symbol: 'USDT', decimals: 6 },
+  { address: '0x5405059004A74d191a07badC3e32501ac8A39788', name: 'Frax', symbol: 'FRAX', decimals: 18 },
+  { address: '0xd1c08D4710154ED4CA111D752F92e9B184DB4d8c', name: 'Mai Stablecoin', symbol: 'MAI', decimals: 18 },
 ]
 
 const coverageStablecoins_Polygon = [
@@ -205,6 +222,14 @@ const coverageStablecoins_Polygon = [
   },
 ]
 
+const coverageStablecoins_Mumbai = [
+  { address: '0x829F3bc2f95E190fcf75Cca9D53ECd873404AeA4', name: 'Dai Stablecoin', symbol: 'DAI', decimals: 18 },
+  { address: '0xca08aB81e4E437AcDda0E7505026bdD9A97b8B76', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
+  { address: '0x992fbE5C6fc9d5f09F4Fd85eF1FD331df078821C', name: 'Tether USD', symbol: 'USDT', decimals: 6 },
+  { address: '0xE338d08783CE3bdE2Cc03b137b196168641A8C05', name: 'Frax', symbol: 'FRAX', decimals: 18 },
+  { address: '0x5e8200F06Ed6B7bBC10f905b40D38eE453366a0B', name: 'Mai Stablecoin', symbol: 'MAI', decimals: 18 },
+]
+
 const coverageStablecoins_Fantom = [
   { address: '0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E', name: 'Dai Stablecoin', symbol: 'DAI', decimals: 18 },
   { address: '0xdc301622e621166BD8E82f2cA0A26c13Ad0BE355', name: 'Frax', symbol: 'FRAX', decimals: 18 },
@@ -231,13 +256,17 @@ const coverageStablecoins_Fantom_Testnet = [
   { address: '0x87Eba7597721C156240Ae7d8aE26e269118AFdca', name: 'Frax', symbol: 'FRAX', decimals: 18 },
   { address: '0x1EE27c7c11E12dBa0F4b3aeEF9599D51Df06bB14', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
   { address: '0xC382931bF0D86B0Fd04ecAC093676A61446F3E2d', name: 'USD Token', symbol: 'USDT', decimals: 6 },
+  { address: '0x5F1D856C7b3A8C71168775C4423A67A52F5493d1', name: 'Mai Stablecoin', symbol: 'MAI', decimals: 18 },
 ]
 
 export const coinsMap: { [key: number]: ReadToken[] } = {
   [1]: coverageStablecoins_Mainnet,
   [4]: coverageStablecoins_Rinkeby,
+  [42]: coverageStablecoins_Kovan,
   [1313161554]: coverageStablecoins_Aurora,
+  [1313161555]: coverageStablecoins_Aurora_Testnet,
   [137]: coverageStablecoins_Polygon,
+  [80001]: coverageStablecoins_Mumbai,
   [250]: coverageStablecoins_Fantom,
   [4002]: coverageStablecoins_Fantom_Testnet,
   [56]: [

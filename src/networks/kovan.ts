@@ -17,8 +17,19 @@ import { KEY_ADDRS } from '../constants/addresses/kovan'
 import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/kovan'
 
-import { Vault_ABI, xsLocker_ABI, StakingRewards_ABI } from '../constants/abi'
-
+import {
+  Vault_ABI,
+  xsLocker_ABI,
+  StakingRewards_ABI,
+  StakingRewardsV2_ABI,
+  CoverPaymentManager_ABI,
+  SolaceCoverProductV3_ABI,
+} from '../constants/abi'
+import {
+  COVER_PAYMENT_MANAGER_ADDRESS,
+  SOLACE_COVER_PRODUCT_V3_ADDRESS,
+  STAKING_REWARDS_V2_ADDRESS,
+} from '@solace-fi/sdk-nightly'
 /*
 
 When adding new products, please add into productContracts, functions, and cache
@@ -88,8 +99,20 @@ export const KovanNetwork: NetworkConfig = {
         addr: KEY_ADDRS.CPFARM,
         abi: cpFarmABI,
       },
+      solaceCoverProductV3: {
+        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
+        abi: SolaceCoverProductV3_ABI,
+      },
+      coverPaymentManager: {
+        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
+        abi: CoverPaymentManager_ABI,
+      },
+      stakingRewardsV2: {
+        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
+        abi: StakingRewardsV2_ABI,
+      },
     },
-    restrictedFeatures: { noSoteria: true, noCoverageV3: true, noStakingRewardsV2: true },
+    restrictedFeatures: { noSoteria: true },
     specialFeatures: {
       solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },

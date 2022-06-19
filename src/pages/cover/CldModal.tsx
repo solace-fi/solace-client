@@ -192,7 +192,7 @@ export const CldModal = () => {
   }
 
   const _handleToast = async (tx: any, localTx: any, codeApplication?: boolean) => {
-    if (codeApplication && !appliedReferralCode && cookieReferralCode) {
+    if (codeApplication && !appliedReferralCode && cookieReferralCode && newUserState) {
       handleCodeApplicationStatus(ApiStatus.PENDING)
       handleShowCodeNoticeModal(true)
     }
@@ -207,7 +207,7 @@ export const CldModal = () => {
   }
 
   const handleCodeApplication = async (activationStatus: boolean) => {
-    if (!activationStatus || !account || !cookieReferralCode || appliedReferralCode) {
+    if (!activationStatus || !account || !cookieReferralCode || appliedReferralCode || !newUserState) {
       handleCodeApplicationStatus('activation failed')
       return
     }

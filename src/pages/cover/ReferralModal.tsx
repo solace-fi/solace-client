@@ -148,7 +148,7 @@ export default function ReferralModal(): JSX.Element {
             >
               <Text>Check code</Text>
             </ButtonAppearance>
-            {cookieReferralCode && (
+            {cookieReferralCode && code == cookieReferralCode && (
               <ButtonAppearance
                 onClick={async () => {
                   handleCookieReferralCode(undefined)

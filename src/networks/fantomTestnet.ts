@@ -4,18 +4,12 @@ import { WFTM_TOKEN } from '../constants/mappings/token'
 
 import solaceABI from '../constants/abi/SOLACE.json'
 import xSolaceABI from '../constants/abi/xSOLACE.json'
-// import xsLockerABI from '../constants/abi/xsLocker.json'
-// import stakingRewardsABI from '../constants/abi/StakingRewards.json'
 import { hexValue } from 'ethers/lib/utils'
 
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/fantomTestnet'
 import { FTMSCAN_API_KEY } from '../constants'
 import { NetworkConfig } from '../constants/types'
 import FantomLogo from '../resources/svg/networks/fantom-logo.svg'
-// import solaceCoverProductV2ABI from '../constants/abi/SolaceCoverProductV2.json'
-// import solaceCoverProductV3ABI from '../constants/abi/SolaceCoverProductV3.json'
-// import coverPaymentManagerABI from '../constants/abi/CoverPaymentManager.json'
-// import stakingRewardsV2ABI from '../constants/abi/StakingRewardsV2.json'
 import {
   COVER_PAYMENT_MANAGER_ADDRESS,
   SOLACE_COVER_PRODUCT_V3_ADDRESS,

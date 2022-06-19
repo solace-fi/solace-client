@@ -11,8 +11,20 @@ import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/mumbai'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/mumbai'
 import { FRAX_TOKEN } from '../constants/mappings/token'
 
-import { xsLocker_ABI, SolaceCoverProductV2_ABI, StakingRewards_ABI, ERC20_ABI } from '../constants/abi'
-
+import {
+  xsLocker_ABI,
+  SolaceCoverProductV2_ABI,
+  StakingRewards_ABI,
+  ERC20_ABI,
+  StakingRewardsV2_ABI,
+  CoverPaymentManager_ABI,
+  SolaceCoverProductV3_ABI,
+} from '../constants/abi'
+import {
+  COVER_PAYMENT_MANAGER_ADDRESS,
+  SOLACE_COVER_PRODUCT_V3_ADDRESS,
+  STAKING_REWARDS_V2_ADDRESS,
+} from '@solace-fi/sdk-nightly'
 const chainId = 80001
 
 export const MumbaiNetwork: NetworkConfig = {
@@ -57,13 +69,23 @@ export const MumbaiNetwork: NetworkConfig = {
         abi: SolaceCoverProductV2_ABI,
         additionalInfo: 'v2',
       },
+      solaceCoverProductV3: {
+        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
+        abi: SolaceCoverProductV3_ABI,
+      },
+      coverPaymentManager: {
+        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
+        abi: CoverPaymentManager_ABI,
+      },
+      stakingRewardsV2: {
+        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
+        abi: StakingRewardsV2_ABI,
+      },
     },
     restrictedFeatures: {
       noBondingV1: true,
       noFarmingV1: true,
       noStakingV1: true,
-      noCoverageV3: true,
-      noStakingRewardsV2: true,
     },
     specialFeatures: {
       unwrapBridgedSolace: true,

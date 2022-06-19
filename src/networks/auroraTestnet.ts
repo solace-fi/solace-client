@@ -14,8 +14,19 @@ import bridgeWrapperABI from '../constants/abi/BridgeWrapper.json'
 import { AURORASCAN_API_KEY } from '../constants'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/auroraTestnet'
 
-import { xsLocker_ABI, ERC20_ABI, StakingRewards_ABI } from '../constants/abi'
-
+import {
+  xsLocker_ABI,
+  ERC20_ABI,
+  StakingRewards_ABI,
+  StakingRewardsV2_ABI,
+  CoverPaymentManager_ABI,
+  SolaceCoverProductV3_ABI,
+} from '../constants/abi'
+import {
+  COVER_PAYMENT_MANAGER_ADDRESS,
+  SOLACE_COVER_PRODUCT_V3_ADDRESS,
+  STAKING_REWARDS_V2_ADDRESS,
+} from '@solace-fi/sdk-nightly'
 const chainId = 1313161555
 
 export const AuroraTestnetNetwork: NetworkConfig = {
@@ -55,14 +66,24 @@ export const AuroraTestnetNetwork: NetworkConfig = {
         addr: KEY_ADDRS.STAKING_REWARDS,
         abi: StakingRewards_ABI,
       },
+      solaceCoverProductV3: {
+        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
+        abi: SolaceCoverProductV3_ABI,
+      },
+      coverPaymentManager: {
+        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
+        abi: CoverPaymentManager_ABI,
+      },
+      stakingRewardsV2: {
+        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
+        abi: StakingRewardsV2_ABI,
+      },
     },
     restrictedFeatures: {
       noSoteria: true,
       noBondingV1: true,
       noFarmingV1: true,
       noStakingV1: true,
-      noCoverageV3: true,
-      noStakingRewardsV2: true,
     },
     specialFeatures: {
       solaceBuyLink: `https://www.trisolaris.io/#/swap?inputCurrency=${NEAR_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
