@@ -89,8 +89,8 @@ export const Protocol: React.FC<{
     network?: string | undefined
   }
   // addItem: (index?: number | undefined) => void
-  saveEditedItem: (targetAppId: string, newAppId: string, newAmount: string) => boolean
-  deleteItem: (targetAppId: string) => void
+  saveEditedItem: (targetAppId: string, targetNetwork: string, newAppId: string, newAmount: string) => boolean
+  deleteItem: (targetAppId: string, targetNetwork: string) => void
   handleEditingItem: (appId?: string, network?: string) => void
 }> = ({
   protocol,
@@ -154,9 +154,9 @@ export const Protocol: React.FC<{
   // }, [simulatingPrev, simulating])
 
   const handleSaveEditedItem = useCallback(() => {
-    const status = saveEditedItem(protocol.appId, enteredAppId, enteredAmount)
+    const status = saveEditedItem(protocol.appId, protocol.network, enteredAppId, enteredAmount)
     if (status) handleEditingItem(undefined, undefined)
-  }, [enteredAmount, enteredAppId, protocol.appId, saveEditedItem, handleEditingItem])
+  }, [enteredAmount, enteredAppId, protocol, saveEditedItem, handleEditingItem])
 
   useEffect(() => {
     setEnteredAmount(protocol.balanceUSD.toString() == '0' ? '' : protocol.balanceUSD.toString())
@@ -320,7 +320,7 @@ export const Protocol: React.FC<{
             <Button
               height={32}
               error
-              onClick={() => deleteItem(protocol.appId)}
+              onClick={() => deleteItem(protocol.appId, protocol.network)}
               width={100}
               style={{ borderRadius: '8px' }}
             >

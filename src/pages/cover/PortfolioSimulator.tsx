@@ -93,7 +93,7 @@ export const PortfolioSimulator = (): JSX.Element => {
   }
 
   const saveEditedItem = useCallback(
-    (targetAppId: string, newAppId: string, newAmount: string): boolean => {
+    (targetAppId: string, targetNetwork: string, newAppId: string, newAmount: string): boolean => {
       let editedSomething = false
       const newProtocol = series?.data.protocolMap.find((p) => p.appId.toLowerCase() === newAppId.toLowerCase())
       if (!newProtocol) return false
@@ -105,7 +105,7 @@ export const PortfolioSimulator = (): JSX.Element => {
       setCompiling(true)
       setEditableProtocols(
         editableProtocols.map((p) => {
-          if (p.appId === targetAppId) {
+          if (p.appId === targetAppId && p.network === targetNetwork) {
             editedSomething = true
             return {
               ...p,
@@ -126,12 +126,12 @@ export const PortfolioSimulator = (): JSX.Element => {
   )
 
   const deleteItem = useCallback(
-    (targetAppId: string) => {
+    (targetAppId: string, targetNetwork: string) => {
       const targetProtocol = _mapEditableProtocols[targetAppId.toLowerCase()]
       if (!targetProtocol) return
       setEditableProtocols(
         editableProtocols
-          .filter((p) => p.appId !== targetAppId)
+          .filter((p) => p.appId !== targetAppId || p.network != targetNetwork)
           .map((p) => ({
             ...p,
             index: targetProtocol.index < p.index ? p.index - 1 : p.index,

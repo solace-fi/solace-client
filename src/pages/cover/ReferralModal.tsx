@@ -62,7 +62,7 @@ export default function ReferralModal(): JSX.Element {
           {!hasPolicy ? (
             <li>
               <Text t5s info>
-                You can only apply one referral code once per account.
+                You can only apply one referral code per account.
               </Text>
             </li>
           ) : (

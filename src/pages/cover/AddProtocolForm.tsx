@@ -102,7 +102,7 @@ export default function AddProtocolForm({
         </ThinButton>
         <SmallerInputSection
           ref={inputRef}
-          placeholder={'Enter amount'}
+          placeholder={'$'}
           value={enteredBalance}
           onChange={(e) => {
             const filtered = filterAmount(e.target.value, enteredBalance)

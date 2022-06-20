@@ -109,7 +109,6 @@ const coverageStablecoins_Mainnet = [
 const coverageStablecoins_Rinkeby = [
   { address: '0x6D6DC3A8f02a1fEc0B9575e8dDE4135929Bd6e21', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
   { address: '0x8ad3aA5d5ff084307d28C8f514D7a193B2Bfe725', name: 'DAI Stablecoin', symbol: 'DAI', decimals: 18 },
-  { address: '0xe28bef39f41c63b66cfd97bffdb6defc915b3c88', name: 'DAI Stablecoin', symbol: 'DAI', decimals: 18 },
   { address: '0x638b7BaA3D0C7d235fb904B01523883F980f24Ce', name: 'Tether USD', symbol: 'USDT', decimals: 6 },
   { address: '0x86E5B6485e28E52a0dEEd28Cc10772FeB9c4C400', name: 'Frax', symbol: 'FRAX', decimals: 18 },
 ]
