@@ -42,8 +42,7 @@ export const equalsIgnoreCase = (baseString: string, compareString: string): boo
   return baseString.toUpperCase() === compareString.toUpperCase()
 }
 
-export const hasApproval = (tokenAllowance?: string, amountToApprove?: string): boolean => {
-  if (!amountToApprove || !tokenAllowance) return false
+export const hasApproval = (tokenAllowance: string, amountToApprove: string): boolean => {
   const currentAllowance = BigNumber.from(tokenAllowance)
   if (currentAllowance.isZero()) return false
   const currentAmountToApprove = BigNumber.from(amountToApprove)

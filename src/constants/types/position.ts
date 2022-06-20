@@ -14,4 +14,5 @@ export type ReadToken = {
 
 export type TokenInfo = ReadToken & {
   balance: BigNumber
+  price: number
 }

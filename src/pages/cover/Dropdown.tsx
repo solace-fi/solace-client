@@ -306,7 +306,9 @@ export const BalanceDropdownOptions = ({
                 <img src={`https://assets.solace.fi/${item.name.toLowerCase()}`} width={16} height={16} />
                 <Text {...gradientStyle}>{item.symbol}</Text>
               </Flex>
-              <Text autoAlignVertical>{truncateValue(formatUnits(item.balance, item.decimals), 3)}</Text>
+              <Text autoAlignVertical>
+                ~${truncateValue(parseFloat(formatUnits(item.balance, item.decimals)) * item.price, 2)}
+              </Text>
             </Flex>
           </ButtonAppearance>
         ))}

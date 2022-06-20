@@ -10,7 +10,7 @@ import { ZERO } from '../../constants'
 import { ApiStatus, FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
-import { useCoverageFunctions, useExistingPolicy } from '../../hooks/policy/useSolaceCoverProductV3'
+import { useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
 import {
   accurateMultiply,
   convertSciNotaToPrecise,
@@ -20,7 +20,7 @@ import {
   truncateValue,
 } from '../../utils/formatting'
 import { useCoverageContext } from './CoverageContext'
-import { BalanceDropdownOptions, DropdownInputSection, DropdownOptions } from './Dropdown'
+import { BalanceDropdownOptions, DropdownInputSection } from './Dropdown'
 
 import Zapper from '../../resources/svg/zapper.svg'
 import ZapperDark from '../../resources/svg/zapper-dark.svg'
@@ -30,10 +30,10 @@ import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import { useCachedData } from '../../context/CachedDataManager'
-import { TransactionResponse } from '@ethersproject/providers'
-import { LocalTx } from '../../constants/types'
+import { useGeneral } from '../../context/GeneralManager'
 
 export const PolicyContent = (): JSX.Element => {
+  const { appTheme } = useGeneral()
   const { latestBlock } = useProvider()
   const { intrface, styles, input, dropdowns, policy, referral, portfolioKit } = useCoverageContext()
   const {
@@ -103,6 +103,7 @@ export const PolicyContent = (): JSX.Element => {
     depositNonStable,
     getMinRequiredAccountBalance,
     policyOf,
+    getBalanceOfNonRefundable,
   } = useCoverageFunctions()
 
   const [showExistingPolicyMessage, setShowExistingPolicyMessage] = useState<boolean>(true)
@@ -112,19 +113,18 @@ export const PolicyContent = (): JSX.Element => {
     scpBalance,
   ])
 
+  const [enteredUSDDeposit, setEnteredUSDDeposit] = useState<string>('')
+  const [enteredUSDWithdrawal, setEnteredUSDWithdrawal] = useState<string>('')
+
   const [sugMinReqAccBal, setSugMinReqAccBal] = useState<BigNumber>(ZERO)
   const lackingScp = useMemo(() => {
     const parsedScpBalance = parseUnits(scpBalance, 18)
-    const float_enteredDeposit = parseFloat(formatAmount(enteredDeposit))
-    const depositUSDEquivalent = float_enteredDeposit * selectedCoinPrice
-    const BN_Scp_Plus_Deposit = parsedScpBalance.add(
-      BigNumber.from(accurateMultiply(convertSciNotaToPrecise(`${depositUSDEquivalent}`), 18))
-    )
+    const BN_Scp_Plus_Deposit = parsedScpBalance.add(BigNumber.from(accurateMultiply(enteredUSDDeposit, 18)))
     if (sugMinReqAccBal.isZero() && BN_Scp_Plus_Deposit.isZero()) return 'both zeroes'
     if (sugMinReqAccBal.gt(BN_Scp_Plus_Deposit))
-      return truncateValue(formatUnits(sugMinReqAccBal.sub(BN_Scp_Plus_Deposit)), 2)
+      return truncateValue(Math.round(parseFloat(formatUnits(sugMinReqAccBal.sub(BN_Scp_Plus_Deposit))) * 100) / 100, 2)
     return 'meets requirement'
-  }, [scpBalance, sugMinReqAccBal, enteredDeposit, selectedCoinPrice])
+  }, [scpBalance, sugMinReqAccBal, enteredUSDDeposit])
 
   const selectedCoinBalance = useMemo(() => {
     return batchBalanceData.find((d) => d.address.toLowerCase() == selectedCoin.address.toLowerCase())?.balance ?? ZERO
@@ -171,6 +171,7 @@ export const PolicyContent = (): JSX.Element => {
   // const withdrawCta = false
 
   const [refundableSOLACEAmount, setRefundableSOLACEAmount] = useState<BigNumber>(ZERO)
+  const [nonrefundableBalance, setNonrefundableBalance] = useState<BigNumber>(ZERO)
   const [withdrawingMoreThanRefundable, setWithdrawingMoreThanRefundable] = useState<boolean>(false)
   const [insufficientCovCap, setInsufficientCovCap] = useState<boolean>(false)
 
@@ -236,7 +237,7 @@ export const PolicyContent = (): JSX.Element => {
     const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
     const tokenSignature: any = Object.values(signature)[0]
     handleTransactionLoading(true)
-    const parsedWithdrawal = parseUnits(formatAmount(enteredWithdrawal), selectedCoin.decimals)
+    const parsedWithdrawal = parseUnits(formatAmount(enteredWithdrawal), 18)
     const amountToWithdraw = refundableSOLACEAmount.gt(parsedWithdrawal) ? parsedWithdrawal : refundableSOLACEAmount
     await withdraw(account, amountToWithdraw, tokenSignature.price, tokenSignature.deadline, tokenSignature.signature)
       .then((res) => _handleToast(res.tx, res.localTx))
@@ -302,7 +303,7 @@ export const PolicyContent = (): JSX.Element => {
       handleCodeApplicationStatus(ApiStatus.PENDING)
       handleShowCodeNoticeModal(true)
     }
-    handleEnteredDeposit('')
+    handleEnteredUSDDeposit('')
     handleTransactionLoading(false)
     return await handleToast(tx, localTx)
   }
@@ -330,6 +331,20 @@ export const PolicyContent = (): JSX.Element => {
         handleCodeApplicationStatus(ApiStatus.ERROR)
       }
     })
+  }
+
+  const handleEnteredUSDWithdrawal = (usd_value: string) => {
+    if (!signatureObj?.price) return
+    setEnteredUSDWithdrawal(usd_value)
+    const token_amount_equivalent = parseFloat(formatAmount(usd_value)) / signatureObj.price
+    handleEnteredWithdrawal(formatAmount(token_amount_equivalent.toString()), 18)
+  }
+
+  const handleEnteredUSDDeposit = (usd_value: string, maxDecimals?: number) => {
+    if (!signatureObj?.price) return
+    setEnteredUSDDeposit(usd_value)
+    const token_amount_equivalent = parseFloat(formatAmount(usd_value)) / selectedCoinPrice
+    handleEnteredDeposit(formatAmount(token_amount_equivalent.toString()), maxDecimals)
   }
 
   const getRefundableSOLACEAmount = useCallback(async () => {
@@ -384,6 +399,16 @@ export const PolicyContent = (): JSX.Element => {
     init()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [suggestedCoverLimit])
+
+  useEffect(() => {
+    const init = async () => {
+      if (!account) return
+      const nr = await getBalanceOfNonRefundable(account)
+      setNonrefundableBalance(nr)
+    }
+    init()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account])
 
   useEffect(() => {
     if (suggestedCoverLimit.gt(availCovCap)) {
@@ -476,10 +501,6 @@ export const PolicyContent = (): JSX.Element => {
                     display: 'flex',
                     width: '100%',
                     gap: '16px',
-                    // gridTemplateColumns: '1fr 1fr',
-                    // display: 'grid',
-                    // position: 'relative',
-                    // gap: '15px',
                   }}
                 >
                   <TileCard
@@ -593,8 +614,8 @@ export const PolicyContent = (): JSX.Element => {
                         <Text bold t7s textAlignCenter>
                           My Balance
                         </Text>
-                        <Text textAlignCenter bold t4s dark>
-                          ${truncateValue(scpBalance, 2)}
+                        <Text textAlignCenter bold t4s dark={appTheme == 'light'} light={appTheme == 'dark'}>
+                          ${truncateValue(formatUnits(parseUnits(scpBalance, 18).sub(nonrefundableBalance), 18), 2)}
                         </Text>
                       </Flex>
                       <VerticalSeparator />
@@ -617,7 +638,7 @@ export const PolicyContent = (): JSX.Element => {
                         <Text bold t7s textAlignCenter>
                           Est. Days
                         </Text>
-                        <Text textAlignCenter bold t4s dark>
+                        <Text textAlignCenter bold t4s dark={appTheme == 'light'} light={appTheme == 'dark'}>
                           {truncateValue(policyDuration, 2)}
                         </Text>
                       </Flex>
@@ -649,12 +670,19 @@ export const PolicyContent = (): JSX.Element => {
                         <DropdownInputSection
                           hasArrow
                           isOpen={coinsOpen}
-                          placeholder={'Enter amount'}
+                          placeholder={'$'}
                           icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
                           text={selectedCoin.symbol}
-                          value={enteredDeposit}
+                          value={
+                            enteredUSDDeposit != '' && enteredUSDDeposit != '0.' && enteredUSDDeposit != '.'
+                              ? truncateValue(enteredUSDDeposit, 2, false)
+                              : enteredUSDDeposit
+                          }
                           onChange={(e) =>
-                            handleEnteredDeposit(filterAmount(e.target.value, enteredDeposit), selectedCoin.decimals)
+                            handleEnteredUSDDeposit(
+                              filterAmount(e.target.value, enteredUSDDeposit),
+                              selectedCoin.decimals
+                            )
                           }
                           onClick={() => setCoinsOpen(!coinsOpen)}
                         />
@@ -689,11 +717,15 @@ export const PolicyContent = (): JSX.Element => {
                           </Flex>
                         </Flex>
                         <DropdownInputSection
-                          placeholder={'Enter amount'}
+                          placeholder={'$'}
                           icon={<img src={`https://assets.solace.fi/solace`} height={16} />}
                           text={'SOLACE'}
-                          value={enteredWithdrawal}
-                          onChange={(e) => handleEnteredWithdrawal(filterAmount(e.target.value, enteredWithdrawal))}
+                          value={
+                            enteredUSDWithdrawal != '' && enteredUSDWithdrawal != '0.' && enteredUSDWithdrawal != '.'
+                              ? truncateValue(enteredUSDWithdrawal, 2, false)
+                              : enteredUSDWithdrawal
+                          }
+                          onChange={(e) => handleEnteredUSDWithdrawal(filterAmount(e.target.value, enteredWithdrawal))}
                         />
                       </Flex>
                     )}
@@ -795,7 +827,7 @@ export const PolicyContent = (): JSX.Element => {
                               separator
                               onClick={() => {
                                 handleCtaState(undefined)
-                                handleEnteredDeposit('')
+                                handleEnteredUSDDeposit('')
                               }}
                               widthP={100}
                             >
@@ -807,12 +839,11 @@ export const PolicyContent = (): JSX.Element => {
                                 matchBg
                                 secondary
                                 noborder
-                                onClick={() =>
-                                  handleEnteredDeposit(
-                                    formatUnits(selectedCoinBalance, selectedCoin.decimals),
-                                    selectedCoin.decimals
-                                  )
-                                }
+                                onClick={() => {
+                                  const selectedCoinBalance_USD =
+                                    floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
+                                  handleEnteredUSDDeposit(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`))
+                                }}
                                 widthP={100}
                                 disabled={selectedCoinBalance.isZero()}
                               >
@@ -845,7 +876,7 @@ export const PolicyContent = (): JSX.Element => {
                               separator
                               onClick={() => {
                                 handleCtaState(undefined)
-                                handleEnteredWithdrawal('')
+                                handleEnteredUSDWithdrawal('')
                               }}
                               widthP={100}
                             >
@@ -856,8 +887,14 @@ export const PolicyContent = (): JSX.Element => {
                               matchBg
                               secondary
                               noborder
-                              onClick={() => handleEnteredWithdrawal(formatUnits(refundableSOLACEAmount, 18))}
-                              disabled={refundableSOLACEAmount.isZero()}
+                              onClick={() => {
+                                const refundableSOLACEAmount_USD_Equivalent =
+                                  floatUnits(refundableSOLACEAmount, 18) * signatureObj.price
+                                handleEnteredUSDWithdrawal(
+                                  convertSciNotaToPrecise(`${refundableSOLACEAmount_USD_Equivalent}`)
+                                )
+                              }}
+                              disabled={refundableSOLACEAmount.isZero() || !signatureObj?.price}
                               widthP={100}
                             >
                               <Text {...gradientStyle}>MAX</Text>

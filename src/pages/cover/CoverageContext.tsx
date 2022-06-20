@@ -365,7 +365,11 @@ const CoverageManager: React.FC = (props) => {
 
   const batchBalanceData = useMemo(() => {
     return batchBalances.map((b, i) => {
-      return { balance: b.balance, ...coinOptions[i] }
+      const name = coinOptions[i].name
+      const price = tokenPriceMapping[name.toLowerCase()]
+      let tokenprice = 1
+      if (price) tokenprice = price
+      return { balance: b.balance, price: tokenprice, ...coinOptions[i] }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchBalances])
@@ -497,7 +501,7 @@ const CoverageManager: React.FC = (props) => {
     })
     setSelectedCoin(tokenWithHighestBalance)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [batchBalanceData])
+  }, [account, activeNetwork])
 
   useEffect(() => {
     if (!curHighestPosition) {

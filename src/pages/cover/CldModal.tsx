@@ -93,6 +93,7 @@ export const CldModal = () => {
 
   const [localNewCoverageLimit, setLocalNewCoverageLimit] = useState<string>('')
   const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
+  const [enteredUSDDeposit, setEnteredUSDDeposit] = useState<string>('')
 
   const importCounterPrev = usePrevious(importCounter)
 
@@ -102,16 +103,12 @@ export const CldModal = () => {
 
   const lackingScp = useMemo(() => {
     const parsedScpBalance = parseUnits(scpBalance, 18)
-    const float_enteredDeposit = parseFloat(formatAmount(enteredDeposit))
-    const depositUSDEquivalent = float_enteredDeposit * selectedCoinPrice
-    const BN_Scp_Plus_Deposit = parsedScpBalance.add(
-      BigNumber.from(accurateMultiply(convertSciNotaToPrecise(`${depositUSDEquivalent}`), 18))
-    )
+    const BN_Scp_Plus_Deposit = parsedScpBalance.add(BigNumber.from(accurateMultiply(enteredUSDDeposit, 18)))
     if (minReqAccBal.isZero() && BN_Scp_Plus_Deposit.isZero()) return 'both zeroes'
     if (minReqAccBal.gt(BN_Scp_Plus_Deposit))
-      return truncateValue(formatUnits(minReqAccBal.sub(BN_Scp_Plus_Deposit)), 2)
+      return truncateValue(Math.round(parseFloat(formatUnits(minReqAccBal.sub(BN_Scp_Plus_Deposit))) * 100) / 100, 2)
     return 'meets requirement'
-  }, [scpBalance, minReqAccBal, enteredDeposit, selectedCoinPrice])
+  }, [scpBalance, minReqAccBal, enteredUSDDeposit])
 
   const handleInputChange = (input: string) => {
     // allow only numbers and decimals
@@ -196,7 +193,7 @@ export const CldModal = () => {
       handleCodeApplicationStatus(ApiStatus.PENDING)
       handleShowCodeNoticeModal(true)
     }
-    handleEnteredDeposit('')
+    handleEnteredUSDDeposit('')
     handleTransactionLoading(false)
     return await handleToast(tx, localTx)
   }
@@ -224,6 +221,13 @@ export const CldModal = () => {
         handleCodeApplicationStatus(ApiStatus.ERROR)
       }
     })
+  }
+
+  const handleEnteredUSDDeposit = (usd_value: string, maxDecimals?: number) => {
+    if (!signatureObj?.price) return
+    setEnteredUSDDeposit(usd_value)
+    const token_amount_equivalent = parseFloat(formatAmount(usd_value)) / selectedCoinPrice
+    handleEnteredDeposit(formatAmount(token_amount_equivalent.toString()), maxDecimals)
   }
 
   // sets up amounts
@@ -448,11 +452,15 @@ export const CldModal = () => {
             <DropdownInputSection
               hasArrow
               isOpen={localCoinsOpen}
-              placeholder={'Enter amount'}
+              placeholder={'$'}
               icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
               text={selectedCoin.symbol}
-              value={enteredDeposit}
-              onChange={(e) => handleEnteredDeposit(filterAmount(e.target.value, enteredDeposit))}
+              value={
+                enteredUSDDeposit != '' && enteredUSDDeposit != '0.' && enteredUSDDeposit != '.'
+                  ? truncateValue(enteredUSDDeposit, 2, false)
+                  : enteredUSDDeposit
+              }
+              onChange={(e) => handleEnteredUSDDeposit(filterAmount(e.target.value, enteredDeposit))}
               onClick={() => setLocalCoinsOpen(!localCoinsOpen)}
             />
             <BalanceDropdownOptions

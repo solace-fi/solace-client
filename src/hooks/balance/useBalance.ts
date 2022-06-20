@@ -289,6 +289,7 @@ export const useBatchBalances = (
 } => {
   const { account } = useWeb3React()
   const { provider } = useProvider()
+  const { version } = useCachedData()
   const { activeNetwork } = useNetwork()
   const [loading, setLoading] = useState(false)
   const [batchBalances, setBatchBalances] = useState<{ addr: string; balance: BigNumber }[]>([])
@@ -308,7 +309,7 @@ export const useBatchBalances = (
       setLoading(false)
     }
     getBalances()
-  }, [activeNetwork, account, JSON.stringify(addresses), provider])
+  }, [activeNetwork, account, JSON.stringify(addresses), provider, version])
 
   return { loading, batchBalances }
 }
