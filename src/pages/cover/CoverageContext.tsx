@@ -29,6 +29,7 @@ import { useTokenAllowance, useTokenInfiniteApprove } from '../../hooks/contract
 import SOLACE from '../../constants/abi/SOLACE.json'
 import useReferralApi from '../../hooks/api/useReferralApi'
 import { useWeb3React } from '@web3-react/core'
+import { isAddress } from '../../utils'
 
 type CoverageContextType = {
   intrface: {
@@ -392,7 +393,7 @@ const CoverageManager: React.FC = (props) => {
 
   const unlimitedApproveCPM = useCallback(
     async (tokenAddr: string) => {
-      if (!scpObj) return
+      if (!scpObj || !isAddress(tokenAddr) || !isAddress(scpObj.coverPaymentManager.address)) return
       await unlimitedApprove(tokenAddr, ERC20_ABI, scpObj.coverPaymentManager.address)
     },
     [scpObj, unlimitedApprove]

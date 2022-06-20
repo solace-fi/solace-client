@@ -424,7 +424,13 @@ export const CldModal = () => {
             </Button>
           )}
           {!depositApproval && (
-            <Button {...gradientStyle} {...bigButtonStyle} secondary noborder onClick={unlimitedApproveCPM}>
+            <Button
+              {...gradientStyle}
+              {...bigButtonStyle}
+              secondary
+              noborder
+              onClick={unlimitedApproveCPM(selectedCoin.address)}
+            >
               Approve
             </Button>
           )}
@@ -478,7 +484,13 @@ export const CldModal = () => {
               </Button>
             )}
             {!depositApproval && (
-              <Button {...gradientStyle} {...bigButtonStyle} secondary noborder onClick={unlimitedApproveCPM}>
+              <Button
+                {...gradientStyle}
+                {...bigButtonStyle}
+                secondary
+                noborder
+                onClick={unlimitedApproveCPM(selectedCoin.address)}
+              >
                 Approve
               </Button>
             )}

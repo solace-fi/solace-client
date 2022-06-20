@@ -216,44 +216,17 @@ export const PolicyContent = (): JSX.Element => {
 
   const callCancel = async () => {
     if (!account || !signatureObj) return
-    const test1 = {
-      premium_usd: 3.5900359601031178,
-      premium: 3590035960103117800,
-      policyholder: '0x1271e2acD0d209FA490692F5578239583Cde4073',
-      deadline: 1655506122,
+    const test = {
+      premium_usd: 3.0000383337889525,
+      premium: 3000038333788952500,
+      policyholder: '0x59733c7Cd78d08dAb90368aD2cc09c8c81f097C0',
+      deadline: 1655747029,
       signature:
-        '0x5f76b378d2d59d7a7a71842af8e8dee223b93bde4a1a335e565b0d2d3bc03b587bf55de13a89c237ccb0e279bfa5d665a8e66713ee07275a1c9f076f6364624d1c',
-    }
-
-    const test2 = {
-      premium_usd: 3.833,
-      premium: 3833000000000000000,
-      policyholder: '0xfb5cAAe76af8D3CE730f3D62c6442744853d43Ef',
-      deadline: 1655506228,
-      signature:
-        '0x88e2ba2e6021e358b3e9514a773f916c986e4713b43ece883bda036677587ec611f246c8d0502a0079e36a5be4f9342a81e8ed522644401694b39237fef5ac001b',
-    }
-
-    const test3 = {
-      premium_usd: 2.95,
-      premium: 2950000000000000000,
-      policyholder: '0x501AcE0e8D16B92236763E2dEd7aE3bc2DFfA276',
-      deadline: 1655506267,
-      signature:
-        '0xe2638905d37e28580ad40c169a78ec823e36a3706980cdbacc1e3e3b0c0cfc5132751671abbb033fb46c8d5a00ec482d0319956e761ad6f601fdf6f7e26ac96a1c',
-    }
-
-    const test4 = {
-      premium_usd: 4.920385,
-      premium: 4920385000000000000,
-      policyholder: '0x34Bb9e91dC8AC1E13fb42A0e23f7236999e063D4',
-      deadline: 1655506319,
-      signature:
-        '0x1c30441912b44044f95d8c6b6490652a5808e9ed076077b2875e80c91d46b99c7b37d9d7608c15837eac22020594f8eca8e22c8e9e60e3b65cd1472c7f5975af1c',
+        '0x5d6151e945e36298b6ae311b0bd2b76275c4fa375a900df9fed8c8f4b092879c759af8d5ea25b9c43158ba8cf6a9f96c0432de475537ff0513ff5d2cddfbb6901b',
     }
 
     handleTransactionLoading(true)
-    await cancel(test4.premium.toString(), test4.deadline, test4.signature)
+    await cancel(test.premium.toString(), test.deadline, test.signature)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callCancel', err, FunctionName.COVER_CANCEL))
   }
