@@ -408,7 +408,7 @@ export const usePortfolio = (): {
 
   const riskBalances = useCallback(async (): Promise<SolaceRiskBalance[] | undefined> => {
     if (!account) return undefined
-    const balances = await risk.getSolaceRiskBalances(account, [1, 137, 250])
+    const balances = await risk.getSolaceRiskBalances(account, [1, 137, 250, 1313161554])
     return balances
   }, [account, risk])
 
