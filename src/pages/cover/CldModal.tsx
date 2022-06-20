@@ -429,7 +429,7 @@ export const CldModal = () => {
               {...bigButtonStyle}
               secondary
               noborder
-              onClick={unlimitedApproveCPM(selectedCoin.address)}
+              onClick={() => unlimitedApproveCPM(selectedCoin.address)}
             >
               Approve
             </Button>
@@ -489,7 +489,7 @@ export const CldModal = () => {
                 {...bigButtonStyle}
                 secondary
                 noborder
-                onClick={unlimitedApproveCPM(selectedCoin.address)}
+                onClick={() => unlimitedApproveCPM(selectedCoin.address)}
               >
                 Approve
               </Button>
