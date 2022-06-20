@@ -5,7 +5,7 @@ import { useGeneral } from '../../../context/GeneralManager'
 import { useNetwork } from '../../../context/NetworkManager'
 import { useCheckIsCoverageActive } from '../../policy/useSolaceCoverProductV3'
 import { GetByUserResponse } from './GetByUserResponse'
-import { InfoResponse, InfoResponseArray } from './InfoResponse'
+import { InfoResponse, InfoResponseArray, AppliedPromoCode } from './InfoResponse'
 
 export default function useReferralApi(): {
   userReferralCode: string | undefined
@@ -146,7 +146,7 @@ export default function useReferralApi(): {
     })
     const data = await response.json()
     console.log('referral - api response', data)
-    const _appliedCode = data.result?.find((o: any) => o.referral_code)
+    const _appliedCode = data.result?.referral_code
     _appliedCode && setAppliedCode(_appliedCode)
     console.log('referral - applied code', _appliedCode)
     return _appliedCode ? true : false
