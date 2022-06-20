@@ -144,9 +144,9 @@ export default function useReferralApi(): {
         referral_code,
       }),
     })
-    const data = (await response.json()) as InfoResponseArray
+    const data = await response.json()
     console.log('referral - api response', data)
-    const _appliedCode = data.result?.[0]?.referral_code
+    const _appliedCode = data.result?.find((o: any) => o.referral_code)
     _appliedCode && setAppliedCode(_appliedCode)
     console.log('referral - applied code', _appliedCode)
     return _appliedCode ? true : false
