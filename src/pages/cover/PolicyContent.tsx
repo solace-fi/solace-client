@@ -842,7 +842,8 @@ export const PolicyContent = (): JSX.Element => {
                                 onClick={() => {
                                   const selectedCoinBalance_USD =
                                     floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
-                                  handleEnteredUSDDeposit(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`))
+                                  handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
+                                  setEnteredUSDDeposit(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`))
                                 }}
                                 widthP={100}
                                 disabled={selectedCoinBalance.isZero()}
@@ -890,7 +891,8 @@ export const PolicyContent = (): JSX.Element => {
                               onClick={() => {
                                 const refundableSOLACEAmount_USD_Equivalent =
                                   floatUnits(refundableSOLACEAmount, 18) * signatureObj.price
-                                handleEnteredUSDWithdrawal(
+                                handleEnteredWithdrawal(formatUnits(refundableSOLACEAmount, 18), 18)
+                                setEnteredUSDWithdrawal(
                                   convertSciNotaToPrecise(`${refundableSOLACEAmount_USD_Equivalent}`)
                                 )
                               }}
