@@ -456,11 +456,11 @@ export const CldModal = () => {
               placeholder={'$'}
               icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
               text={selectedCoin.symbol}
-              value={
+              value={`$${
                 enteredUSDDeposit != '' && enteredUSDDeposit != '0.' && enteredUSDDeposit != '.'
                   ? truncateValue(enteredUSDDeposit, 2, false)
                   : enteredUSDDeposit
-              }
+              }`}
               onChange={(e) => handleEnteredUSDDeposit(filterAmount(e.target.value, enteredDeposit))}
               onClick={() => setLocalCoinsOpen(!localCoinsOpen)}
             />

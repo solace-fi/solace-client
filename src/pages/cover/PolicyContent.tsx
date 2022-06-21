@@ -670,11 +670,11 @@ export const PolicyContent = (): JSX.Element => {
                           placeholder={'$'}
                           icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
                           text={selectedCoin.symbol}
-                          value={
+                          value={`$${
                             enteredUSDDeposit != '' && enteredUSDDeposit != '0.' && enteredUSDDeposit != '.'
                               ? truncateValue(enteredUSDDeposit, 2, false)
                               : enteredUSDDeposit
-                          }
+                          }`}
                           onChange={(e) =>
                             handleEnteredUSDDeposit(
                               filterAmount(e.target.value, enteredUSDDeposit),
@@ -717,11 +717,11 @@ export const PolicyContent = (): JSX.Element => {
                           placeholder={'$'}
                           icon={<img src={`https://assets.solace.fi/solace`} height={16} />}
                           text={'SOLACE'}
-                          value={
+                          value={`$${
                             enteredUSDWithdrawal != '' && enteredUSDWithdrawal != '0.' && enteredUSDWithdrawal != '.'
                               ? truncateValue(enteredUSDWithdrawal, 2, false)
                               : enteredUSDWithdrawal
-                          }
+                          }`}
                           onChange={(e) => handleEnteredUSDWithdrawal(filterAmount(e.target.value, enteredWithdrawal))}
                         />
                       </Flex>

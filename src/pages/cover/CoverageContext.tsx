@@ -364,6 +364,7 @@ const CoverageManager: React.FC = (props) => {
   )
 
   const batchBalanceData = useMemo(() => {
+    if (batchBalances.length !== coinOptions.length) return []
     return batchBalances.map((b, i) => {
       const name = coinOptions[i].name
       const price = tokenPriceMapping[name.toLowerCase()]
