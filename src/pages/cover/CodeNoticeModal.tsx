@@ -52,6 +52,9 @@ export const CodeNoticeModal = () => {
               Your referral code has been successfully applied alongside the activation of your policy.
             </Text>
             <Text textAlignCenter t3>
+              Your rewards will be credited to your account shortly.
+            </Text>
+            <Text textAlignCenter t3>
               You may now exit this screen.
             </Text>
           </>

@@ -41,10 +41,10 @@ export default function ReferralModal(): JSX.Element {
       </Flex>
       {userReferralCode && (
         <Flex col pb={20} px={20} gap={12}>
-          <Grid columns={2} gap={12}>
-            <CardTemplate title="People you've referred">{referredCount ?? 0}</CardTemplate>
-            <CardTemplate title="Earned Rewards">${truncateValue(earnedAmount ?? 0, 2)}</CardTemplate>
-          </Grid>
+          {/* <Grid columns={2} gap={12}> */}
+          {/* <CardTemplate title="People you've referred">{referredCount ?? 0}</CardTemplate> */}
+          <CardTemplate title="Earned Rewards">${truncateValue(earnedAmount ?? 0, 2)}</CardTemplate>
+          {/* </Grid> */}
           <ThinCardTemplate2
             icon={<StyledShare width={12} height={12} />}
             value1="Your referral code:"

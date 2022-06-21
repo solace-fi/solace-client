@@ -758,7 +758,7 @@ export const PolicyContent = (): JSX.Element => {
                           onClick={() => unlimitedApproveCPM(selectedCoin.address)}
                         >
                           <Text bold t4s>
-                            Approve
+                            Approve {selectedCoin.symbol}
                           </Text>
                         </Button>
                       )}
@@ -800,7 +800,7 @@ export const PolicyContent = (): JSX.Element => {
                               widthP={100}
                             >
                               <Text bold t4s>
-                                Approve
+                                Approve {selectedCoin.symbol}
                               </Text>
                             </Button>
                           )}
