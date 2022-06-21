@@ -18,6 +18,7 @@ export const useTokenAllowance = (
   parsedAmount: string
 ): boolean => {
   const { account } = useWeb3React()
+  const { latestBlock } = useProvider()
   const { version } = useCachedData()
   const [allowance, setAllowance] = useState<string>('0')
   const approval = useMemo(() => hasApproval(allowance, parsedAmount), [parsedAmount, allowance])
@@ -34,7 +35,7 @@ export const useTokenAllowance = (
 
   useEffect(() => {
     checkAllowance()
-  }, [tokenContract, spender, parsedAmount, account, version])
+  }, [tokenContract, spender, parsedAmount, account, version, latestBlock])
 
   return approval
 }

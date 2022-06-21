@@ -77,12 +77,13 @@ export default function useReferralApi(): {
     })
     const data = (await response.json()) as InfoResponse
     const _earnedAmount = data.result?.reward_accounting?.promo_rewards
-    const _referredCount = data.result?.reward_accounting?.referred_count
+    // const _referredCount = data.result?.reward_accounting?.referred_count
+    const _referredCount = !userReferralCode ? 0 : data.result?.referred_users.length
     const _appliedCode = data.result?.applied_referral_codes?.[0]?.referral_code
     _earnedAmount ? setEarnedAmount(_earnedAmount) : setEarnedAmount(0)
     _referredCount ? setReferredCount(_referredCount) : setReferredCount(0)
     _appliedCode ? setAppliedCode(_appliedCode) : setAppliedCode('')
-  }, [account])
+  }, [account, userReferralCode])
 
   const checkReferralCodeUsability = useCallback(async (referral_code: string) => {
     const url = `${baseApiUrl}referral-codes?referral_code=${referral_code}`
