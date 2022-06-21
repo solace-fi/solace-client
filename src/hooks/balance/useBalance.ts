@@ -282,7 +282,13 @@ export const useCrossChainUnderwritingPoolBalance = () => {
 }
 
 export const useBatchBalances = (
-  addresses: string[]
+  coinOptions: {
+    stablecoin: boolean
+    address: string
+    name: string
+    symbol: string
+    decimals: number
+  }[]
 ): {
   batchBalances: { addr: string; balance: BigNumber }[]
   loading: boolean
@@ -299,17 +305,17 @@ export const useBatchBalances = (
       if (activeNetwork.config.restrictedFeatures.noCoverageV3 || !account || loading) return
       setLoading(true)
       const batchBalances = await Promise.all(
-        addresses.map((address) => queryBalance(new Contract(address, ERC20_ABI, provider), account))
+        coinOptions.map((o) => queryBalance(new Contract(o.address, ERC20_ABI, provider), account))
       )
       setBatchBalances(
-        addresses.map((addr, i) => {
-          return { addr, balance: batchBalances[i] }
+        coinOptions.map((o, i) => {
+          return { addr: o.address, balance: batchBalances[i] }
         })
       )
       setLoading(false)
     }
     getBalances()
-  }, [activeNetwork, account, JSON.stringify(addresses), provider, version])
+  }, [activeNetwork, account, coinOptions, provider, version])
 
   return { loading, batchBalances }
 }

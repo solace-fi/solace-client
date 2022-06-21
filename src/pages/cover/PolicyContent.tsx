@@ -31,6 +31,7 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useGeneral } from '../../context/GeneralManager'
+import { Risk } from '@solace-fi/sdk-nightly'
 
 export const PolicyContent = (): JSX.Element => {
   const { appTheme } = useGeneral()
@@ -201,6 +202,7 @@ export const PolicyContent = (): JSX.Element => {
   const callDepositNonStable = async () => {
     if (!account || !depositApproval) return
     const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
+    if (!signature) return
     const tokenSignature: any = Object.values(signature)[0]
     handleTransactionLoading(true)
     await depositNonStable(
@@ -217,17 +219,10 @@ export const PolicyContent = (): JSX.Element => {
 
   const callCancel = async () => {
     if (!account || !signatureObj) return
-    const test = {
-      premium_usd: 3.0000383337889525,
-      premium: 3000038333788952500,
-      policyholder: '0x59733c7Cd78d08dAb90368aD2cc09c8c81f097C0',
-      deadline: 1655747029,
-      signature:
-        '0x5d6151e945e36298b6ae311b0bd2b76275c4fa375a900df9fed8c8f4b092879c759af8d5ea25b9c43158ba8cf6a9f96c0432de475537ff0513ff5d2cddfbb6901b',
-    }
-
     handleTransactionLoading(true)
-    await cancel(test.premium.toString(), test.deadline, test.signature)
+    const risk = new Risk()
+    const premiumData = await risk.getSolaceRiskPremiumData(account, activeNetwork.chainId)
+    await cancel(premiumData.premium.toString(), premiumData.deadline, premiumData.signature)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callCancel', err, FunctionName.COVER_CANCEL))
   }
@@ -235,6 +230,7 @@ export const PolicyContent = (): JSX.Element => {
   const callWithdraw = async () => {
     if (!account || !signatureObj || refundableSOLACEAmount.isZero()) return
     const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
+    if (!signature) return
     const tokenSignature: any = Object.values(signature)[0]
     handleTransactionLoading(true)
     const parsedWithdrawal = parseUnits(formatAmount(enteredWithdrawal), 18)
@@ -270,6 +266,7 @@ export const PolicyContent = (): JSX.Element => {
   const callPurchaseWithNonStable = async () => {
     if (!account || !depositApproval || !signatureObj) return
     const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
+    if (!signature) return
     const tokenSignature: any = Object.values(signature)[0]
     handleTransactionLoading(true)
     await purchaseWithNonStable(
@@ -303,6 +300,7 @@ export const PolicyContent = (): JSX.Element => {
       handleCodeApplicationStatus(ApiStatus.PENDING)
       handleShowCodeNoticeModal(true)
     }
+    handleCtaState(undefined)
     handleEnteredUSDDeposit('')
     handleTransactionLoading(false)
     return await handleToast(tx, localTx)
@@ -348,11 +346,15 @@ export const PolicyContent = (): JSX.Element => {
   }
 
   const getRefundableSOLACEAmount = useCallback(async () => {
-    if (!account || !scpObj) {
+    if (!account || !scpObj || !signatureObj) {
       setRefundableSOLACEAmount(ZERO)
       return
     }
     const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
+    if (!signature) {
+      setRefundableSOLACEAmount(ZERO)
+      return
+    }
     const tokenSignature: any = Object.values(signature)[0]
     const refundableSOLACEAmount = await scpObj.getRefundableSOLACEAmount(
       account,

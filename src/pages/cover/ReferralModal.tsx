@@ -111,7 +111,7 @@ export default function ReferralModal(): JSX.Element {
                     </TextSpan>
                   </Text>
                   <Text t5s success textAlignCenter>
-                    You&apos;ll earn $50 upon purchasing a policy.
+                    You&apos;ll earn $10 upon purchasing a policy.
                   </Text>
                 </>
               )}

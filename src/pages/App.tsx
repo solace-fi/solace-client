@@ -66,7 +66,7 @@ export default function App(): any {
       title: 'My Policy',
       to: '/cover',
       icon: <StyledDashboard size={30} />,
-      component: Soteria,
+      component: Cover,
     },
     {
       name: 'Bond',
@@ -180,7 +180,7 @@ export default function App(): any {
                     <Route exact key={p.to} path={p.to} component={p.component} />
                   ))}
                   <Route exact path="/terms" component={Terms} />
-                  <Route exact path="/swc3" component={Cover} />
+                  {/* <Route exact path="/swc3" component={Cover} /> */}
                   <Route
                     exact
                     path="*"

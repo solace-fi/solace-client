@@ -334,7 +334,7 @@ const CoverageManager: React.FC = (props) => {
     ],
     [activeNetwork]
   )
-  const { loading: balancesLoading, batchBalances } = useBatchBalances(coinOptions.map((c) => c.address))
+  const { loading: balancesLoading, batchBalances } = useBatchBalances(coinOptions)
 
   const [userState, setUserState] = useState<InterfaceState>(InterfaceState.NEW_USER)
   const [ctaState, setCtaState] = useState<InterfaceState | undefined>(undefined)

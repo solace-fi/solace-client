@@ -159,6 +159,7 @@ export const CldModal = () => {
   const callPurchaseWithNonStable = async () => {
     if (!account || !signatureObj) return
     const signature = signatureObj.signatures[`${activeNetwork.chainId}`]
+    if (!signature) return
     const tokenSignature: any = Object.values(signature)[0]
     handleTransactionLoading(true)
     await purchaseWithNonStable(

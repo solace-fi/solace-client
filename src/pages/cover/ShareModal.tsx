@@ -12,7 +12,7 @@ import useReferralApi from '../../hooks/api/useReferralApi'
 import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
 
 export default function ShareModal() {
-  const { intrface, styles } = useCoverageContext()
+  const { intrface } = useCoverageContext()
   const { handleShowShareReferralModal } = intrface
   const { appTheme } = useGeneral()
   const [browserSupportsShare, setBrowserSupportsShare] = React.useState(false)
@@ -37,7 +37,7 @@ export default function ShareModal() {
           </Flex>
         </Flex>
         <Text info t3s semibold style={{ lineHeight: '27.6px' }}>
-          Earn $50 in policy balance, and your friend can get $50 more
+          Earn $10 in policy balance, and your friend can get $10 more
         </Text>
         <Text t4s mt={5} style={{ lineHeight: '20.7px' }}>
           {"You'll both get rewarded when your friend activates their policy"}
@@ -65,12 +65,7 @@ export default function ShareModal() {
             noborder
             secondary
             width={141}
-            // copy link on click
-            onClick={() => {
-              setCopied(`${(window as any).location.href}?rc=${userReferralCode}`)
-              console.log('copied link')
-            }}
-            // onClick={() => prompt('Copy referral link:', `https://app.solace.fi?r_code=${userReferralCode}`)}
+            onClick={() => setCopied(`${(window as any).location.href}?rc=${userReferralCode}`)}
           >
             {!isCopied ? 'Copy link' : 'Link copied'}
           </Button>
@@ -83,7 +78,9 @@ export default function ShareModal() {
 
         <Flex gap={12}>
           <a
-            href={`https://t.me/share/url?url=https://app.solace.fi?r_code=${userReferralCode}&text=Use my referral code to get $50 in Solace Portfolio Coverage balance!`}
+            href={`https://t.me/share/url?url=${
+              (window as any).location.href
+            }?rc=${userReferralCode}&text=Use my referral code to get $10 in Solace Portfolio Insurance!`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ flex: 1 }}
@@ -102,7 +99,9 @@ export default function ShareModal() {
             </Flex>
           </a>
           <a
-            href={`https://twitter.com/intent/tweet?text=Use my referral code to get $50 in Solace Portfolio Coverage balance!&url=https://app.solace.fi?r_code=${userReferralCode}&hashtags=Solace`}
+            href={`https://twitter.com/intent/tweet?text=Use my referral code to get $10 in Solace Portfolio Insurance!&url=${
+              (window as any).location.href
+            }?rc=${userReferralCode}&hashtags=Solace`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ flex: 1 }}
@@ -133,9 +132,9 @@ export default function ShareModal() {
             style={{ userSelect: 'none', minHeight: '103px' }}
             onClick={() => {
               window.navigator.share({
-                title: 'Use my referral code to get $50 in Solace Portfolio Coverage balance!',
-                text: 'Use my referral code to get $50 in Solace Portfolio Coverage balance!',
-                url: `https://app.solace.fi?r_code=${userReferralCode}`,
+                title: 'Use my referral code to get $10 in Solace Portfolio Insurance!',
+                text: 'Use my referral code to get $10 in Solace Portfolio Insurance!',
+                url: `${(window as any).location.href}?rc=${userReferralCode}`,
               })
             }}
           >

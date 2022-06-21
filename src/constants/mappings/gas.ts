@@ -6,7 +6,7 @@ export const FunctionGasLimits: { [key: string]: number } = {
   ['cpFarm.depositEth']: 243022,
   ['cpFarm.withdrawCp']: 189538,
   ['farmRewards.redeem']: 587271,
-  ['solaceCoverProductV3.cancel']: 88831,
+  ['solaceCoverProductV3.cancel']: 288831,
   ['solaceCoverProductV3.purchase']: 358087,
   ['solaceCoverProductV3.purchaseWithNonStable']: 426093,
   ['solaceCoverProductV3.purchaseWithStable']: 417039,
