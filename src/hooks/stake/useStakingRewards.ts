@@ -21,12 +21,12 @@ export const useStakingRewards = () => {
   const { provider, signer } = useProvider()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
-  const { stakingRewards, xsLocker } = useMemo(() => keyContracts, [keyContracts])
+  const { stakingRewardsV2, xsLocker } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
 
   const getUserPendingRewards = async (account: string) => {
     let pendingRewards = ZERO
-    if (!xsLocker || !stakingRewards) return pendingRewards
+    if (!xsLocker || !stakingRewardsV2) return pendingRewards
     const numLocks = await withBackoffRetries(async () => xsLocker.balanceOf(account))
     const indices = rangeFrom0(numLocks.toNumber())
     const xsLockIDs = await Promise.all(
@@ -46,9 +46,9 @@ export const useStakingRewards = () => {
   }
 
   const getPendingRewardsOfLock = async (xsLockID: BigNumber): Promise<BigNumber> => {
-    if (!stakingRewards) return ZERO
+    if (!stakingRewardsV2) return ZERO
     try {
-      const pendingRewards = await withBackoffRetries(async () => stakingRewards.pendingRewardsOfLock(xsLockID))
+      const pendingRewards = await withBackoffRetries(async () => stakingRewardsV2.pendingRewardsOfLock(xsLockID))
       return pendingRewards
     } catch (err) {
       console.log('error getPendingRewardsOfLock ', err)
@@ -57,9 +57,9 @@ export const useStakingRewards = () => {
   }
 
   const getStakedLockInfo = async (xsLockID: BigNumber) => {
-    if (!stakingRewards) return null
+    if (!stakingRewardsV2) return null
     try {
-      const userInfo = await withBackoffRetries(async () => stakingRewards.stakedLockInfo(xsLockID))
+      const userInfo = await withBackoffRetries(async () => stakingRewardsV2.stakedLockInfo(xsLockID))
       return userInfo
     } catch (err) {
       console.log('error getStakedLockInfo ', err)
@@ -84,22 +84,22 @@ export const useStakingRewards = () => {
   }
 
   const harvestLockRewards = async (xsLockIDs: BigNumber[]) => {
-    if (!stakingRewards || xsLockIDs.length == 0) return { tx: null, localTx: null }
+    if (!stakingRewardsV2 || xsLockIDs.length == 0) return { tx: null, localTx: null }
     let tx = null
     let type = FunctionName.HARVEST_LOCK
     if (xsLockIDs.length > 1) {
-      const estGas = await stakingRewards.estimateGas.harvestLocks(xsLockIDs)
-      console.log('stakingRewards.estimateGas.harvestLocks', estGas.toString())
-      tx = await stakingRewards.harvestLocks(xsLockIDs, {
+      const estGas = await stakingRewardsV2.estimateGas.harvestLocks(xsLockIDs)
+      console.log('stakingRewardsV2.estimateGas.harvestLocks', estGas.toString())
+      tx = await stakingRewardsV2.harvestLocks(xsLockIDs, {
         ...gasConfig,
         // gasLimit: FunctionGasLimits['stakingRewards.harvestLocks'],
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.HARVEST_LOCKS
     } else {
-      const estGas = await stakingRewards.estimateGas.harvestLock(xsLockIDs[0])
-      console.log('stakingRewards.estimateGas.harvestLock', estGas.toString())
-      tx = await stakingRewards.harvestLock(xsLockIDs[0], {
+      const estGas = await stakingRewardsV2.estimateGas.harvestLock(xsLockIDs[0])
+      console.log('stakingRewardsV2.estimateGas.harvestLock', estGas.toString())
+      tx = await stakingRewardsV2.harvestLock(xsLockIDs[0], {
         ...gasConfig,
         // gasLimit: FunctionGasLimits['stakingRewards.harvestLock'],
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
@@ -114,13 +114,13 @@ export const useStakingRewards = () => {
   }
 
   const compoundLockRewards = async (xsLockIDs: BigNumber[], multipleLocks: boolean, targetXsLockID?: BigNumber) => {
-    if (!stakingRewards || xsLockIDs.length == 0) return { tx: null, localTx: null }
+    if (!stakingRewardsV2 || xsLockIDs.length == 0) return { tx: null, localTx: null }
     let tx = null
     let type = FunctionName.COMPOUND_LOCK
     if (xsLockIDs.length > 1 && targetXsLockID && multipleLocks) {
-      const estGas = await stakingRewards.estimateGas.compoundLocks(xsLockIDs, targetXsLockID)
-      console.log('stakingRewards.estimateGas.compoundLocks', estGas.toString())
-      tx = await stakingRewards.compoundLocks(xsLockIDs, targetXsLockID, {
+      const estGas = await stakingRewardsV2.estimateGas.compoundLocks(xsLockIDs, targetXsLockID)
+      console.log('stakingRewardsV2.estimateGas.compoundLocks', estGas.toString())
+      tx = await stakingRewardsV2.compoundLocks(xsLockIDs, targetXsLockID, {
         ...gasConfig,
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
@@ -130,9 +130,9 @@ export const useStakingRewards = () => {
       // })
       type = FunctionName.COMPOUND_LOCKS
     } else {
-      const estGas = await stakingRewards.estimateGas.compoundLock(xsLockIDs[0])
-      console.log('stakingRewards.estimateGas.compoundLock', estGas.toString())
-      tx = await stakingRewards.compoundLock(xsLockIDs[0], {
+      const estGas = await stakingRewardsV2.estimateGas.compoundLock(xsLockIDs[0])
+      console.log('stakingRewardsV2.estimateGas.compoundLock', estGas.toString())
+      tx = await stakingRewardsV2.compoundLock(xsLockIDs[0], {
         ...gasConfig,
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })

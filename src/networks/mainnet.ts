@@ -13,12 +13,24 @@ import xSolaceV1ABI from '../constants/abi/xSOLACEV1.json'
 import xSolaceMigratorABI from '../constants/abi/xSolaceMigrator.json'
 import cpFarmABI from '../constants/abi/CpFarm.json'
 
-import { xsLocker_ABI, StakingRewards_ABI, Vault_ABI, SolaceCoverProduct_ABI } from '../constants/abi'
-
 import { KEY_ADDRS } from '../constants/addresses/mainnet'
 import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/mainnet'
 
+import {
+  xsLocker_ABI,
+  StakingRewards_ABI,
+  Vault_ABI,
+  SolaceCoverProduct_ABI,
+  SolaceCoverProductV3_ABI,
+  CoverPaymentManager_ABI,
+  StakingRewardsV2_ABI,
+} from '../constants/abi'
+import {
+  COVER_PAYMENT_MANAGER_ADDRESS,
+  SOLACE_COVER_PRODUCT_V3_ADDRESS,
+  STAKING_REWARDS_V2_ADDRESS,
+} from '@solace-fi/sdk-nightly'
 /*
 
 When adding new products, please add into productContracts, functions, and cache
@@ -92,8 +104,20 @@ export const MainNetwork: NetworkConfig = {
         addr: KEY_ADDRS.SOLACE_COVER_PRODUCT,
         abi: SolaceCoverProduct_ABI,
       },
+      solaceCoverProductV3: {
+        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
+        abi: SolaceCoverProductV3_ABI,
+      },
+      coverPaymentManager: {
+        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
+        abi: CoverPaymentManager_ABI,
+      },
+      stakingRewardsV2: {
+        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
+        abi: StakingRewardsV2_ABI,
+      },
     },
-    restrictedFeatures: { noCoverageV3: true, noStakingRewardsV2: true },
+    restrictedFeatures: {},
     specialFeatures: {
       solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },

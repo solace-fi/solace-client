@@ -14,8 +14,19 @@ import { NetworkConfig } from '../constants/types'
 import FantomLogo from '../resources/svg/networks/fantom-logo.svg'
 // import solaceCoverProductV2ABI from '../constants/abi/SolaceCoverProductV2.json'
 
-import { xsLocker_ABI, SolaceCoverProductV2_ABI, StakingRewards_ABI } from '../constants/abi'
-
+import {
+  xsLocker_ABI,
+  SolaceCoverProductV2_ABI,
+  StakingRewards_ABI,
+  SolaceCoverProductV3_ABI,
+  CoverPaymentManager_ABI,
+  StakingRewardsV2_ABI,
+} from '../constants/abi'
+import {
+  COVER_PAYMENT_MANAGER_ADDRESS,
+  SOLACE_COVER_PRODUCT_V3_ADDRESS,
+  STAKING_REWARDS_V2_ADDRESS,
+} from '@solace-fi/sdk-nightly'
 const chainId = 250
 
 export const FantomNetwork: NetworkConfig = {
@@ -60,14 +71,24 @@ export const FantomNetwork: NetworkConfig = {
         addr: KEY_ADDRS.STAKING_REWARDS,
         abi: StakingRewards_ABI,
       },
+      solaceCoverProductV3: {
+        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
+        abi: SolaceCoverProductV3_ABI,
+      },
+      coverPaymentManager: {
+        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
+        abi: CoverPaymentManager_ABI,
+      },
+      stakingRewardsV2: {
+        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
+        abi: StakingRewardsV2_ABI,
+      },
     },
     specialContracts: {},
     restrictedFeatures: {
       noBondingV1: true,
       noFarmingV1: true,
       noStakingV1: true,
-      noCoverageV3: true,
-      noStakingRewardsV2: true,
     },
     specialFeatures: {},
     underwritingPoolAddr: '0x2971f45c0952437934B3F055C401241e5C339F93',
