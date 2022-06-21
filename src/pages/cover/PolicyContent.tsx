@@ -423,11 +423,6 @@ export const PolicyContent = (): JSX.Element => {
   return (
     // <Content>
     <div>
-      <Flex justifyCenter mb={36}>
-        <Text big2 mont style={{ marginLeft: 'auto', marginRight: 'auto', fontWeight: '600' }}>
-          My Policy
-        </Text>
-      </Flex>
       {coverageLoading || existingPolicyLoading ? (
         <Flex col gap={16} m={isMobile ? 20 : undefined}>
           <LoaderText text={'Loading'} />
