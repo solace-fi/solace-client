@@ -76,8 +76,7 @@ export default function useReferralApi(): {
       },
     })
     const data = (await response.json()) as InfoResponse
-    const _earnedAmount = data.result?.reward_accounting?.promo_rewards
-    // const _referredCount = data.result?.reward_accounting?.referred_count
+    const _earnedAmount = data.result?.reward_accounting?.referred_earns
     const _referredCount = !userReferralCode ? 0 : data.result?.referred_users.length
     const _appliedCode = data.result?.applied_referral_codes?.[0]?.referral_code
     _earnedAmount ? setEarnedAmount(_earnedAmount) : setEarnedAmount(0)
