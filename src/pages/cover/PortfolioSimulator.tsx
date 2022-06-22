@@ -17,7 +17,7 @@ import { Text } from '../../components/atoms/Typography'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
 import AddProtocolForm from './AddProtocolForm'
-import mapEditableProtocols from '../../utils/mapEditableProtocols'
+import { mapEditableProtocols, mapUniqueRiskProtocols } from '../../utils/mapProtocols'
 import { useNetwork } from '../../context/NetworkManager'
 
 export const PortfolioSimulator = (): JSX.Element => {
@@ -33,16 +33,17 @@ export const PortfolioSimulator = (): JSX.Element => {
   const { handleSimPortfolio, handleSimCounter, simPortfolio, clearCounter } = simulator
   const { bigButtonStyle, gradientStyle } = styles
   const [canSimulate, setCanSimulate] = useState(false)
-  const [editingItem, setEditingItem] = useState<{
-    appId?: string
-    network?: string
-  }>({})
+  const [editingItem, setEditingItem] = useState<string | undefined>(undefined)
   const [simulating, setSimulating] = useState(false)
   const [compiling, setCompiling] = useState(false)
 
   const startup = useRef(true)
 
   const [editableProtocols, setEditableProtocols] = useState<LocalSolaceRiskProtocol[]>([])
+  const protocolsByName = useMemo(() => {
+    if (!portfolioScore) return {}
+    return mapUniqueRiskProtocols(portfolioScore.protocols)
+  }, [portfolioScore])
 
   const [bottomButtonHeight, setBottomButtonHeight] = useState(91)
   const [addingProtocol, setAddingProtocol] = useState(false)
@@ -85,6 +86,7 @@ export const PortfolioSimulator = (): JSX.Element => {
       rrol: 0,
       'rp-usd': 0,
       'risk-adj': 0,
+      networks: [],
     }
     const reIndexedProtocols = editableProtocols.map((protocol, i) => ({ ...protocol, index: i + 1 }))
     const tmp = [data, ...reIndexedProtocols]
@@ -93,7 +95,7 @@ export const PortfolioSimulator = (): JSX.Element => {
   }
 
   const saveEditedItem = useCallback(
-    (targetAppId: string, targetNetwork: string, newAppId: string, newAmount: string): boolean => {
+    (targetAppId: string, newAppId: string, newAmount: string): boolean => {
       let editedSomething = false
       const newProtocol = series?.data.protocolMap.find((p) => p.appId.toLowerCase() === newAppId.toLowerCase())
       if (!newProtocol) return false
@@ -105,7 +107,7 @@ export const PortfolioSimulator = (): JSX.Element => {
       setCompiling(true)
       setEditableProtocols(
         editableProtocols.map((p) => {
-          if (p.appId === targetAppId && p.network === targetNetwork) {
+          if (p.appId === targetAppId) {
             editedSomething = true
             return {
               ...p,
@@ -126,12 +128,12 @@ export const PortfolioSimulator = (): JSX.Element => {
   )
 
   const deleteItem = useCallback(
-    (targetAppId: string, targetNetwork: string) => {
+    (targetAppId: string) => {
       const targetProtocol = _mapEditableProtocols[targetAppId.toLowerCase()]
       if (!targetProtocol) return
       setEditableProtocols(
         editableProtocols
-          .filter((p) => p.appId !== targetAppId || p.network != targetNetwork)
+          .filter((p) => p.appId !== targetAppId)
           .map((p) => ({
             ...p,
             index: targetProtocol.index < p.index ? p.index - 1 : p.index,
@@ -161,8 +163,8 @@ export const PortfolioSimulator = (): JSX.Element => {
     handleSimCounter()
   }, [editableProtocols, portfolioLoading, active, riskScores, handleSimPortfolio, handleSimCounter])
 
-  const handleEditingItem = useCallback((appId?: string, network?: string) => {
-    setEditingItem({ appId, network })
+  const handleEditingItem = useCallback((appId?: string) => {
+    setEditingItem(appId)
   }, [])
 
   useEffect(() => {
@@ -182,15 +184,16 @@ export const PortfolioSimulator = (): JSX.Element => {
   useEffect(() => {
     if (portfolioScore && startup.current) {
       startup.current = false
-      setEditableProtocols([...portfolioScore.protocols].map((p, i) => ({ ...p, index: i })))
+      setEditableProtocols(Object.values(protocolsByName))
       handleSimPortfolio(portfolioScore)
     }
-  }, [portfolioScore, simPortfolio, handleSimPortfolio])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [simPortfolio, protocolsByName, handleSimPortfolio])
 
   // on clear changes, copy cur portfolio into sim portfolio
   useEffect(() => {
     if (clearCounter > 0 && portfolioScore) {
-      setEditableProtocols([...portfolioScore.protocols].map((p, i) => ({ ...p, index: i })))
+      setEditableProtocols(Object.values(protocolsByName))
       handleSimPortfolio(portfolioScore)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

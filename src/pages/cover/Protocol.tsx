@@ -2,9 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { Button, GraySquareButton, ThinButton } from '../../components/atoms/Button'
-import { capitalizeFirstLetter, filterAmount } from '../../utils/formatting'
+import { capitalizeFirstLetter, filterAmount, truncateValue } from '../../utils/formatting'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
-import { SolaceRiskProtocol } from '@solace-fi/sdk-nightly'
 import { useCoverageContext } from './CoverageContext'
 import { Accordion } from '../../components/atoms/Accordion'
 import { TileCard } from '../../components/molecules/TileCard'
@@ -18,11 +17,13 @@ function mapNumberToLetter(number: number): string {
 }
 
 export const ReadOnlyProtocol: React.FC<{
-  protocol: SolaceRiskProtocol
+  protocol: LocalSolaceRiskProtocol
   riskColor: string
 }> = ({ protocol, riskColor }): JSX.Element => {
-  const networkLogo = useMemo(() => {
-    return networks.find((n) => n.name.toLowerCase() === protocol.network.toLowerCase())?.logo
+  const networkLogos = useMemo(() => {
+    return protocol.networks.map((_n) => {
+      return networks.find((n) => n.name.toLowerCase() === _n.toLowerCase())?.logo
+    })
   }, [protocol])
 
   return (
@@ -42,7 +43,10 @@ export const ReadOnlyProtocol: React.FC<{
                     <Text autoAlignVertical>
                       <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={36} />
                     </Text>
-                    {networkLogo && <img src={networkLogo} width={20} height={20} />}
+                    {networkLogos.map((logo, i) => {
+                      if (logo) return <img key={i} src={logo} width={20} height={20} />
+                      return <StyledHelpCircle key={i} size={20} />
+                    })}
                   </Flex>
                   <Flex col gap={5}>
                     {/* protocol name */}
@@ -59,7 +63,7 @@ export const ReadOnlyProtocol: React.FC<{
                   {/* balance */}
                   <Flex itemsCenter>
                     <Text t3s bold>
-                      ${protocol.balanceUSD.toString() == '0' ? '0' : protocol.balanceUSD.toString()}
+                      ${truncateValue(protocol.balanceUSD.toString() == '0' ? '0' : protocol.balanceUSD.toString(), 2)}
                     </Text>
                   </Flex>
                   {/* risl level */}
@@ -84,14 +88,10 @@ export const Protocol: React.FC<{
   editableProtocolAppIds: string[]
   riskColor: string
   simulating: boolean
-  editingItem: {
-    appId?: string | undefined
-    network?: string | undefined
-  }
-  // addItem: (index?: number | undefined) => void
-  saveEditedItem: (targetAppId: string, targetNetwork: string, newAppId: string, newAmount: string) => boolean
-  deleteItem: (targetAppId: string, targetNetwork: string) => void
-  handleEditingItem: (appId?: string, network?: string) => void
+  editingItem: string | undefined
+  saveEditedItem: (targetAppId: string, newAppId: string, newAmount: string) => boolean
+  deleteItem: (targetAppId: string) => void
+  handleEditingItem: (appId?: string) => void
 }> = ({
   protocol,
   editableProtocolAppIds,
@@ -114,8 +114,10 @@ export const Protocol: React.FC<{
     protocol.balanceUSD.toString() == '0' ? '' : protocol.balanceUSD.toString()
   )
   const [searchTerm, setSearchTerm] = useState('')
-  const networkLogo = useMemo(() => {
-    return networks.find((n) => n.name.toLowerCase() === protocol.network.toLowerCase())?.logo
+  const networkLogos = useMemo(() => {
+    return protocol.networks.map((_n) => {
+      return networks.find((n) => n.name.toLowerCase() === _n.toLowerCase())?.logo
+    })
   }, [protocol])
 
   const isValidProtocol = useMemo(() => {
@@ -154,8 +156,8 @@ export const Protocol: React.FC<{
   // }, [simulatingPrev, simulating])
 
   const handleSaveEditedItem = useCallback(() => {
-    const status = saveEditedItem(protocol.appId, protocol.network, enteredAppId, enteredAmount)
-    if (status) handleEditingItem(undefined, undefined)
+    const status = saveEditedItem(protocol.appId, enteredAppId, enteredAmount)
+    if (status) handleEditingItem(undefined)
   }, [enteredAmount, enteredAppId, protocol, saveEditedItem, handleEditingItem])
 
   useEffect(() => {
@@ -177,10 +179,7 @@ export const Protocol: React.FC<{
   }, [accordionOpen])
 
   useEffect(() => {
-    if (
-      editingItem.appId?.toString() !== protocol.appId.toString() ||
-      editingItem.network?.toString() !== protocol.network.toString()
-    ) {
+    if (!editingItem || editingItem.toString() !== protocol.appId.toString()) {
       setIsEditing(false)
       setAccordionOpen(false)
       setDropdownOpen(false)
@@ -197,7 +196,7 @@ export const Protocol: React.FC<{
             : () => {
                 if (!isEditing) {
                   setIsEditing(true)
-                  handleEditingItem(protocol.appId, protocol.network)
+                  handleEditingItem(protocol.appId)
                 }
               }
         }
@@ -254,13 +253,7 @@ export const Protocol: React.FC<{
                   }}
                   asideBg
                 />
-                <GraySquareButton
-                  width={32}
-                  height={32}
-                  noborder
-                  onClick={() => handleEditingItem(undefined, undefined)}
-                  darkText
-                >
+                <GraySquareButton width={32} height={32} noborder onClick={() => handleEditingItem(undefined)} darkText>
                   <StyledClose size={16} />
                 </GraySquareButton>
               </>
@@ -281,7 +274,10 @@ export const Protocol: React.FC<{
                           <StyledHelpCircle size={36} />
                         )}
                       </Text>
-                      {networkLogo && <img src={networkLogo} width={20} height={20} />}
+                      {networkLogos.map((logo, i) => {
+                        if (logo) return <img key={i} src={logo} width={20} height={20} />
+                        return <StyledHelpCircle key={i} size={20} />
+                      })}
                     </Flex>
                     <Flex col gap={5}>
                       {/* protocol name */}
@@ -298,7 +294,8 @@ export const Protocol: React.FC<{
                     {/* balance */}
                     <Flex itemsCenter>
                       <Text t3s bold>
-                        ${protocol.balanceUSD.toString() == '0' ? '0' : protocol.balanceUSD.toString()}
+                        $
+                        {truncateValue(protocol.balanceUSD.toString() == '0' ? '0' : protocol.balanceUSD.toString(), 2)}
                       </Text>
                     </Flex>
                     {/* risl level */}
@@ -320,7 +317,7 @@ export const Protocol: React.FC<{
             <Button
               height={32}
               error
-              onClick={() => deleteItem(protocol.appId, protocol.network)}
+              onClick={() => deleteItem(protocol.appId)}
               width={100}
               style={{ borderRadius: '8px' }}
             >

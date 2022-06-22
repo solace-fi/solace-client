@@ -1,13 +1,14 @@
-import { SolaceRiskProtocol } from '@solace-fi/sdk-nightly'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Button } from '../../components/atoms/Button'
 import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { LoaderText } from '../../components/molecules/LoaderText'
 import { ModalCloseButton } from '../../components/molecules/Modal'
+import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { useGeneral } from '../../context/GeneralManager'
 import { useTierColors } from '../../hooks/internal/useTierColors'
 import { truncateValue } from '../../utils/formatting'
+import { mapUniqueRiskProtocols } from '../../utils/mapProtocols'
 import { useCoverageContext } from './CoverageContext'
 import { ReadOnlyProtocol } from './Protocol'
 
@@ -18,7 +19,12 @@ export const Portfolio = (): JSX.Element => {
   const { curPortfolio, curUsdBalanceSum } = portfolioKit
   const { gradientStyle } = styles
 
-  const [protocols, setProtocols] = useState<SolaceRiskProtocol[]>([])
+  const [protocols, setProtocols] = useState<LocalSolaceRiskProtocol[]>([])
+
+  const protocolsByName = useMemo(() => {
+    if (!curPortfolio) return {}
+    return mapUniqueRiskProtocols(curPortfolio.protocols)
+  }, [curPortfolio])
 
   const tierColors = useTierColors(protocols.map((p) => p.tier))
 
@@ -33,12 +39,9 @@ export const Portfolio = (): JSX.Element => {
 
   useEffect(() => {
     if (!curPortfolio) return
-    setProtocols(
-      [...curPortfolio.protocols].map((p) => {
-        return { ...p, index: 0 }
-      })
-    )
-  }, [curPortfolio])
+    setProtocols(Object.values(protocolsByName))
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [protocolsByName])
 
   return (
     <Flex col style={{ height: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
@@ -75,7 +78,7 @@ export const Portfolio = (): JSX.Element => {
         {portfolioLoading && <LoaderText />}
         {!portfolioLoading &&
           protocols.length >= 0 &&
-          protocols.map((protocol: SolaceRiskProtocol) => {
+          protocols.map((protocol: LocalSolaceRiskProtocol) => {
             const riskColor = getColorByTier(protocol.tier)
             return (
               <ReadOnlyProtocol

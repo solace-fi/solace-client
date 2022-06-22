@@ -46,4 +46,5 @@ export type PageInfo = {
 
 export type LocalSolaceRiskProtocol = SolaceRiskProtocol & {
   index: number
+  networks: string[]
 }
