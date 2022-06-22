@@ -612,7 +612,7 @@ export const PolicyContent = (): JSX.Element => {
                           My Balance
                         </Text>
                         <Text textAlignCenter bold t4s dark={appTheme == 'light'} light={appTheme == 'dark'}>
-                          ${truncateValue(formatUnits(parseUnits(scpBalance, 18).sub(nonrefundableBalance), 18), 2)}
+                          ${truncateValue(scpBalance, 2)}
                         </Text>
                       </Flex>
                       <VerticalSeparator />
@@ -697,12 +697,12 @@ export const PolicyContent = (): JSX.Element => {
                       <Flex col gap={8}>
                         <Flex between>
                           <Flex col>
-                            <Text t4>Withdrawable:</Text>
+                            <Text t4>Withdrawable (excludes earned rewards):</Text>
                           </Flex>
                           <Flex gap={5}>
-                            <Flex col>
+                            {/* <Flex col>
                               <Text t4>{truncateValue(formatUnits(refundableSOLACEAmount, 18), 2)} SOLACE</Text>
-                            </Flex>
+                            </Flex> */}
                             <Flex col>
                               <Text t4>{`~ $${truncateValue(
                                 signatureObj.price > 0
