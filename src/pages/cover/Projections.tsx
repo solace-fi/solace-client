@@ -8,6 +8,7 @@ import { StyledClose, StyledExport } from '../../components/atoms/Icon'
 import { CardTemplate, SmallCardTemplate } from '../../components/atoms/Card/CardTemplate'
 import { ZERO } from '../../constants'
 import { ChosenLimit } from '../../constants/enums'
+import { useWeb3React } from '@web3-react/core'
 
 export const Projections = ({
   portfolioScore,
@@ -16,6 +17,7 @@ export const Projections = ({
   portfolioScore?: SolaceRiskScore
   coverageLimit: BigNumber
 }): JSX.Element => {
+  const { account } = useWeb3React()
   const { intrface, input, portfolioKit, simulator, policy } = useCoverageContext()
   const { handleShowSimCoverModal, handleShowCLDModal, handleShowSimulatorModal } = intrface
   const { handleImportedCoverLimit, handleSimCoverLimit } = input
@@ -65,17 +67,19 @@ export const Projections = ({
         onClick={() => handleShowSimCoverModal(true)}
       >{`$${truncateValue(utils.formatUnits(coverageLimit), 2)}`}</CardTemplate>
       <Flex col gap={12}>
-        <SmallCardTemplate
-          icon={<StyledExport height={12} width={12} />}
-          value={status ? `Update Limit` : `Buy Now`}
-          techy
-          onClick={() => {
-            handleImportedCoverLimit(coverageLimit)
-            handleImportCounter()
-            handleShowSimulatorModal(false)
-            handleShowCLDModal(true)
-          }}
-        />
+        {account && (
+          <SmallCardTemplate
+            icon={<StyledExport height={12} width={12} />}
+            value={status ? `Update Limit` : `Buy Now`}
+            techy
+            onClick={() => {
+              handleImportedCoverLimit(coverageLimit)
+              handleImportCounter()
+              handleShowSimulatorModal(false)
+              handleShowCLDModal(true)
+            }}
+          />
+        )}
         <SmallCardTemplate
           icon={<StyledClose height={12} width={12} />}
           value={`Clear Changes`}
