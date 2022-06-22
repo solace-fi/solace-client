@@ -180,7 +180,7 @@ export default function App(): any {
                     <Route exact key={p.to} path={p.to} component={p.component} />
                   ))}
                   <Route exact path="/terms" component={Terms} />
-                  <Route exact path="/swc3" component={Cover} />
+                  <Route exact path="/spi" component={Cover} />
                   <Route
                     exact
                     path="*"
