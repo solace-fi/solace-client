@@ -206,19 +206,6 @@ export const PortfolioSimulator = (): JSX.Element => {
           <ModalCloseButton lightColor={appTheme == 'dark'} />
         </Flex>
       </Flex>
-      {/* <Flex
-        itemsCenter
-        justifyCenter
-        style={{
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          height: '50px',
-          width: '50px',
-        }}
-      >
-      </Flex> */}
-      {/* <Content style={{ transition: 'all 350ms ease 0s' }}> */}
       <Flex
         shadow
         col
@@ -234,9 +221,6 @@ export const PortfolioSimulator = (): JSX.Element => {
         ) : (
           <Projections portfolioScore={simPortfolio} coverageLimit={simCoverLimit} />
         )}
-        {/* <TileCard>
-          <CoverageLimitSelector2 portfolioScore={scoreToUse} setNewCoverageLimit={editCoverageLimit} />
-        </TileCard> */}
       </Flex>
       <Flex
         thinScrollbar
@@ -275,7 +259,6 @@ export const PortfolioSimulator = (): JSX.Element => {
           {...gradientStyle}
           secondary
           {...bigButtonStyle}
-          // onClick={addItem}
           onClick={() => setAddingProtocol(true)}
           disabled={portfolioLoading && active}
           noborder
@@ -288,9 +271,6 @@ export const PortfolioSimulator = (): JSX.Element => {
         itemsCenter
         justifyCenter
         style={{
-          // position: 'absolute',
-          // bottom: '0',
-          // left: '0',
           boxSizing: 'border-box',
           width: '100%',
         }}
@@ -300,14 +280,11 @@ export const PortfolioSimulator = (): JSX.Element => {
       >
         {!addingProtocol ? (
           <Button
-            // {...gradientStyle}
             secondary
             raised
             {...bigButtonStyle}
-            // onClick={addItem}
             onClick={() => setAddingProtocol(true)}
             disabled={portfolioLoading && active}
-            // noborder
             height={51}
           >
             <Text techygradient t4s>

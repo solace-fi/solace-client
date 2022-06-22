@@ -397,6 +397,7 @@ export default function Stake(): JSX.Element {
   const { harvestLockRewards, compoundLockRewards, harvestLockRewardsForScp } = useStakingRewards()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { policyId } = useCheckIsCoverageActive()
+  const navbarThreshold = useMemo(() => width < (rightSidebar ? BKPT_6 : BKPT_5), [rightSidebar, width])
 
   const calculateTotalHarvest = (locks: LockData[]): BigNumber =>
     locks.reduce((acc, lock) => acc.add(lock.pendingRewards), ZERO)
@@ -697,7 +698,7 @@ export default function Stake(): JSX.Element {
                   mt={20}
                   mb={20}
                   style={
-                    width < (rightSidebar ? BKPT_6 : BKPT_5) && batchActionsIsEnabled
+                    navbarThreshold && batchActionsIsEnabled
                       ? {
                           flexDirection: 'column-reverse',
                           gap: '30px',
@@ -718,11 +719,7 @@ export default function Stake(): JSX.Element {
                     )
                   ) : (
                     <>
-                      <Flex
-                        gap={15}
-                        style={{ marginTop: 'auto', marginBottom: 'auto' }}
-                        between={width < (rightSidebar ? BKPT_6 : BKPT_5)}
-                      >
+                      <Flex gap={15} style={{ marginTop: 'auto', marginBottom: 'auto' }} between={navbarThreshold}>
                         <Flex
                           center
                           gap={5}
@@ -741,7 +738,7 @@ export default function Stake(): JSX.Element {
                           <Flex
                             gap={15}
                             style={
-                              width < (rightSidebar ? BKPT_6 : BKPT_5)
+                              navbarThreshold
                                 ? {
                                     flexDirection: 'column',
                                     alignItems: 'flex-end',
@@ -768,15 +765,16 @@ export default function Stake(): JSX.Element {
                       </Flex>
                     </>
                   )}
-                  <Flex center gap={15} column={width < (rightSidebar ? BKPT_6 : BKPT_5)}>
+                  <Flex center gap={15} column={navbarThreshold}>
                     {batchActionsIsEnabled && (
-                      <Flex gap={15}>
+                      <Flex gap={15} col={navbarThreshold}>
                         <Button
                           secondary
                           info
                           noborder
                           pl={10}
                           pr={10}
+                          py={navbarThreshold ? 20 : 0}
                           onClick={handleBatchHarvest}
                           disabled={rewardsAreZero}
                         >
@@ -788,35 +786,38 @@ export default function Stake(): JSX.Element {
                           noborder
                           pl={10}
                           pr={10}
+                          py={navbarThreshold ? 20 : 0}
                           onClick={() => setIsCompoundModalOpen(true)}
                           disabled={rewardsAreZero}
                         >
                           Compound Rewards
                         </Button>
-                        {!activeNetwork.config.restrictedFeatures.noStakingRewardsV2 && policyId?.gt(ZERO) && (
-                          <Button
-                            secondary
-                            info
-                            noborder
-                            pl={10}
-                            pr={10}
-                            onClick={handleBatchHarvestForScp}
-                            disabled={rewardsAreZero}
-                          >
-                            Pay Premium
-                          </Button>
-                        )}
                         <Button
                           secondary
                           info
                           noborder
                           pl={10}
                           pr={10}
+                          py={navbarThreshold ? 20 : 0}
                           onClick={handleBatchWithdraw}
                           disabled={withdrawalsAreZero}
                         >
                           Withdraw
                         </Button>
+                        {!activeNetwork.config.restrictedFeatures.noStakingRewardsV2 && policyId?.gt(ZERO) && (
+                          <Button
+                            warmgradient
+                            secondary
+                            noborder
+                            pl={10}
+                            pr={10}
+                            py={navbarThreshold ? 20 : 0}
+                            onClick={handleBatchHarvestForScp}
+                            disabled={rewardsAreZero}
+                          >
+                            Pay Premium
+                          </Button>
+                        )}
                       </Flex>
                     )}
                     <Button pl={10} pr={10} onClick={toggleBatchActions} secondary={batchActionsIsEnabled}>

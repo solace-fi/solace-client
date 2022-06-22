@@ -46,7 +46,6 @@ import { BKPT_2, BKPT_NAVBAR, MARKETING_SITE } from '../constants'
 import { useWindowDimensions } from '../hooks/internal/useWindowDimensions'
 
 import { AnalyticsReporter } from '../analytics'
-import Soteria from './soteria'
 import { PageInfo } from '../constants/types'
 import Archive from './archive'
 import { AppMenu } from '../components/organisms/RightNavbar'
@@ -66,7 +65,7 @@ export default function App(): any {
       title: 'My Policy',
       to: '/cover',
       icon: <StyledDashboard size={30} />,
-      component: Soteria,
+      component: Cover,
     },
     {
       name: 'Bond',
@@ -180,7 +179,6 @@ export default function App(): any {
                     <Route exact key={p.to} path={p.to} component={p.component} />
                   ))}
                   <Route exact path="/terms" component={Terms} />
-                  <Route exact path="/spi" component={Cover} />
                   <Route
                     exact
                     path="*"
