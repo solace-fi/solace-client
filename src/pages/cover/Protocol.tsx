@@ -11,6 +11,7 @@ import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
 import { StyledArrowDropDown, StyledClose, StyledHelpCircle } from '../../components/atoms/Icon'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { networks } from '../../context/NetworkManager'
+import commaNumber from '../../utils/commaNumber'
 
 function mapNumberToLetter(number: number): string {
   return String.fromCharCode(97 + number - 1).toUpperCase()
@@ -63,7 +64,10 @@ export const ReadOnlyProtocol: React.FC<{
                   {/* balance */}
                   <Flex itemsCenter>
                     <Text t3s bold>
-                      ${truncateValue(protocol.balanceUSD.toString() == '0' ? '0' : protocol.balanceUSD.toString(), 2)}
+                      $
+                      {commaNumber(
+                        truncateValue(protocol.balanceUSD.toString() == '0' ? '0' : protocol.balanceUSD.toString(), 2)
+                      )}
                     </Text>
                   </Flex>
                   {/* risl level */}
@@ -282,9 +286,7 @@ export const Protocol: React.FC<{
                     <Flex col gap={5}>
                       {/* protocol name */}
                       <Text t5s bold>
-                        {capitalizeFirstLetter(
-                          protocol.appId.includes('Empty') ? 'Empty' : processProtocolName(protocol.appId)
-                        )}
+                        {capitalizeFirstLetter(processProtocolName(protocol.appId))}
                       </Text>
                       {/* protocol category */}
                       <Text t5s>{capitalizeFirstLetter(protocol.category)}</Text>
@@ -295,7 +297,9 @@ export const Protocol: React.FC<{
                     <Flex itemsCenter>
                       <Text t3s bold>
                         $
-                        {truncateValue(protocol.balanceUSD.toString() == '0' ? '0' : protocol.balanceUSD.toString(), 2)}
+                        {commaNumber(
+                          truncateValue(protocol.balanceUSD.toString() == '0' ? '0' : protocol.balanceUSD.toString(), 2)
+                        )}
                       </Text>
                     </Flex>
                     {/* risl level */}

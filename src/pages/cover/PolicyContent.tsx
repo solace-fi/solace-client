@@ -90,7 +90,7 @@ export const PolicyContent = (): JSX.Element => {
 
   const { account } = useWeb3React()
   const { activeNetwork, changeNetwork } = useNetwork()
-  const { version } = useCachedData()
+  const { tokenPriceMapping, version } = useCachedData()
   const { isMobile } = useWindowDimensions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
@@ -332,14 +332,13 @@ export const PolicyContent = (): JSX.Element => {
   }
 
   const handleEnteredUSDWithdrawal = (usd_value: string) => {
-    if (!signatureObj?.price) return
+    if (!tokenPriceMapping['solace']) return
     setEnteredUSDWithdrawal(usd_value)
-    const token_amount_equivalent = parseFloat(formatAmount(usd_value)) / signatureObj.price
+    const token_amount_equivalent = parseFloat(formatAmount(usd_value)) / tokenPriceMapping['solace']
     handleEnteredWithdrawal(formatAmount(token_amount_equivalent.toString()), 18)
   }
 
   const handleEnteredUSDDeposit = (usd_value: string, maxDecimals?: number) => {
-    if (!signatureObj?.price) return
     setEnteredUSDDeposit(usd_value)
     const token_amount_equivalent = parseFloat(formatAmount(usd_value)) / selectedCoinPrice
     handleEnteredDeposit(formatAmount(token_amount_equivalent.toString()), maxDecimals)
@@ -705,8 +704,8 @@ export const PolicyContent = (): JSX.Element => {
                             </Flex> */}
                             <Flex col>
                               <Text t4>{`~ $${truncateValue(
-                                signatureObj.price > 0
-                                  ? parseFloat(formatUnits(refundableSOLACEAmount, 18)) * signatureObj.price
+                                tokenPriceMapping['solace']
+                                  ? parseFloat(formatUnits(refundableSOLACEAmount, 18)) * tokenPriceMapping['solace']
                                   : 0,
                                 2
                               )}`}</Text>
@@ -727,6 +726,23 @@ export const PolicyContent = (): JSX.Element => {
                       </Flex>
                     )}
                     <ButtonWrapper isColumn p={0}>
+                      {newUserState && depositApproval && homeCta && (
+                        <Button
+                          {...bigButtonStyle}
+                          matchBg
+                          secondary
+                          noborder
+                          onClick={() => {
+                            const selectedCoinBalance_USD = floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
+                            handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
+                            setEnteredUSDDeposit(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`))
+                          }}
+                          widthP={100}
+                          disabled={selectedCoinBalance.isZero()}
+                        >
+                          <Text {...gradientStyle}>MAX</Text>
+                        </Button>
+                      )}
                       {(newUserState || returningUserState) && depositApproval && homeCta && (
                         <Button
                           {...gradientStyle}
@@ -887,13 +903,13 @@ export const PolicyContent = (): JSX.Element => {
                               noborder
                               onClick={() => {
                                 const refundableSOLACEAmount_USD_Equivalent =
-                                  floatUnits(refundableSOLACEAmount, 18) * signatureObj.price
+                                  floatUnits(refundableSOLACEAmount, 18) * tokenPriceMapping['solace']
                                 handleEnteredWithdrawal(formatUnits(refundableSOLACEAmount, 18), 18)
                                 setEnteredUSDWithdrawal(
                                   convertSciNotaToPrecise(`${refundableSOLACEAmount_USD_Equivalent}`)
                                 )
                               }}
-                              disabled={refundableSOLACEAmount.isZero() || !signatureObj?.price}
+                              disabled={refundableSOLACEAmount.isZero() || !tokenPriceMapping['solace']}
                               widthP={100}
                             >
                               <Text {...gradientStyle}>MAX</Text>

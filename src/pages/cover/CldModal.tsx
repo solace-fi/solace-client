@@ -13,6 +13,7 @@ import {
   accurateMultiply,
   convertSciNotaToPrecise,
   filterAmount,
+  floatUnits,
   formatAmount,
   truncateValue,
 } from '../../utils/formatting'
@@ -28,6 +29,7 @@ import { ChosenLimit } from '../../constants/enums'
 import usePrevious from '../../hooks/internal/usePrevious'
 import { TransactionResponse } from '@ethersproject/providers'
 import { LocalTx } from '../../constants/types'
+import { ModalHeader } from '../../components/atoms/Modal'
 
 const ChosenLimitLength = Object.values(ChosenLimit).filter((x) => typeof x === 'number').length
 
@@ -78,6 +80,10 @@ export const CldModal = () => {
 
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [localCoinsOpen, setLocalCoinsOpen] = useState<boolean>(false)
+
+  const selectedCoinBalance = useMemo(() => {
+    return batchBalanceData.find((d) => d.address.toLowerCase() == selectedCoin.address.toLowerCase())?.balance ?? ZERO
+  }, [batchBalanceData, selectedCoin])
 
   const curUserState = useMemo(() => [InterfaceState.CURRENT_USER].includes(userState), [userState])
   const newUserState = useMemo(() => [InterfaceState.NEW_USER].includes(userState), [userState])
@@ -225,7 +231,6 @@ export const CldModal = () => {
   }
 
   const handleEnteredUSDDeposit = (usd_value: string, maxDecimals?: number) => {
-    if (!signatureObj?.price) return
     setEnteredUSDDeposit(usd_value)
     const token_amount_equivalent = parseFloat(formatAmount(usd_value)) / selectedCoinPrice
     handleEnteredDeposit(formatAmount(token_amount_equivalent.toString()), maxDecimals)
@@ -294,202 +299,129 @@ export const CldModal = () => {
   }, [importCounter, importCounterPrev])
 
   return (
-    <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative' }} justifyCenter>
-      <Flex
-        itemsCenter
-        justifyCenter
-        style={{
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          height: '50px',
-          width: '50px',
-        }}
-      >
-        <Flex
+    <Flex col between style={{ height: 'calc(100vh - 170px)' }} p={5}>
+      <ModalHeader>
+        <Text></Text>
+        <ModalCloseButton
           onClick={() => {
             if (isImportOrigin) handleShowSimulatorModal(true)
             handleShowCLDModal(false)
             setIsImportOrigin(false)
           }}
-        >
-          <ModalCloseButton lightColor={appTheme == 'dark'} />
-        </Flex>
-      </Flex>
-      <Flex justifyCenter mb={4}>
-        <Text big3 mont semibold style={{ lineHeight: '29.26px' }}>
-          {status ? `Update Cover Limit` : `Purchase Policy`}
-        </Text>
-      </Flex>
-      <Flex col stretch>
-        <Flex justifyCenter>
-          <Text t4s textAlignCenter>
-            In case of an exploit, what amount would you like to be covered up to?
+          lightColor={appTheme == 'dark'}
+        />
+      </ModalHeader>
+      <Flex col justifyCenter>
+        <Flex justifyCenter mb={4}>
+          <Text big3 mont semibold style={{ lineHeight: '29.26px' }}>
+            {status ? `Update Cover Limit` : `Purchase Policy`}
           </Text>
         </Flex>
-        <Flex col stretch between mt={36}>
-          <Flex between>
-            <ShadowDiv>
-              <GraySquareButton
-                onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}
-                width={48}
-                height={48}
-                noborder
-              >
-                <StyledArrowIosBackOutline height={22} />
-              </GraySquareButton>
-            </ShadowDiv>
-            <Flex col itemsCenter>
-              <Text techygradient t3 bold>
-                {
-                  {
-                    [ChosenLimit.Recommended]: 'Extra safe',
-                    [ChosenLimit.MaxPosition]: 'Highest position',
-                    [ChosenLimit.Custom]: 'Manual',
-                  }[chosenLimit]
-                }
-              </Text>
-              <Text t5s>
-                {
-                  {
-                    [ChosenLimit.Recommended]: (
-                      <>
-                        Highest Position
-                        <Text success inline>
-                          {' '}
-                          + 20%
-                        </Text>
-                      </>
-                    ),
-                    [ChosenLimit.MaxPosition]: `in Portfolio`,
-                    [ChosenLimit.Custom]: `Enter amount below`,
-                  }[chosenLimit]
-                }
-              </Text>
-            </Flex>
-            <ShadowDiv>
-              <GraySquareButton
-                onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}
-                width={48}
-                height={48}
-                noborder
-                actuallyWhite
-              >
-                <StyledArrowIosForwardOutline height={22} />
-              </GraySquareButton>
-            </ShadowDiv>
+        <Flex col stretch>
+          <Flex justifyCenter>
+            <Text t4s textAlignCenter>
+              In case of an exploit, what amount would you like to be covered up to?
+            </Text>
           </Flex>
-          <GenericInputSection
-            onChange={(e) => handleInputChange(e.target.value)}
-            value={localNewCoverageLimit}
-            disabled={false}
-            style={{
-              marginTop: '20px',
-            }}
-            icon={
-              <Text success big3>
-                $
-              </Text>
-            }
-            iconAndTextWidth={20}
-            displayIconOnMobile
-          />
-        </Flex>
-      </Flex>
-      {insufficientCovCap ? (
-        <Text textAlignCenter pt={16}>
-          Your desired cover limit is too high.
-        </Text>
-      ) : lackingScp == 'both zeroes' ? (
-        <Text textAlignCenter pt={16}>
-          You cannot purchase a policy with a cover limit of 0.
-        </Text>
-      ) : null}
-      {cookieReferralCode && !cookieCodeUsable && newUserState && (
-        <Text textAlignCenter pt={16}>
-          Cannot use invalid referral code
-        </Text>
-      )}
-      {scpBalanceMeetsMrab && (
-        <ButtonWrapper>
-          {depositApproval && (
-            <Button
-              {...gradientStyle}
-              {...bigButtonStyle}
-              secondary
-              noborder
-              onClick={callPurchase}
-              disabled={
-                parseFloat(formatAmount(localNewCoverageLimit)) == 0 ||
-                insufficientCovCap ||
-                (cookieReferralCode && !cookieCodeUsable && newUserState)
-              }
-            >
-              {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}
-            </Button>
-          )}
-          {!depositApproval && (
-            <Button
-              {...gradientStyle}
-              {...bigButtonStyle}
-              secondary
-              noborder
-              onClick={() => unlimitedApproveCPM(selectedCoin.address)}
-            >
-              Approve {selectedCoin.symbol}
-            </Button>
-          )}
-        </ButtonWrapper>
-      )}
-      {lackingScp != 'meets requirement' && lackingScp != 'both zeroes' && (
-        <Text textAlignCenter pt={16}>
-          You need at least ${lackingScp} for the desired cover limit. Lower the value or use the form below to deposit
-          the additional premium.
-        </Text>
-      )}
-      {!scpBalanceMeetsMrab && (
-        <Flex col gap={12} pt={16}>
-          <div>
-            <DropdownInputSection
-              hasArrow
-              isOpen={localCoinsOpen}
-              placeholder={'$'}
-              icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
-              text={selectedCoin.symbol}
-              value={`$${
-                enteredUSDDeposit != '' && enteredUSDDeposit != '0.' && enteredUSDDeposit != '.'
-                  ? truncateValue(enteredUSDDeposit, 2, false)
-                  : enteredUSDDeposit
-              }`}
-              onChange={(e) => handleEnteredUSDDeposit(filterAmount(e.target.value, enteredDeposit))}
-              onClick={() => setLocalCoinsOpen(!localCoinsOpen)}
-            />
-            <BalanceDropdownOptions
-              isOpen={localCoinsOpen}
-              searchedList={batchBalanceData}
-              onClick={(value: string) => {
-                handleSelectedCoin(value)
-                setLocalCoinsOpen(false)
+          <Flex col stretch between mt={36}>
+            <Flex between>
+              <ShadowDiv>
+                <GraySquareButton
+                  onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}
+                  width={48}
+                  height={48}
+                  noborder
+                >
+                  <StyledArrowIosBackOutline height={22} />
+                </GraySquareButton>
+              </ShadowDiv>
+              <Flex col itemsCenter>
+                <Text techygradient t3 bold>
+                  {
+                    {
+                      [ChosenLimit.Recommended]: 'Extra safe',
+                      [ChosenLimit.MaxPosition]: 'Highest Position',
+                      [ChosenLimit.Custom]: 'Manual',
+                    }[chosenLimit]
+                  }
+                </Text>
+                <Text t5s>
+                  {
+                    {
+                      [ChosenLimit.Recommended]: (
+                        <>
+                          Highest Position
+                          <Text success inline>
+                            {' '}
+                            + 20%
+                          </Text>
+                        </>
+                      ),
+                      [ChosenLimit.MaxPosition]: `in Portfolio`,
+                      [ChosenLimit.Custom]: `Enter amount below`,
+                    }[chosenLimit]
+                  }
+                </Text>
+              </Flex>
+              <ShadowDiv>
+                <GraySquareButton
+                  onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}
+                  width={48}
+                  height={48}
+                  noborder
+                  actuallyWhite
+                >
+                  <StyledArrowIosForwardOutline height={22} />
+                </GraySquareButton>
+              </ShadowDiv>
+            </Flex>
+            <GenericInputSection
+              onChange={(e) => handleInputChange(e.target.value)}
+              value={localNewCoverageLimit}
+              disabled={false}
+              style={{
+                marginTop: '20px',
               }}
+              icon={
+                <Text success big3>
+                  $
+                </Text>
+              }
+              iconAndTextWidth={20}
+              displayIconOnMobile
             />
-          </div>
-          <ButtonWrapper style={{ width: '100%' }} p={0}>
+          </Flex>
+        </Flex>
+        {insufficientCovCap ? (
+          <Text textAlignCenter pt={16}>
+            Your desired cover limit is too high.
+          </Text>
+        ) : lackingScp == 'both zeroes' ? (
+          <Text textAlignCenter pt={16}>
+            You cannot purchase a policy with a cover limit of 0.
+          </Text>
+        ) : null}
+        {cookieReferralCode && !cookieCodeUsable && newUserState && (
+          <Text textAlignCenter pt={16}>
+            Cannot use invalid referral code
+          </Text>
+        )}
+        {scpBalanceMeetsMrab && (
+          <ButtonWrapper>
             {depositApproval && (
               <Button
-                {...bigButtonStyle}
                 {...gradientStyle}
+                {...bigButtonStyle}
                 secondary
                 noborder
-                onClick={handlePurchase}
+                onClick={callPurchase}
                 disabled={
                   parseFloat(formatAmount(localNewCoverageLimit)) == 0 ||
-                  lackingScp != 'meets requirement' ||
                   insufficientCovCap ||
                   (cookieReferralCode && !cookieCodeUsable && newUserState)
                 }
               >
-                {/* <Text>Deposit &amp; Save</Text> */}
-                <Text> {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}</Text>
+                {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}
               </Button>
             )}
             {!depositApproval && (
@@ -504,8 +436,91 @@ export const CldModal = () => {
               </Button>
             )}
           </ButtonWrapper>
-        </Flex>
-      )}
+        )}
+        {lackingScp != 'meets requirement' && lackingScp != 'both zeroes' && (
+          <Text textAlignCenter pt={16}>
+            You need at least ${lackingScp} for the desired cover limit. Lower the value or use the form below to
+            deposit the additional premium.
+          </Text>
+        )}
+        {!scpBalanceMeetsMrab && (
+          <Flex col gap={12} pt={16}>
+            <div>
+              <DropdownInputSection
+                hasArrow
+                isOpen={localCoinsOpen}
+                placeholder={'$'}
+                icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
+                text={selectedCoin.symbol}
+                value={`$${
+                  enteredUSDDeposit != '' && enteredUSDDeposit != '0.' && enteredUSDDeposit != '.'
+                    ? truncateValue(enteredUSDDeposit, 2, false)
+                    : enteredUSDDeposit
+                }`}
+                onChange={(e) => handleEnteredUSDDeposit(filterAmount(e.target.value, enteredDeposit))}
+                onClick={() => setLocalCoinsOpen(!localCoinsOpen)}
+              />
+              <BalanceDropdownOptions
+                isOpen={localCoinsOpen}
+                searchedList={batchBalanceData}
+                onClick={(value: string) => {
+                  handleSelectedCoin(value)
+                  setLocalCoinsOpen(false)
+                }}
+              />
+            </div>
+            <ButtonWrapper style={{ width: '100%' }} p={0}>
+              {depositApproval && (
+                <Button
+                  {...bigButtonStyle}
+                  matchBg
+                  secondary
+                  noborder
+                  onClick={() => {
+                    const selectedCoinBalance_USD = floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
+                    handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
+                    setEnteredUSDDeposit(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`))
+                  }}
+                  widthP={100}
+                  disabled={selectedCoinBalance.isZero()}
+                >
+                  <Text {...gradientStyle}>MAX</Text>
+                </Button>
+              )}
+              {depositApproval && (
+                <Button
+                  {...bigButtonStyle}
+                  {...gradientStyle}
+                  secondary
+                  noborder
+                  onClick={handlePurchase}
+                  disabled={
+                    parseFloat(formatAmount(localNewCoverageLimit)) == 0 ||
+                    lackingScp != 'meets requirement' ||
+                    insufficientCovCap ||
+                    (cookieReferralCode && !cookieCodeUsable && newUserState)
+                  }
+                >
+                  {/* <Text>Deposit &amp; Save</Text> */}
+                  <Text> {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}</Text>
+                </Button>
+              )}
+              {!depositApproval && (
+                <Button
+                  {...gradientStyle}
+                  {...bigButtonStyle}
+                  secondary
+                  noborder
+                  onClick={() => unlimitedApproveCPM(selectedCoin.address)}
+                >
+                  Approve {selectedCoin.symbol}
+                </Button>
+              )}
+            </ButtonWrapper>
+          </Flex>
+        )}
+      </Flex>
+      <Flex></Flex>
     </Flex>
   )
 }

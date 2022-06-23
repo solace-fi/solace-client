@@ -226,6 +226,42 @@ export const PortfolioSimulator = (): JSX.Element => {
         )}
       </Flex>
       <Flex
+        itemsCenter
+        justifyCenter
+        style={{
+          boxSizing: 'border-box',
+          width: '100%',
+        }}
+        p={20}
+        bgSecondary
+        shadow
+      >
+        {!addingProtocol ? (
+          <Button
+            secondary
+            raised
+            {...bigButtonStyle}
+            onClick={() => setAddingProtocol(true)}
+            disabled={portfolioLoading && active}
+            height={51}
+          >
+            <Text techygradient t4s>
+              + Add Position
+            </Text>
+          </Button>
+        ) : (
+          <>
+            <Flex p={16} col bgRaised rounded style={{ width: '100%' }}>
+              <AddProtocolForm
+                editableProtocols={editableProtocols}
+                setIsAddingProtocol={setAddingProtocol}
+                onAddProtocol={onAddProtocol}
+              />
+            </Flex>
+          </>
+        )}
+      </Flex>
+      <Flex
         thinScrollbar
         col
         gap={12}
@@ -266,46 +302,9 @@ export const PortfolioSimulator = (): JSX.Element => {
           disabled={portfolioLoading && active}
           noborder
         >
-          <StyledAdd size={16} /> Add Custom Position
+          + Add Position
         </Button>
       )}
-      {/* BOTTOM BUTTONS */}
-      <Flex
-        itemsCenter
-        justifyCenter
-        style={{
-          boxSizing: 'border-box',
-          width: '100%',
-        }}
-        p={20}
-        bgSecondary
-        shadow
-      >
-        {!addingProtocol ? (
-          <Button
-            secondary
-            raised
-            {...bigButtonStyle}
-            onClick={() => setAddingProtocol(true)}
-            disabled={portfolioLoading && active}
-            height={51}
-          >
-            <Text techygradient t4s>
-              + Add Position
-            </Text>
-          </Button>
-        ) : (
-          <>
-            <Flex p={16} col bgRaised rounded style={{ width: '100%' }}>
-              <AddProtocolForm
-                editableProtocols={editableProtocols}
-                setIsAddingProtocol={setAddingProtocol}
-                onAddProtocol={onAddProtocol}
-              />
-            </Flex>
-          </>
-        )}
-      </Flex>
     </Flex>
   )
 }

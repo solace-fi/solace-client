@@ -323,14 +323,14 @@ const CoverageManager: React.FC = (props) => {
 
   const coinOptions = useMemo(
     () => [
-      ...(coinsMap[activeNetwork.chainId] ?? []).map((t) => {
-        return { ...t, stablecoin: true }
-      }),
       {
         address: SOLACE_TOKEN.address[activeNetwork.chainId],
         ...SOLACE_TOKEN.constants,
         stablecoin: false,
       },
+      ...(coinsMap[activeNetwork.chainId] ?? []).map((t) => {
+        return { ...t, stablecoin: true }
+      }),
     ],
     [activeNetwork]
   )
@@ -372,8 +372,7 @@ const CoverageManager: React.FC = (props) => {
       if (price) tokenprice = price
       return { balance: b.balance, price: tokenprice, ...coinOptions[i] }
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [batchBalances])
+  }, [batchBalances, coinOptions, tokenPriceMapping])
 
   const isAcceptableDeposit = useMemo(() => {
     const selectedBalance = batchBalances.find((b) => b.addr === selectedCoin.address)
@@ -496,13 +495,8 @@ const CoverageManager: React.FC = (props) => {
   }, [])
 
   useEffect(() => {
-    const tokenWithHighestBalance = batchBalanceData.reduce((pn, cn) => (cn.balance.gt(pn.balance) ? cn : pn), {
-      ...coinOptions[0],
-      balance: ZERO,
-    })
-    setSelectedCoin(tokenWithHighestBalance)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, activeNetwork])
+    setSelectedCoin(coinOptions[0])
+  }, [coinOptions])
 
   useEffect(() => {
     if (!curHighestPosition) {

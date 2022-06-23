@@ -14,6 +14,7 @@ import { GenericInputSection } from '../../components/molecules/InputSection'
 import { ZERO } from '../../constants'
 import { StyledArrowIosBackOutline, StyledArrowIosForwardOutline } from '../../components/atoms/Icon'
 import { ChosenLimit } from '../../constants/enums'
+import { ModalHeader } from '../../components/atoms/Modal'
 
 const ChosenLimitLength = Object.values(ChosenLimit).filter((x) => typeof x === 'number').length
 
@@ -121,118 +122,110 @@ export const SimCoverModal = () => {
   }, [showSimCoverModal])
 
   return (
-    <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative' }} justifyCenter>
-      <Flex
-        itemsCenter
-        justifyCenter
-        style={{
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          height: '50px',
-          width: '50px',
-        }}
-      >
-        <Flex onClick={() => handleShowSimCoverModal(false)}>
-          <ModalCloseButton lightColor={appTheme == 'dark'} />
-        </Flex>
-      </Flex>
-      <Flex justifyCenter mb={4}>
-        <Text big3 mont semibold style={{ lineHeight: '29.26px' }}>
-          Simulated Cover Limit
-        </Text>
-      </Flex>
-      <Flex col stretch>
-        <Flex justifyCenter>
-          <Text t4s textAlignCenter>
-            In case of an exploit, what amount would you like to be covered up to?
+    <Flex col between style={{ height: 'calc(100vh - 170px)' }} p={5}>
+      <ModalHeader>
+        <Text></Text>
+        <ModalCloseButton onClick={() => handleShowSimCoverModal(false)} lightColor={appTheme == 'dark'} />
+      </ModalHeader>
+      <Flex col justifyCenter>
+        <Flex justifyCenter mb={4}>
+          <Text big3 mont semibold style={{ lineHeight: '29.26px' }}>
+            Simulated Cover Limit
           </Text>
         </Flex>
-        <Flex col stretch between mt={36}>
-          <Flex between>
-            <ShadowDiv>
-              <GraySquareButton
-                onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}
-                width={48}
-                height={48}
-                noborder
-              >
-                <StyledArrowIosBackOutline height={22} />
-              </GraySquareButton>
-            </ShadowDiv>
-            <Flex col itemsCenter>
-              <Text techygradient t3 bold>
-                {
-                  {
-                    [ChosenLimit.Recommended]: 'Recommended',
-                    [ChosenLimit.MaxPosition]: 'Base',
-                    [ChosenLimit.Custom]: 'Custom',
-                  }[chosenLimit]
-                }
-              </Text>
-              <Text t5s>
-                {
-                  {
-                    [ChosenLimit.Recommended]: (
-                      <>
-                        Highest Position
-                        <Text success inline>
-                          {' '}
-                          + 20%
-                        </Text>
-                      </>
-                    ),
-                    [ChosenLimit.MaxPosition]: `Highest Position`,
-                    [ChosenLimit.Custom]: `Enter amount below`,
-                  }[chosenLimit]
-                }
-              </Text>
-            </Flex>
-            <ShadowDiv>
-              <GraySquareButton
-                onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}
-                width={48}
-                height={48}
-                noborder
-                actuallyWhite
-              >
-                <StyledArrowIosForwardOutline height={22} />
-              </GraySquareButton>
-            </ShadowDiv>
+        <Flex col stretch>
+          <Flex justifyCenter>
+            <Text t4s textAlignCenter>
+              In case of an exploit, what amount would you like to be covered up to?
+            </Text>
           </Flex>
-          <GenericInputSection
-            onChange={(e) => handleInputChange(e.target.value)}
-            value={localNewCoverageLimit}
-            disabled={false}
-            style={{
-              marginTop: '20px',
-            }}
-            icon={
-              <Text success big3>
-                $
-              </Text>
-            }
-            iconAndTextWidth={20}
-            displayIconOnMobile
-          />
+          <Flex col stretch between mt={36}>
+            <Flex between>
+              <ShadowDiv>
+                <GraySquareButton
+                  onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}
+                  width={48}
+                  height={48}
+                  noborder
+                >
+                  <StyledArrowIosBackOutline height={22} />
+                </GraySquareButton>
+              </ShadowDiv>
+              <Flex col itemsCenter>
+                <Text techygradient t3 bold>
+                  {
+                    {
+                      [ChosenLimit.Recommended]: 'Recommended',
+                      [ChosenLimit.MaxPosition]: 'Base',
+                      [ChosenLimit.Custom]: 'Custom',
+                    }[chosenLimit]
+                  }
+                </Text>
+                <Text t5s>
+                  {
+                    {
+                      [ChosenLimit.Recommended]: (
+                        <>
+                          Highest Position
+                          <Text success inline>
+                            {' '}
+                            + 20%
+                          </Text>
+                        </>
+                      ),
+                      [ChosenLimit.MaxPosition]: `Highest Position`,
+                      [ChosenLimit.Custom]: `Enter amount below`,
+                    }[chosenLimit]
+                  }
+                </Text>
+              </Flex>
+              <ShadowDiv>
+                <GraySquareButton
+                  onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}
+                  width={48}
+                  height={48}
+                  noborder
+                  actuallyWhite
+                >
+                  <StyledArrowIosForwardOutline height={22} />
+                </GraySquareButton>
+              </ShadowDiv>
+            </Flex>
+            <GenericInputSection
+              onChange={(e) => handleInputChange(e.target.value)}
+              value={localNewCoverageLimit}
+              disabled={false}
+              style={{
+                marginTop: '20px',
+              }}
+              icon={
+                <Text success big3>
+                  $
+                </Text>
+              }
+              iconAndTextWidth={20}
+              displayIconOnMobile
+            />
+          </Flex>
         </Flex>
+        <ButtonWrapper>
+          <Button
+            {...gradientStyle}
+            {...bigButtonStyle}
+            onClick={() => {
+              handleSimCoverLimit(parseUnits(localNewCoverageLimit, 18))
+              handleSimChosenLimit(chosenLimit)
+              handleShowSimCoverModal(false)
+            }}
+            secondary
+            noborder
+            disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0}
+          >
+            Set
+          </Button>
+        </ButtonWrapper>
       </Flex>
-      <ButtonWrapper>
-        <Button
-          {...gradientStyle}
-          {...bigButtonStyle}
-          onClick={() => {
-            handleSimCoverLimit(parseUnits(localNewCoverageLimit, 18))
-            handleSimChosenLimit(chosenLimit)
-            handleShowSimCoverModal(false)
-          }}
-          secondary
-          noborder
-          disabled={parseFloat(formatAmount(localNewCoverageLimit)) == 0}
-        >
-          Set
-        </Button>
-      </ButtonWrapper>
+      <Flex></Flex>
     </Flex>
   )
 }

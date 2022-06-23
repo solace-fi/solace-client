@@ -239,7 +239,7 @@ export const CoverageLimitSelector2 = ({
               {
                 {
                   [ChosenLimit.Recommended]: 'Extra safe',
-                  [ChosenLimit.MaxPosition]: 'Highest position',
+                  [ChosenLimit.MaxPosition]: 'Highest Position',
                   [ChosenLimit.Custom]: 'Manual',
                 }[chosenLimit]
               }

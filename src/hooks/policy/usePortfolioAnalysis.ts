@@ -15,7 +15,7 @@ export const usePortfolioAnalysis = (
 } => {
   const highestPosition = useMemo(
     () =>
-      portfolio && portfolio.protocols.length > 0
+      portfolio && portfolio.protocols && portfolio.protocols.length > 0
         ? portfolio.protocols.reduce((pn, cn) => (cn.balanceUSD > pn.balanceUSD ? cn : pn))
         : undefined,
     [portfolio]
