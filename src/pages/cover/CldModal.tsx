@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
-import { Text } from '../../components/atoms/Typography'
+import { Text, TextSpan } from '../../components/atoms/Typography'
 import { ApiStatus, FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
@@ -27,9 +27,8 @@ import { ZERO } from '../../constants'
 import { StyledArrowIosBackOutline, StyledArrowIosForwardOutline } from '../../components/atoms/Icon'
 import { ChosenLimit } from '../../constants/enums'
 import usePrevious from '../../hooks/internal/usePrevious'
-import { TransactionResponse } from '@ethersproject/providers'
-import { LocalTx } from '../../constants/types'
 import { ModalHeader } from '../../components/atoms/Modal'
+import { usePortfolioAnalysis } from '../../hooks/policy/usePortfolioAnalysis'
 
 const ChosenLimitLength = Object.values(ChosenLimit).filter((x) => typeof x === 'number').length
 
@@ -65,7 +64,7 @@ export const CldModal = () => {
     handleSelectedCoin,
     selectedCoinPrice,
   } = input
-  const { curHighestPosition } = portfolioKit
+  const { curHighestPosition, curPortfolio } = portfolioKit
   const { importCounter } = simulator
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
@@ -101,6 +100,16 @@ export const CldModal = () => {
   const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
   const [enteredUSDDeposit, setEnteredUSDDeposit] = useState<string>('')
 
+  const { dailyCost: hypDailyCost } = usePortfolioAnalysis(
+    curPortfolio,
+    parseUnits(formatAmount(localNewCoverageLimit), 18)
+  )
+
+  const newDuration = useMemo(
+    () => (hypDailyCost > 0 ? parseFloat(formatAmount(enteredUSDDeposit)) / hypDailyCost : 0),
+    [hypDailyCost, enteredUSDDeposit]
+  )
+
   const importCounterPrev = usePrevious(importCounter)
 
   const scpBalanceMeetsMrab = useMemo(() => {
@@ -111,8 +120,10 @@ export const CldModal = () => {
     const parsedScpBalance = parseUnits(scpBalance, 18)
     const BN_Scp_Plus_Deposit = parsedScpBalance.add(BigNumber.from(accurateMultiply(enteredUSDDeposit, 18)))
     if (minReqAccBal.isZero() && BN_Scp_Plus_Deposit.isZero()) return 'both zeroes'
-    if (minReqAccBal.gt(BN_Scp_Plus_Deposit))
-      return truncateValue(Math.round(parseFloat(formatUnits(minReqAccBal.sub(BN_Scp_Plus_Deposit))) * 100) / 100, 2)
+    if (minReqAccBal.gt(BN_Scp_Plus_Deposit)) {
+      const diff = Math.round(parseFloat(formatUnits(minReqAccBal.sub(BN_Scp_Plus_Deposit))) * 100) / 100
+      return truncateValue(Math.max(diff, 0.01), 2)
+    }
     return 'meets requirement'
   }, [scpBalance, minReqAccBal, enteredUSDDeposit])
 
@@ -231,8 +242,12 @@ export const CldModal = () => {
   }
 
   const handleEnteredUSDDeposit = (usd_value: string, maxDecimals?: number) => {
-    setEnteredUSDDeposit(usd_value)
-    const token_amount_equivalent = parseFloat(formatAmount(usd_value)) / selectedCoinPrice
+    const filtered = filterAmount(usd_value, enteredUSDDeposit)
+    const formatted = formatAmount(filtered)
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) return
+    if (floatUnits(selectedCoinBalance, 18) * selectedCoinPrice < parseFloat(formatted)) return
+    setEnteredUSDDeposit(filtered)
+    const token_amount_equivalent = parseFloat(formatAmount(filtered)) / selectedCoinPrice
     handleEnteredDeposit(formatAmount(token_amount_equivalent.toString()), maxDecimals)
   }
 
@@ -452,12 +467,8 @@ export const CldModal = () => {
                 placeholder={'$'}
                 icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
                 text={selectedCoin.symbol}
-                value={`$${
-                  enteredUSDDeposit != '' && enteredUSDDeposit != '0.' && enteredUSDDeposit != '.'
-                    ? truncateValue(enteredUSDDeposit, 2, false)
-                    : enteredUSDDeposit
-                }`}
-                onChange={(e) => handleEnteredUSDDeposit(filterAmount(e.target.value, enteredDeposit))}
+                value={enteredUSDDeposit}
+                onChange={(e) => handleEnteredUSDDeposit(e.target.value, selectedCoin.decimals)}
                 onClick={() => setLocalCoinsOpen(!localCoinsOpen)}
               />
               <BalanceDropdownOptions
@@ -469,6 +480,12 @@ export const CldModal = () => {
                 }}
               />
             </div>
+            {parseFloat(formatAmount(enteredUSDDeposit)) > 0 && (
+              <Text textAlignCenter t5s>
+                With this deposit, your policy will extend by{' '}
+                <TextSpan success>{truncateValue(newDuration, 1)} days</TextSpan>.
+              </Text>
+            )}
             <ButtonWrapper style={{ width: '100%' }} p={0}>
               {depositApproval && (
                 <Button
@@ -479,7 +496,7 @@ export const CldModal = () => {
                   onClick={() => {
                     const selectedCoinBalance_USD = floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
                     handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
-                    setEnteredUSDDeposit(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`))
+                    setEnteredUSDDeposit(truncateValue(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2, false))
                   }}
                   widthP={100}
                   disabled={selectedCoinBalance.isZero()}

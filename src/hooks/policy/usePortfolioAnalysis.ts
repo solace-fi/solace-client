@@ -34,9 +34,9 @@ export const usePortfolioAnalysis = (
   const dailyRate = useMemo(() => annualRate / 365.25, [annualRate])
 
   const dailyCost = useMemo(() => {
-    const numberifiedSimCoverageLimit = floatUnits(appliedCoverLimit, 18)
-    if (usdBalanceSum < numberifiedSimCoverageLimit) return usdBalanceSum * dailyRate
-    return numberifiedSimCoverageLimit * dailyRate
+    const numberifiedCoverageLimit = floatUnits(appliedCoverLimit, 18)
+    if (usdBalanceSum < numberifiedCoverageLimit) return usdBalanceSum * dailyRate
+    return numberifiedCoverageLimit * dailyRate
   }, [appliedCoverLimit, dailyRate, usdBalanceSum])
 
   return {

@@ -1,10 +1,9 @@
-import useDebounce from '@rooks/use-debounce'
 import { useWeb3React } from '@web3-react/core'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { StyledExpand, StyledOptions, StyledCalculator } from '../../components/atoms/Icon'
 import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
-import { Text } from '../../components/atoms/Typography'
+import { Text, TextSpan } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
 import { ZERO } from '../../constants'
 import { ApiStatus, FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
@@ -109,21 +108,29 @@ export const PolicyContent = (): JSX.Element => {
 
   const [showExistingPolicyMessage, setShowExistingPolicyMessage] = useState<boolean>(true)
   const firstTime = useMemo(() => existingPolicyId.isZero(), [existingPolicyId])
+
+  const [enteredUSDDeposit, setEnteredUSDDeposit] = useState<string>('')
+  const [enteredUSDWithdrawal, setEnteredUSDWithdrawal] = useState<string>('')
+
   const policyDuration = useMemo(() => (curDailyCost > 0 ? parseFloat(scpBalance) / curDailyCost : 0), [
     curDailyCost,
     scpBalance,
   ])
 
-  const [enteredUSDDeposit, setEnteredUSDDeposit] = useState<string>('')
-  const [enteredUSDWithdrawal, setEnteredUSDWithdrawal] = useState<string>('')
+  const newDuration = useMemo(
+    () => (curDailyCost > 0 ? parseFloat(formatAmount(enteredUSDDeposit)) / curDailyCost : 0),
+    [curDailyCost, enteredUSDDeposit]
+  )
 
   const [sugMinReqAccBal, setSugMinReqAccBal] = useState<BigNumber>(ZERO)
   const lackingScp = useMemo(() => {
     const parsedScpBalance = parseUnits(scpBalance, 18)
     const BN_Scp_Plus_Deposit = parsedScpBalance.add(BigNumber.from(accurateMultiply(enteredUSDDeposit, 18)))
     if (sugMinReqAccBal.isZero() && BN_Scp_Plus_Deposit.isZero()) return 'both zeroes'
-    if (sugMinReqAccBal.gt(BN_Scp_Plus_Deposit))
-      return truncateValue(Math.round(parseFloat(formatUnits(sugMinReqAccBal.sub(BN_Scp_Plus_Deposit))) * 100) / 100, 2)
+    if (sugMinReqAccBal.gt(BN_Scp_Plus_Deposit)) {
+      const diff = Math.round(parseFloat(formatUnits(sugMinReqAccBal.sub(BN_Scp_Plus_Deposit))) * 100) / 100
+      return truncateValue(Math.max(diff, 0.01), 2)
+    }
     return 'meets requirement'
   }, [scpBalance, sugMinReqAccBal, enteredUSDDeposit])
 
@@ -339,8 +346,12 @@ export const PolicyContent = (): JSX.Element => {
   }
 
   const handleEnteredUSDDeposit = (usd_value: string, maxDecimals?: number) => {
-    setEnteredUSDDeposit(usd_value)
-    const token_amount_equivalent = parseFloat(formatAmount(usd_value)) / selectedCoinPrice
+    const filtered = filterAmount(usd_value, enteredUSDDeposit)
+    const formatted = formatAmount(filtered)
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) return
+    if (floatUnits(selectedCoinBalance, 18) * selectedCoinPrice < parseFloat(formatted)) return
+    setEnteredUSDDeposit(filtered)
+    const token_amount_equivalent = parseFloat(formatAmount(filtered)) / selectedCoinPrice
     handleEnteredDeposit(formatAmount(token_amount_equivalent.toString()), maxDecimals)
   }
 
@@ -669,17 +680,8 @@ export const PolicyContent = (): JSX.Element => {
                           placeholder={'$'}
                           icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
                           text={selectedCoin.symbol}
-                          value={`$${
-                            enteredUSDDeposit != '' && enteredUSDDeposit != '0.' && enteredUSDDeposit != '.'
-                              ? truncateValue(enteredUSDDeposit, 2, false)
-                              : enteredUSDDeposit
-                          }`}
-                          onChange={(e) =>
-                            handleEnteredUSDDeposit(
-                              filterAmount(e.target.value, enteredUSDDeposit),
-                              selectedCoin.decimals
-                            )
-                          }
+                          value={enteredUSDDeposit}
+                          onChange={(e) => handleEnteredUSDDeposit(e.target.value, selectedCoin.decimals)}
                           onClick={() => setCoinsOpen(!coinsOpen)}
                         />
                         <BalanceDropdownOptions
@@ -735,13 +737,21 @@ export const PolicyContent = (): JSX.Element => {
                           onClick={() => {
                             const selectedCoinBalance_USD = floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
                             handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
-                            setEnteredUSDDeposit(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`))
+                            setEnteredUSDDeposit(
+                              truncateValue(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2, false)
+                            )
                           }}
                           widthP={100}
                           disabled={selectedCoinBalance.isZero()}
                         >
                           <Text {...gradientStyle}>MAX</Text>
                         </Button>
+                      )}
+                      {newUserState && parseFloat(formatAmount(enteredUSDDeposit)) > 0 && (
+                        <Text textAlignCenter t5s>
+                          With this deposit, your policy will extend by{' '}
+                          <TextSpan success>{truncateValue(newDuration, 1)} days</TextSpan>.
+                        </Text>
                       )}
                       {(newUserState || returningUserState) && depositApproval && homeCta && (
                         <Button
@@ -821,17 +831,25 @@ export const PolicyContent = (): JSX.Element => {
                             </Button>
                           )}
                           {depositApproval && (
-                            <Button
-                              {...gradientStyle}
-                              {...bigButtonStyle}
-                              secondary
-                              noborder
-                              onClick={handleDeposit}
-                              disabled={!isAcceptableDeposit}
-                              widthP={100}
-                            >
-                              <Text>Deposit</Text>
-                            </Button>
+                            <>
+                              {parseFloat(formatAmount(enteredUSDDeposit)) > 0 && (
+                                <Text textAlignCenter t5s>
+                                  With this deposit, your policy will extend by{' '}
+                                  <TextSpan success>{truncateValue(newDuration, 1)} days</TextSpan>.
+                                </Text>
+                              )}
+                              <Button
+                                {...gradientStyle}
+                                {...bigButtonStyle}
+                                secondary
+                                noborder
+                                onClick={handleDeposit}
+                                disabled={!isAcceptableDeposit}
+                                widthP={100}
+                              >
+                                <Text>Deposit</Text>
+                              </Button>
+                            </>
                           )}
                           <ButtonWrapper p={0} style={{ width: '100%' }}>
                             <Button
@@ -856,7 +874,9 @@ export const PolicyContent = (): JSX.Element => {
                                   const selectedCoinBalance_USD =
                                     floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
                                   handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
-                                  setEnteredUSDDeposit(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`))
+                                  setEnteredUSDDeposit(
+                                    truncateValue(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2, false)
+                                  )
                                 }}
                                 widthP={100}
                                 disabled={selectedCoinBalance.isZero()}
