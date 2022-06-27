@@ -29,6 +29,7 @@ import { ChosenLimit } from '../../constants/enums'
 import usePrevious from '../../hooks/internal/usePrevious'
 import { ModalHeader } from '../../components/atoms/Modal'
 import { usePortfolioAnalysis } from '../../hooks/policy/usePortfolioAnalysis'
+import ToggleSwitch from '../../components/atoms/ToggleSwitch'
 
 const ChosenLimitLength = Object.values(ChosenLimit).filter((x) => typeof x === 'number').length
 
@@ -64,7 +65,7 @@ export const CldModal = () => {
     handleSelectedCoin,
     selectedCoinPrice,
   } = input
-  const { curHighestPosition, curPortfolio } = portfolioKit
+  const { curHighestPosition, curPortfolio, curDailyCost } = portfolioKit
   const { importCounter } = simulator
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
@@ -100,14 +101,30 @@ export const CldModal = () => {
   const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
   const [enteredUSDDeposit, setEnteredUSDDeposit] = useState<string>('')
 
-  const { dailyCost: hypDailyCost } = usePortfolioAnalysis(
+  const [showDeposit, setShowDeposit] = useState<boolean>(false)
+
+  const { dailyCost: newDailyCost } = usePortfolioAnalysis(
     curPortfolio,
     parseUnits(formatAmount(localNewCoverageLimit), 18)
   )
 
-  const newDuration = useMemo(
-    () => (hypDailyCost > 0 ? parseFloat(formatAmount(enteredUSDDeposit)) / hypDailyCost : 0),
-    [hypDailyCost, enteredUSDDeposit]
+  const currentDuration = useMemo(() => (curDailyCost > 0 ? parseFloat(scpBalance) / curDailyCost : 0), [
+    curDailyCost,
+    scpBalance,
+  ])
+
+  const newDurationFromScp = useMemo(() => (newDailyCost > 0 ? parseFloat(scpBalance) / newDailyCost : 0), [
+    newDailyCost,
+    scpBalance,
+  ])
+
+  const additionalDurationFromAdjustment = useMemo(() => {
+    return newDurationFromScp - currentDuration
+  }, [newDurationFromScp, currentDuration])
+
+  const additionalDurationFromDeposit = useMemo(
+    () => (newDailyCost > 0 ? parseFloat(formatAmount(enteredUSDDeposit)) / newDailyCost : 0),
+    [newDailyCost, enteredUSDDeposit]
   )
 
   const importCounterPrev = usePrevious(importCounter)
@@ -407,7 +424,11 @@ export const CldModal = () => {
             />
           </Flex>
         </Flex>
-        {insufficientCovCap ? (
+        {cookieReferralCode && !cookieCodeUsable && newUserState ? (
+          <Text textAlignCenter pt={16} error>
+            Cannot use invalid referral code
+          </Text>
+        ) : insufficientCovCap ? (
           <Text textAlignCenter pt={16}>
             Your desired cover limit is too high.
           </Text>
@@ -415,13 +436,34 @@ export const CldModal = () => {
           <Text textAlignCenter pt={16}>
             You cannot purchase a policy with a cover limit of 0.
           </Text>
+        ) : additionalDurationFromAdjustment != 0 ? (
+          additionalDurationFromAdjustment > 0 ? (
+            <Text textAlignCenter t5s pt={16}>
+              With this cover limit, your policy will extend by{' '}
+              <TextSpan success>{truncateValue(additionalDurationFromAdjustment, 1)} days</TextSpan>.
+            </Text>
+          ) : (
+            <Text textAlignCenter t5s pt={16}>
+              With this cover limit, your policy will shorten by{' '}
+              <TextSpan warning>{truncateValue(Math.abs(additionalDurationFromAdjustment), 1)} days</TextSpan>.
+            </Text>
+          )
         ) : null}
-        {cookieReferralCode && !cookieCodeUsable && newUserState && (
-          <Text textAlignCenter pt={16}>
-            Cannot use invalid referral code
-          </Text>
-        )}
         {scpBalanceMeetsMrab && (
+          <Flex justifyCenter pt={16}>
+            <Flex stretch gap={7}>
+              <Text t4 bold>
+                Deposit additional premium
+              </Text>
+            </Flex>
+            <ToggleSwitch
+              id="show-deposit"
+              toggled={showDeposit}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShowDeposit(e.target.checked)}
+            />
+          </Flex>
+        )}
+        {scpBalanceMeetsMrab && !showDeposit && (
           <ButtonWrapper>
             {depositApproval && (
               <Button
@@ -458,7 +500,7 @@ export const CldModal = () => {
             deposit the additional premium.
           </Text>
         )}
-        {!scpBalanceMeetsMrab && (
+        {(!scpBalanceMeetsMrab || showDeposit) && (
           <Flex col gap={12} pt={16}>
             <div>
               <DropdownInputSection
@@ -483,7 +525,7 @@ export const CldModal = () => {
             {parseFloat(formatAmount(enteredUSDDeposit)) > 0 && (
               <Text textAlignCenter t5s>
                 With this deposit, your policy will extend by{' '}
-                <TextSpan success>{truncateValue(newDuration, 1)} days</TextSpan>.
+                <TextSpan success>{truncateValue(additionalDurationFromDeposit, 1)} days</TextSpan>.
               </Text>
             )}
             <ButtonWrapper style={{ width: '100%' }} p={0}>
@@ -518,8 +560,9 @@ export const CldModal = () => {
                     (cookieReferralCode && !cookieCodeUsable && newUserState)
                   }
                 >
-                  {/* <Text>Deposit &amp; Save</Text> */}
-                  <Text> {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}</Text>
+                  <Text>
+                    {curUserState ? `Deposit & Save` : newUserState || returningUserState ? `Deposit & Activate` : ``}
+                  </Text>
                 </Button>
               )}
               {!depositApproval && (

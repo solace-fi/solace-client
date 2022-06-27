@@ -251,15 +251,28 @@ const CoverageManager: React.FC = (props) => {
   const { account } = useWeb3React()
   const { appTheme, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
-  const { tokenPriceMapping, minute } = useCachedData()
+  const { tokenPriceMapping, minute, coverage } = useCachedData()
+  const {
+    portfolio: curPortfolio,
+    portfolioLoading,
+    fetchStatus,
+    policyId,
+    status,
+    coverageLimit: curCoverageLimit,
+    coverageLoading,
+    curDailyCost,
+    curDailyRate,
+    curUsdBalanceSum,
+    curHighestPosition,
+    scpBalance,
+  } = coverage
   const { signer, latestBlock } = useProvider()
 
   const { width } = useWindowDimensions()
-  const { portfolio: curPortfolio, riskScores, loading: portfolioLoading, fetchStatus } = usePortfolio()
+  const { riskScores } = usePortfolio()
   const [simPortfolio, setSimPortfolio] = useState<SolaceRiskScore | undefined>(undefined)
   const { series, loading: seriesLoading } = useRiskSeries()
   const [transactionLoading, setTransactionLoading] = useState<boolean>(false)
-  const scpBalance = useScpBalance()
   const {
     amount: enteredDeposit,
     isAppropriateAmount: isAppropriateDeposit,
@@ -267,7 +280,6 @@ const CoverageManager: React.FC = (props) => {
   } = useInputAmount()
   const { amount: enteredWithdrawal, handleInputChange: handleEnteredWithdrawal } = useInputAmount()
   const { getAvailableCoverCapacity } = useCoverageFunctions()
-  const { policyId, status, coverageLimit: curCoverageLimit, mounting: coverageLoading } = useCheckIsCoverageActive()
 
   const {
     appliedReferralCode,
@@ -290,12 +302,6 @@ const CoverageManager: React.FC = (props) => {
   const [simChosenLimit, setSimChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
   const [codeApplicationStatus, setCodeApplicationStatus] = useState<string>(ApiStatus.IDLE)
 
-  const {
-    highestPosition: curHighestPosition,
-    usdBalanceSum: curUsdBalanceSum,
-    dailyRate: curDailyRate,
-    dailyCost: curDailyCost,
-  } = usePortfolioAnalysis(curPortfolio, curCoverageLimit)
   const {
     highestPosition: simHighestPosition,
     usdBalanceSum: simUsdBalanceSum,

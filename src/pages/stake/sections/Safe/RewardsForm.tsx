@@ -7,29 +7,22 @@ import { useStakingRewards } from '../../../../hooks/stake/useStakingRewards'
 import { FunctionName, InfoBoxType } from '../../../../constants/enums'
 import { StyledForm } from '../../atoms/StyledForm'
 import { useNetwork } from '../../../../context/NetworkManager'
-import { useCheckIsCoverageActive, usePortfolio } from '../../../../hooks/policy/useSolaceCoverProductV3'
 import { ZERO } from '../../../../constants'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { Text } from '../../../../components/atoms/Typography'
-import { usePortfolioAnalysis } from '../../../../hooks/policy/usePortfolioAnalysis'
-import { useScpBalance } from '../../../../hooks/balance/useBalance'
 import { useCachedData } from '../../../../context/CachedDataManager'
 import { floatUnits, truncateValue } from '../../../../utils/formatting'
 
 export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
   const { activeNetwork } = useNetwork()
-  const { tokenPriceMapping } = useCachedData()
+  const { tokenPriceMapping, coverage } = useCachedData()
+  const { policyId, status, curDailyCost, scpBalance } = coverage
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { harvestLockRewards, compoundLockRewards, harvestLockRewardsForScp } = useStakingRewards()
 
-  const { policyId, status, coverageLimit } = useCheckIsCoverageActive()
-  const { portfolio } = usePortfolio()
-  const { dailyCost } = usePortfolioAnalysis(portfolio, coverageLimit)
-  const scpBalance = useScpBalance()
-
-  const currentDuration = useMemo(() => (dailyCost > 0 ? parseFloat(scpBalance) / dailyCost : 0), [
-    dailyCost,
+  const currentDuration = useMemo(() => (curDailyCost > 0 ? parseFloat(scpBalance) / curDailyCost : 0), [
+    curDailyCost,
     scpBalance,
   ])
 
@@ -38,13 +31,13 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
       const numberified_rewards = floatUnits(lock.pendingRewards, 18)
       const numberified_rewards_USD = numberified_rewards * tokenPriceMapping['solace']
       const numberified_scp_plus_rewards_USD = parseFloat(scpBalance) + numberified_rewards_USD
-      if (dailyCost > 0) {
-        return numberified_scp_plus_rewards_USD / dailyCost
+      if (curDailyCost > 0) {
+        return numberified_scp_plus_rewards_USD / curDailyCost
       }
       return 0
     }
     return 0
-  }, [dailyCost, lock.pendingRewards, scpBalance, tokenPriceMapping])
+  }, [curDailyCost, lock.pendingRewards, scpBalance, tokenPriceMapping])
 
   const additionalDuration = useMemo(() => {
     if (newDuration == 0) return 0

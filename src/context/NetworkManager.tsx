@@ -26,7 +26,7 @@ This manager keeps track of the current network and other important information.
 export const networks: NetworkConfig[] = [
   MainNetwork,
   RinkebyNetwork,
-  KovanNetwork,
+  // KovanNetwork,
   PolygonNetwork,
   MumbaiNetwork,
   AuroraNetwork,
