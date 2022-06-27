@@ -30,6 +30,7 @@ import usePrevious from '../../hooks/internal/usePrevious'
 import { ModalHeader } from '../../components/atoms/Modal'
 import { usePortfolioAnalysis } from '../../hooks/policy/usePortfolioAnalysis'
 import ToggleSwitch from '../../components/atoms/ToggleSwitch'
+import { LoaderText } from '../../components/molecules/LoaderText'
 
 const ChosenLimitLength = Object.values(ChosenLimit).filter((x) => typeof x === 'number').length
 
@@ -52,6 +53,7 @@ export const CldModal = () => {
   const {
     userState,
     handleShowCLDModal,
+    balancesLoading,
     transactionLoading,
     handleTransactionLoading,
     handleShowSimulatorModal,
@@ -436,8 +438,9 @@ export const CldModal = () => {
           <Text textAlignCenter pt={16}>
             You cannot purchase a policy with a cover limit of 0.
           </Text>
-        ) : additionalDurationFromAdjustment != 0 ? (
-          additionalDurationFromAdjustment > 0 ? (
+        ) : null}
+        {additionalDurationFromAdjustment != 0 &&
+          (additionalDurationFromAdjustment > 0 ? (
             <Text textAlignCenter t5s pt={16}>
               With this cover limit, your policy will extend by{' '}
               <TextSpan success>{truncateValue(additionalDurationFromAdjustment, 1)} days</TextSpan>.
@@ -447,8 +450,7 @@ export const CldModal = () => {
               With this cover limit, your policy will shorten by{' '}
               <TextSpan warning>{truncateValue(Math.abs(additionalDurationFromAdjustment), 1)} days</TextSpan>.
             </Text>
-          )
-        ) : null}
+          ))}
         {scpBalanceMeetsMrab && (
           <Flex justifyCenter pt={16}>
             <Flex stretch gap={7}>
@@ -489,7 +491,7 @@ export const CldModal = () => {
                 noborder
                 onClick={() => unlimitedApproveCPM(selectedCoin.address)}
               >
-                Approve {selectedCoin.symbol}
+                Approve Max {selectedCoin.symbol}
               </Button>
             )}
           </ButtonWrapper>
@@ -502,26 +504,38 @@ export const CldModal = () => {
         )}
         {(!scpBalanceMeetsMrab || showDeposit) && (
           <Flex col gap={12} pt={16}>
-            <div>
-              <DropdownInputSection
-                hasArrow
-                isOpen={localCoinsOpen}
-                placeholder={'$'}
-                icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
-                text={selectedCoin.symbol}
-                value={enteredUSDDeposit}
-                onChange={(e) => handleEnteredUSDDeposit(e.target.value, selectedCoin.decimals)}
-                onClick={() => setLocalCoinsOpen(!localCoinsOpen)}
-              />
-              <BalanceDropdownOptions
-                isOpen={localCoinsOpen}
-                searchedList={batchBalanceData}
-                onClick={(value: string) => {
-                  handleSelectedCoin(value)
-                  setLocalCoinsOpen(false)
-                }}
-              />
-            </div>
+            {!balancesLoading ? (
+              <div>
+                <div
+                  onClick={() => {
+                    if (localCoinsOpen) {
+                      setLocalCoinsOpen(false)
+                    }
+                  }}
+                >
+                  <DropdownInputSection
+                    hasArrow
+                    isOpen={localCoinsOpen}
+                    placeholder={'$'}
+                    icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
+                    text={selectedCoin.symbol}
+                    value={enteredUSDDeposit}
+                    onChange={(e) => handleEnteredUSDDeposit(e.target.value, selectedCoin.decimals)}
+                    onClick={() => setLocalCoinsOpen(!localCoinsOpen)}
+                  />
+                </div>
+                <BalanceDropdownOptions
+                  isOpen={localCoinsOpen}
+                  searchedList={batchBalanceData}
+                  onClick={(value: string) => {
+                    handleSelectedCoin(value)
+                    setLocalCoinsOpen(false)
+                  }}
+                />
+              </div>
+            ) : (
+              <LoaderText />
+            )}
             {parseFloat(formatAmount(enteredUSDDeposit)) > 0 && (
               <Text textAlignCenter t5s>
                 With this deposit, your policy will extend by{' '}
@@ -573,7 +587,7 @@ export const CldModal = () => {
                   noborder
                   onClick={() => unlimitedApproveCPM(selectedCoin.address)}
                 >
-                  Approve {selectedCoin.symbol}
+                  Approve Max {selectedCoin.symbol}
                 </Button>
               )}
             </ButtonWrapper>

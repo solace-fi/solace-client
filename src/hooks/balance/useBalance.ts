@@ -315,7 +315,7 @@ export const useBatchBalances = (
       setLoading(false)
     }
     getBalances()
-  }, [activeNetwork, account, coinOptions, provider, version])
+  }, [account, coinOptions, provider, version])
 
   return { loading, batchBalances }
 }

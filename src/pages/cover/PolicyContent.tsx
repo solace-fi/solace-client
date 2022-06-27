@@ -41,6 +41,7 @@ export const PolicyContent = (): JSX.Element => {
     coverageLoading,
     existingPolicyLoading,
     transactionLoading,
+    balancesLoading,
     portfolioLoading,
     interfaceState,
     userState,
@@ -672,28 +673,39 @@ export const PolicyContent = (): JSX.Element => {
                       </Text>
                     ) : null)}
                   <Flex col gap={12}>
-                    {(depositCta || newUserState) && (
-                      <div>
-                        <DropdownInputSection
-                          hasArrow
-                          isOpen={coinsOpen}
-                          placeholder={'$'}
-                          icon={<img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />}
-                          text={selectedCoin.symbol}
-                          value={enteredUSDDeposit}
-                          onChange={(e) => handleEnteredUSDDeposit(e.target.value, selectedCoin.decimals)}
-                          onClick={() => setCoinsOpen(!coinsOpen)}
-                        />
-                        <BalanceDropdownOptions
-                          isOpen={coinsOpen}
-                          searchedList={batchBalanceData}
-                          onClick={(value: string) => {
-                            handleSelectedCoin(value)
-                            setCoinsOpen(false)
-                          }}
-                        />
-                      </div>
-                    )}
+                    {(depositCta || newUserState) &&
+                      (!balancesLoading ? (
+                        <div>
+                          <div
+                            onClick={() => {
+                              if (coinsOpen) setCoinsOpen(false)
+                            }}
+                          >
+                            <DropdownInputSection
+                              hasArrow
+                              isOpen={coinsOpen}
+                              placeholder={'$'}
+                              icon={
+                                <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
+                              }
+                              text={selectedCoin.symbol}
+                              value={enteredUSDDeposit}
+                              onChange={(e) => handleEnteredUSDDeposit(e.target.value, selectedCoin.decimals)}
+                              onClick={() => setCoinsOpen(!coinsOpen)}
+                            />
+                          </div>
+                          <BalanceDropdownOptions
+                            isOpen={coinsOpen}
+                            searchedList={batchBalanceData}
+                            onClick={(value: string) => {
+                              handleSelectedCoin(value)
+                              setCoinsOpen(false)
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <LoaderText />
+                      ))}
                     {withdrawCta && (
                       <Flex col gap={8}>
                         <Flex between>
@@ -784,7 +796,7 @@ export const PolicyContent = (): JSX.Element => {
                           onClick={() => unlimitedApproveCPM(selectedCoin.address)}
                         >
                           <Text bold t4s>
-                            Approve {selectedCoin.symbol}
+                            Approve Max {selectedCoin.symbol}
                           </Text>
                         </Button>
                       )}
@@ -826,7 +838,7 @@ export const PolicyContent = (): JSX.Element => {
                               widthP={100}
                             >
                               <Text bold t4s>
-                                Approve {selectedCoin.symbol}
+                                Approve Max {selectedCoin.symbol}
                               </Text>
                             </Button>
                           )}

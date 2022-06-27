@@ -100,22 +100,28 @@ export default function AddProtocolForm({
             </Text>
           </Flex>
         </ThinButton>
-        <SmallerInputSection
-          ref={inputRef}
-          placeholder={'$'}
-          value={enteredBalance}
-          onChange={(e) => {
-            const filtered = filterAmount(e.target.value, enteredBalance)
-            setEnteredBalance(filtered)
+        <div
+          onClick={() => {
+            setDropdownOpen(false)
           }}
-          style={{
-            maxWidth: '120px',
-            width: '120px',
-            minWidth: '120px',
-            maxHeight: '36px',
-          }}
-          asideBg
-        />
+        >
+          <SmallerInputSection
+            ref={inputRef}
+            placeholder={'$'}
+            value={enteredBalance}
+            onChange={(e) => {
+              const filtered = filterAmount(e.target.value, enteredBalance)
+              setEnteredBalance(filtered)
+            }}
+            style={{
+              maxWidth: '120px',
+              width: '120px',
+              minWidth: '120px',
+              maxHeight: '36px',
+            }}
+            asideBg
+          />
+        </div>
         <GraySquareButton
           width={32}
           height={32}
