@@ -86,7 +86,7 @@ export const _applyCode = (props: ApplyReferralProps | ApplyPromoProps) => async
     console.log(`${keyword} - applied code`, _appliedCode)
     return _appliedCode ? true : false
   }
-  if (codeType === 'promo') {
+  if (codeType === 'promo' && isPromoResponse(data)) {
     const _appliedCodes = data.result?.promo_codes
     _appliedCodes && setAppliedCodes(_appliedCodes)
     console.log(`${keyword} - applied codes`, _appliedCodes)

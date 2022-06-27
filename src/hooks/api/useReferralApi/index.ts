@@ -28,6 +28,7 @@ export default function useReferralApi(): {
   const [earnedAmount, setEarnedAmount] = useState<number | undefined>(undefined)
   const [referredCount, setReferredCount] = useState<number | undefined>(undefined)
   const [appliedReferralCode, setAppliedReferralCode] = useState<string | undefined>(undefined)
+  const [appliedPromoCodes, setAppliedPromoCodes] = useState<string[]>([])
   const [cookieCode, setCookieCode] = useState<string | undefined>(undefined)
   const [cookieCodeUsable, setCookieCodeUsable] = useState<boolean>(false)
 
