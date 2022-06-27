@@ -13,11 +13,11 @@
 }
  */
 
-type Failure = { Message: string }
-type Success = {
+export type ApplyReferralCodeFailure = { Message: string }
+export type ApplyReferralCodeSuccess = {
   user: string
-  promo_code: string
+  referral_code: string
   chain_id: number
   policy_id: number
 }
-export type ApplyPromoCodeResponse = Success | Failure
+export type ApplyReferralCodeResponse = { result: ApplyReferralCodeSuccess | ApplyReferralCodeFailure }

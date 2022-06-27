@@ -21,6 +21,7 @@ type GeneralContextType = {
   leftSidebar: boolean
   rightSidebar: boolean
   referralCode: string | undefined
+  promoCode: string | undefined
   addNotices: (noticesToAdd: SystemNoticeData[]) => void
   removeNotices: (noticesToRemove: SystemNotice[]) => void
   addErrors: (errorsToAdd: ErrorData[]) => void
@@ -38,6 +39,7 @@ const GeneralContext = createContext<GeneralContextType>({
   leftSidebar: false,
   rightSidebar: false,
   referralCode: undefined,
+  promoCode: undefined,
   addNotices: () => undefined,
   removeNotices: () => undefined,
   addErrors: () => undefined,
@@ -59,15 +61,22 @@ const GeneralProvider: React.FC = (props) => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [referralCode, setReferralCode] = useSessionStorage<string | undefined>('sol_data_referral_code_v3')
+  const [promoCode, setPromoCode] = useSessionStorage<string | undefined>('sol_data_promo_code_v3')
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const referralCodeFromUrl = params.get('rc')
+    const promoCodeFromUrl = params.get('pc')
     if (referralCodeFromUrl) {
       history.pushState(null, '', location.href.split('?')[0])
       setReferralCode(referralCodeFromUrl)
       console.log('referralCodeFromUrl', referralCodeFromUrl)
     }
-  }, [setReferralCode])
+    if (promoCodeFromUrl) {
+      history.pushState(null, '', location.href.split('?')[0])
+      setPromoCode(promoCodeFromUrl)
+      console.log('promoCodeFromUrl', promoCodeFromUrl)
+    }
+  }, [setReferralCode, setPromoCode])
 
   const [notices, setNotices] = useState<string[]>([])
   const [errors, setErrors] = useState<string[]>([])
@@ -137,6 +146,7 @@ const GeneralProvider: React.FC = (props) => {
     leftSidebar,
     rightSidebar,
     referralCode,
+    promoCode,
     addNotices,
     removeNotices,
     addErrors,
