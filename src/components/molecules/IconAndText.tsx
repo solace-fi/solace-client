@@ -53,7 +53,7 @@ export const GenericIconAndText = ({
   width,
 }: {
   icon: JSX.Element
-  text: string
+  text?: string
   disabled?: boolean
   displayOnMobile?: boolean
   width?: number
@@ -61,7 +61,7 @@ export const GenericIconAndText = ({
   return (
     <StyledGenericIconAndText disabled={disabled} displayOnMobile={displayOnMobile} width={width}>
       {icon}
-      <div>{text}</div>
+      {text && <div>{text}</div>}
     </StyledGenericIconAndText>
   )
 }

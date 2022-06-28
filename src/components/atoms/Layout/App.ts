@@ -50,7 +50,7 @@ export const Layout = styled.div`
   padding: 30px;
 
   @media screen and (max-width: ${BKPT_NAVBAR}px) {
-    padding: 90px 0 60px 0;
+    padding: 60px 0 60px 0;
   }
 `
 

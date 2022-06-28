@@ -75,7 +75,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
       modalTitle={'Connect a wallet'}
       disableCloseButton={false}
     >
-      <Scrollable maxMobileHeight={60}>
+      <Scrollable maxMobileHeight={'60vh'}>
         <WalletList />
       </Scrollable>
       {account && (

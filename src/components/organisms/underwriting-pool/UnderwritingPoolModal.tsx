@@ -45,7 +45,7 @@ import { ModalRow, ModalCell } from '../../atoms/Modal'
 
 /* import hooks */
 import { useNativeTokenBalance } from '../../../hooks/balance/useBalance'
-import { useScpBalance } from '../../../hooks/balance/useBalance'
+import { useVaultScpBalance } from '../../../hooks/balance/useBalance'
 import { useCooldown, useVault } from '../../../hooks/_legacy/useVault'
 import { useCpFarm } from '../../../hooks/_legacy/useCpFarm'
 import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
@@ -72,7 +72,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
 
   const nativeTokenBalance = useNativeTokenBalance()
-  const scpBalance = useScpBalance()
+  const scpBalance = useVaultScpBalance()
   const {
     cooldownStarted,
     timeWaited,

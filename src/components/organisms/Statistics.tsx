@@ -23,10 +23,10 @@ import { formatUnits } from '@ethersproject/units'
 /* import constants */
 import { BKPT_3, BKPT_4, ZERO } from '../../constants'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
-import { GlobalLockInfo, UserLocksInfo } from '../../constants/types'
+import { GlobalLockInfo, UserLocksInfo } from '@solace-fi/sdk-nightly'
 
 /* import managers */
-import { useNetwork, networks } from '../../context/NetworkManager'
+import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useCachedData } from '../../context/CachedDataManager'

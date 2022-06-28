@@ -16,14 +16,14 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useProvider } from '../../context/ProviderManager'
 import { DAI_TOKEN, FRAX_TOKEN } from '../../constants/mappings/token'
 import { useNetwork } from '../../context/NetworkManager'
-import IERC20 from '../../constants/metadata/IERC20Metadata.json'
+import { ERC20_ABI } from '../../constants/abi'
 import { queryBalance } from '../../utils/contract'
 import useDebounce from '@rooks/use-debounce'
 import { useContracts } from '../../context/ContractsManager'
 import { useTokenAllowance } from '../../hooks/contract/useToken'
 import { Loader } from '../../components/atoms/Loader'
 import { TextSpan, Text } from '../../components/atoms/Typography'
-import { Box, RaisedBox } from '../../components/atoms/Box'
+import { Box } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 
@@ -41,80 +41,7 @@ import { CoveredChains } from './CoveredChains'
 import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
 import { ReadTokenData } from '../../constants/types'
 import { useWeb3React } from '@web3-react/core'
-
-export function Card({
-  children,
-  style,
-  thinner,
-  innerBigger,
-  innerThinner,
-  bigger,
-  normous,
-  horiz,
-  inactive,
-  noShadow,
-  noPadding,
-  gap,
-  ...rest
-}: {
-  children: React.ReactNode
-  style?: React.CSSProperties
-  /** first card - `flex: 0.8` */ thinner?: boolean
-  /** second card - `flex 1` */ bigger?: boolean
-  /** second card inactive - `flex 1.2` */ innerBigger?: boolean
-  /** second card - `flex: 0.8` */ innerThinner?: boolean
-  /* big box under coverage active toggle - flex: 12*/ normous?: boolean
-  /** first time 2-form card - `flex 2` */ inactive?: boolean
-  horiz?: boolean
-  noShadow?: boolean
-  noPadding?: boolean
-  gap?: number
-}): JSX.Element {
-  const defaultStyle = style ?? {}
-  // thinner is 0.8, bigger is 1.2
-  const customStyle = {
-    display: 'flex',
-    flex: (() => {
-      if (thinner) return 0.8
-      if (bigger) return 1
-      if (innerBigger) return 1.2
-      if (innerThinner) return 0.9
-      if (normous) return 12
-      if (inactive) return 2
-    })(),
-  }
-  const combinedStyle = { ...defaultStyle, ...customStyle }
-
-  const colStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    // alignItems: 'stretch',
-  }
-
-  const rowStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'stretch',
-  }
-
-  return !noShadow ? (
-    <ShadowDiv style={combinedStyle} {...rest}>
-      <RaisedBox style={horiz ? rowStyle : colStyle}>
-        <Flex p={!noPadding ? 24 : undefined} column={!horiz} stretch flex1 gap={gap}>
-          {children}
-        </Flex>
-      </RaisedBox>
-    </ShadowDiv>
-  ) : (
-    <Flex style={combinedStyle} {...rest} col>
-      <RaisedBox style={horiz ? rowStyle : colStyle}>
-        <Flex p={!noPadding ? 24 : undefined} column={!horiz} stretch flex1 gap={gap}>
-          {children}
-        </Flex>
-      </RaisedBox>
-    </Flex>
-  )
-}
+import { TileCard } from '../../components/molecules/TileCard'
 
 export enum ReferralSource {
   'Custom',
@@ -244,7 +171,7 @@ export default function Soteria(): JSX.Element {
 
   const _getAvailableFunds = useDebounce(async () => {
     if (!signer || !account) return
-    const tokenContract = new Contract(stableCoinData.address, IERC20.abi, signer)
+    const tokenContract = new Contract(stableCoinData.address, ERC20_ABI, signer)
     const balance = await queryBalance(tokenContract, account)
     setWalletAssetBalance(balance)
     setContractForAllowance(tokenContract)
@@ -328,7 +255,7 @@ export default function Soteria(): JSX.Element {
               {firstTime && formStage === FormStages.Welcome ? (
                 <WelcomeMessage portfolio={portfolio} type={referralType} goToSecondStage={goToSecondStage} />
               ) : !firstTime && policyId?.isZero() && showExistingPolicyMessage ? (
-                <Card>
+                <TileCard>
                   <Flex col gap={30} itemsCenter>
                     <Text t2s>Solace Wallet Coverage</Text>
                     <Flex col gap={10} itemsCenter>
@@ -362,7 +289,7 @@ export default function Soteria(): JSX.Element {
                       </Flex>
                     )}
                   </Flex>
-                </Card>
+                </TileCard>
               ) : (
                 <Flex gap={24} col={isMobile}>
                   {status ? (
@@ -376,7 +303,7 @@ export default function Soteria(): JSX.Element {
                             flex: '0.8',
                           }}
                         >
-                          <Card thinner>
+                          <TileCard thinner>
                             <CoverageLimit
                               stableCoinData={stableCoinData}
                               referralChecks={{
@@ -399,9 +326,9 @@ export default function Soteria(): JSX.Element {
                               setReferralCode={setReferralCode}
                               canPurchaseNewCover={canPurchaseNewCover}
                             />{' '}
-                          </Card>
+                          </TileCard>
                           {activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2' && (
-                            <Card thinner>
+                            <TileCard thinner>
                               <CoveredChains
                                 coverageActivity={{
                                   status,
@@ -417,11 +344,11 @@ export default function Soteria(): JSX.Element {
                                 isEditing={isEditingChains}
                                 setIsEditing={setIsEditingChains}
                               />
-                            </Card>
+                            </TileCard>
                           )}
                         </Flex>
                       ) : (
-                        <Card thinner>
+                        <TileCard thinner>
                           <CoverageLimit
                             stableCoinData={stableCoinData}
                             referralChecks={{
@@ -444,9 +371,9 @@ export default function Soteria(): JSX.Element {
                             setReferralCode={setReferralCode}
                             canPurchaseNewCover={canPurchaseNewCover}
                           />{' '}
-                        </Card>
+                        </TileCard>
                       )}
-                      <Card bigger horiz>
+                      <TileCard bigger horiz>
                         <PolicyBalance
                           referralChecks={{
                             codeIsUsable,
@@ -479,11 +406,11 @@ export default function Soteria(): JSX.Element {
                             mounting,
                           }}
                         />
-                      </Card>
+                      </TileCard>
                     </>
                   ) : (
                     // <>
-                    <Card inactive horiz={!isMobile} noPadding gap={24}>
+                    <TileCard inactive horiz={!isMobile} noPadding gap={24}>
                       <Flex
                         col
                         stretch
@@ -493,7 +420,7 @@ export default function Soteria(): JSX.Element {
                             activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2' ? '0.8' : '1',
                         }}
                       >
-                        <Card innerThinner noShadow>
+                        <TileCard innerThinner noShadow>
                           <CoverageLimit
                             stableCoinData={stableCoinData}
                             referralChecks={{
@@ -517,9 +444,9 @@ export default function Soteria(): JSX.Element {
                             canPurchaseNewCover={canPurchaseNewCover}
                             inactive
                           />
-                        </Card>
+                        </TileCard>
                         {activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2' && (
-                          <Card innerThinner noShadow>
+                          <TileCard innerThinner noShadow>
                             <CoveredChains
                               coverageActivity={{
                                 status,
@@ -535,10 +462,10 @@ export default function Soteria(): JSX.Element {
                               isEditing={isEditingChains}
                               setIsEditing={setIsEditingChains}
                             />
-                          </Card>
+                          </TileCard>
                         )}
                       </Flex>
-                      <Card innerBigger noShadow>
+                      <TileCard innerBigger noShadow>
                         <PolicyBalance
                           referralChecks={{
                             codeIsUsable,
@@ -572,8 +499,8 @@ export default function Soteria(): JSX.Element {
                           }}
                           inactive
                         />
-                      </Card>
-                    </Card>
+                      </TileCard>
+                    </TileCard>
                   )}
                   <Flex
                     col
@@ -599,7 +526,7 @@ export default function Soteria(): JSX.Element {
                   </Flex>
                 </Flex>
               )}
-              <Card>
+              <TileCard>
                 <Text t2 bold>
                   Portfolio Details
                 </Text>
@@ -614,7 +541,7 @@ export default function Soteria(): JSX.Element {
                   </Flex>
                 )}
                 <PortfolioTable portfolio={portfolio} loading={loading} />
-              </Card>
+              </TileCard>
             </Flex>
           )}
         </>

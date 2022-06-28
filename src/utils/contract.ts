@@ -3,7 +3,7 @@ import { Contract } from '@ethersproject/contracts'
 import { rangeFrom0, numberify } from './numeric'
 import { equalsIgnoreCase, getContract } from '.'
 import { withBackoffRetries } from './time'
-import ierc20Alt from '../constants/metadata/IERC20MetadataAlt.json'
+import ierc20Alt from '../constants/abi/IERC20MetadataAlt.json'
 import { ZERO } from '../constants'
 
 const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'

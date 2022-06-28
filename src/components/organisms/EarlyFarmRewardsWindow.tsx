@@ -29,7 +29,7 @@ import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { USDC_TOKEN, USDT_TOKEN, DAI_TOKEN, FRAX_TOKEN } from '../../constants/mappings/token'
 import { MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
-import IERC20 from '../../constants/metadata/IERC20Metadata.json'
+import { ERC20_ABI } from '../../constants/abi'
 
 /* import managers */
 import { useNetwork } from '../../context/NetworkManager'
@@ -140,7 +140,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
 
   const unlimitedApprove = async () => {
     if (!farmRewards || !isAddress(stablecoinPayment.value) || !signer) return
-    const stablecoinContract = new Contract(stablecoinPayment.value, IERC20.abi, signer)
+    const stablecoinContract = new Contract(stablecoinPayment.value, ERC20_ABI, signer)
     try {
       const tx: TransactionResponse = await stablecoinContract.approve(farmRewards.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash
@@ -160,7 +160,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   const callRedeem = async () => {
     if (!farmRewards || !isAddress(stablecoinPayment.value) || !signer) return
     try {
-      const stablecoinContract = new Contract(stablecoinPayment.value, IERC20.abi, signer)
+      const stablecoinContract = new Contract(stablecoinPayment.value, ERC20_ABI, signer)
       const estGas = await farmRewards.estimateGas.redeem(
         stablecoinContract.address,
         parseUnits(amount, userStablecoinDecimals)
@@ -207,7 +207,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
       setStablecoinUnsupported(true)
       return
     }
-    const stablecoinContract = new Contract(stablecoinPayment.value, IERC20.abi, signer)
+    const stablecoinContract = new Contract(stablecoinPayment.value, ERC20_ABI, signer)
     const balance = await queryBalance(stablecoinContract, account)
     setUserStablecoinDecimals(stablecoinPayment.decimals)
     setUserStablecoinBalance(balance)

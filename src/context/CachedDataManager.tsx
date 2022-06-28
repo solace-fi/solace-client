@@ -1,8 +1,8 @@
-import React, { useMemo, useContext, createContext, useEffect, useState, useCallback } from 'react'
+import React, { useMemo, useContext, createContext, useEffect, useCallback } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
-import { GasData, LocalTx, TokenToPriceMapping } from '../constants/types'
+import { GasData, LocalTx } from '../constants/types'
 import { useReload } from '../hooks/internal/useReload'
 
 import { useFetchGasData } from '../hooks/provider/useGas'
@@ -10,6 +10,11 @@ import { useFetchGasData } from '../hooks/provider/useGas'
 import { useNetwork } from './NetworkManager'
 import { useGetCrossTokenPricesFromCoingecko } from '../hooks/api/usePrice'
 import { useWeb3React } from '@web3-react/core'
+import { BigNumber, SolaceRiskProtocol, SolaceRiskScore, TokenToPriceMapping } from '@solace-fi/sdk-nightly'
+import { useCheckIsCoverageActive, usePortfolio } from '../hooks/policy/useSolaceCoverProductV3'
+import { useScpBalance } from '../hooks/balance/useBalance'
+import { usePortfolioAnalysis } from '../hooks/policy/usePortfolioAnalysis'
+import { ZERO } from '../constants'
 
 /*
 
@@ -30,6 +35,20 @@ type CachedData = {
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
   reload: () => void
+  coverage: {
+    portfolio?: SolaceRiskScore
+    fetchStatus: number
+    policyId?: BigNumber
+    status: boolean
+    coverageLimit: BigNumber
+    curHighestPosition?: SolaceRiskProtocol
+    curUsdBalanceSum: number
+    curDailyRate: number
+    curDailyCost: number
+    scpBalance: string
+    portfolioLoading: boolean
+    coverageLoading: boolean
+  }
 }
 
 const CachedDataContext = createContext<CachedData>({
@@ -41,6 +60,20 @@ const CachedDataContext = createContext<CachedData>({
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
   reload: () => undefined,
+  coverage: {
+    portfolio: undefined,
+    fetchStatus: 0,
+    policyId: undefined,
+    status: false,
+    coverageLimit: ZERO,
+    curHighestPosition: undefined,
+    curUsdBalanceSum: 0,
+    curDailyRate: 0,
+    curDailyCost: 0,
+    scpBalance: '',
+    portfolioLoading: true,
+    coverageLoading: true,
+  },
 })
 
 const CachedDataProvider: React.FC = (props) => {
@@ -52,6 +85,16 @@ const CachedDataProvider: React.FC = (props) => {
   const [minReload, minute] = useReload()
   const { tokenPriceMapping } = useGetCrossTokenPricesFromCoingecko(minute)
   const gasData = useFetchGasData()
+  const { portfolio, loading: portfolioLoading, fetchStatus } = usePortfolio()
+  const { policyId, status, coverageLimit, mounting: coverageLoading } = useCheckIsCoverageActive()
+  const scpBalance = useScpBalance()
+
+  const {
+    highestPosition: curHighestPosition,
+    usdBalanceSum: curUsdBalanceSum,
+    dailyRate: curDailyRate,
+    dailyCost: curDailyCost,
+  } = usePortfolioAnalysis(portfolio, coverageLimit)
 
   const addLocalTransactions = useCallback(
     (txToAdd: LocalTx) => {
@@ -96,8 +139,43 @@ const CachedDataProvider: React.FC = (props) => {
       addLocalTransactions,
       deleteLocalTransactions,
       reload,
+      coverage: {
+        portfolio,
+        fetchStatus,
+        policyId,
+        status,
+        coverageLimit,
+        curHighestPosition,
+        curUsdBalanceSum,
+        curDailyRate,
+        curDailyCost,
+        scpBalance,
+        portfolioLoading,
+        coverageLoading,
+      },
     }),
-    [minute, localTxs, tokenPriceMapping, addLocalTransactions, deleteLocalTransactions, reload, version, gasData]
+    [
+      minute,
+      localTxs,
+      tokenPriceMapping,
+      addLocalTransactions,
+      deleteLocalTransactions,
+      reload,
+      version,
+      gasData,
+      portfolio,
+      fetchStatus,
+      policyId,
+      status,
+      coverageLimit,
+      curHighestPosition,
+      curUsdBalanceSum,
+      curDailyRate,
+      curDailyCost,
+      scpBalance,
+      portfolioLoading,
+      coverageLoading,
+    ]
   )
 
   return <CachedDataContext.Provider value={value}>{props.children}</CachedDataContext.Provider>

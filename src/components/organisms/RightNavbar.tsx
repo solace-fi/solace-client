@@ -31,7 +31,7 @@ import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { useWeb3React } from '@web3-react/core'
 import { useENS } from '../../hooks/wallet/useENS'
 
-const AppNav = styled.div<{ shouldShow: boolean }>`
+const RightAppNav = styled.div<{ shouldShow: boolean }>`
   background-color: ${({ theme }) => theme.modal.base_color};
   width: 375px;
   position: fixed;
@@ -40,7 +40,7 @@ const AppNav = styled.div<{ shouldShow: boolean }>`
   ${(props) => (props.shouldShow ? `right: 0%; transition: 350ms;` : `right: -100%; transition: 350ms;`)};
 `
 
-const AppNavGradient = styled.div<{ showSettings: boolean }>`
+const RightAppNavGradient = styled.div<{ showSettings: boolean }>`
   background: ${(props) => (props.showSettings ? props.theme.box.bg_color_2 : null)};
   height: 100vh;
   display: flex;
@@ -52,13 +52,13 @@ const AppButton = styled(Button)`
   background: ${(props) => props.theme.box.bg_color_2};
 `
 
-const AppNavItemList = styled.ul`
+const RightAppNavItemList = styled.ul`
   width: 100%;
   padding: 0;
   margin: 0;
 `
 
-const AppNavItemText = styled.li`
+const RightAppNavItemText = styled.li`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -149,9 +149,9 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
   return (
     <>
       <TransactionHistoryModal closeModal={() => setShowTxHistory(false)} isOpen={showTxHistory} />
-      <AppNav ref={wrapperRef} shouldShow={show} style={{ width: `${Math.min(width, 375)}px` }}>
+      <RightAppNav ref={wrapperRef} shouldShow={show} style={{ width: `${Math.min(width, 375)}px` }}>
         <ShadowDiv>
-          <AppNavGradient showSettings={showWalletSettings}>
+          <RightAppNavGradient showSettings={showWalletSettings}>
             <Flex between pt={60} pl={30} pr={30} pb={30}>
               <ShadowDiv style={{ borderRadius: '28px' }}>
                 <AppButton
@@ -245,10 +245,10 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                 )}
                 {!account && <div style={{ flex: '1 1' }}></div>}
                 <Flex col mt={account ? 56 : 0}>
-                  <AppNavItemList>
+                  <RightAppNavItemList>
                     {data.map((item, index) => {
                       return (
-                        <AppNavItemText key={index}>
+                        <RightAppNavItemText key={index}>
                           <NavLink to={item.path} onClick={() => setShow(false)}>
                             <Text
                               t3
@@ -258,10 +258,10 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                               {item.name}
                             </Text>
                           </NavLink>
-                        </AppNavItemText>
+                        </RightAppNavItemText>
                       )
                     })}
-                  </AppNavItemList>
+                  </RightAppNavItemList>
                 </Flex>
                 <div style={{ flex: '1 1' }}></div>
                 <Flex col mt={30} mb={isMobile ? 80 : 50}>
@@ -269,7 +269,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                     <Button
                       nohover
                       noborder
-                      onClick={appTheme == 'dark' && toggleTheme}
+                      onClick={appTheme == 'dark' ? toggleTheme : undefined}
                       style={{ minWidth: '0', minHeight: '0' }}
                     >
                       <StyledSun size={20} />
@@ -278,7 +278,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                     <Button
                       nohover
                       noborder
-                      onClick={appTheme == 'light' && toggleTheme}
+                      onClick={appTheme == 'light' ? toggleTheme : undefined}
                       style={{ minWidth: '0', minHeight: '0' }}
                     >
                       {<StyledMoon size={20} />}
@@ -370,9 +370,9 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                 )}
               </>
             )}
-          </AppNavGradient>
+          </RightAppNavGradient>
         </ShadowDiv>
-      </AppNav>
+      </RightAppNav>
     </>
   )
 }

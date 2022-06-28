@@ -14,13 +14,15 @@ export interface TextStyleProps extends GeneralElementProps {
   analogical?: boolean
   light?: boolean
   dark?: boolean
+  contrast?: boolean
   outlined?: boolean
   autoAlignVertical?: boolean
   autoAlignHorizontal?: boolean
   autoAlign?: boolean
   regular?: boolean
   medium?: boolean
-  bold?: boolean
+  semibold?: boolean
+  /** `font-weight: 600` if open sans, `700` if montserrat */ bold?: boolean
   extrabold?: boolean
   italics?: boolean
   underline?: boolean
@@ -35,9 +37,9 @@ export interface TextStyleProps extends GeneralElementProps {
   inline?: boolean
 }
 export interface TextFontProps {
-  /* `48px` */ big1?: boolean
-  /* `36px` */ big2?: boolean
-  /* `24px` */ big3?: boolean
+  /** `48px` */ big1?: boolean
+  /** `36px` */ big2?: boolean
+  /** `24px` */ big3?: boolean
   /** `width < BKPT_3` ? `24px` : `22px` */ t1?: boolean
   /** `width < BKPT_3` ? `20px` : `18px` */ t2?: boolean
   /** `width < BKPT_3` ? `18px` : `16px` */ t2_5?: boolean
@@ -49,7 +51,10 @@ export interface TextFontProps {
   /** `font-size: 16px` */ t3s?: boolean
   /** `14px` */ t4s?: boolean
   /** `font-size: 12px`, `line-height: 14px` */ t5s?: boolean
+  /** `width < BKPT_3` ? `12px` : `10px` */ t6?: boolean
   /** `font-size: 10px`, `line-height: 12px` */ t6s?: boolean
+  /** `width < BKPT_3` ? `10px` : `8px` */ t7?: boolean
+  /** `font-size: 10px` */ t7s?: boolean
 }
 
 export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextStyleProps {}
@@ -172,6 +177,26 @@ export const Text6StaticCss = css`
   line-height: 12px;
 `
 
+export const Text6Css = css`
+  font-size: 12px;
+
+  @media screen and (max-width: ${BKPT_3}px) {
+    font-size: 10px;
+  }
+`
+
+export const Text7Css = css`
+  font-size: 10px;
+
+  @media screen and (max-width: ${BKPT_3}px) {
+    font-size: 8px;
+  }
+`
+
+export const Text7StaticCss = css`
+  font-size: 10px;
+`
+
 export const BigSize1Css = css`
   font-size: 48px;
 `
@@ -197,7 +222,10 @@ export const TextFontCss = css<TextFontProps>`
     if (props.t3s) return Text3StaticCss
     if (props.t4s) return Text4StaticCss
     if (props.t5s) return Text5StaticCss
+    if (props.t6) return Text6Css
     if (props.t6s) return Text6StaticCss
+    if (props.t7) return Text7Css
+    if (props.t7s) return Text7StaticCss
     if (props.big1) return BigSize1Css
     if (props.big2) return BigSize2Css
     if (props.big3) return BigSize3Css
@@ -221,6 +249,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.autoAlignVertical && AlignVerticalCss}
   ${(props) => props.autoAlignHorizontal && AlignHorizontalCss}
   ${(props) => props.medium && 'font-weight: 500;'}
+  ${(props) => props.semibold && 'font-weight: 600;'}
   ${(props) => {
     if (props.bold && props.mont)
       return css`
@@ -247,6 +276,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.warning && `color: ${props.theme.typography.warningText};`}
   ${(props) => props.light && `color: ${props.theme.typography.lightText};`}
   ${(props) => props.dark && `color: ${props.theme.typography.darkText};`}
+  ${(props) => props.contrast && `color: ${props.theme.typography.contrastText};`}
   ${(props) => props.fade && `opacity: 0.8;`}
   ${(props) => props.inline && `display: inline;`}
   /* techy gradient is props.theme.typography.techyGradientA and techyGradientB (top to bottom); text bg clip css */
@@ -261,7 +291,7 @@ export const TextStyleCss = css<TextStyleProps>`
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      font-weight: 600;
+      font-weight: ${props.extrabold ? 700 : 600} !important;
     `}
   /* warm gradient is props.theme.typography.warmGradientA and warmGradientB (top left to bottom right); text bg clip css */
   ${(props) =>
@@ -275,7 +305,7 @@ export const TextStyleCss = css<TextStyleProps>`
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      font-weight: 600;
+      font-weight: ${props.extrabold ? 700 : 600} !important;
     `}
   ${GeneralElementCss}
   transition: all 200ms ease;

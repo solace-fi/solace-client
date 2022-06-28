@@ -1,6 +1,6 @@
 import { BigNumber, Contract } from 'ethers'
 import { useEffect, useState, useMemo, useRef } from 'react'
-import { BondTellerDetails, TxResult, LocalTx } from '../../constants/types'
+import { BondTellerFullDetails, TxResult, LocalTx } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 
 import { FunctionName, TransactionCondition } from '../../constants/enums'
@@ -14,9 +14,8 @@ import { useGetFunctionGas } from '../provider/useGas'
 import { useCachedData } from '../../context/CachedDataManager'
 import { withBackoffRetries } from '../../utils/time'
 import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
-import { useWeb3React } from '@web3-react/core'
 
-export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefined) => {
+export const useBondTellerV1 = (selectedBondDetail: BondTellerFullDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()
 
   const deposit = async (
@@ -97,13 +96,13 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
   return { deposit, redeem }
 }
 
-export const useBondTellerDetailsV1 = (
+export const useBondTellerFullDetailsV1 = (
   canGetPrices: boolean
-): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
+): { tellerDetails: BondTellerFullDetails[]; mounting: boolean } => {
   const { provider, signer } = useProvider()
   const { tellers } = useContracts()
   const { activeNetwork } = useNetwork()
-  const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
+  const [tellerDetails, setTellerDetails] = useState<BondTellerFullDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
   const { getPriceSdkFunc } = usePriceSdk()
   const canBondV1 = useMemo(() => !activeNetwork.config.restrictedFeatures.noBondingV1, [
@@ -128,7 +127,7 @@ export const useBondTellerDetailsV1 = (
       running.current = true
       const solacePrice = truncateValue(tokenPriceMapping['solace'], 2)
       try {
-        const data: BondTellerDetails[] = await Promise.all(
+        const data: BondTellerFullDetails[] = await Promise.all(
           tellers
             .filter((t) => t.metadata.version == 1)
             .map(async (teller) => {
@@ -188,7 +187,7 @@ export const useBondTellerDetailsV1 = (
                   ? ((parseFloat(solacePrice) - usdBondPrice) * 100) / usdBondPrice
                   : 0
 
-              const d: BondTellerDetails = {
+              const d: BondTellerFullDetails = {
                 tellerData: {
                   teller: { contract: teller.contract, type: teller.type },
                   bondPrice,
@@ -217,7 +216,7 @@ export const useBondTellerDetailsV1 = (
         setMounting(false)
         setTellerDetails(data)
       } catch (e) {
-        console.log('getBondTellerDetailsV1', e)
+        console.log('getBondTellerFullDetailsV1', e)
       }
       running.current = false
     }
@@ -228,7 +227,7 @@ export const useBondTellerDetailsV1 = (
 }
 
 export const useUserBondDataV1 = () => {
-  const getUserBondDataV1 = async (selectedBondDetail: BondTellerDetails, account: string) => {
+  const getUserBondDataV1 = async (selectedBondDetail: BondTellerFullDetails, account: string) => {
     const ownedTokenIds: BigNumber[] = await withBackoffRetries(async () =>
       selectedBondDetail.tellerData.teller.contract.listTokensOfOwner(account)
     )

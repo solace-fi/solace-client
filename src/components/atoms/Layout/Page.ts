@@ -2,8 +2,14 @@ import { BKPT_5 } from '../../../constants'
 import styled, { css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
 import { BKPT_6 } from '../../../constants'
+import { Theme } from '../../../styles/themes'
+import { ThinScrollbarCss } from '../Scrollbar/ThinScrollbar'
+import { ButtonAppearanceCss, ButtonProps } from '../Button'
+
+const isNum = (n: boolean | number): n is number => typeof n === 'number'
 
 export interface FlexProps {
+  button?: boolean
   between?: boolean
   around?: boolean
   evenly?: boolean
@@ -11,9 +17,11 @@ export interface FlexProps {
   justifyCenter?: boolean
   justifyEnd?: boolean
   itemsCenter?: boolean
+  itemsEnd?: boolean
   center?: boolean
   column?: boolean
   col?: boolean
+  row?: boolean
   stretch?: boolean
   wrap?: boolean
   marginAuto?: boolean
@@ -36,6 +44,19 @@ export interface FlexProps {
   hidden?: boolean
   baseline?: boolean
   flex1?: boolean
+  rounded?: boolean | number
+  shadow?: boolean
+  thinScrollbar?: boolean
+  zIndex?: number
+
+  bgRaised?: boolean
+  bgSecondary?: boolean
+  bgTechy?: boolean
+  bgWarm?: boolean
+  bgInfo?: boolean
+  bgSuccess?: boolean
+  bgError?: boolean
+  bgLightGray?: boolean
 }
 
 // type Conditional = string | number | boolean | undefined
@@ -44,40 +65,64 @@ export interface FlexProps {
 // }
 
 // prettier-ignore
-export const Flex = styled.div<FlexProps>`
+export const Flex = styled.div<FlexProps & ButtonProps>`
   display: flex;
-  ${({ justifyStart })  => justifyStart  && css`justify-content: flex-start;`}
-  ${({ justifyCenter }) => justifyCenter && css`justify-content: center;`}
-  ${({ justifyEnd })    => justifyEnd    && css`justify-content: flex-end;`}
-  ${({ itemsCenter })   => itemsCenter   && css`align-items: center;`}
-  ${({ center })        => center        && css`justify-content: center;`}
-  ${({ column })        => column        && css`flex-direction: column;`}
-  ${({ col })           => col           && css`flex-direction: column;`}
-  ${({ stretch })       => stretch       && css`align-items: stretch;`}
-  ${({ wrap })          => wrap          && css`flex-wrap: wrap;`}
-  ${({ between })       => between       && css`justify-content: space-between;`}
-  ${({ around })        => around        && css`justify-content: space-around;`}
-  ${({ evenly })        => evenly        && css`justify-content: space-evenly;`}
-  ${({ marginAuto })    => marginAuto    && css`margin: auto;`}
-  ${({ m })             => m             && css`margin: ${m}px;`}
-  ${({ mb })            => mb            && css`margin-bottom: ${mb}px;`}
-  ${({ mt })            => mt            && css`margin-top: ${mt}px;`}
-  ${({ ml })            => ml            && css`margin-left: ${ml}px;`}
-  ${({ mr })            => mr            && css`margin-right: ${mr}px;`}
-  ${({ mx })            => mx            && css`margin-left: ${mx}px; margin-right: ${mx}px;`}
-  ${({ my })            => my            && css`margin-top: ${my}px; margin-bottom: ${my}px;`}
-  ${({ p })             => p             && css`padding: ${p}px;`}
-  ${({ pb })            => pb            && css`padding-bottom: ${pb}px;`}
-  ${({ pl })            => pl            && css`padding-left: ${pl}px;`}
-  ${({ pr })            => pr            && css`padding-right: ${pr}px;`}
-  ${({ pt })            => pt            && css`padding-top: ${pt}px;`}
-  ${({ px })            => px            && css`padding-left: ${px}px; padding-right: ${px}px;`}
-  ${({ py })            => py            && css`padding-top: ${py}px; padding-bottom: ${py}px;`}
-  ${({ gap })           => gap           && css`gap: ${gap}px;`}
-  ${({ w })             => w             && css`width: ${w}px;`}
-  ${({ hidden })        => hidden        && css`display: none;`}
-  ${({ baseline })      => baseline      && css`align-self: baseline;`}
-  ${({ flex1 })         => flex1         && css`flex: 1;`}
+  ${({ button })        => button                      ? ButtonAppearanceCss                                 : ""}
+  ${({ button })        => button                      ? css`min-height: auto; min-width: auto;`             : ""}
+  ${({ between })       => between                     ? css`justify-content: space-between;`                : ""}
+  ${({ around })        => around                      ? css`justify-content: space-around;`                 : ""}
+  ${({ evenly })        => evenly                      ? css`justify-content: space-evenly;`                 : ""}
+  ${({ justifyStart })  => justifyStart                ? css`justify-content: flex-start;`                   : ""}
+  ${({ justifyCenter }) => justifyCenter               ? css`justify-content: center;`                       : ""}
+  ${({ justifyEnd })    => justifyEnd                  ? css`justify-content: flex-end;`                     : ""}
+  ${({ itemsCenter })   => itemsCenter                 ? css`align-items: center;`                           : ""}
+  ${({ itemsEnd })      => itemsEnd                    ? css`align-items: flex-end;`                         : ""}
+  ${({ center })        => center                      ? css`justify-content: center;`                       : ""}
+  ${({ column })        => column                      ? css`flex-direction: column;`                        : ""}
+  ${({ col })           => col                         ? css`flex-direction: column;`                        : ""}
+  ${({ row })           => row                         ? css`flex-direction: row;`                           : ""}
+  ${({ button, row })   => button                ? row ? css`flex-direction: row;`
+                                                       : css`flex-direction: column;`                        : ""}
+  ${({ stretch })       => stretch                     ? css`align-items: stretch;`                          : ""}
+  ${({ wrap })          => wrap                        ? css`flex-wrap: wrap;`                               : ""}
+  ${({ marginAuto })    => marginAuto                  ? css`margin: auto;`                                  : ""}
+
+  ${({ m })             => m             !== undefined ? css`margin: ${m}px;`                                : ""}
+  ${({ mb })            => mb            !== undefined ? css`margin-bottom: ${mb}px;`                        : ""}
+  ${({ mt })            => mt            !== undefined ? css`margin-top: ${mt}px;`                           : ""}
+  ${({ ml })            => ml            !== undefined ? css`margin-left: ${ml}px;`                          : ""}
+  ${({ mr })            => mr            !== undefined ? css`margin-right: ${mr}px;`                         : ""}
+  ${({ mx })            => mx            !== undefined ? css`margin-left: ${mx}px; margin-right: ${mx}px;`   : ""}
+  ${({ my })            => my            !== undefined ? css`margin-top: ${my}px; margin-bottom: ${my}px;`   : ""}
+
+  ${({ p })             => p             !== undefined ? css`padding: ${p}px;`                               : ""}
+  ${({ pb })            => pb            !== undefined ? css`padding-bottom: ${pb}px;`                       : ""}
+  ${({ pt })            => pt            !== undefined ? css`padding-top: ${pt}px;`                          : ""}
+  ${({ pl })            => pl            !== undefined ? css`padding-left: ${pl}px;`                         : ""}
+  ${({ pr })            => pr            !== undefined ? css`padding-right: ${pr}px;`                        : ""}
+  ${({ px })            => px            !== undefined ? css`padding-left: ${px}px; padding-right: ${px}px;` : ""}
+  ${({ py })            => py            !== undefined ? css`padding-top: ${py}px; padding-bottom: ${py}px;` : ""}
+
+  ${({ gap })           => gap           !== undefined ? css`gap: ${gap}px;`                                 : ""}
+
+  ${({ w })             => w             !== undefined ? css`width: ${w}px;`                                 : ""}
+  
+  ${({ hidden })        => hidden                      ? css`display: none;`                                              : ""}
+  ${({ baseline })      => baseline                    ? css`display: inline-block;`                                      : ""}
+  ${({ flex1 })         => flex1                       ? css`flex: 1;`                                                    : ""}
+  ${({ rounded })       => rounded       !== undefined ? css`border-radius: ${isNum(rounded) ? rounded : 10}px;`          : ""}
+  ${({ shadow })        => shadow                      ? css`box-shadow: 0px 0px 30px -10px rgba(138, 138, 138, 0.15);`                : ""}
+  ${({ thinScrollbar }) => thinScrollbar               ? ThinScrollbarCss                                                 : ""}
+  ${({ zIndex })        => zIndex        !== undefined ? css`z-index: ${zIndex};`                                         : ""}
+  
+  ${(props)             => props.bgRaised              ? css`background-color: ${(props.theme as Theme).v2.raised};` : ""}
+  ${(props)             => props.bgSecondary           ? css`background-color: ${(props.theme as Theme).body.bg_color};` : ""}
+  ${(props)             => props.bgTechy               ? css`background-image: linear-gradient(to bottom right, ${(props.theme as Theme).typography.techyGradientA}, ${(props.theme as Theme).typography.techyGradientB});` : ""}
+  ${(props)             => props.bgWarm                ? css`background-image: linear-gradient(to bottom right, ${(props.theme as Theme).typography.warmGradientA}, ${(props.theme as Theme).typography.warmGradientB});` : ""}
+  ${(props)             => props.bgInfo                ? css`background-color: ${(props.theme as Theme).typography.infoText};` : ""}
+  ${(props)             => props.bgError               ? css`background-color: ${(props.theme as Theme).typography.errorText};` : ""}
+  ${(props)             => props.bgSuccess             ? css`background-color: ${(props.theme as Theme).typography.successText};` : ""}
+  ${(props)             => props.bgLightGray           ? css`background-color: ${(props.theme as Theme).typography.lightGray};` : ""}
 `
 
 export const GridOrRow = styled(Flex)<{ preferredWidth?: number }>`

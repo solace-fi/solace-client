@@ -7,7 +7,7 @@ import { TransactionCondition, Error, SystemNotice } from '../constants/enums'
 
 import '../styles/toast.css'
 import { StylizedToastContainer } from '../components/atoms/Message'
-import { AppToast, NotificationToast } from '../components/molecules/Toast'
+import { AppToast, TransactionToast } from '../components/molecules/Toast'
 import { StyledInfo, StyledWarning } from '../components/atoms/Icon'
 import { useGeneral } from './GeneralManager'
 import { ErrorData, SystemNoticeData } from '../constants/types'
@@ -92,19 +92,17 @@ const ToastsProvider: React.FC = (props) => {
   }
 
   const makeTxToast = useCallback((txType: string, condition: TransactionCondition, txHash?: string, errObj?: any) => {
-    const TxToast = (txType: string) => (
-      <NotificationToast txType={txType} condition={condition} txHash={txHash} errObj={errObj} />
-    )
+    const _toast = <TransactionToast txType={txType} condition={condition} txHash={txHash} errObj={errObj} />
     switch (condition) {
       case 'Complete':
         if (txHash) {
           if (toast.isActive(txHash)) {
             toast.update(txHash, {
-              render: TxToast(txType),
+              render: _toast,
               ...txSuccess,
             })
           } else {
-            toast(TxToast(txType), {
+            toast(_toast, {
               toastId: txHash,
               ...txSuccess,
             })
@@ -115,11 +113,11 @@ const ToastsProvider: React.FC = (props) => {
         if (txHash) {
           if (toast.isActive(txHash)) {
             toast.update(txHash, {
-              render: TxToast(txType),
+              render: _toast,
               ...txError,
             })
           } else {
-            toast(TxToast(txType), {
+            toast(_toast, {
               toastId: txHash,
               ...txError,
             })
@@ -128,7 +126,7 @@ const ToastsProvider: React.FC = (props) => {
         break
       case 'Pending':
         if (txHash) {
-          toast(TxToast(txType), {
+          toast(_toast, {
             toastId: txHash,
             type: toast.TYPE.INFO,
             autoClose: false,
@@ -140,7 +138,7 @@ const ToastsProvider: React.FC = (props) => {
         }
         break
       default:
-        toast(TxToast(txType), {
+        toast(_toast, {
           ...txError,
         })
     }

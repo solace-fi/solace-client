@@ -106,11 +106,12 @@ export const StyledNavTooltip: React.FC<StyledTooltipProps> = ({ id, tip, childr
   )
 }
 
-export const StyledTooltip: React.FC<StyledTooltipProps & { alwaysShowChildren?: boolean }> = ({
+export const StyledTooltip: React.FC<StyledTooltipProps & { alwaysShowChildren?: boolean; disabled?: boolean }> = ({
   id,
   tip,
   children,
   alwaysShowChildren,
+  disabled,
   link,
 }) => {
   /*************************************************************************************
@@ -124,57 +125,63 @@ export const StyledTooltip: React.FC<StyledTooltipProps & { alwaysShowChildren?:
     <>
       {width > BKPT_1 ? (
         <>
-          <a data-for={id} data-tip={tip}>
-            {children}
-          </a>
-          <CustomTooltip id={id} delayShow={200} delayHide={200} effect="solid">
-            {link ? (
-              <a
-                href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: 'none', color: '#fff' }}
-              >
-                {Array.isArray(tip) ? (
-                  tip.map((_tip, i) => (
-                    <div key={i}>
-                      <Text t4 light>
-                        {_tip}
-                      </Text>
-                      <br />
-                    </div>
-                  ))
+          {disabled ? (
+            children
+          ) : (
+            <>
+              <a data-for={id} data-tip={tip}>
+                {children}
+              </a>
+              <CustomTooltip id={id} delayShow={200} delayHide={200} effect="solid">
+                {link ? (
+                  <a
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ textDecoration: 'none', color: '#fff' }}
+                  >
+                    {Array.isArray(tip) ? (
+                      tip.map((_tip, i) => (
+                        <div key={i}>
+                          <Text t4 light>
+                            {_tip}
+                          </Text>
+                          <br />
+                        </div>
+                      ))
+                    ) : (
+                      <>
+                        <Text t4 light>
+                          {tip}
+                        </Text>
+                        <br />
+                      </>
+                    )}
+                    <Text success textAlignRight style={{ marginTop: '1px' }}>
+                      Learn more <StyledLinkExternal size={20} />
+                    </Text>
+                  </a>
                 ) : (
                   <>
-                    <Text t4 light>
-                      {tip}
-                    </Text>
-                    <br />
+                    {Array.isArray(tip) ? (
+                      tip.map((_tip, i) => (
+                        <div key={i}>
+                          <Text t4 light>
+                            {_tip}
+                          </Text>
+                          {i + 1 < tip.length && <br />}
+                        </div>
+                      ))
+                    ) : (
+                      <Text t4 light>
+                        {tip}
+                      </Text>
+                    )}
                   </>
                 )}
-                <Text success textAlignRight style={{ marginTop: '1px' }}>
-                  Learn more <StyledLinkExternal size={20} />
-                </Text>
-              </a>
-            ) : (
-              <>
-                {Array.isArray(tip) ? (
-                  tip.map((_tip, i) => (
-                    <div key={i}>
-                      <Text t4 light>
-                        {_tip}
-                      </Text>
-                      {i + 1 < tip.length && <br />}
-                    </div>
-                  ))
-                ) : (
-                  <Text t4 light>
-                    {tip}
-                  </Text>
-                )}
-              </>
-            )}
-          </CustomTooltip>
+              </CustomTooltip>
+            </>
+          )}
         </>
       ) : alwaysShowChildren ? (
         children

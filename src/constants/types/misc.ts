@@ -4,5 +4,3 @@ export type BasicData = {
 }
 
 export type StringToStringMapping = { [key: string]: string }
-
-export type TokenToPriceMapping = { [key: string]: number }

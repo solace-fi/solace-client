@@ -43,7 +43,7 @@ import { Text } from '../../atoms/Typography'
 
 /* import hooks */
 import { useUserStakedValue } from '../../../hooks/_legacy/useFarm'
-import { useScpBalance } from '../../../hooks/balance/useBalance'
+import { useVaultScpBalance } from '../../../hooks/balance/useBalance'
 import { useTokenAllowance } from '../../../hooks/contract/useToken'
 import { useCpFarm } from '../../../hooks/_legacy/useCpFarm'
 import { useVault } from '../../../hooks/_legacy/useVault'
@@ -74,7 +74,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const { canTransfer } = useVault()
   const cpFarmFunctions = useCpFarm()
   const cpUserStakeValue = useUserStakedValue(cpFarm)
-  const scpBalance = useScpBalance()
+  const scpBalance = useVaultScpBalance()
   const { amount, maxSelected, isAppropriateAmount, handleInputChange, setMax, resetAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)

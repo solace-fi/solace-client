@@ -1,4 +1,5 @@
 export enum Unit {
+  FTM = 'FTM',
   ETH = 'ETH',
   MATIC = 'MATIC',
   SCP = 'CP Token',

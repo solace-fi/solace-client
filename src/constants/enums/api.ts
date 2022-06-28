@@ -3,3 +3,10 @@ export enum ExplorerscanApi {
   BLOCK = 'block',
   ADDRESS = 'address',
 }
+
+export enum ApiStatus {
+  IDLE = 'IDLE',
+  OK = 'OK',
+  ERROR = 'ERROR',
+  PENDING = 'PENDING',
+}

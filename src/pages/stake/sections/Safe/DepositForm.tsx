@@ -9,7 +9,7 @@ import InformationBox from '../../components/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
-import { LockData } from '../../../../constants/types'
+import { LockData } from '@solace-fi/sdk-nightly'
 import { FunctionName } from '../../../../constants/enums'
 import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 

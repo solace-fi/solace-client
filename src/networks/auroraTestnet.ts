@@ -4,19 +4,29 @@ import AuroraLogo from '../resources/svg/networks/aurora-logo.svg'
 import { hexValue } from 'ethers/lib/utils'
 import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/auroraTestnet'
 
-import solaceABI from '../constants/metadata/SOLACE.json'
-import xSolaceABI from '../constants/metadata/xSOLACE.json'
-import xsLockerABI from '../constants/metadata/xsLocker.json'
-import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
+import solaceABI from '../constants/abi/SOLACE.json'
+import xSolaceABI from '../constants/abi/xSOLACE.json'
 
 import { NEAR_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 
-import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
+import bridgeWrapperABI from '../constants/abi/BridgeWrapper.json'
 
-import ierc20Json from '../constants/metadata/IERC20Metadata.json'
 import { AURORASCAN_API_KEY } from '../constants'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/auroraTestnet'
 
+import {
+  xsLocker_ABI,
+  ERC20_ABI,
+  StakingRewards_ABI,
+  StakingRewardsV2_ABI,
+  CoverPaymentManager_ABI,
+  SolaceCoverProductV3_ABI,
+} from '../constants/abi'
+import {
+  COVER_PAYMENT_MANAGER_ADDRESS,
+  SOLACE_COVER_PRODUCT_V3_ADDRESS,
+  STAKING_REWARDS_V2_ADDRESS,
+} from '@solace-fi/sdk-nightly'
 const chainId = 1313161555
 
 export const AuroraTestnetNetwork: NetworkConfig = {
@@ -50,11 +60,23 @@ export const AuroraTestnetNetwork: NetworkConfig = {
       },
       xsLocker: {
         addr: KEY_ADDRS.XSLOCKER,
-        abi: xsLockerABI.abi,
+        abi: xsLocker_ABI,
       },
       stakingRewards: {
         addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: stakingRewardsABI.abi,
+        abi: StakingRewards_ABI,
+      },
+      solaceCoverProductV3: {
+        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
+        abi: SolaceCoverProductV3_ABI,
+      },
+      coverPaymentManager: {
+        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
+        abi: CoverPaymentManager_ABI,
+      },
+      stakingRewardsV2: {
+        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
+        abi: StakingRewardsV2_ABI,
       },
     },
     restrictedFeatures: {
@@ -70,7 +92,7 @@ export const AuroraTestnetNetwork: NetworkConfig = {
     specialContracts: {
       bSolace: {
         addr: SPECIAL_ADDRS.BSOLACE,
-        abi: ierc20Json.abi,
+        abi: ERC20_ABI,
       },
       bridgeWrapper: {
         addr: SPECIAL_ADDRS.BRIDGE_WRAPPER,

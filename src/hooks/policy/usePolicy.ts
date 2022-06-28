@@ -66,12 +66,13 @@ export const useExistingPolicy = (account: string | null | undefined) => {
         {}
       )
 
-      const data = await policy.getExistingPolicy(account, rpcUrlMapping, false)
+      const data = await policy.getExistingPolicy_V2(account, rpcUrlMapping, false)
       if (data.length > 0) {
-        const network = networks.find((n) => n.chainId === data[0].chainId)
+        const policyWithHighestCoverLimit = data.reduce((a, b) => (a.coverLimit.gt(b.coverLimit) ? a : b))
+        const network = networks.find((n) => n.chainId === policyWithHighestCoverLimit.chainId)
         if (network) {
           setNetwork(network)
-          setPolicyId(data[0].policyId)
+          setPolicyId(policyWithHighestCoverLimit.policyId)
         } else {
           setPolicyId(ZERO)
           setNetwork(networks[0])
@@ -101,7 +102,7 @@ export const useGetPolicyChains = (policyId: number | undefined) => {
   const { coverableNetworks, coverableChains } = useSupportedChains()
 
   const [portfolioChains, setPortfolioChains] = useState<number[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [policyChainsChecked, setPolicyChainsChecked] = useState<CheckboxData[]>([])
   const [chainsChecked, setChainsChecked] = useState<CheckboxData[]>([])
 
@@ -118,6 +119,7 @@ export const useGetPolicyChains = (policyId: number | undefined) => {
       console.log('is v2 but no general chain info returned')
       return
     }
+    setLoading(true)
     const _policyChains = await getPolicyChainInfo(BigNumber.from(_policyId))
 
     /* 
@@ -147,9 +149,7 @@ export const useGetPolicyChains = (policyId: number | undefined) => {
 
   // Should run based on whether the user has a policy or not
   useEffect(() => {
-    if (policyId == undefined) {
-      return
-    }
+    if (policyId == undefined) return
     getPolicyChains(policyId, coverableChains, true)
   }, [policyId, coverableChains.length])
 

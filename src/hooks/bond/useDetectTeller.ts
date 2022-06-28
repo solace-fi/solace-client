@@ -13,19 +13,16 @@ export const useTellerConfig = (
   bondDepositFunctionName: FunctionName
   bondDepositWrappedFunctionName: FunctionName
   bondDepositFunctionGas: number
-  bondDepositWrappedFunctionGas: number
 } => {
   const defaultEth = {
     bondDepositFunctionName: FunctionName.BOND_DEPOSIT_ETH_V2,
     bondDepositWrappedFunctionName: FunctionName.BOND_DEPOSIT_WETH_V2,
     bondDepositFunctionGas: FunctionGasLimits['tellerEth_v2.depositEth'],
-    bondDepositWrappedFunctionGas: FunctionGasLimits['tellerEth_v2.depositWeth'],
   }
   const [config, setConfig] = useState<{
     bondDepositFunctionName: FunctionName
     bondDepositWrappedFunctionName: FunctionName
     bondDepositFunctionGas: number
-    bondDepositWrappedFunctionGas: number
   }>(defaultEth)
 
   const getConfigs = useCallback(() => {
@@ -36,7 +33,14 @@ export const useTellerConfig = (
           bondDepositFunctionName: FunctionName.BOND_DEPOSIT_MATIC,
           bondDepositWrappedFunctionName: FunctionName.BOND_DEPOSIT_WMATIC,
           bondDepositFunctionGas: FunctionGasLimits['tellerMatic.depositMatic'],
-          bondDepositWrappedFunctionGas: FunctionGasLimits['tellerMatic.depositWmatic'],
+        })
+        break
+      case 250:
+      case 4002:
+        setConfig({
+          bondDepositFunctionName: FunctionName.BOND_DEPOSIT_FTM,
+          bondDepositWrappedFunctionName: FunctionName.BOND_DEPOSIT_WFTM,
+          bondDepositFunctionGas: FunctionGasLimits['tellerFtm.depositFtm'],
         })
         break
       default:

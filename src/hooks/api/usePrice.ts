@@ -6,15 +6,15 @@ import { queryDecimals } from '../../utils/contract'
 import { Contract } from '@ethersproject/contracts'
 import { USDC_TOKEN, WETH9_TOKEN } from '../../constants/mappings/token'
 import { ZERO } from '../../constants'
-import ierc20Json from '../../constants/metadata/IERC20Metadata.json'
 import { getCoingeckoTokenPriceByAddr } from '../../utils/api'
 import { withBackoffRetries } from '../../utils/time'
-import sushiswapLpAbi from '../../constants/metadata/ISushiswapMetadataAlt.json'
+import sushiswapLpAbi from '../../constants/abi/ISushiswapMetadataAlt.json'
 import { Unit } from '../../constants/enums'
-import { NetworkConfig, TokenToPriceMapping } from '../../constants/types'
+import { NetworkConfig } from '../../constants/types'
 import { BigNumber } from 'ethers'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { Price as PriceApi } from '@solace-fi/sdk-nightly'
+import { Price as PriceApi, TokenToPriceMapping } from '@solace-fi/sdk-nightly'
+import { ERC20_ABI } from '../../constants/abi'
 
 export const usePriceSdk = () => {
   const { getPriceFromSushiswap, getPriceFromSushiswapLp } = useGetPriceFromSushiSwap()
@@ -106,8 +106,8 @@ export const useGetPriceFromSushiSwap = () => {
         withBackoffRetries(async () => lpToken.token0()),
         withBackoffRetries(async () => lpToken.token1()),
       ])
-      const token0Contract = new Contract(token0, ierc20Json.abi, provider)
-      const token1Contract = new Contract(token1, ierc20Json.abi, provider)
+      const token0Contract = new Contract(token0, ERC20_ABI, provider)
+      const token1Contract = new Contract(token1, ERC20_ABI, provider)
 
       const [decimals0, decimals1, totalSupply, principalDecimals] = await Promise.all([
         queryDecimals(token0Contract),
@@ -148,7 +148,7 @@ export const useGetCrossTokenPricesFromCoingecko = (minute: number): { tokenPric
       if (gettingPrices.current) return
       gettingPrices.current = true
       const price = new PriceApi()
-      const consolidatedPriceMapping = await price.getCoinGeckoTokenPrices()
+      const consolidatedPriceMapping = await price.getMirrorCoingeckoPrices()
 
       setTokenPriceMapping(consolidatedPriceMapping)
       gettingPrices.current = false

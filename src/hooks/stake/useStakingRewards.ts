@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useContracts } from '../../context/ContractsManager'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import { GlobalLockInfo, LocalTx } from '../../constants/types'
+import { LocalTx } from '../../constants/types'
 import { ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { rangeFrom0 } from '../../utils/numeric'
@@ -12,20 +12,21 @@ import { useGetFunctionGas } from '../provider/useGas'
 import { withBackoffRetries } from '../../utils/time'
 import { useNetwork } from '../../context/NetworkManager'
 
-import { Lock, Staker } from '@solace-fi/sdk-nightly'
+import { Lock, Staker, GlobalLockInfo, Price } from '@solace-fi/sdk-nightly'
 import { useCachedData } from '../../context/CachedDataManager'
+import { FunctionGasLimits } from '../../constants/mappings/gas'
 
 export const useStakingRewards = () => {
   // const { account } = useWeb3React()
-  const { provider } = useProvider()
+  const { provider, signer } = useProvider()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
-  const { stakingRewards, xsLocker } = useMemo(() => keyContracts, [keyContracts])
+  const { stakingRewardsV2, xsLocker } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
 
   const getUserPendingRewards = async (account: string) => {
     let pendingRewards = ZERO
-    if (!xsLocker || !stakingRewards) return pendingRewards
+    if (!xsLocker || !stakingRewardsV2) return pendingRewards
     const numLocks = await withBackoffRetries(async () => xsLocker.balanceOf(account))
     const indices = rangeFrom0(numLocks.toNumber())
     const xsLockIDs = await Promise.all(
@@ -45,9 +46,9 @@ export const useStakingRewards = () => {
   }
 
   const getPendingRewardsOfLock = async (xsLockID: BigNumber): Promise<BigNumber> => {
-    if (!stakingRewards) return ZERO
+    if (!stakingRewardsV2) return ZERO
     try {
-      const pendingRewards = await withBackoffRetries(async () => stakingRewards.pendingRewardsOfLock(xsLockID))
+      const pendingRewards = await withBackoffRetries(async () => stakingRewardsV2.pendingRewardsOfLock(xsLockID))
       return pendingRewards
     } catch (err) {
       console.log('error getPendingRewardsOfLock ', err)
@@ -56,9 +57,9 @@ export const useStakingRewards = () => {
   }
 
   const getStakedLockInfo = async (xsLockID: BigNumber) => {
-    if (!stakingRewards) return null
+    if (!stakingRewardsV2) return null
     try {
-      const userInfo = await withBackoffRetries(async () => stakingRewards.stakedLockInfo(xsLockID))
+      const userInfo = await withBackoffRetries(async () => stakingRewardsV2.stakedLockInfo(xsLockID))
       return userInfo
     } catch (err) {
       console.log('error getStakedLockInfo ', err)
@@ -83,22 +84,22 @@ export const useStakingRewards = () => {
   }
 
   const harvestLockRewards = async (xsLockIDs: BigNumber[]) => {
-    if (!stakingRewards || xsLockIDs.length == 0) return { tx: null, localTx: null }
+    if (!stakingRewardsV2 || xsLockIDs.length == 0) return { tx: null, localTx: null }
     let tx = null
     let type = FunctionName.HARVEST_LOCK
     if (xsLockIDs.length > 1) {
-      const estGas = await stakingRewards.estimateGas.harvestLocks(xsLockIDs)
-      console.log('stakingRewards.estimateGas.harvestLocks', estGas.toString())
-      tx = await stakingRewards.harvestLocks(xsLockIDs, {
+      const estGas = await stakingRewardsV2.estimateGas.harvestLocks(xsLockIDs)
+      console.log('stakingRewardsV2.estimateGas.harvestLocks', estGas.toString())
+      tx = await stakingRewardsV2.harvestLocks(xsLockIDs, {
         ...gasConfig,
         // gasLimit: FunctionGasLimits['stakingRewards.harvestLocks'],
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.HARVEST_LOCKS
     } else {
-      const estGas = await stakingRewards.estimateGas.harvestLock(xsLockIDs[0])
-      console.log('stakingRewards.estimateGas.harvestLock', estGas.toString())
-      tx = await stakingRewards.harvestLock(xsLockIDs[0], {
+      const estGas = await stakingRewardsV2.estimateGas.harvestLock(xsLockIDs[0])
+      console.log('stakingRewardsV2.estimateGas.harvestLock', estGas.toString())
+      tx = await stakingRewardsV2.harvestLock(xsLockIDs[0], {
         ...gasConfig,
         // gasLimit: FunctionGasLimits['stakingRewards.harvestLock'],
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
@@ -113,13 +114,13 @@ export const useStakingRewards = () => {
   }
 
   const compoundLockRewards = async (xsLockIDs: BigNumber[], multipleLocks: boolean, targetXsLockID?: BigNumber) => {
-    if (!stakingRewards || xsLockIDs.length == 0) return { tx: null, localTx: null }
+    if (!stakingRewardsV2 || xsLockIDs.length == 0) return { tx: null, localTx: null }
     let tx = null
     let type = FunctionName.COMPOUND_LOCK
     if (xsLockIDs.length > 1 && targetXsLockID && multipleLocks) {
-      const estGas = await stakingRewards.estimateGas.compoundLocks(xsLockIDs, targetXsLockID)
-      console.log('stakingRewards.estimateGas.compoundLocks', estGas.toString())
-      tx = await stakingRewards.compoundLocks(xsLockIDs, targetXsLockID, {
+      const estGas = await stakingRewardsV2.estimateGas.compoundLocks(xsLockIDs, targetXsLockID)
+      console.log('stakingRewardsV2.estimateGas.compoundLocks', estGas.toString())
+      tx = await stakingRewardsV2.compoundLocks(xsLockIDs, targetXsLockID, {
         ...gasConfig,
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
@@ -129,9 +130,9 @@ export const useStakingRewards = () => {
       // })
       type = FunctionName.COMPOUND_LOCKS
     } else {
-      const estGas = await stakingRewards.estimateGas.compoundLock(xsLockIDs[0])
-      console.log('stakingRewards.estimateGas.compoundLock', estGas.toString())
-      tx = await stakingRewards.compoundLock(xsLockIDs[0], {
+      const estGas = await stakingRewardsV2.estimateGas.compoundLock(xsLockIDs[0])
+      console.log('stakingRewardsV2.estimateGas.compoundLock', estGas.toString())
+      tx = await stakingRewardsV2.compoundLock(xsLockIDs[0], {
         ...gasConfig,
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
@@ -148,12 +149,72 @@ export const useStakingRewards = () => {
     return { tx, localTx }
   }
 
+  const harvestLockRewardsForScp = async (xsLockIDs: BigNumber[]) => {
+    if (xsLockIDs.length == 0 || activeNetwork.config.restrictedFeatures.noStakingRewardsV2)
+      return { tx: null, localTx: null }
+    const p = new Price()
+    const priceInfo = await p.getPriceInfo()
+    const signature = priceInfo.signatures[`${activeNetwork.chainId}`]
+    if (!signature) return { tx: null, localTx: null }
+    const tokenSignatureProps: any = Object.values(signature)[0]
+    let tx = null
+    let type = FunctionName.HARVEST_LOCK_FOR_SCP
+    const staker = new Staker(activeNetwork.chainId, signer)
+    if (xsLockIDs.length > 1) {
+      // const estGas = await stakingRewards.estimateGas.harvestLocksForScp(
+      //   xsLockIDs,
+      //   tokenSignatureProps.price,
+      //   tokenSignatureProps.deadline,
+      //   tokenSignatureProps.signature
+      // )
+      // console.log('stakingRewards.estimateGas.harvestLocksForScp', estGas.toString())
+      tx = await staker.harvestLocksForScp(
+        xsLockIDs,
+        tokenSignatureProps.price,
+        tokenSignatureProps.deadline,
+        tokenSignatureProps.signature,
+        {
+          ...gasConfig,
+          gasLimit: FunctionGasLimits['stakingRewards.harvestLocksForScp'],
+          // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        }
+      )
+      type = FunctionName.HARVEST_LOCKS_FOR_SCP
+    } else {
+      // const estGas = await stakingRewards.estimateGas.harvestLockForScp(
+      //   xsLockIDs[0],
+      //   tokenSignatureProps.price,
+      //   tokenSignatureProps.deadline,
+      //   tokenSignatureProps.signature
+      // )
+      // console.log('stakingRewards.estimateGas.harvestLockForScp', estGas.toString())
+      tx = await staker.harvestLockForScp(
+        xsLockIDs[0],
+        tokenSignatureProps.price,
+        tokenSignatureProps.deadline,
+        tokenSignatureProps.signature,
+        {
+          ...gasConfig,
+          gasLimit: FunctionGasLimits['stakingRewards.harvestLockForScp'],
+          // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        }
+      )
+    }
+    const localTx: LocalTx = {
+      hash: tx.hash,
+      type: type,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
   return {
     getUserPendingRewards,
     getPendingRewardsOfLock,
     getStakedLockInfo,
     getGlobalLockStats,
     harvestLockRewards,
+    harvestLockRewardsForScp,
     compoundLockRewards,
   }
 }

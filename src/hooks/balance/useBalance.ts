@@ -5,14 +5,15 @@ import { useState, useEffect, useRef } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { queryBalance } from '../../utils/contract'
 import { networks, useNetwork } from '../../context/NetworkManager'
-// import SafeServiceClient from '@gnosis.pm/safe-service-client'
 import { useProvider } from '../../context/ProviderManager'
 import { useBridge } from './useBridge'
 import { withBackoffRetries } from '../../utils/time'
 import { SOLACE_TOKEN, XSOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
-import { UnderwritingPoolUSDBalances } from '@solace-fi/sdk-nightly'
+import { SCP, UnderwritingPoolUSDBalances } from '@solace-fi/sdk-nightly'
 import { useWeb3React } from '@web3-react/core'
 import { NetworkConfig } from '../../constants/types'
+import { BigNumber, Contract } from 'ethers'
+import { ERC20_ABI } from '../../constants/abi'
 
 export const useNativeTokenBalance = (): string => {
   const { provider } = useProvider()
@@ -42,6 +43,45 @@ export const useNativeTokenBalance = (): string => {
 }
 
 export const useScpBalance = (): string => {
+  const { account } = useWeb3React()
+  const { activeNetwork } = useNetwork()
+  const { provider } = useProvider()
+  const { version } = useCachedData()
+  const [scpBalance, setScpBalance] = useState<string>('0')
+  const scpObj = useMemo(
+    () => (activeNetwork.config.restrictedFeatures.noCoverageV3 ? undefined : new SCP(activeNetwork.chainId, provider)),
+    [activeNetwork, provider]
+  )
+
+  const getScpBalance = async () => {
+    if (!account || !scpObj?.scp) return
+    try {
+      const balance = await scpObj.scp.balanceOf(account)
+      const formattedBalance = formatUnits(balance, 18)
+      setScpBalance(formattedBalance)
+    } catch (err) {
+      console.log('getScpBalance', err)
+    }
+  }
+
+  useEffect(() => {
+    if (!account || !scpObj?.scp) return
+    getScpBalance()
+    scpObj.scp.on('Transfer', (from, to) => {
+      if (from == account || to == account) {
+        getScpBalance()
+      }
+    })
+
+    return () => {
+      scpObj?.scp.removeAllListeners()
+    }
+  }, [account, scpObj, version])
+
+  return scpBalance
+}
+
+export const useVaultScpBalance = (): string => {
   const { keyContracts } = useContracts()
   const { vault } = useMemo(() => keyContracts, [keyContracts])
   const { activeNetwork } = useNetwork()
@@ -239,4 +279,43 @@ export const useCrossChainUnderwritingPoolBalance = () => {
   }, [minute])
 
   return { underwritingPoolBalance }
+}
+
+export const useBatchBalances = (
+  coinOptions: {
+    stablecoin: boolean
+    address: string
+    name: string
+    symbol: string
+    decimals: number
+  }[]
+): {
+  batchBalances: { addr: string; balance: BigNumber }[]
+  loading: boolean
+} => {
+  const { account } = useWeb3React()
+  const { provider } = useProvider()
+  const { version } = useCachedData()
+  const { activeNetwork } = useNetwork()
+  const [loading, setLoading] = useState(false)
+  const [batchBalances, setBatchBalances] = useState<{ addr: string; balance: BigNumber }[]>([])
+
+  useEffect(() => {
+    const getBalances = async () => {
+      if (activeNetwork.config.restrictedFeatures.noCoverageV3 || !account || loading) return
+      setLoading(true)
+      const batchBalances = await Promise.all(
+        coinOptions.map((o) => queryBalance(new Contract(o.address, ERC20_ABI, provider), account))
+      )
+      setBatchBalances(
+        coinOptions.map((o, i) => {
+          return { addr: o.address, balance: batchBalances[i] }
+        })
+      )
+      setLoading(false)
+    }
+    getBalances()
+  }, [account, coinOptions, provider, version])
+
+  return { loading, batchBalances }
 }
