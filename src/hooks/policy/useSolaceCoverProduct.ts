@@ -2,7 +2,7 @@ import { useMemo, useEffect, useState, useRef, useCallback } from 'react'
 import { BigNumber } from 'ethers'
 import { ADDRESS_ZERO, GAS_LIMIT, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { LocalTx, NetworkConfig, SolaceRiskScore } from '../../constants/types'
+import { LocalTx, NetworkConfig } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useProvider } from '../../context/ProviderManager'
@@ -10,7 +10,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork, networks } from '../../context/NetworkManager'
 import { rangeFrom0 } from '../../utils/numeric'
 import { withBackoffRetries } from '../../utils/time'
-import { fetchCoingeckoTokenPricesByAddr, Risk, SolaceRiskBalance } from '@solace-fi/sdk-nightly'
+import { Risk, SolaceRiskBalance, SolaceRiskSeries, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 
 export const useFunctions = () => {
   const { keyContracts } = useContracts()
@@ -391,41 +391,112 @@ export const usePortfolio = (
   account: string | null | undefined,
   chains: number[],
   chainsLoading: boolean
-): { portfolio: SolaceRiskScore | undefined; loading: boolean } => {
+): {
+  portfolio: SolaceRiskScore | undefined
+  riskBalances: (useV2: boolean) => Promise<SolaceRiskBalance[] | undefined>
+  riskScores: (balances: SolaceRiskBalance[]) => Promise<SolaceRiskScore | undefined>
+  loading: boolean
+} => {
   const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
   const { activeNetwork } = useNetwork()
   const [loading, setLoading] = useState(true)
   const fetching = useRef(false)
+  const risk = useMemo(() => new Risk(), [])
 
-  useEffect(() => {
-    const getPortfolio = async () => {
-      if (fetching.current) return
-      fetching.current = true
-      const risk = new Risk()
-      const useV2 =
-        activeNetwork.config.keyContracts.solaceCoverProduct &&
-        activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
-      if (!account || (useV2 && chains.length == 0) || chainsLoading) return
-      const balances: SolaceRiskBalance[] | undefined = await risk.getSolaceRiskBalances(account, useV2 ? chains : [1])
-      if (!balances) {
-        console.log('balances do not exist from risk api')
-        setLoading(false)
-        fetching.current = false
-        return
-      }
-      const scores: SolaceRiskScore | undefined = await risk.getSolaceRiskScores(account, balances)
-      if (scores) setScore(scores)
-      setLoading(false)
-      fetching.current = false
-    }
-    getPortfolio()
-  }, [account, activeNetwork, chainsLoading, chains])
+  const riskBalances = useCallback(
+    async (useV2: boolean): Promise<SolaceRiskBalance[] | undefined> => {
+      if (!account) return undefined
+      return await risk.getSolaceRiskBalances(account, useV2 ? chains : [1])
+    },
+    [account, chains, risk]
+  )
+
+  const riskScores = useCallback(
+    async (balances: SolaceRiskBalance[]): Promise<SolaceRiskScore | undefined> => {
+      if (!account) return undefined
+      return await risk.getSolaceRiskScores(account, balances)
+    },
+    [account, risk]
+  )
 
   useEffect(() => {
     setLoading(true)
   }, [account])
 
-  return { portfolio: score, loading }
+  useEffect(() => {
+    const getPortfolio = async () => {
+      if (fetching.current) {
+        console.log('usePortfolio: already fetching')
+        return
+      }
+      fetching.current = true
+      const useV2 =
+        activeNetwork.config.keyContracts.solaceCoverProduct &&
+        activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
+      if (!account || (useV2 && chains.length == 0) || chainsLoading) {
+        console.log('usePortfolio: account not found, or chains are still loading (v2 only)', account, chainsLoading)
+        fetching.current = false
+        return
+      }
+      const balances: SolaceRiskBalance[] | undefined = await riskBalances(useV2)
+      if (!balances) {
+        console.log('usePortfolio: balances do not exist from risk api')
+        setLoading(false)
+        fetching.current = false
+        return
+      }
+      const scores: SolaceRiskScore | undefined = await riskScores(balances)
+      if (!scores) {
+        console.log('usePortfolio: scores not found from risk api')
+        setLoading(false)
+        fetching.current = false
+        return
+      }
+      setScore(scores)
+      console.log('usePortFolio: portfolio fetched successfully')
+      setLoading(false)
+      fetching.current = false
+    }
+    getPortfolio()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, activeNetwork, chainsLoading, chains.toString()])
+
+  return { portfolio: score, riskBalances, riskScores, loading }
+}
+
+export const useRiskSeries = () => {
+  const [series, setSeries] = useState<SolaceRiskSeries | undefined>(undefined)
+  const [loading, setLoading] = useState(true)
+  const fetching = useRef(false)
+
+  useEffect(() => {
+    setLoading(true)
+  }, [])
+
+  useEffect(() => {
+    const getRiskSeries = async () => {
+      if (fetching.current) {
+        console.log('useRiskSeries: already fetching')
+        return
+      }
+      fetching.current = true
+      const risk = new Risk()
+      const series: any = await risk.getSolaceRiskSeries()
+      if (series.data.protocolMap) {
+        setSeries(series as SolaceRiskSeries)
+        console.log('useRiskSeries: series fetched successfully')
+        setLoading(false)
+        fetching.current = false
+      } else {
+        console.log('useRiskSeries: series not found from risk api')
+        setLoading(false)
+        fetching.current = false
+      }
+    }
+    getRiskSeries()
+  }, [])
+
+  return { series, loading }
 }
 
 export const useCooldownDetails = (
@@ -530,7 +601,7 @@ export const useTotalAccountBalance = (account: string | null | undefined) => {
     setPersonalBalance(accountBalance)
     setEarnedBalance(rewardPoints)
     fetching.current = false
-  }, [account])
+  }, [account, latestBlock])
 
   useEffect(() => {
     getBal()

@@ -5,22 +5,32 @@ import { hexValue } from '@ethersproject/bytes'
 import { NetworkConfig } from '../constants/types'
 
 /* core contract abi */
-import farmControllerABI from '../constants/metadata/FarmController.json'
-import farmRewardsABI from '../constants/metadata/FarmRewardsV2.json'
-import vaultABI from '../constants/metadata/Vault.json'
-import solaceABI from '../constants/metadata/SOLACE.json'
-import xSolaceABI from '../constants/metadata/xSOLACE.json'
-import xSolaceV1ABI from '../constants/metadata/xSOLACEV1.json'
-import xsLockerABI from '../constants/metadata/xsLocker.json'
-import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
-import xSolaceMigratorABI from '../constants/metadata/xSolaceMigrator.json'
-import cpFarmABI from '../constants/metadata/CpFarm.json'
-import solaceCoverProductABI from '../constants/metadata/SolaceCoverProduct.json'
+import farmControllerABI from '../constants/abi/FarmController.json'
+import farmRewardsABI from '../constants/abi/FarmRewardsV2.json'
+import solaceABI from '../constants/abi/SOLACE.json'
+import xSolaceABI from '../constants/abi/xSOLACE.json'
+import xSolaceV1ABI from '../constants/abi/xSOLACEV1.json'
+import xSolaceMigratorABI from '../constants/abi/xSolaceMigrator.json'
+import cpFarmABI from '../constants/abi/CpFarm.json'
 
 import { KEY_ADDRS } from '../constants/addresses/mainnet'
 import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/mainnet'
 
+import {
+  xsLocker_ABI,
+  StakingRewards_ABI,
+  Vault_ABI,
+  SolaceCoverProduct_ABI,
+  SolaceCoverProductV3_ABI,
+  CoverPaymentManager_ABI,
+  StakingRewardsV2_ABI,
+} from '../constants/abi'
+import {
+  COVER_PAYMENT_MANAGER_ADDRESS,
+  SOLACE_COVER_PRODUCT_V3_ADDRESS,
+  STAKING_REWARDS_V2_ADDRESS,
+} from '@solace-fi/sdk-nightly'
 /*
 
 When adding new products, please add into productContracts, functions, and cache
@@ -60,7 +70,7 @@ export const MainNetwork: NetworkConfig = {
       },
       vault: {
         addr: KEY_ADDRS.VAULT,
-        abi: vaultABI,
+        abi: Vault_ABI,
       },
       solace: {
         addr: KEY_ADDRS.SOLACE,
@@ -76,11 +86,11 @@ export const MainNetwork: NetworkConfig = {
       },
       xsLocker: {
         addr: KEY_ADDRS.XSLOCKER,
-        abi: xsLockerABI.abi,
+        abi: xsLocker_ABI,
       },
       stakingRewards: {
         addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: stakingRewardsABI.abi,
+        abi: StakingRewards_ABI,
       },
       xSolaceMigrator: {
         addr: KEY_ADDRS.XSOLACE_MIGRATOR,
@@ -92,7 +102,19 @@ export const MainNetwork: NetworkConfig = {
       },
       solaceCoverProduct: {
         addr: KEY_ADDRS.SOLACE_COVER_PRODUCT,
-        abi: solaceCoverProductABI.abi,
+        abi: SolaceCoverProduct_ABI,
+      },
+      solaceCoverProductV3: {
+        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
+        abi: SolaceCoverProductV3_ABI,
+      },
+      coverPaymentManager: {
+        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
+        abi: CoverPaymentManager_ABI,
+      },
+      stakingRewardsV2: {
+        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
+        abi: StakingRewardsV2_ABI,
       },
     },
     restrictedFeatures: {},

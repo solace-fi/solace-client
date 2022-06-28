@@ -44,9 +44,8 @@ Run the following react command from the client directory to start the app
         |___organisms/
     |___networks/
     |___constants/
-    |   |____abi/
     |   |____mappings/
-    |   |____metadata/
+    |   |____abi/
     |   |____enums
     |   |____types
     |___context/

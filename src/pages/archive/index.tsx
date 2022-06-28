@@ -80,7 +80,7 @@ function Archive(): any {
               <StyledInfo size={30} />
             </TextSpan>
             <Text light bold style={{ margin: '0 auto' }}>
-              No farms are not on this network.
+              No farms are on this network.
             </Text>
           </Box>
         </Content>

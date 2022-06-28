@@ -219,7 +219,10 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
   }
 }
 
-export const capitalizeFirstLetter = (str: string): string => str.charAt(0).toUpperCase().concat(str.slice(1))
+export const capitalizeFirstLetter = (str: string): string => {
+  if (str.length == 0) return str
+  return str.charAt(0).toUpperCase().concat(str.slice(1))
+}
 
 export function encodeAddresses(addresses: string[]): string {
   let encoded = '0x'

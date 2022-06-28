@@ -3,7 +3,7 @@ import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
-import { LockData } from '../../../../constants/types'
+import { LockData } from '@solace-fi/sdk-nightly'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import {
   accurateMultiply,

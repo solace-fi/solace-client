@@ -21,7 +21,7 @@ import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { BondTellerDetails, BondTokenV1 } from '../../../../constants/types'
+import { BondTellerFullDetails, BondTokenV1 } from '../../../../constants/types'
 
 /* import managers */
 import { useGeneral } from '../../../../context/GeneralManager'
@@ -39,7 +39,7 @@ import { SOLACE_TOKEN } from '../../../../constants/mappings/token'
 
 interface OwnedBondListV1Props {
   ownedBondTokens: BondTokenV1[]
-  selectedBondDetail?: BondTellerDetails
+  selectedBondDetail?: BondTellerFullDetails
   callRedeemBond: (bondId: BigNumber) => Promise<void>
 }
 
@@ -75,7 +75,7 @@ export const OwnedBondListV1: React.FC<OwnedBondListV1Props> = ({
   return (
     <>
       {ownedBondTokens.length > 0 ? (
-        <Scrollable maxMobileHeight={45} maxDesktopHeight={45} mt={20}>
+        <Scrollable maxMobileHeight={'45vh'} maxDesktopHeight={'45vh'} mt={20}>
           <CardContainer cardsPerRow={1}>
             {ownedBondTokens.map((token) => (
               <Card p={15} key={token.id.toString()}>

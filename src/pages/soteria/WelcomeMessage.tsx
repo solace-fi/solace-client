@@ -2,13 +2,13 @@ import React, { useMemo } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Button } from '../../components/atoms/Button'
 import { useGeneral } from '../../context/GeneralManager'
-import { SolaceRiskScore } from '../../constants/types'
+import { SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { truncateValue } from '../../utils/formatting'
 import { Text } from '../../components/atoms/Typography'
 
 import Zapper from '../../resources/svg/zapper.svg'
 import ZapperDark from '../../resources/svg/zapper-dark.svg'
-import { Card } from '.'
+import { TileCard } from '../../components/molecules/TileCard'
 import { ReferralSource } from '.'
 
 export function WelcomeMessage({
@@ -26,7 +26,7 @@ export function WelcomeMessage({
   switch (type) {
     case ReferralSource.Custom:
       return (
-        <Card>
+        <TileCard>
           <Flex col gap={30} itemsCenter>
             <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
@@ -49,11 +49,11 @@ export function WelcomeMessage({
               </Flex>
             )}
           </Flex>
-        </Card>
+        </TileCard>
       )
     case ReferralSource.Standard:
       return (
-        <Card>
+        <TileCard>
           <Flex col gap={30} itemsCenter>
             <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
@@ -76,11 +76,11 @@ export function WelcomeMessage({
               </Flex>
             )}
           </Flex>
-        </Card>
+        </TileCard>
       )
     case ReferralSource.StakeDAO:
       return (
-        <Card>
+        <TileCard>
           <Flex col gap={30} itemsCenter>
             <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
@@ -103,7 +103,7 @@ export function WelcomeMessage({
               </Flex>
             )}
           </Flex>
-        </Card>
+        </TileCard>
       )
   }
 }

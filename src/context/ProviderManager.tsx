@@ -126,7 +126,7 @@ const ProviderManager: React.FC = (props) => {
             />
           </Flex>
         </Flex>
-        <Scrollable maxMobileHeight={60}>
+        <Scrollable maxMobileHeight={'60vh'}>
           <CardContainer cardsPerRow={1}>
             {adjustedNetworks.map((network) => (
               <Card

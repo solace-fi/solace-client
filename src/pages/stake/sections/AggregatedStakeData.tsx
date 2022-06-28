@@ -4,7 +4,7 @@ import { RaisedBox } from '../../../components/atoms/Box'
 import CardSectionValue from '../components/CardSectionValue'
 import InfoPair from '../molecules/InfoPair'
 import { Text } from '../../../components/atoms/Typography'
-import { UserLocksInfo } from '../../../constants/types'
+import { UserLocksInfo } from '@solace-fi/sdk-nightly'
 import { truncateValue } from '../../../utils/formatting'
 import { formatUnits } from '@ethersproject/units'
 import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
@@ -19,7 +19,7 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
     <>
       {width > (rightSidebar ? BKPT_7 : BKPT_6) ? (
         <RaisedBox>
-          <Flex stretch gap={91} wrap mb={20} p={24}>
+          <Flex stretch gap={91} wrap mb={20} p={24} justifyCenter>
             <Flex gap={91}>
               <div>
                 <InfoPair importance="primary" label="Staked Balance">
@@ -52,8 +52,8 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
                 </InfoPair>
               </div>
             </Flex>
-            <Flex col={(rightSidebar ? BKPT_7 : BKPT_6) > width} gap={91} stretch>
-              <Separator horizontal={(rightSidebar ? BKPT_7 : BKPT_6) > width} />
+            <Separator horizontal={(rightSidebar ? BKPT_7 : BKPT_6) > width} />
+            <Flex col={(rightSidebar ? BKPT_7 : BKPT_6) > width} stretch>
               <div>
                 <InfoPair importance="secondary" label="APR" horizontal={(rightSidebar ? BKPT_7 : BKPT_6) > width}>
                   <Text bold style={{ fontSize: '16px' }}>

@@ -9,6 +9,8 @@ import { PolygonNetwork } from '../networks/polygon'
 import { MumbaiNetwork } from '../networks/mumbai'
 import { AuroraNetwork } from '../networks/aurora'
 import { AuroraTestnetNetwork } from '../networks/auroraTestnet'
+import { FantomNetwork } from '../networks/fantom'
+import { FantomTestnetNetwork } from '../networks/fantomTestnet'
 import { useWeb3React } from '@web3-react/core'
 import { hexStripZeros } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
@@ -24,11 +26,13 @@ This manager keeps track of the current network and other important information.
 export const networks: NetworkConfig[] = [
   MainNetwork,
   RinkebyNetwork,
-  KovanNetwork,
+  // KovanNetwork,
   PolygonNetwork,
   MumbaiNetwork,
   AuroraNetwork,
   AuroraTestnetNetwork,
+  FantomNetwork,
+  FantomTestnetNetwork,
 ]
 
 export const networksMapping = networks.reduce((configs: any, networkConfig: NetworkConfig) => ({

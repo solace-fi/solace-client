@@ -10,7 +10,7 @@
 
     AppToast
       
-    NotificationToast
+    TransactionToast
       custom hooks
       local functions
 
@@ -45,7 +45,7 @@ interface AppToastProps {
   icon: any
 }
 
-interface NotificationToastProps {
+interface TransactionToastProps {
   txType: string
   condition: TransactionCondition
   txHash?: string
@@ -61,7 +61,7 @@ export const AppToast: React.FC<AppToastProps> = ({ message, icon }) => {
   )
 }
 
-export const NotificationToast: React.FC<NotificationToastProps> = ({ txType, condition, txHash, errObj }) => {
+export const TransactionToast: React.FC<TransactionToastProps> = ({ txType, condition, txHash, errObj }) => {
   /*************************************************************************************
 
    custom hooks

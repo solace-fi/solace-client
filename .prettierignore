@@ -3,3 +3,5 @@ build
 public
 node_modules
 coverage
+src/hooks/policy/useReferralsApi/InfoResponse.ts
+src/hooks/policy/useReferralsApi/GetByUserResponse.ts

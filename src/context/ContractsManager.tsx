@@ -2,8 +2,9 @@ import React, { createContext, useContext, useMemo } from 'react'
 import { Contract } from '@ethersproject/contracts'
 
 import { useContractArray, useGetBondTellerContracts, useGetContract } from '../hooks/contract/useContract'
-import { BondTellerContractData, ContractSources, TellerTokenMetadata } from '../constants/types'
+import { ContractSources, TellerTokenMetadata } from '../constants/types'
 import { useNetwork } from './NetworkManager'
+import { BondTellerContractData } from '@solace-fi/sdk-nightly'
 
 /*
 
@@ -22,6 +23,7 @@ type Contracts = {
     xSolaceV1?: Contract | null
     xsLocker?: Contract | null
     stakingRewards?: Contract | null
+    stakingRewardsV2?: Contract | null
     xSolaceMigrator?: Contract | null
     cpFarm?: Contract | null
     solaceCoverProduct?: Contract | null
@@ -42,6 +44,7 @@ const ContractsContext = createContext<Contracts>({
     xSolaceV1: undefined,
     xsLocker: undefined,
     stakingRewards: undefined,
+    stakingRewardsV2: undefined,
     xSolaceMigrator: undefined,
     cpFarm: undefined,
     solaceCoverProduct: undefined,
@@ -63,6 +66,7 @@ const ContractsProvider: React.FC = (props) => {
   const xSolaceV1 = useGetContract(keyContracts.xSolaceV1)
   const xsLocker = useGetContract(keyContracts.xsLocker)
   const stakingRewards = useGetContract(keyContracts.stakingRewards)
+  const stakingRewardsV2 = useGetContract(keyContracts.stakingRewardsV2)
   const xSolaceMigrator = useGetContract(keyContracts.xSolaceMigrator)
   const cpFarm = useGetContract(keyContracts.cpFarm)
   const solaceCoverProduct = useGetContract(keyContracts.solaceCoverProduct)
@@ -79,6 +83,7 @@ const ContractsProvider: React.FC = (props) => {
         xSolaceV1,
         xsLocker,
         stakingRewards,
+        stakingRewardsV2,
         xSolaceMigrator,
         cpFarm,
         solaceCoverProduct,
@@ -95,6 +100,7 @@ const ContractsProvider: React.FC = (props) => {
       xSolaceV1,
       xsLocker,
       stakingRewards,
+      stakingRewardsV2,
       xSolaceMigrator,
       cpFarm,
       solaceCoverProduct,

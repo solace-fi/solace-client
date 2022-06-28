@@ -20,7 +20,7 @@ import { BigNumber } from 'ethers'
 
 /* import constants */
 import { FunctionName } from '../../../../constants/enums'
-import { BondTellerDetails } from '../../../../constants/types'
+import { BondTellerFullDetails } from '../../../../constants/types'
 
 /* import managers */
 import { useNetwork } from '../../../../context/NetworkManager'
@@ -34,7 +34,7 @@ import { useWeb3React } from '@web3-react/core'
 
 interface PrivateBondInfoV1Props {
   func: FunctionName
-  selectedBondDetail?: BondTellerDetails
+  selectedBondDetail?: BondTellerFullDetails
   assetBalance: BigNumber
   pncplDecimals: number | undefined
   calculatedAmountOut?: BigNumber

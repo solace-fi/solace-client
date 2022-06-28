@@ -14,4 +14,5 @@ export enum BondName {
   MATIC = 'MATIC',
   NEAR = 'NEAR',
   AURORA = 'AURORA',
+  FTM = 'FTM',
 }

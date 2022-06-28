@@ -11,7 +11,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useContracts } from '../../context/ContractsManager'
 import { Text } from '../../components/atoms/Typography'
 import { CopyButton } from '../../components/molecules/CopyButton'
-import { Card } from '.'
+import { TileCard } from '../../components/molecules/TileCard'
 
 export function ReferralSection({
   referralCode,
@@ -81,7 +81,7 @@ export function ReferralSection({
   }
 
   return (
-    <Card normous horiz>
+    <TileCard normous horiz>
       <Flex
         stretch
         col
@@ -196,6 +196,6 @@ export function ReferralSection({
           </Flex>
         </Flex>
       </Flex>
-    </Card>
+    </TileCard>
   )
 }

@@ -6,7 +6,7 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useFunctions } from '../../hooks/policy/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber } from 'ethers'
-import { LocalTx, ReadToken, SolaceRiskScore } from '../../constants/types'
+import { LocalTx, ReadToken } from '../../constants/types'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../constants/enums'
 import useDebounce from '@rooks/use-debounce'
@@ -16,6 +16,7 @@ import { truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../context/GeneralManager'
+import { SolaceRiskScore } from '@solace-fi/sdk-nightly'
 
 export function CoverageLimit({
   balances,

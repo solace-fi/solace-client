@@ -4,8 +4,9 @@ import { Button } from '../atoms/Button'
 import { Tab } from '../../constants/enums'
 import { GenericIconAndText, IconAndText } from './IconAndText'
 import { InputSectionWrapper } from '../atoms/Input'
+import { Theme } from '../../styles/themes'
 
-const StyledInput = styled.input`
+export const StyledInput = styled.input`
   border-color: ${({ theme }) => theme.separator.bg_color};
 `
 
@@ -15,6 +16,7 @@ export const InputSection = ({
   onChange,
   setMax,
   disabled,
+  readonly,
 }: // ref,
 {
   tab?: Tab.DEPOSIT | Tab.LOCK | Tab.WITHDRAW
@@ -22,6 +24,7 @@ export const InputSection = ({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   setMax?: () => void
   disabled?: boolean
+  readonly?: boolean
 }): JSX.Element => {
   return (
     <InputSectionWrapper>
@@ -31,10 +34,11 @@ export const InputSection = ({
         type="text"
         className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
         placeholder="0"
-        value={value}
+        value={value ?? ''}
         onChange={onChange}
         style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: '100%' }}
         disabled={disabled}
+        readOnly={readonly}
       />
       {setMax && (
         <Button onClick={setMax} disabled={disabled} m={10}>
@@ -53,6 +57,7 @@ export const GenericInputSection = ({
   buttonDisabled,
   disabled,
   w,
+  h,
   style,
   displayIconOnMobile,
   buttonText,
@@ -60,6 +65,7 @@ export const GenericInputSection = ({
   inputWidth,
   iconAndTextWidth,
   placeholder,
+  readonly,
 }: {
   icon?: JSX.Element
   text?: string
@@ -68,6 +74,7 @@ export const GenericInputSection = ({
   buttonDisabled?: boolean
   disabled?: boolean
   w?: number
+  h?: number
   style?: React.CSSProperties
   displayIconOnMobile?: boolean
   buttonText?: string
@@ -75,16 +82,17 @@ export const GenericInputSection = ({
   inputWidth?: number
   iconAndTextWidth?: number
   placeholder?: string
+  readonly?: boolean
 }): JSX.Element => {
   const rawStyle = {
     ...style,
     // width: w ? w : '335px',
     width: w ? w : '100%',
-    height: '64px',
+    height: h ? h : '64px',
   }
   return (
     <InputSectionWrapper style={rawStyle}>
-      {icon && text && (
+      {icon && (
         <GenericIconAndText
           icon={icon}
           text={text}
@@ -94,14 +102,19 @@ export const GenericInputSection = ({
         />
       )}
       <StyledInput
-        key="mainInput"
         type="text"
         className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
         placeholder={placeholder ?? '0'}
-        value={value}
+        value={value ?? ''}
         onChange={onChange}
-        style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: inputWidth ?? '100%' }}
+        style={{
+          backgroundColor: 'inherit',
+          color: 'inherit',
+          borderRadius: 'inherit',
+          width: inputWidth ?? '100%',
+        }}
         disabled={disabled}
+        readOnly={readonly}
       />
       {buttonText && (
         <Button
@@ -123,3 +136,26 @@ export const GenericInputSection = ({
     </InputSectionWrapper>
   )
 }
+
+export const SmallerInputSection = styled.input<{ asideBg?: boolean; theme: Theme }>`
+  border-color: ${({ theme }: { theme: Theme }) => theme.separator.bg_color} !important;
+  width: 100% !important;
+  height: 36px !important;
+  border-radius: 8px !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  padding: 6px 16px !important;
+  font-size: 12px !important;
+  font-family: 'Open Sans', sans-serif !important;
+  box-sizing: border-box !important;
+  color: ${({ theme }: { theme: Theme }) => theme.typography.darkText} !important;
+  background-color: ${({ theme }: { theme: Theme }) => theme.v2.raised} !important;
+  outline: none !important;
+  &:focus,
+  &:hover {
+    border-color: ${({ theme }: { theme: Theme }) => theme.separator.bg_color} !important;
+    filter: brightness(120%);
+  }
+  ${({ theme, asideBg }: { theme: Theme; asideBg?: boolean }) =>
+    asideBg && `background-color: ${theme.body.bg_color} !important;`}
+`

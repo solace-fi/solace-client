@@ -19,7 +19,7 @@ import { Route, Switch, useLocation } from 'react-router-dom'
 /* import managers */
 
 /* import pages */
-import About from './about'
+// import About from './about'
 import Invest from './invest'
 import Stake from './stake'
 import Bond from './bond'
@@ -29,7 +29,7 @@ import Terms from './terms'
 /* import components */
 import { MenusTopNavBar } from '../components/organisms/MenusTopNavbar'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent, Flex } from '../components/atoms/Layout'
-import { Statistics } from '../components/organisms/Statistics'
+// import { Statistics } from '../components/organisms/Statistics'
 import {
   StyledDashboard,
   StyledCoinStack,
@@ -46,13 +46,13 @@ import { BKPT_2, BKPT_NAVBAR, MARKETING_SITE } from '../constants'
 import { useWindowDimensions } from '../hooks/internal/useWindowDimensions'
 
 import { AnalyticsReporter } from '../analytics'
-import Soteria from './soteria'
 import { PageInfo } from '../constants/types'
 import Archive from './archive'
 import { AppMenu } from '../components/organisms/RightNavbar'
 import { InfoSideNavbar, MobileInfoSideNavbar } from '../components/organisms/LeftNavbar'
 import { AppMenuHeader } from '../components/organisms/AppMenuHeader'
 import { useGeneral } from '../context/GeneralManager'
+import Cover from './cover'
 
 export default function App(): any {
   const { leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar } = useGeneral()
@@ -65,7 +65,7 @@ export default function App(): any {
       title: 'My Policy',
       to: '/cover',
       icon: <StyledDashboard size={30} />,
-      component: Soteria,
+      component: Cover,
     },
     {
       name: 'Bond',
@@ -147,12 +147,11 @@ export default function App(): any {
       <AnalyticsReporter />
       <GlobalStyle location={location} />
       <MenusTopNavBar setShowLeft={setLeftSidebar} setShowRight={setRightSidebar} />
+      <InfoSideNavbar show={width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR)} tabs={tabs} />
       <AppMenu show={rightSidebar} setShow={setRightSidebar} />
       <Layout>
         <ContentContainer>
-          <SideNavContent mobileWidth={6}>
-            <InfoSideNavbar tabs={tabs} />
-          </SideNavContent>
+          <SideNavContent mobileWidth={6}></SideNavContent>
           <MobileInfoSideNavbar
             show={leftSidebar && width < (rightSidebar ? BKPT_2 : BKPT_NAVBAR)}
             setShow={setLeftSidebar}
@@ -180,6 +179,26 @@ export default function App(): any {
                     <Route exact key={p.to} path={p.to} component={p.component} />
                   ))}
                   <Route exact path="/terms" component={Terms} />
+                  <Route
+                    exact
+                    path="*"
+                    component={() => (
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          height: 'calc(100vh - 130px)',
+                          width: '100%',
+                          fontSize: '2rem',
+                          // fontFamily: 'Montserrat',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        404 Not Found
+                      </div>
+                    )}
+                  />
                 </Switch>
               </div>
               <SideNavContent desktopWidth={8}></SideNavContent>
