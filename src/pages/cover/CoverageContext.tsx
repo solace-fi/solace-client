@@ -6,13 +6,12 @@ import { coinsMap } from '../../constants/mappings/coverageStablecoins'
 import { NetworkConfig, ReadToken, TokenInfo } from '../../constants/types'
 import { useGeneral } from '../../context/GeneralManager'
 import { networks, useNetwork } from '../../context/NetworkManager'
-import { useBatchBalances, useScpBalance } from '../../hooks/balance/useBalance'
+import { useBatchBalances } from '../../hooks/balance/useBalance'
 import { useInputAmount } from '../../hooks/internal/useInputAmount'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import {
   usePortfolio,
   useRiskSeries,
-  useCheckIsCoverageActive,
   useExistingPolicy,
   useCoverageFunctions,
 } from '../../hooks/policy/useSolaceCoverProductV3'
@@ -28,7 +27,6 @@ import { ERC20_ABI } from '../../constants/abi'
 import { useTokenAllowance, useTokenInfiniteApprove } from '../../hooks/contract/useToken'
 import SOLACE from '../../constants/abi/SOLACE.json'
 import useReferralApi from '../../hooks/api/useReferralApi'
-import { useWeb3React } from '@web3-react/core'
 import { isAddress } from '../../utils'
 
 type CoverageContextType = {
@@ -248,7 +246,6 @@ const CoverageContext = createContext<CoverageContextType>({
 })
 
 const CoverageManager: React.FC = (props) => {
-  const { account } = useWeb3React()
   const { appTheme, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
   const { tokenPriceMapping, minute, coverage } = useCachedData()

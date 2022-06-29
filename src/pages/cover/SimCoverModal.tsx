@@ -27,7 +27,7 @@ export const SimCoverModal = () => {
   const { activeNetwork } = useNetwork()
   const { intrface, simulator, input, styles } = useCoverageContext()
   const { gradientStyle, bigButtonStyle } = styles
-  const { showSimCoverModal, handleShowSimCoverModal, transactionLoading, handleTransactionLoading } = intrface
+  const { showSimCoverModal, handleShowSimCoverModal } = intrface
   const { simPortfolio, simCounter, simChosenLimit, handleSimChosenLimit } = simulator
   const { handleSimCoverLimit } = input
 
@@ -52,14 +52,8 @@ export const SimCoverModal = () => {
     // allow only numbers and decimals
     const filtered = filterAmount(input, customInputAmount)
 
-    // if filtered is only "0." or "." or '', filtered becomes '0.0'
-    // const formatted = formatAmount(filtered)
-
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
-
-    // if number is greater than available cover capacity, do not update
-    // if (parseUnits(formatted, 18).gt(availableCoverCapacity)) return
 
     const bnFiltered = BigNumber.from(accurateMultiply(filtered, 18))
     setLocalNewCoverageLimit(filtered)

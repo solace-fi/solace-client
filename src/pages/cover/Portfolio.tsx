@@ -69,8 +69,6 @@ export const Portfolio = (): JSX.Element => {
         style={{
           overflowY: 'auto',
           height: '100%',
-          // why this height specifically? i have no clue, but it works pixel-perfectly and it's responive (??)
-          // height: `calc(100% - ${376}px)`,
           justifyContent: protocols.length == 0 ? 'center' : 'unset',
         }}
         bgLightGray

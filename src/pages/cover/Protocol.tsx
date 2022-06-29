@@ -102,7 +102,6 @@ export const Protocol: React.FC<{
   riskColor,
   simulating,
   editingItem,
-  // addItem,
   deleteItem,
   saveEditedItem,
   handleEditingItem,
@@ -154,11 +153,6 @@ export const Protocol: React.FC<{
     [editableProtocolAppIds, dropdownOpen, activeList]
   )
 
-  // useEffect(() => {
-  //   if (!simulatingPrev && simulating) close()
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [simulatingPrev, simulating])
-
   const handleSaveEditedItem = useCallback(() => {
     const status = saveEditedItem(protocol.appId, enteredAppId, enteredAmount)
     if (status) handleEditingItem(undefined)
@@ -189,6 +183,10 @@ export const Protocol: React.FC<{
       setDropdownOpen(false)
     }
   }, [editingItem, protocol])
+
+  useEffect(() => {
+    if (simulating) handleEditingItem(undefined)
+  }, [simulating, handleEditingItem])
 
   return (
     <div>

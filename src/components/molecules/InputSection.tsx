@@ -17,8 +17,7 @@ export const InputSection = ({
   setMax,
   disabled,
   readonly,
-}: // ref,
-{
+}: {
   tab?: Tab.DEPOSIT | Tab.LOCK | Tab.WITHDRAW
   value: string | undefined
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -86,7 +85,6 @@ export const GenericInputSection = ({
 }): JSX.Element => {
   const rawStyle = {
     ...style,
-    // width: w ? w : '335px',
     width: w ? w : '100%',
     height: h ? h : '64px',
   }

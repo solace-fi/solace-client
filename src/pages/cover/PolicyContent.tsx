@@ -104,7 +104,6 @@ export const PolicyContent = (): JSX.Element => {
     depositNonStable,
     getMinRequiredAccountBalance,
     policyOf,
-    getBalanceOfNonRefundable,
   } = useCoverageFunctions()
 
   const [showExistingPolicyMessage, setShowExistingPolicyMessage] = useState<boolean>(true)
@@ -171,16 +170,7 @@ export const PolicyContent = (): JSX.Element => {
     return message
   }, [fetchStatus])
 
-  // MANUALLY ADJUST INTERFACE STATE HERE FOR NOW
-  // const newUserState = false
-  // const curUserState = true
-  // const returningUserState = false
-
-  // const depositCta = false
-  // const withdrawCta = false
-
   const [refundableSOLACEAmount, setRefundableSOLACEAmount] = useState<BigNumber>(ZERO)
-  const [nonrefundableBalance, setNonrefundableBalance] = useState<BigNumber>(ZERO)
   const [withdrawingMoreThanRefundable, setWithdrawingMoreThanRefundable] = useState<boolean>(false)
   const [insufficientCovCap, setInsufficientCovCap] = useState<boolean>(false)
 
@@ -378,6 +368,7 @@ export const PolicyContent = (): JSX.Element => {
 
   useEffect(() => {
     getRefundableSOLACEAmount()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [version, latestBlock])
 
   useEffect(() => {
@@ -412,16 +403,6 @@ export const PolicyContent = (): JSX.Element => {
     init()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [suggestedCoverLimit])
-
-  useEffect(() => {
-    const init = async () => {
-      if (!account) return
-      const nr = await getBalanceOfNonRefundable(account)
-      setNonrefundableBalance(nr)
-    }
-    init()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account])
 
   useEffect(() => {
     if (suggestedCoverLimit.gt(availCovCap)) {
@@ -713,9 +694,6 @@ export const PolicyContent = (): JSX.Element => {
                             <Text t4>Withdrawable (excludes earned rewards):</Text>
                           </Flex>
                           <Flex gap={5}>
-                            {/* <Flex col>
-                              <Text t4>{truncateValue(formatUnits(refundableSOLACEAmount, 18), 2)} SOLACE</Text>
-                            </Flex> */}
                             <Flex col>
                               <Text t4>{`~ $${truncateValue(
                                 tokenPriceMapping['solace']

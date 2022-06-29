@@ -36,7 +36,6 @@ export const Logo: React.FC<GeneralElementProps & LogoProps> = ({ ...props }) =>
 
   *************************************************************************************/
   return (
-    // <StyledNavLink to="/">
     <a href={MARKETING_SITE}>
       <LogoBase {...props}>
         <img
@@ -45,7 +44,6 @@ export const Logo: React.FC<GeneralElementProps & LogoProps> = ({ ...props }) =>
         />
       </LogoBase>
     </a>
-    // </StyledNavLink>
   )
 }
 
@@ -56,7 +54,6 @@ export const MiniLogo: React.FC<GeneralElementProps & LogoProps & { style?: Reac
 
   *************************************************************************************/
   return (
-    // <StyledNavLink to="/" style={props.style}>
     <a href={MARKETING_SITE}>
       <LogoBase {...props} width={40}>
         <img
@@ -65,6 +62,5 @@ export const MiniLogo: React.FC<GeneralElementProps & LogoProps & { style?: Reac
         />
       </LogoBase>
     </a>
-    // </StyledNavLink>
   )
 }

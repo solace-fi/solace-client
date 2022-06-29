@@ -79,15 +79,7 @@ const CoverageContent = () => {
   const _showShareReferralModal =
     showShareReferralModal && !showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal
 
-  // const _showReferralModal = true
-  // const _showCldModal = false
-  // const _showSimulatorModal = false
-  // const _showSimCoverModal = false
-  // const _showDefault = false
-  // const _showPortfolioModal = false
-
   return (
-    // <Content>
     <>
       <CodeNoticeModal />
       <Flex justifyCenter>
@@ -116,7 +108,6 @@ const CoverageContent = () => {
         </Flex>
       </Flex>
     </>
-    // </Content>
   )
 }
 

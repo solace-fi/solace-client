@@ -142,28 +142,6 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
       }
     `
   }
-  // if (props.techygradient) {
-  //   const finalCss = css`
-  //     opacity: 1;
-  //     transform: scale(1);
-  //     &:hover {
-  //       ${!props.nohover && `opacity: 0.8;`}
-  //     }
-  //   `
-  //   return css`
-  //     color: transparent;
-  //     background-image: linear-gradient(
-  //       to bottom right,
-  //       ${theme.typography.techyGradientA},
-  //       ${theme.typography.techyGradientB}
-  //     );
-  //     opacity: 1;
-  //     transform: scale(1);
-  //     background-clip: text;
-
-  //     ${finalCss}
-  //   `
-  // }
 
   let textColor: string = (theme as Theme).typography.contrastText
   let hoverTextColor: string = (theme as Theme).typography.contrastText

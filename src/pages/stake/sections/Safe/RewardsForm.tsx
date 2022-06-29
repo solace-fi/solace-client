@@ -79,7 +79,7 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
         }
       />
       <StyledForm>
-        <ButtonWrapper>
+        <ButtonWrapper p={0}>
           <Button secondary info noborder disabled={lock.pendingRewards.isZero()} onClick={callHarvestLockRewards}>
             Harvest
           </Button>

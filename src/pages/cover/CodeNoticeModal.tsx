@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React from 'react'
 import { StyledCheckmark, StyledWarning } from '../../components/atoms/Icon'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
