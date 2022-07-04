@@ -6,7 +6,7 @@ import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
 import { ZERO } from '../../constants'
-import { ApiStatus, FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
+import { ApiStatus, FunctionName, InterfaceState } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
@@ -14,6 +14,7 @@ import {
   accurateMultiply,
   convertSciNotaToPrecise,
   filterAmount,
+  fixed,
   floatUnits,
   formatAmount,
   truncateValue,
@@ -728,7 +729,7 @@ export const PolicyContent = (): JSX.Element => {
                             const selectedCoinBalance_USD = floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
                             handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
                             setEnteredUSDDeposit(
-                              truncateValue(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2, false)
+                              fixed(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2).toString()
                             )
                           }}
                           widthP={100}
@@ -865,7 +866,7 @@ export const PolicyContent = (): JSX.Element => {
                                     floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
                                   handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
                                   setEnteredUSDDeposit(
-                                    truncateValue(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2, false)
+                                    fixed(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2).toString()
                                   )
                                 }}
                                 widthP={100}

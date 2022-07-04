@@ -8,7 +8,7 @@ import { queryDecimals, queryName, querySymbol } from '../../utils/contract'
 import { useProvider } from '../../context/ProviderManager'
 import { usePriceSdk } from '../api/usePrice'
 import { useNetwork } from '../../context/NetworkManager'
-import { floatUnits, truncateValue } from '../../utils/formatting'
+import { fixed, floatUnits } from '../../utils/formatting'
 import { BondTokenV1 } from '../../constants/types'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useCachedData } from '../../context/CachedDataManager'
@@ -125,7 +125,7 @@ export const useBondTellerFullDetailsV1 = (
       )
         return
       running.current = true
-      const solacePrice = truncateValue(tokenPriceMapping['solace'], 2)
+      const solacePrice = fixed(tokenPriceMapping['solace'], 2).toString()
       try {
         const data: BondTellerFullDetails[] = await Promise.all(
           tellers

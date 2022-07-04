@@ -5,7 +5,7 @@ import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
 import { Text, TextSpan } from '../../components/atoms/Typography'
-import { ApiStatus, FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
+import { ApiStatus, FunctionName, InterfaceState } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
@@ -13,6 +13,7 @@ import {
   accurateMultiply,
   convertSciNotaToPrecise,
   filterAmount,
+  fixed,
   floatUnits,
   formatAmount,
   truncateValue,
@@ -544,7 +545,7 @@ export const CldModal = () => {
                   onClick={() => {
                     const selectedCoinBalance_USD = floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
                     handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
-                    setEnteredUSDDeposit(truncateValue(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2, false))
+                    setEnteredUSDDeposit(fixed(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`)).toString())
                   }}
                   widthP={100}
                   disabled={selectedCoinBalance.isZero()}
