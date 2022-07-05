@@ -32,6 +32,7 @@ import { BigNumber } from 'ethers'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useGeneral } from '../../context/GeneralManager'
 import { Risk } from '@solace-fi/sdk-nightly'
+import { usePortfolioAnalysis } from '../../hooks/policy/usePortfolioAnalysis'
 
 export const PolicyContent = (): JSX.Element => {
   const { appTheme } = useGeneral()
@@ -149,6 +150,13 @@ export const PolicyContent = (): JSX.Element => {
   const homeCta = useMemo(() => !depositCta && !withdrawCta, [depositCta, withdrawCta])
 
   const [suggestedCoverLimit, setSuggestedCoverLimit] = useState<BigNumber>(ZERO)
+
+  const { dailyCost: initiativeDailyCost } = usePortfolioAnalysis(curPortfolio, suggestedCoverLimit)
+
+  const initiativeDuration = useMemo(
+    () => (initiativeDailyCost > 0 ? parseFloat(formatAmount(enteredUSDDeposit)) / initiativeDailyCost : 0),
+    [initiativeDailyCost, enteredUSDDeposit]
+  )
 
   const portfolioFetchStatus = useMemo(() => {
     let message = undefined
@@ -741,7 +749,7 @@ export const PolicyContent = (): JSX.Element => {
                       {newUserState && parseFloat(formatAmount(enteredUSDDeposit)) > 0 && (
                         <Text textAlignCenter t5s>
                           With this deposit, your policy will extend by{' '}
-                          <TextSpan success>{truncateValue(newDuration, 1)} days</TextSpan>.
+                          <TextSpan success>{truncateValue(initiativeDuration, 1)} days</TextSpan>.
                         </Text>
                       )}
                       {(newUserState || returningUserState) && depositApproval && homeCta && (

@@ -133,13 +133,11 @@ export const PortfolioSimulator = (): JSX.Element => {
   const runSimulation = useCallback(async () => {
     if (portfolioLoading && active) return
     setSimulating(true)
-    const riskBalances: SolaceRiskBalance[] = editableProtocols
-      .filter((p) => !p.appId.includes('Empty'))
-      .map((p) => ({
-        appId: p.appId,
-        network: p.network,
-        balanceUSD: p.balanceUSD,
-      }))
+    const riskBalances: SolaceRiskBalance[] = editableProtocols.map((p) => ({
+      appId: p.appId,
+      network: p.network,
+      balanceUSD: p.balanceUSD,
+    }))
     const score: SolaceRiskScore | undefined = await riskScores(riskBalances)
     handleSimPortfolio(score)
     setCompiling(false)

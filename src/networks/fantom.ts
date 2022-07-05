@@ -37,7 +37,7 @@ export const FantomNetwork: NetworkConfig = {
   supportedTxTypes: [0],
   nativeCurrency: { mainnetReference: WFTM_TOKEN.address[1], symbol: Unit.FTM, decimals: 18 },
   rpc: {
-    httpsUrl: `https://rpc.ankr.com/fantom`,
+    httpsUrl: `https://rpc.ftm.tools/`,
     pollingInterval: 12_000,
     blockConfirms: 1,
   },
@@ -100,7 +100,7 @@ export const FantomNetwork: NetworkConfig = {
     chainId: hexValue(chainId),
     chainName: 'Fantom',
     nativeCurrency: { name: 'FTM', symbol: Unit.FTM, decimals: 18 },
-    rpcUrls: ['https://rpc.ankr.com/fantom'],
+    rpcUrls: ['https://rpc.ftm.tools/'],
     blockExplorerUrls: ['https://ftmscan.com/'],
   },
   walletConfig: {
