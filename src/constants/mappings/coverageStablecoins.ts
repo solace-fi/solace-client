@@ -49,8 +49,8 @@ const coverageStablecoins_Polygon = [
   { address: '0x45c32fA6DF82ead1e2EF74d17b76547EDdFaFF89', name: 'Frax', symbol: 'FRAX', decimals: 18 },
   {
     address: '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1',
-    name: 'miMATIC',
-    symbol: 'miMATIC',
+    name: 'MAI',
+    symbol: 'MAI',
     decimals: 18,
   },
 ]
@@ -68,7 +68,7 @@ const coverageStablecoins_Fantom = [
   { address: '0xdc301622e621166BD8E82f2cA0A26c13Ad0BE355', name: 'Frax', symbol: 'FRAX', decimals: 18 },
   { address: '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
   { address: '0x049d68029688eAbF473097a2fC38ef61633A3C7A', name: 'Frapped USDT', symbol: 'fUSDT', decimals: 6 },
-  { address: '0xfB98B335551a418cD0737375a2ea0ded62Ea213b', name: 'miMATIC', symbol: 'miMATIC', decimals: 18 },
+  { address: '0xfB98B335551a418cD0737375a2ea0ded62Ea213b', name: 'MAI', symbol: 'MAI', decimals: 18 },
   {
     address: '0x82f0B8B456c1A451378467398982d4834b6829c1',
     name: 'Magic Internet Money',
