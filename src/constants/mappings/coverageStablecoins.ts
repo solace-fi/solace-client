@@ -14,13 +14,6 @@ const coverageStablecoins_Rinkeby = [
   { address: '0x86E5B6485e28E52a0dEEd28Cc10772FeB9c4C400', name: 'Frax', symbol: 'FRAX', decimals: 18 },
 ]
 
-const coverageStablecoins_Kovan = [
-  { address: '0x512d93ADc3DF4E24cb4b26c44A91682Ec073F559', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
-  { address: '0x31a1D59460a9619ec6965a5684C6d3Ae470D0fE5', name: 'DAI Stablecoin', symbol: 'DAI', decimals: 18 },
-  { address: '0xAEA2B0F4763c8Ffc33A4c454CD08F803B02B6B53', name: 'Tether USD', symbol: 'USDT', decimals: 6 },
-  { address: '0x58B23b32a9774153E1E344762751aDfdca2764DD', name: 'Frax', symbol: 'FRAX', decimals: 18 },
-]
-
 const coverageStablecoins_Aurora = [
   { address: '0xe3520349F477A5F6EB06107066048508498A291b', name: 'Dai Stablecoin', symbol: 'DAI', decimals: 18 },
   { address: '0xB12BFcA5A55806AaF64E99521918A4bf0fC40802', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
@@ -92,7 +85,6 @@ const coverageStablecoins_Fantom_Testnet = [
 export const coinsMap: { [key: number]: ReadToken[] } = {
   [1]: coverageStablecoins_Mainnet,
   [4]: coverageStablecoins_Rinkeby,
-  [42]: coverageStablecoins_Kovan,
   [1313161554]: coverageStablecoins_Aurora,
   [1313161555]: coverageStablecoins_Aurora_Testnet,
   [137]: coverageStablecoins_Polygon,

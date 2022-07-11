@@ -491,7 +491,7 @@ export const CldModal = () => {
         )}
         {lackingScp != 'meets requirement' && lackingScp != 'both zeroes' && (
           <Text textAlignCenter pt={16}>
-            You need at least ${lackingScp} for the desired cover limit. Lower the value or use the form below to
+            You need at least over ~${lackingScp} for the desired cover limit. Lower the value or use the form below to
             deposit the additional premium.
           </Text>
         )}

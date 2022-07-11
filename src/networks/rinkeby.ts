@@ -5,13 +5,10 @@ import { hexValue } from '@ethersproject/bytes'
 import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 
 /*  core contract abi */
-import farmControllerABI from '../constants/abi/FarmController.json'
-import farmRewardsABI from '../constants/abi/FarmRewardsV2.json'
 import solaceABI from '../constants/abi/SOLACE.json'
 import xSolaceABI from '../constants/abi/xSOLACE.json'
 import xSolaceV1ABI from '../constants/abi/xSOLACEV1.json'
 import xSolaceMigratorABI from '../constants/abi/xSolaceMigrator.json'
-import cpFarmABI from '../constants/abi/CpFarm.json'
 
 import { KEY_ADDRS } from '../constants/addresses/rinkeby'
 import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
@@ -22,15 +19,7 @@ import {
   STAKING_REWARDS_V2_ADDRESS,
 } from '@solace-fi/sdk-nightly'
 
-import {
-  Vault_ABI,
-  xsLocker_ABI,
-  StakingRewards_ABI,
-  SolaceCoverProduct_ABI,
-  SolaceCoverProductV3_ABI,
-  CoverPaymentManager_ABI,
-  StakingRewardsV2_ABI,
-} from '../constants/abi'
+import { xsLocker_ABI, SolaceCoverProductV3_ABI, CoverPaymentManager_ABI, StakingRewardsV2_ABI } from '../constants/abi'
 
 const chainId = 4
 
@@ -51,22 +40,10 @@ export const RinkebyNetwork: NetworkConfig = {
     key: String(ETHERSCAN_API_KEY),
     url: 'https://rinkeby.etherscan.io',
     apiUrl: 'https://api-rinkeby.etherscan.io',
-    excludedContractAddrs: [KEY_ADDRS.SOLACE, KEY_ADDRS.VAULT],
+    excludedContractAddrs: [KEY_ADDRS.SOLACE],
   },
   config: {
     keyContracts: {
-      farmController: {
-        addr: KEY_ADDRS.FARM_CONTROLLER,
-        abi: farmControllerABI,
-      },
-      farmRewards: {
-        addr: KEY_ADDRS.FARM_REWARDS,
-        abi: farmRewardsABI.abi,
-      },
-      vault: {
-        addr: KEY_ADDRS.VAULT,
-        abi: Vault_ABI,
-      },
       solace: {
         addr: KEY_ADDRS.SOLACE,
         abi: solaceABI,
@@ -83,21 +60,9 @@ export const RinkebyNetwork: NetworkConfig = {
         addr: KEY_ADDRS.XSLOCKER,
         abi: xsLocker_ABI,
       },
-      stakingRewards: {
-        addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: StakingRewards_ABI,
-      },
       xSolaceMigrator: {
         addr: KEY_ADDRS.XSOLACE_MIGRATOR,
         abi: xSolaceMigratorABI.abi,
-      },
-      cpFarm: {
-        addr: KEY_ADDRS.CPFARM,
-        abi: cpFarmABI,
-      },
-      solaceCoverProduct: {
-        addr: KEY_ADDRS.SOLACE_COVER_PRODUCT,
-        abi: SolaceCoverProduct_ABI,
       },
       solaceCoverProductV3: {
         addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],

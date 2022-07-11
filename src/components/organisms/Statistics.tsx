@@ -153,26 +153,6 @@ export const Statistics: React.FC = () => {
           </Text>
         </BoxItem>
       )}
-      {!activeNetwork.config.restrictedFeatures.noSoteria && (
-        <>
-          <BoxItem>
-            <BoxItemTitle t4 light>
-              Active Cover Limit
-            </BoxItemTitle>
-            <Text t2 nowrap light bold>
-              ${totalActiveCoverLimit}{' '}
-            </Text>
-          </BoxItem>
-          <BoxItem>
-            <BoxItemTitle t4 light>
-              Total Active Policies
-            </BoxItemTitle>
-            <Text t2 nowrap light bold>
-              {totalActivePolicies}
-            </Text>
-          </BoxItem>
-        </>
-      )}
     </Box>
   )
 
@@ -207,22 +187,6 @@ export const Statistics: React.FC = () => {
               {underwritingPoolBalance == '-' ? '$-' : `$${truncateValue(underwritingPoolBalance, 2)}`}
             </Text>
           </Flex>
-        )}
-        {!activeNetwork.config.restrictedFeatures.noSoteria && (
-          <>
-            <Flex stretch between mb={24}>
-              <Text light>Active Cover Limit</Text>
-              <Text t2 nowrap light>
-                ${totalActiveCoverLimit}
-              </Text>
-            </Flex>
-            <Flex stretch between mb={24}>
-              <Text light>Total Active Policies</Text>
-              <Text t2 nowrap light>
-                {totalActivePolicies}
-              </Text>
-            </Flex>
-          </>
         )}
       </Card>
     )

@@ -16,8 +16,6 @@ import { FRAX_TOKEN } from '../constants/mappings/token'
 
 import {
   xsLocker_ABI,
-  StakingRewards_ABI,
-  SolaceCoverProductV2_ABI,
   ERC20_ABI,
   StakingRewardsV2_ABI,
   CoverPaymentManager_ABI,
@@ -63,15 +61,6 @@ export const PolygonNetwork: NetworkConfig = {
       xsLocker: {
         addr: KEY_ADDRS.XSLOCKER,
         abi: xsLocker_ABI,
-      },
-      stakingRewards: {
-        addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: StakingRewards_ABI,
-      },
-      solaceCoverProduct: {
-        addr: SPECIAL_ADDRS.SOLACE_COVER_PRODUCT_V2,
-        abi: SolaceCoverProductV2_ABI,
-        additionalInfo: 'v2',
       },
       solaceCoverProductV3: {
         addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
