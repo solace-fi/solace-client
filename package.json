@@ -4,7 +4,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@apollo/client": "^3.4.16",
     "@ethersproject/providers": "^5.4.4",
     "@gnosis.pm/safe-service-client": "^1.0.1",
     "@rebass/forms": "^4.0.6",
