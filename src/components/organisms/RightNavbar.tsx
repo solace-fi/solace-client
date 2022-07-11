@@ -68,24 +68,8 @@ const RightAppNavItemText = styled.li`
 
 const data = [
   {
-    name: 'My Policy',
-    path: '/cover',
-  },
-  {
-    name: 'Bond',
-    path: '/bond',
-  },
-  {
-    name: 'Stake',
-    path: '/stake',
-  },
-  {
     name: 'Farms',
     path: '/farms',
-  },
-  {
-    name: 'Govern',
-    path: '/govern',
   },
   {
     name: 'Archive',

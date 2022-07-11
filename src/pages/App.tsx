@@ -22,22 +22,13 @@ import { Route, Switch, useLocation } from 'react-router-dom'
 // import About from './about'
 import Invest from './invest'
 import Stake from './stake'
-import Bond from './bond'
-import Govern from './govern'
 import Terms from './terms'
 
 /* import components */
 import { MenusTopNavBar } from '../components/organisms/MenusTopNavbar'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent, Flex } from '../components/atoms/Layout'
 // import { Statistics } from '../components/organisms/Statistics'
-import {
-  StyledDashboard,
-  StyledCoinStack,
-  StyledCommunity,
-  StyledReceiptMoney,
-  StyledFolderHistory,
-  StyledTractor,
-} from '../components/atoms/Icon'
+import { StyledCoinStack, StyledFolderHistory, StyledTractor } from '../components/atoms/Icon'
 
 /* import constants */
 import { BKPT_2, BKPT_NAVBAR, MARKETING_SITE } from '../constants'
@@ -52,7 +43,6 @@ import { AppMenu } from '../components/organisms/RightNavbar'
 import { InfoSideNavbar, MobileInfoSideNavbar } from '../components/organisms/LeftNavbar'
 import { AppMenuHeader } from '../components/organisms/AppMenuHeader'
 import { useGeneral } from '../context/GeneralManager'
-import Cover from './cover'
 
 export default function App(): any {
   const { leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar } = useGeneral()
@@ -61,23 +51,9 @@ export default function App(): any {
 
   const pages: PageInfo[] = [
     {
-      name: 'My Coverage',
-      title: 'My Policy',
-      to: '/cover',
-      icon: <StyledDashboard size={30} />,
-      component: Cover,
-    },
-    {
-      name: 'Bond',
-      title: 'My Bonding',
-      to: '/bond',
-      icon: <StyledReceiptMoney size={30} />,
-      component: Bond,
-    },
-    {
-      name: 'Stake',
-      title: 'My Staking',
-      to: '/stake',
+      name: '',
+      title: '',
+      to: '/',
       icon: <StyledCoinStack size={30} />,
       component: Stake,
     },
@@ -87,13 +63,6 @@ export default function App(): any {
       to: '/farms',
       icon: <StyledTractor size={30} />,
       component: Invest,
-    },
-    {
-      name: 'Govern',
-      title: 'Governance',
-      to: '/govern',
-      icon: <StyledCommunity size={30} />,
-      component: Govern,
     },
     {
       name: 'Archive',
