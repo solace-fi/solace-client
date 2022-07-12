@@ -310,8 +310,8 @@ export const Protocol: React.FC<{
                     {/* risl level */}
                     <Flex itemsCenter gap={4}>
                       <Text t6s>Risk Level:</Text>
-                      <Text t6s extrabold warmgradient>
-                        {mapNumberToLetter(protocol.tier > 0 ? protocol.tier : 25)}
+                      <Text t6s extrabold style={{ color: riskColor }}>
+                        {mapNumberToLetter(protocol.tier)}
                       </Text>
                     </Flex>
                   </Flex>
