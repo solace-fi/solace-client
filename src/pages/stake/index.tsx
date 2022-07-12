@@ -47,7 +47,7 @@ import {
   StyledArrowIosBackOutline,
   StyledArrowIosForwardOutline,
 } from '../../components/atoms/Icon'
-import DifferenceNotification from './organisms/DifferenceNotification'
+import { DifferenceNotification, CoverageNotification } from './organisms/NotificationBox'
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
@@ -377,7 +377,7 @@ export default function Stake(): JSX.Element {
   const { account } = useWeb3React()
   const { latestBlock } = useProvider()
   const { activeNetwork } = useNetwork()
-  const { version } = useCachedData()
+  const { version, coverage } = useCachedData()
   const [stakingVersion, setStakingVersion] = useState<StakingVersion>(StakingVersion.v2 as StakingVersion)
   const [locks, setLocks] = useState<LockData[]>([])
   const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
@@ -548,6 +548,7 @@ export default function Stake(): JSX.Element {
           {parseUnits(xSolaceV1Balance, XSOLACE_V1_TOKEN.constants.decimals).gt(ZERO) && (
             <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
           )}
+          {locks.length > 0 && coverage.policyId?.isZero() && <CoverageNotification />}
           {StakingVersion.v2 === stakingVersion &&
             (canStakeV2 ? (
               <>

@@ -1,11 +1,13 @@
 import { Dispatch, SetStateAction } from 'react'
-import styled, { css } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 import { GeneralElementProps } from '../../../components/generalInterfaces'
 import { StakingVersion } from '../../../constants/enums'
 import React from 'react'
 import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 import { BKPT_4, BKPT_5 } from '../../../constants'
 import { useGeneral } from '../../../context/GeneralManager'
+import { NavLink } from 'react-router-dom'
+import { Flex } from '../../../components/atoms/Layout'
 // text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200
 const StyledText = styled.div`
   font-size: 0.875rem;
@@ -54,6 +56,49 @@ const Notification = styled.div<GeneralElementProps>`
   margin-bottom: 40px;
 `
 
+const Tip = styled.div<GeneralElementProps>`
+  background: hsla(129, 78%, 21%, 1);
+
+  background: linear-gradient(
+    315deg,
+    hsla(129, 78%, 21%, 1) 0%,
+    hsla(133, 95%, 25%, 1) 6%,
+    hsla(76, 38%, 61%, 1) 60%,
+    hsla(89, 31%, 51%, 1) 73%,
+    hsla(150, 83%, 37%, 1) 93%,
+    hsla(129, 78%, 21%, 1) 100%
+  );
+
+  background: -moz-linear-gradient(
+    315deg,
+    hsla(129, 78%, 21%, 1) 0%,
+    hsla(133, 95%, 25%, 1) 6%,
+    hsla(76, 38%, 61%, 1) 60%,
+    hsla(89, 31%, 51%, 1) 73%,
+    hsla(150, 83%, 37%, 1) 93%,
+    hsla(129, 78%, 21%, 1) 100%
+  );
+
+  background: -webkit-linear-gradient(
+    315deg,
+    hsla(129, 78%, 21%, 1) 0%,
+    hsla(133, 95%, 25%, 1) 6%,
+    hsla(76, 38%, 61%, 1) 60%,
+    hsla(89, 31%, 51%, 1) 73%,
+    hsla(150, 83%, 37%, 1) 93%,
+    hsla(129, 78%, 21%, 1) 100%
+  );
+  color: #fafafa;
+  padding: 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+`
+
 const baseButtonStyle = css`
   border-radius: 0.5rem;
   font-size: 0.875rem;
@@ -66,6 +111,18 @@ const baseButtonStyle = css`
   border: 1px solid;
   border-color: white;
 `
+
+const greenButtonStyle = css`
+  background-color: ${(props) => props.theme.box.success};
+  color: #fafafa;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  &:hover {
+    background-color: white;
+    color: ${(props) => props.theme.box.success};
+  }
+`
+
 const redButtonStyle = css`
   background-color: #f04d42;
   color: #fafafa;
@@ -76,14 +133,19 @@ const redButtonStyle = css`
     color: #f04d42;
   }
 `
-const whiteButtonStyle = css`
+const whiteNotificationButtonStyle = css`
   background-color: white;
   color: #f04d42;
 `
 
+const whiteTipButtonStyle = css`
+  background-color: white;
+  color: ${(props) => props.theme.box.success};
+`
+
 const NotificationButton = styled.div<{ active?: boolean }>`
   ${baseButtonStyle}
-  ${({ active }) => (active ? whiteButtonStyle : redButtonStyle)}
+  ${({ active }) => (active ? whiteNotificationButtonStyle : redButtonStyle)}
   &:not(:first-child) {
     margin-left: 10px;
   }
@@ -91,6 +153,15 @@ const NotificationButton = styled.div<{ active?: boolean }>`
   width: 117px;
   border-radius: 10px;
   font-size: 14px;
+`
+
+const TipButton = styled.div<{ active?: boolean }>`
+  ${baseButtonStyle}
+  ${({ active }) => (active ? whiteTipButtonStyle : greenButtonStyle)}
+  height: 40px;
+  width: 170px;
+  border-radius: 10px;
+  font-size: 16px;
 `
 
 const Typography = {
@@ -105,9 +176,46 @@ const Typography = {
   Emphasis: styled.span`
     font-weight: 700;
   `,
+  Hero: styled.h2`
+    font-size: 1.5rem;
+    line-height: 26px;
+    font-weight: 700;
+  `,
+  Sidekick: styled.h2`
+    font-size: 1rem;
+  `,
 } as const
 
-export default function DifferenceNotification({
+export function CoverageNotification(): JSX.Element {
+  const { rightSidebar } = useGeneral()
+  const { width } = useWindowDimensions()
+
+  return (
+    <Tip style={{ flexDirection: width > (rightSidebar ? BKPT_5 : BKPT_4) ? 'row' : 'column' }}>
+      <Flex col>
+        <Typography.Hero>Get Covered with Solace Portfolio Insurance</Typography.Hero>
+        <Typography.Sidekick>
+          Buy coverage for your Defi positions on <Typography.Emphasis>Solace</Typography.Emphasis> and other protocols.
+        </Typography.Sidekick>
+      </Flex>
+
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <div style={{ display: 'flex', padding: '10px' }}>
+          <NavLink to={'/cover'}>
+            <TipButton active>Buy Policy Now</TipButton>
+          </NavLink>
+        </div>
+      </div>
+    </Tip>
+  )
+}
+
+export function DifferenceNotification({
   version,
   setVersion,
 }: {

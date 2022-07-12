@@ -341,17 +341,3 @@ export const TTTest = styled.div<{
       color: 'blue';
     `}
 `
-
-export const SectionTitle = styled(Text)<{
-  extrabold?: boolean
-  lineHeight?: number
-  fontSize?: number
-  isMobile?: boolean
-}>`
-  /* use breakpoint BKPT_5 to decide if it's mobile; if mobile, default font size is 36px, otherwise it's 48px */
-  font-size: ${({ fontSize, isMobile }) => (fontSize ?? isMobile ? 36 : 48) + 'px'};
-  line-height: ${({ lineHeight, isMobile }) => (lineHeight ?? isMobile ? 43.88 : 82) + 'px'};
-  font-family: Montserrat;
-  font-weight: ${({ extrabold }) => (extrabold ? 700 : 400)};
-  ${GeneralElementCss}
-`

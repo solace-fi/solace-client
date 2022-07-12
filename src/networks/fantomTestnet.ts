@@ -1,4 +1,4 @@
-import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/fantomTestnet'
+import { KEY_ADDRS } from '../constants/addresses/fantomTestnet'
 import { Unit } from '../constants/enums'
 import { WFTM_TOKEN } from '../constants/mappings/token'
 
@@ -16,14 +16,7 @@ import {
   STAKING_REWARDS_V2_ADDRESS,
 } from '@solace-fi/sdk-nightly'
 
-import {
-  xsLocker_ABI,
-  StakingRewards_ABI,
-  StakingRewardsV2_ABI,
-  CoverPaymentManager_ABI,
-  SolaceCoverProductV2_ABI,
-  SolaceCoverProductV3_ABI,
-} from '../constants/abi'
+import { xsLocker_ABI, StakingRewardsV2_ABI, CoverPaymentManager_ABI, SolaceCoverProductV3_ABI } from '../constants/abi'
 
 const chainId = 4002
 
@@ -59,15 +52,6 @@ export const FantomTestnetNetwork: NetworkConfig = {
       xsLocker: {
         addr: KEY_ADDRS.XSLOCKER,
         abi: xsLocker_ABI,
-      },
-      solaceCoverProduct: {
-        addr: SPECIAL_ADDRS.SOLACE_COVER_PRODUCT_V2,
-        abi: SolaceCoverProductV2_ABI,
-        additionalInfo: 'v2',
-      },
-      stakingRewards: {
-        addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: StakingRewards_ABI,
       },
       solaceCoverProductV3: {
         addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],

@@ -137,21 +137,6 @@ export const SCP_TOKEN: ReadTokenData = {
   },
 }
 
-export const SOLACE_USDC_SLP_TOKEN: ReadTokenData = {
-  constants: {
-    name: 'SushiSwap LP Token',
-    symbol: 'SLP',
-    decimals: 18,
-  },
-  address: {
-    [1]: '0x9C051F8A6648a51eF324D30C235da74D060153aC',
-    [4]: '0x7BEc68fB902f90Ba84634E764C91fDfFCA04D084',
-    [42]: '0x7BEc68fB902f90Ba84634E764C91fDfFCA04D084',
-    [137]: '0x38e7e05Dfd9fa3dE80dB0e7AC03AC57Fa832C78A', // Polygon
-    [1313161554]: '0xdDAdf88b007B95fEb42DDbd110034C9a8e9746F2', // Aurora
-  },
-}
-
 export const WMATIC_TOKEN: ReadTokenData = {
   constants: {
     name: 'Wrapped Matic',

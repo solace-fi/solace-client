@@ -102,7 +102,7 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
               <VerticalSeparator />
               {status ? (
                 <Text t3s success autoAlignVertical>
-                  + {truncateValue(additionalDuration, 2)} days
+                  + ~{truncateValue(additionalDuration, 2)} days
                 </Text>
               ) : (
                 <Text t5s warning autoAlignVertical>

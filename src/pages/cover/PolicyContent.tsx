@@ -658,8 +658,8 @@ export const PolicyContent = (): JSX.Element => {
                       </Text>
                     ) : lackingScp != 'meets requirement' && lackingScp != 'both zeroes' ? (
                       <Text textAlignCenter pb={12}>
-                        You need at least ${lackingScp} for the suggested cover limit. Lower the value or use the form
-                        below to deposit the additional premium.
+                        You need at least over ~${lackingScp} for the suggested cover limit. Lower the value or use the
+                        form below to deposit the additional premium.
                       </Text>
                     ) : null)}
                   <Flex col gap={12}>
@@ -834,7 +834,10 @@ export const PolicyContent = (): JSX.Element => {
                               {parseFloat(formatAmount(enteredUSDDeposit)) > 0 && (
                                 <Text textAlignCenter t5s>
                                   With this deposit, your policy will extend by{' '}
-                                  <TextSpan success>{truncateValue(newDuration, 1)} days</TextSpan>.
+                                  <TextSpan success>
+                                    {truncateValue(returningUserState ? initiativeDuration : newDuration, 1)} days
+                                  </TextSpan>
+                                  .
                                 </Text>
                               )}
                               <Button

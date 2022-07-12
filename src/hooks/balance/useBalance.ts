@@ -81,42 +81,6 @@ export const useScpBalance = (): string => {
   return scpBalance
 }
 
-export const useVaultScpBalance = (): string => {
-  const { keyContracts } = useContracts()
-  const { vault } = useMemo(() => keyContracts, [keyContracts])
-  const { activeNetwork } = useNetwork()
-  const { account } = useWeb3React()
-  const [scpBalance, setScpBalance] = useState<string>('0')
-  const { version } = useCachedData()
-
-  const getScpBalance = async () => {
-    if (!vault || !account) return
-    try {
-      const balance = await queryBalance(vault, account)
-      const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
-      setScpBalance(formattedBalance)
-    } catch (err) {
-      console.log('getScpBalance', err)
-    }
-  }
-
-  useEffect(() => {
-    if (!vault || !account) return
-    getScpBalance()
-    vault.on('Transfer', (from, to) => {
-      if (from == account || to == account) {
-        getScpBalance()
-      }
-    })
-
-    return () => {
-      vault.removeAllListeners()
-    }
-  }, [account, vault, version])
-
-  return scpBalance
-}
-
 export const useSolaceBalance = (): string => {
   const { keyContracts } = useContracts()
   const { solace } = useMemo(() => keyContracts, [keyContracts])

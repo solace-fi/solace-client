@@ -33,7 +33,7 @@ const BoxCss = css<GeneralElementProps & BoxProps>`
     props.outlined && `border-width: 1px; border-style: solid; border-color: ${props.theme.box.border_color};`}
   ${(props) => props.color1 && `background: ${props.theme.box.bg_color_1};`}
   ${(props) => props.color2 && `background: ${props.theme.box.bg_color_2};`}
-  ${(props) => props.success && `background: ${props.theme.box.success};`}
+  ${(props) => props.success && `background: ${props.theme.typography.successText};`}
   ${(props) => props.info && `background: ${props.theme.box.info};`}
   ${(props) => props.warning && `background: ${props.theme.box.warning};`}
   ${(props) => props.error && `background: ${props.theme.box.error};`}

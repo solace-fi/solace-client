@@ -27,7 +27,7 @@ import { useGeneral } from '../../../../context/GeneralManager'
 import { Flex } from '../../../atoms/Layout'
 import { Text } from '../../../atoms/Typography'
 import { Button, ButtonWrapper } from '../../../atoms/Button'
-import { CheckboxOption } from '../../PoolModalRouter'
+import { CheckboxOption } from '../../../molecules/CheckboxOption'
 import { StyledGraphDown, StyledSendPlane } from '../../../atoms/Icon'
 
 /* import utils */

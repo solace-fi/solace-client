@@ -3,7 +3,6 @@ import { NetworkConfig } from '../constants/types'
 
 /* networks */
 import { MainNetwork } from '../networks/mainnet'
-import { KovanNetwork } from '../networks/kovan'
 import { RinkebyNetwork } from '../networks/rinkeby'
 import { PolygonNetwork } from '../networks/polygon'
 import { MumbaiNetwork } from '../networks/mumbai'
@@ -26,7 +25,6 @@ This manager keeps track of the current network and other important information.
 export const networks: NetworkConfig[] = [
   MainNetwork,
   RinkebyNetwork,
-  // KovanNetwork,
   PolygonNetwork,
   MumbaiNetwork,
   AuroraNetwork,

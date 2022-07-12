@@ -1,27 +1,17 @@
-import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/fantom'
+import { KEY_ADDRS } from '../constants/addresses/fantom'
 import { Unit } from '../constants/enums'
 import { WFTM_TOKEN } from '../constants/mappings/token'
 
 import solaceABI from '../constants/abi/SOLACE.json'
 import xSolaceABI from '../constants/abi/xSOLACE.json'
-// import xsLockerABI from '../constants/abi/xsLocker.json'
-// import stakingRewardsABI from '../constants/abi/StakingRewards.json'
 import { hexValue } from 'ethers/lib/utils'
 
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/fantom'
 import { FTMSCAN_API_KEY } from '../constants'
 import { NetworkConfig } from '../constants/types'
 import FantomLogo from '../resources/svg/networks/fantom-logo.svg'
-// import solaceCoverProductV2ABI from '../constants/abi/SolaceCoverProductV2.json'
 
-import {
-  xsLocker_ABI,
-  SolaceCoverProductV2_ABI,
-  StakingRewards_ABI,
-  SolaceCoverProductV3_ABI,
-  CoverPaymentManager_ABI,
-  StakingRewardsV2_ABI,
-} from '../constants/abi'
+import { xsLocker_ABI, SolaceCoverProductV3_ABI, CoverPaymentManager_ABI, StakingRewardsV2_ABI } from '../constants/abi'
 import {
   COVER_PAYMENT_MANAGER_ADDRESS,
   SOLACE_COVER_PRODUCT_V3_ADDRESS,
@@ -61,15 +51,6 @@ export const FantomNetwork: NetworkConfig = {
       xsLocker: {
         addr: KEY_ADDRS.XSLOCKER,
         abi: xsLocker_ABI,
-      },
-      solaceCoverProduct: {
-        addr: SPECIAL_ADDRS.SOLACE_COVER_PRODUCT_V2,
-        abi: SolaceCoverProductV2_ABI,
-        additionalInfo: 'v2',
-      },
-      stakingRewards: {
-        addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: StakingRewards_ABI,
       },
       solaceCoverProductV3: {
         addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],

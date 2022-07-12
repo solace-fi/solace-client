@@ -1,14 +1,6 @@
 import { BigNumber } from 'ethers'
 import { BondTellerDetails, BondTokenData } from '@solace-fi/sdk-nightly'
 
-export type BondTokenV1 = {
-  id: BigNumber
-  payoutToken: string
-  payoutAmount: BigNumber
-  pricePaid: BigNumber
-  maturation: BigNumber
-}
-
 export type BondTokenV2 = BondTokenData & {
   id: BigNumber
 }

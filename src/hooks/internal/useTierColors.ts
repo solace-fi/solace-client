@@ -1,16 +1,12 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useGeneral } from '../../context/GeneralManager'
 
-export const useTierColors = (tierList: number[] | undefined): string[] => {
+export const useTierColors = (): string[] => {
   const { appTheme } = useGeneral()
   const [tierColors, setTierColors] = useState<string[]>([])
 
-  const tierListLength = useMemo(() => tierList?.length, [tierList])
-
   useEffect(() => {
-    const getGreenToRedColors = (maxTier: number) => {
-      if (!tierListLength) return
-
+    const getGreenToRedColors = (totalTiers: number) => {
       // rgb settings: since we only want red to green colors, only values r and g will be adjusted
       const luminosityPercentage = appTheme == 'light' ? 0.7 : 0.8
       const rangeMin = appTheme == 'light' ? 60 : 80
@@ -27,11 +23,11 @@ export const useTierColors = (tierList: number[] | undefined): string[] => {
       // since we are changing r and g, we are changing two color ranges of equal length,
       // then divide the product by the number of tiers to get the increment
       // we do not need increment if the max tier is 0 or 1
-      const increment = maxTier > 1 ? ((rangeMax - rangeMin) * 2) / maxTier : (rangeMax - rangeMin) * 2
+      const increment = totalTiers > 1 ? ((rangeMax - rangeMin) * 2) / (totalTiers - 1) : (rangeMax - rangeMin) * 2
 
       // we start by changing the g value to get the green colors first
       let changingR = false
-      for (let i = 0; i < maxTier + 1; i++) {
+      for (let i = 0; i < totalTiers; i++) {
         // for easier index-to-color access, we are pushing values toward the beginning of the array
         // the lower the index, the greener the color, and the higher the index, the redder the color
         colors.unshift(`rgb(${r * luminosityPercentage}, ${g * luminosityPercentage}, ${b * luminosityPercentage})`)
@@ -55,12 +51,9 @@ export const useTierColors = (tierList: number[] | undefined): string[] => {
       }
       setTierColors(colors)
     }
-    const maxTier = tierList && tierList.length > 0 ? tierList.reduce((pn, cn) => (cn > pn ? cn : pn)) : undefined
-    if (maxTier) {
-      getGreenToRedColors(maxTier)
-    }
+    getGreenToRedColors(5) // [1, 2, 3, 4, 0] or [A, B, C, D, F]
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tierListLength, appTheme])
+  }, [appTheme])
 
   return tierColors
 }
