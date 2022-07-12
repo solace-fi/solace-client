@@ -26,7 +26,7 @@ export const Portfolio = (): JSX.Element => {
     return mapUniqueRiskProtocols(curPortfolio.protocols)
   }, [curPortfolio])
 
-  const tierColors = useTierColors(protocols.map((p) => p.tier))
+  const tierColors = useTierColors()
 
   const getColorByTier = (tier: number) => {
     const index = tier - 1

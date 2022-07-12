@@ -14,7 +14,14 @@ import { networks } from '../../context/NetworkManager'
 import commaNumber from '../../utils/commaNumber'
 
 function mapNumberToLetter(number: number): string {
-  return String.fromCharCode(97 + number - 1).toUpperCase()
+  const grade = {
+    1: 'A',
+    2: 'B',
+    3: 'C',
+    4: 'D',
+  }[number]
+  if (grade) return grade
+  return 'F'
 }
 
 export const ReadOnlyProtocol: React.FC<{
@@ -73,8 +80,8 @@ export const ReadOnlyProtocol: React.FC<{
                   {/* risl level */}
                   <Flex itemsCenter gap={4}>
                     <Text t6s>Risk Level:</Text>
-                    <Text t6s extrabold warmgradient>
-                      {mapNumberToLetter(protocol.tier > 0 ? protocol.tier : 25)}
+                    <Text t6s extrabold style={{ color: riskColor }}>
+                      {mapNumberToLetter(protocol.tier)}
                     </Text>
                   </Flex>
                 </Flex>
