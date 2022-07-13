@@ -74,7 +74,7 @@ export const useInputAmount = () => {
         filtered.split('.')[1]?.length > (maxDecimals ?? activeNetwork.nativeCurrency.decimals)
       )
         return
-      if (maxBalance && parseUnits(formatted, 18).gt(parseUnits(maxBalance, 18))) return
+      if (maxBalance && parseUnits(formatted, maxDecimals ?? 18).gt(parseUnits(maxBalance, maxDecimals ?? 18))) return
       setAmount(filtered)
       setMaxSelected(false)
     },

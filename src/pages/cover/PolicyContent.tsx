@@ -78,7 +78,7 @@ export const PolicyContent = (): JSX.Element => {
     signatureObj,
     depositApproval,
     availCovCap,
-    unlimitedApproveCPM,
+    approveCPM,
   } = policy
   const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
   const { curPortfolio, curDailyCost, curUsdBalanceSum, curHighestPosition, fetchStatus } = portfolioKit
@@ -349,7 +349,7 @@ export const PolicyContent = (): JSX.Element => {
     const filtered = filterAmount(usd_value, enteredUSDDeposit)
     const formatted = formatAmount(filtered)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) return
-    if (floatUnits(selectedCoinBalance, 18) * selectedCoinPrice < parseFloat(formatted)) return
+    if (floatUnits(selectedCoinBalance, maxDecimals ?? 18) * selectedCoinPrice < parseFloat(formatted)) return
     setEnteredUSDDeposit(filtered)
     const token_amount_equivalent = parseFloat(formatAmount(filtered)) / selectedCoinPrice
     handleEnteredDeposit(formatAmount(token_amount_equivalent.toString()), maxDecimals)
@@ -734,8 +734,12 @@ export const PolicyContent = (): JSX.Element => {
                           secondary
                           noborder
                           onClick={() => {
-                            const selectedCoinBalance_USD = floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
-                            handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
+                            const selectedCoinBalance_USD =
+                              floatUnits(selectedCoinBalance, selectedCoin.decimals) * selectedCoinPrice
+                            handleEnteredDeposit(
+                              formatUnits(selectedCoinBalance, selectedCoin.decimals),
+                              selectedCoin.decimals
+                            )
                             setEnteredUSDDeposit(
                               fixed(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2).toString()
                             )
@@ -775,17 +779,29 @@ export const PolicyContent = (): JSX.Element => {
                         </Button>
                       )}
                       {(newUserState || returningUserState) && !depositApproval && homeCta && (
-                        <Button
-                          {...gradientStyle}
-                          {...bigButtonStyle}
-                          secondary
-                          noborder
-                          onClick={() => unlimitedApproveCPM(selectedCoin.address)}
-                        >
-                          <Text bold t4s>
+                        <>
+                          <Button
+                            {...gradientStyle}
+                            {...bigButtonStyle}
+                            secondary
+                            noborder
+                            onClick={() =>
+                              approveCPM(selectedCoin.address, parseUnits(enteredDeposit, selectedCoin.decimals))
+                            }
+                            disabled={!isAcceptableDeposit}
+                          >
+                            Approve Entered {selectedCoin.symbol}
+                          </Button>
+                          <Button
+                            {...gradientStyle}
+                            {...bigButtonStyle}
+                            secondary
+                            noborder
+                            onClick={() => approveCPM(selectedCoin.address)}
+                          >
                             Approve Max {selectedCoin.symbol}
-                          </Text>
-                        </Button>
+                          </Button>
+                        </>
                       )}
                       {(curUserState || returningUserState) && homeCta && (
                         <Button
@@ -816,18 +832,29 @@ export const PolicyContent = (): JSX.Element => {
                       {depositCta && (
                         <>
                           {!depositApproval && (
-                            <Button
-                              {...gradientStyle}
-                              {...bigButtonStyle}
-                              secondary
-                              noborder
-                              onClick={() => unlimitedApproveCPM(selectedCoin.address)}
-                              widthP={100}
-                            >
-                              <Text bold t4s>
+                            <>
+                              <Button
+                                {...gradientStyle}
+                                {...bigButtonStyle}
+                                secondary
+                                noborder
+                                onClick={() =>
+                                  approveCPM(selectedCoin.address, parseUnits(enteredDeposit, selectedCoin.decimals))
+                                }
+                                disabled={!isAcceptableDeposit}
+                              >
+                                Approve Entered {selectedCoin.symbol}
+                              </Button>
+                              <Button
+                                {...gradientStyle}
+                                {...bigButtonStyle}
+                                secondary
+                                noborder
+                                onClick={() => approveCPM(selectedCoin.address)}
+                              >
                                 Approve Max {selectedCoin.symbol}
-                              </Text>
-                            </Button>
+                              </Button>
+                            </>
                           )}
                           {depositApproval && (
                             <>
@@ -874,8 +901,11 @@ export const PolicyContent = (): JSX.Element => {
                                 noborder
                                 onClick={() => {
                                   const selectedCoinBalance_USD =
-                                    floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
-                                  handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
+                                    floatUnits(selectedCoinBalance, selectedCoin.decimals) * selectedCoinPrice
+                                  handleEnteredDeposit(
+                                    formatUnits(selectedCoinBalance, selectedCoin.decimals),
+                                    selectedCoin.decimals
+                                  )
                                   setEnteredUSDDeposit(
                                     fixed(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2).toString()
                                   )
