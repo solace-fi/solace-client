@@ -539,7 +539,7 @@ const CoverageManager: React.FC = (props) => {
   }, [selectedCoin, tokenPriceMapping, signer])
 
   useEffect(() => {
-    if (!signer || activeNetwork.config.restrictedFeatures.noCoverageV3) {
+    if (!signer || !activeNetwork.config.generalFeatures.coverageV3) {
       setScpObj(undefined)
       return
     }

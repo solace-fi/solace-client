@@ -142,8 +142,7 @@ export const Statistics: React.FC = () => {
           {`$${pairPrice} `}
         </Text>
       </BoxItem>
-      {(!activeNetwork.config.restrictedFeatures.noBondingV1 ||
-        !activeNetwork.config.restrictedFeatures.noBondingV2) && (
+      {activeNetwork.config.generalFeatures.bondingV2 && (
         <BoxItem>
           <BoxItemTitle t4 light>
             Underwriting Pool Size
@@ -179,8 +178,7 @@ export const Statistics: React.FC = () => {
             {`$${pairPrice}`}
           </Text>
         </Flex>
-        {(!activeNetwork.config.restrictedFeatures.noBondingV1 ||
-          !activeNetwork.config.restrictedFeatures.noBondingV2) && (
+        {activeNetwork.config.generalFeatures.bondingV2 && (
           <Flex stretch between mb={24}>
             <Text light>Underwriting Pool Size</Text>
             <Text t2 nowrap light>
@@ -210,7 +208,7 @@ export const Statistics: React.FC = () => {
                     </TextSpan>
                   </Text>
                 </BoxItem>
-                {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
+                {activeNetwork.config.generalFeatures.stakingV2 && (
                   <BoxItem>
                     <BoxItemTitle t4 light>
                       My Stake
@@ -229,7 +227,7 @@ export const Statistics: React.FC = () => {
                 <WalletConnectButton light welcome />
               </BoxItem>
             )}
-            {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
+            {activeNetwork.config.generalFeatures.stakingV2 && (
               <>
                 <BoxItem>
                   <BoxItemTitle t4 light>
@@ -271,7 +269,7 @@ export const Statistics: React.FC = () => {
                       </TextSpan>
                     </Text>
                   </Flex>
-                  {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
+                  {activeNetwork.config.generalFeatures.stakingV2 && (
                     <Flex stretch between mb={24}>
                       <Text light>My Stake</Text>
                       <Text t2 light>
@@ -288,7 +286,7 @@ export const Statistics: React.FC = () => {
                   <WalletConnectButton light welcome />
                 </BoxRow>
               )}
-              {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
+              {activeNetwork.config.generalFeatures.stakingV2 && (
                 <>
                   <Flex stretch between mb={24}>
                     <Text light>Global Stake</Text>

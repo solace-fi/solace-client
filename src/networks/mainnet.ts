@@ -17,6 +17,7 @@ import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMapping
 import { xsLocker_ABI, SolaceCoverProductV3_ABI, CoverPaymentManager_ABI, StakingRewardsV2_ABI } from '../constants/abi'
 import {
   COVER_PAYMENT_MANAGER_ADDRESS,
+  NETWORKS_MAPPING,
   SOLACE_COVER_PRODUCT_V3_ADDRESS,
   STAKING_REWARDS_V2_ADDRESS,
 } from '@solace-fi/sdk-nightly'
@@ -82,7 +83,7 @@ export const MainNetwork: NetworkConfig = {
         abi: StakingRewardsV2_ABI,
       },
     },
-    restrictedFeatures: {},
+    generalFeatures: { stakingV1: true, ...NETWORKS_MAPPING[chainId].features.general },
     specialFeatures: {
       solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },

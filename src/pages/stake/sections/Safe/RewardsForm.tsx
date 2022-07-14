@@ -87,7 +87,7 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
             Compound
           </Button>
         </ButtonWrapper>
-        {!activeNetwork.config.restrictedFeatures.noStakingRewardsV2 && policyId?.gt(ZERO) && (
+        {activeNetwork.config.generalFeatures.stakingRewardsV2 && policyId?.gt(ZERO) && (
           <GrayBox>
             <Flex stretch col gap={5}>
               <Button

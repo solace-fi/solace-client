@@ -139,7 +139,7 @@ export const useStakingRewards = () => {
   }
 
   const harvestLockRewardsForScp = async (xsLockIDs: BigNumber[]) => {
-    if (xsLockIDs.length == 0 || activeNetwork.config.restrictedFeatures.noStakingRewardsV2)
+    if (xsLockIDs.length == 0 || !activeNetwork.config.generalFeatures.stakingRewardsV2)
       return { tx: null, localTx: null }
     const p = new Price()
     const priceInfo = await p.getPriceInfo()

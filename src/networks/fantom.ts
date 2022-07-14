@@ -14,6 +14,7 @@ import FantomLogo from '../resources/svg/networks/fantom-logo.svg'
 import { xsLocker_ABI, SolaceCoverProductV3_ABI, CoverPaymentManager_ABI, StakingRewardsV2_ABI } from '../constants/abi'
 import {
   COVER_PAYMENT_MANAGER_ADDRESS,
+  NETWORKS_MAPPING,
   SOLACE_COVER_PRODUCT_V3_ADDRESS,
   STAKING_REWARDS_V2_ADDRESS,
 } from '@solace-fi/sdk-nightly'
@@ -66,11 +67,7 @@ export const FantomNetwork: NetworkConfig = {
       },
     },
     specialContracts: {},
-    restrictedFeatures: {
-      noBondingV1: true,
-      noFarmingV1: true,
-      noStakingV1: true,
-    },
+    generalFeatures: NETWORKS_MAPPING[chainId].features.general,
     specialFeatures: {},
     underwritingPoolAddr: '0x2971f45c0952437934B3F055C401241e5C339F93',
   },

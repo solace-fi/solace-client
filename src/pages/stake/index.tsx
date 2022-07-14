@@ -114,8 +114,8 @@ function Stake1(): any {
 
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
   const [lockInputValue, setLockInputValue] = React.useState('0')
-  const canStakeV1 = useMemo(() => !activeNetwork.config.restrictedFeatures.noStakingV1, [
-    activeNetwork.config.restrictedFeatures.noStakingV1,
+  const canStakeV1 = useMemo(() => activeNetwork.config.generalFeatures.stakingV1, [
+    activeNetwork.config.generalFeatures.stakingV1,
   ])
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     accurateMultiply(formatAmount(amount), 18),
@@ -388,8 +388,8 @@ export default function Stake(): JSX.Element {
     yearlyReturns: ZERO,
     apr: ZERO,
   })
-  const canStakeV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noStakingV2, [
-    activeNetwork.config.restrictedFeatures.noStakingV2,
+  const canStakeV2 = useMemo(() => activeNetwork.config.generalFeatures.stakingV2, [
+    activeNetwork.config.generalFeatures.stakingV2,
   ])
   const { xSolaceV1Balance } = useXSolaceV1Balance()
   const { getUserLocks } = useUserLockData()
@@ -805,7 +805,7 @@ export default function Stake(): JSX.Element {
                         >
                           Withdraw
                         </Button>
-                        {!activeNetwork.config.restrictedFeatures.noStakingRewardsV2 && policyId?.gt(ZERO) && (
+                        {activeNetwork.config.generalFeatures.stakingRewardsV2 && policyId?.gt(ZERO) && (
                           <Button
                             warmgradient
                             secondary

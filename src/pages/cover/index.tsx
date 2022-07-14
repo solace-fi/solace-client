@@ -125,8 +125,8 @@ const CoveragePage = (): JSX.Element => {
   const { styles, intrface } = useCoverageContext()
   const { handleShowSimulatorModal } = intrface
   const { gradientStyle } = styles
-  const canShowCoverageV3 = useMemo(() => !activeNetwork.config.restrictedFeatures.noCoverageV3, [
-    activeNetwork.config.restrictedFeatures.noCoverageV3,
+  const canShowCoverageV3 = useMemo(() => activeNetwork.config.generalFeatures.coverageV3, [
+    activeNetwork.config.generalFeatures.coverageV3,
   ])
 
   return (

@@ -12,6 +12,7 @@ import { NetworkConfig } from '../constants/types'
 import FantomLogo from '../resources/svg/networks/fantom-logo.svg'
 import {
   COVER_PAYMENT_MANAGER_ADDRESS,
+  NETWORKS_MAPPING,
   SOLACE_COVER_PRODUCT_V3_ADDRESS,
   STAKING_REWARDS_V2_ADDRESS,
 } from '@solace-fi/sdk-nightly'
@@ -67,11 +68,7 @@ export const FantomTestnetNetwork: NetworkConfig = {
       },
     },
     specialContracts: {},
-    restrictedFeatures: {
-      noBondingV1: true,
-      noFarmingV1: true,
-      noStakingV1: true,
-    },
+    generalFeatures: NETWORKS_MAPPING[chainId].features.general,
     specialFeatures: {},
   },
   cache: {

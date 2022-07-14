@@ -47,7 +47,7 @@ export const useExistingPolicy = (account: string | null | undefined) => {
 
   useEffect(() => {
     const getExistingPolicy = async () => {
-      if (!account || activeNetwork.config.restrictedFeatures.noCoverageV3) {
+      if (!account || !activeNetwork.config.generalFeatures.coverageV3) {
         setPolicyId(ZERO)
         setLoading(true)
         return
@@ -64,7 +64,7 @@ export const useExistingPolicy = (account: string | null | undefined) => {
         {}
       )
 
-      const data = await policy.getExistingPolicy_V2(account, rpcUrlMapping, false)
+      const data = await policy.getExistingPolicy(account, rpcUrlMapping, false)
       if (data.length > 0) {
         const policyWithHighestCoverLimit = data.reduce((a, b) => (a.coverLimit.gt(b.coverLimit) ? a : b))
         const network = networks.find((n) => n.chainId === policyWithHighestCoverLimit.chainId)

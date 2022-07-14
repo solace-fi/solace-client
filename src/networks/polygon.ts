@@ -23,6 +23,7 @@ import {
 } from '../constants/abi'
 import {
   COVER_PAYMENT_MANAGER_ADDRESS,
+  NETWORKS_MAPPING,
   SOLACE_COVER_PRODUCT_V3_ADDRESS,
   STAKING_REWARDS_V2_ADDRESS,
 } from '@solace-fi/sdk-nightly'
@@ -75,11 +76,7 @@ export const PolygonNetwork: NetworkConfig = {
         abi: StakingRewardsV2_ABI,
       },
     },
-    restrictedFeatures: {
-      noBondingV1: true,
-      noFarmingV1: true,
-      noStakingV1: true,
-    },
+    generalFeatures: NETWORKS_MAPPING[chainId].features.general,
     specialFeatures: {
       unwrapBridgedSolace: true,
       solaceBuyLink: `https://app.uniswap.org/#/swap?chain=polygon&inputCurrency=${FRAX_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,

@@ -49,7 +49,7 @@ export const useScpBalance = (): string => {
   const { version } = useCachedData()
   const [scpBalance, setScpBalance] = useState<string>('0')
   const scpObj = useMemo(
-    () => (activeNetwork.config.restrictedFeatures.noCoverageV3 ? undefined : new SCP(activeNetwork.chainId, provider)),
+    () => (activeNetwork.config.generalFeatures.coverageV3 ? new SCP(activeNetwork.chainId, provider) : undefined),
     [activeNetwork, provider]
   )
 
@@ -266,7 +266,7 @@ export const useBatchBalances = (
 
   useEffect(() => {
     const getBalances = async () => {
-      if (activeNetwork.config.restrictedFeatures.noCoverageV3 || !account || loading) return
+      if (!activeNetwork.config.generalFeatures.coverageV3 || !account || loading) return
       setLoading(true)
       const batchBalances = await Promise.all(
         coinOptions.map((o) => queryBalance(new Contract(o.address, ERC20_ABI, provider), account))
