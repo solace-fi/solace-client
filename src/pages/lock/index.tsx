@@ -21,23 +21,21 @@ import { formatUnits } from 'ethers/lib/utils'
 
 /* import managers */
 import { useGeneral } from '../../context/GeneralManager'
-import { useContracts } from '../../context/ContractsManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { BKPT_1, BKPT_5, BKPT_6, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
+import { BKPT_1, BKPT_5, BKPT_6, ZERO, Z_TABLE } from '../../constants'
 import { CheckboxData } from '../../constants/types'
-import { Tab, StakingVersion } from '../../constants/enums'
+import { StakingVersion } from '../../constants/enums'
 
 /* import components */
 import { Button, ButtonWrapper, GraySquareButton } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { StyledSlider, Checkbox } from '../../components/atoms/Input'
-import { Content, Flex, Scrollable, VerticalSeparator, HeroContainer } from '../../components/atoms/Layout'
-import { ModalCell } from '../../components/atoms/Modal'
+import { Checkbox } from '../../components/atoms/Input'
+import { Content, Flex, Scrollable, HeroContainer } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { Modal } from '../../components/molecules/Modal'
 import { Table, TableBody, TableData, TableHead, TableHeader, TableRow } from '../../components/atoms/Table'
@@ -51,25 +49,18 @@ import { DifferenceNotification, CoverageNotification } from './organisms/Notifi
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
-import DifferenceBoxes from './sections/DifferenceBoxes'
 import CardSectionValue from './components/CardSectionValue'
-import { Label } from './molecules/InfoPair'
-import { InputSection } from '../../components/molecules/InputSection'
-import { SmallBox, Box } from '../../components/atoms/Box'
-import { Accordion } from '../../components/atoms/Accordion'
-import { GrayBox } from '../../components/molecules/GrayBox'
+import { Box } from '../../components/atoms/Box'
 
 /* import hooks */
 import { useXSolaceV1Balance } from '../../hooks/balance/useBalance'
-import { useXSolaceV1 } from '../../hooks/_legacy/useXSolaceV1'
-import { useInputAmount, useTransactionExecution } from '../../hooks/internal/useInputAmount'
+import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useUserLockData, useXSLocker } from '../../hooks/stake/useXSLocker'
-import { useXSolaceMigrator } from '../../hooks/stake/useXSolaceMigrator'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
-import { useProjectedBenefits, useStakingRewards } from '../../hooks/stake/useStakingRewards'
+import { useStakingRewards } from '../../hooks/stake/useStakingRewards'
 
 /* import utils */
-import { accurateMultiply, floatUnits, formatAmount, truncateValue } from '../../utils/formatting'
+import { floatUnits, truncateValue } from '../../utils/formatting'
 
 import updateLocksChecked from './utils/updateLocksChecked'
 import getCheckedLocks from './utils/getCheckedLocks'
@@ -80,278 +71,14 @@ import '../../styles/tailwind.min.css'
 
 // util imports
 
-import { getExpiration, getTimeFromMillis, withBackoffRetries } from '../../utils/time'
+import { getTimeFromMillis } from '../../utils/time'
 import { BridgeModal } from './organisms/BridgeModal'
 import { Loader } from '../../components/atoms/Loader'
 import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
-import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
+import { XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
 import { useWeb3React } from '@web3-react/core'
 import { LockData, UserLocksData, UserLocksInfo } from '@solace-fi/sdk-nightly'
 import { useCheckIsCoverageActive } from '../../hooks/policy/useSolaceCoverProductV3'
-
-// disable no unused variables
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function Stake1(): any {
-  /*************************************************************************************
-
-    custom hooks
-
-  *************************************************************************************/
-
-  const { haveErrors, appTheme, rightSidebar } = useGeneral()
-  const { activeNetwork } = useNetwork()
-  const { keyContracts } = useContracts()
-  const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-  const [isMigrating, setIsMigrating] = useState<boolean>(true)
-  const { xSolaceV1Balance, v1StakedSolaceBalance } = useXSolaceV1Balance()
-  const { amount, isAppropriateAmount, handleInputChange, setMax } = useInputAmount()
-  const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { unstake_v1 } = useXSolaceV1()
-  const { migrate } = useXSolaceMigrator()
-  const { account } = useWeb3React()
-  const { latestBlock } = useProvider()
-  const { width } = useWindowDimensions()
-
-  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
-  const [lockInputValue, setLockInputValue] = React.useState('0')
-  const canStakeV1 = useMemo(() => activeNetwork.config.generalFeatures.stakingV1, [
-    activeNetwork.config.generalFeatures.stakingV1,
-  ])
-  const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
-    accurateMultiply(formatAmount(amount), 18),
-    latestBlock ? latestBlock.timestamp + parseInt(lockInputValue) * 86400 : 0
-  )
-
-  const callUnstake = async () => {
-    const xSolaceToUnstake: BigNumber = await withBackoffRetries(async () => getXSolaceFromSolace())
-    await unstake_v1(xSolaceToUnstake)
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callUnstake', err, FunctionName.UNSTAKE_V1))
-  }
-
-  const callMigrateSigned = async () => {
-    if (!latestBlock || !account) return
-    const xSolaceToMigrate: BigNumber = await withBackoffRetries(async () => getXSolaceFromSolace())
-    const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
-    await migrate(account, BigNumber.from(seconds), xSolaceToMigrate)
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callMigrateSigned', err, FunctionName.STAKING_MIGRATE))
-  }
-
-  const _setMax = () =>
-    setMax(parseUnits(v1StakedSolaceBalance, SOLACE_TOKEN.constants.decimals), SOLACE_TOKEN.constants.decimals)
-
-  const getXSolaceFromSolace = async () => {
-    const formatted = formatAmount(amount)
-    let xSolace: BigNumber = ZERO
-    if (!xSolaceV1) return xSolace
-    if (formatted == v1StakedSolaceBalance) {
-      xSolace = parseUnits(xSolaceV1Balance, XSOLACE_V1_TOKEN.constants.decimals)
-    } else {
-      xSolace = await withBackoffRetries(async () =>
-        xSolaceV1.solaceToXSolace(parseUnits(formatted, SOLACE_TOKEN.constants.decimals))
-      )
-    }
-    return xSolace
-  }
-
-  const lockInputOnChange = (value: string) => {
-    const filtered = value.replace(/[^0-9]*/g, '')
-    if (parseFloat(filtered) <= DAYS_PER_YEAR * 4 || filtered == '') {
-      setLockInputValue(filtered)
-    }
-  }
-  const lockRangeOnChange = (value: string) => setLockInputValue(value)
-
-  const lockSetMax = () => setLockInputValue(`${DAYS_PER_YEAR * 4}`)
-
-  /*
-
-  useEffect hooks
-
-  */
-
-  useEffect(() => {
-    setIsAcceptableAmount(
-      isAppropriateAmount(
-        amount,
-        SOLACE_TOKEN.constants.decimals,
-        parseUnits(v1StakedSolaceBalance, SOLACE_TOKEN.constants.decimals)
-      )
-    )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount, parseUnits(v1StakedSolaceBalance, SOLACE_TOKEN.constants.decimals), SOLACE_TOKEN.constants.decimals])
-
-  return (
-    <>
-      {canStakeV1 ? (
-        <Content>
-          <Flex col>
-            <Card style={{ margin: 'auto' }}>
-              <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
-                <ModalCell
-                  pt={5}
-                  pb={10}
-                  pl={0}
-                  pr={0}
-                  onClick={() => setIsMigrating(true)}
-                  jc={'center'}
-                  style={{ cursor: 'pointer', backgroundColor: isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
-                >
-                  <Text t1 bold info={isMigrating}>
-                    Migrate
-                  </Text>
-                </ModalCell>
-                <VerticalSeparator />
-                <ModalCell
-                  pt={5}
-                  pb={10}
-                  pl={0}
-                  pr={0}
-                  onClick={() => setIsMigrating(false)}
-                  jc={'center'}
-                  style={{ cursor: 'pointer', backgroundColor: !isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
-                >
-                  <Text t1 bold info={!isMigrating}>
-                    Unstake
-                  </Text>
-                </ModalCell>
-              </div>
-              <Flex stretch between mt={20} mb={10}>
-                <Text>Staked Balance</Text>
-                <Text textAlignRight info>
-                  {v1StakedSolaceBalance} {SOLACE_TOKEN.constants.symbol}
-                </Text>
-              </Flex>
-              <Flex mb={30} style={{ textAlign: 'center' }}>
-                <InputSection
-                  tab={Tab.DEPOSIT}
-                  value={amount}
-                  onChange={(e) => handleInputChange(e.target.value, SOLACE_TOKEN.constants.decimals)}
-                  setMax={_setMax}
-                />
-              </Flex>
-              <Accordion noScroll noBackgroundColor isOpen={isMigrating}>
-                <Flex column gap={24} mb={20}>
-                  <div>
-                    <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-                      Choose a Lock time (optional)
-                    </Label>
-                    <InputSection
-                      tab={Tab.LOCK}
-                      value={lockInputValue}
-                      onChange={(e) => lockInputOnChange(e.target.value)}
-                      setMax={lockSetMax}
-                    />
-                  </div>
-                  <StyledSlider
-                    value={lockInputValue}
-                    onChange={(e) => lockRangeOnChange(e.target.value)}
-                    min={0}
-                    max={DAYS_PER_YEAR * 4}
-                  />
-                  {
-                    <SmallBox transparent collapse={!lockInputValue || lockInputValue == '0'} m={0} p={0}>
-                      <Text
-                        style={{
-                          fontWeight: 500,
-                        }}
-                      >
-                        Lock End Date: {getExpiration(parseInt(lockInputValue))}
-                      </Text>
-                    </SmallBox>
-                  }
-                </Flex>
-                <Flex column stretch w={(rightSidebar ? BKPT_6 : BKPT_5) > width ? 300 : 521}>
-                  <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-                    Projected benefits when migrated
-                  </Label>
-                  <GrayBox>
-                    <Flex stretch column>
-                      <Flex stretch gap={24}>
-                        <Flex column gap={2}>
-                          <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                            APR
-                          </Text>
-                          <div
-                            style={
-                              (rightSidebar ? BKPT_6 : BKPT_5) > width
-                                ? { margin: '-4px 0', display: 'block' }
-                                : { display: 'none' }
-                            }
-                          >
-                            &nbsp;
-                          </div>
-                          <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                            <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
-                          </Text>
-                        </Flex>
-                        <VerticalSeparator />
-                        <Flex column gap={2}>
-                          <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                            Reward Multiplier
-                          </Text>
-                          <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                            {projectedMultiplier}x
-                          </Text>
-                        </Flex>
-                        <VerticalSeparator />
-                        <Flex column gap={2}>
-                          <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                            Yearly Return
-                          </Text>
-                          <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                            {truncateValue(formatUnits(projectedYearlyReturns, 18), 4, false)}
-                          </Text>
-                        </Flex>
-                      </Flex>
-                    </Flex>
-                  </GrayBox>
-                </Flex>
-              </Accordion>
-              <ButtonWrapper>
-                {isMigrating ? (
-                  <Button
-                    widthP={100}
-                    error
-                    style={{ backgroundColor: '#f04d42' }}
-                    disabled={!isAcceptableAmount || haveErrors}
-                    secondary
-                    onClick={callMigrateSigned}
-                    light
-                  >
-                    Migrate to STAKING V2
-                  </Button>
-                ) : (
-                  <Button
-                    widthP={100}
-                    info
-                    secondary
-                    disabled={!isAcceptableAmount || haveErrors}
-                    onClick={callUnstake}
-                  >
-                    Unstake
-                  </Button>
-                )}
-              </ButtonWrapper>
-            </Card>
-          </Flex>
-        </Content>
-      ) : (
-        <Content>
-          <Box error pt={10} pb={10} pl={15} pr={15}>
-            <TextSpan light textAlignLeft>
-              <StyledInfo size={30} />
-            </TextSpan>
-            <Text light bold style={{ margin: '0 auto' }}>
-              Staking V1 is not available on this network.
-            </Text>
-          </Box>
-        </Content>
-      )}
-    </>
-  )
-}
 
 /*
  Components
@@ -545,10 +272,6 @@ export default function Stake(): JSX.Element {
         <PleaseConnectWallet />
       ) : (
         <Content>
-          {parseUnits(xSolaceV1Balance, XSOLACE_V1_TOKEN.constants.decimals).gt(ZERO) && (
-            <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
-          )}
-          {locks.length > 0 && coverage.policyId?.isZero() && <CoverageNotification />}
           {StakingVersion.v2 === stakingVersion &&
             (canStakeV2 ? (
               <>
@@ -884,10 +607,6 @@ export default function Stake(): JSX.Element {
                 </Box>
               </Content>
             ))}
-          {/* only show the following if staking is v1 and the tab is not `difference` */}
-          {stakingVersion === StakingVersion.v1 && <Stake1 />}
-          {/* only show the following if staking is v1 and the tab is 'difference' */}
-          {stakingVersion === StakingVersion.difference && <DifferenceBoxes setStakingVersion={setStakingVersion} />}
         </Content>
       )}
     </>

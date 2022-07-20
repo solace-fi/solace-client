@@ -14,7 +14,6 @@ import { shortenAddress, truncateValue } from '../../utils/formatting'
 import { useGeneral } from '../../context/GeneralManager'
 import { Button } from '../atoms/Button'
 import { useProvider } from '../../context/ProviderManager'
-import { TransactionHistoryModal } from './TransactionHistoryModal'
 import { HyperLink } from '../atoms/Link'
 import { getExplorerItemUrl } from '../../utils/explorer'
 import { ExplorerscanApi } from '../../constants/enums'
@@ -22,8 +21,6 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useSolaceBalance } from '../../hooks/balance/useBalance'
 import { useXSLocker } from '../../hooks/stake/useXSLocker'
 import { useContracts } from '../../context/ContractsManager'
-import { useFetchTxHistoryByAddress } from '../../hooks/api/useTransactionHistory'
-import { decodeInput } from '../../utils/decoder'
 import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
 import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
 import UserWhite from '../../resources/svg/user_white.svg'
@@ -68,20 +65,12 @@ const RightAppNavItemText = styled.li`
 
 const data = [
   {
-    name: 'My Policy',
-    path: '/cover',
+    name: 'Lock',
+    path: '/lock',
   },
   {
-    name: 'Bond',
-    path: '/bond',
-  },
-  {
-    name: 'Stake',
-    path: '/stake',
-  },
-  {
-    name: 'Govern',
-    path: '/govern',
+    name: 'Gauge',
+    path: '/gauge',
   },
 ]
 
@@ -95,8 +84,6 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
   const name = useENS()
   const { openWalletModal } = useWallet()
   const { activeNetwork } = useNetwork()
-  const txHistory = useFetchTxHistoryByAddress()
-  const [showTxHistory, setShowTxHistory] = useState(false)
   const [showWalletSettings, setShowWalletSettings] = useState(false)
   const fetching = useRef(false)
 
@@ -140,7 +127,6 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
 
   return (
     <>
-      <TransactionHistoryModal closeModal={() => setShowTxHistory(false)} isOpen={showTxHistory} />
       <RightAppNav ref={wrapperRef} shouldShow={show} style={{ width: `${Math.min(width, 375)}px` }}>
         <ShadowDiv>
           <RightAppNavGradient showSettings={showWalletSettings}>
@@ -311,55 +297,6 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                     )}
                   </Flex>
                 </Flex>
-                {account && (
-                  <>
-                    <div style={{ flex: '1 1' }}></div>
-                    <Flex col gap={24}>
-                      <Text t1 bold textAlignCenter mb={10} light>
-                        My Recent Transactions
-                      </Text>
-                      {txHistory.length > 0 ? (
-                        <Flex col>
-                          <Flex stretch around pb={12}>
-                            <Text light>Type</Text>
-                            <Text light>Hash</Text>
-                          </Flex>
-                          {txHistory.slice(0, 5).map((tx: any) => (
-                            <Flex stretch between pl={40} pr={40} pb={12} key={tx.hash}>
-                              <Text light t4>
-                                {decodeInput(tx, contractSources)}
-                              </Text>
-                              <HyperLink
-                                href={getExplorerItemUrl(activeNetwork.explorer.url, tx.hash, ExplorerscanApi.TX)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <Text light t4 underline>
-                                  {shortenAddress(tx.hash)}
-                                </Text>
-                              </HyperLink>
-                            </Flex>
-                          ))}
-                        </Flex>
-                      ) : (
-                        <Text textAlignCenter light>
-                          No transactions found
-                        </Text>
-                      )}
-                      <Flex stretch evenly>
-                        <Text
-                          mb={50}
-                          light
-                          underline
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => setShowTxHistory(true)}
-                        >
-                          View All Transactions
-                        </Text>
-                      </Flex>
-                    </Flex>
-                  </>
-                )}
               </>
             )}
           </RightAppNavGradient>

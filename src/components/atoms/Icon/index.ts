@@ -42,6 +42,7 @@ import { Work } from '@styled-icons/material/Work'
 import { Multiselect } from '@styled-icons/fluentui-system-regular/Multiselect'
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosForwardOutline'
 import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline'
+import { VoteYea } from '@styled-icons/fa-solid/VoteYea'
 import { Tractor } from '@styled-icons/fa-solid/Tractor'
 import { FolderHistory } from '@styled-icons/remix-fill/FolderHistory'
 import { Export } from '@styled-icons/boxicons-regular/Export'
@@ -167,3 +168,5 @@ export const StyledAdd = styled(Add)``
 export const StyledExpand = styled(Expand)``
 
 export const StyledExport = styled(Export)``
+
+export const StyledVoteYea = styled(VoteYea)``

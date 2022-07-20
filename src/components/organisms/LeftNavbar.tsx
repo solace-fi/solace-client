@@ -147,33 +147,6 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ show, tabs }) => {
         </ItemList>
         <div style={{ flex: '1 1' }}></div>
         <Flex col marginAuto gap={10}>
-          <StyledNavTooltip id={'jobs-nav'} tip={`We\'re hiring!`}>
-            <HyperLink
-              href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <TextSpan t3s light={lightText} bold>
-                {widthThreshold ? `We\'re hiring!` : <StyledWork size={30} />}
-              </TextSpan>
-            </HyperLink>
-          </StyledNavTooltip>
-          <StyledNavTooltip id={'help-nav'} tip={`Help & Support`}>
-            <HyperLink href={'https://discord.gg/7v8qsyepfu'} target="_blank" rel="noopener noreferrer">
-              <TextSpan t3s light={lightText}>
-                {widthThreshold ? `Help & Support` : <StyledHelpCircle size={30} />}
-              </TextSpan>
-            </HyperLink>
-          </StyledNavTooltip>
-          <StyledNavTooltip id={'terms-nav'} tip={'Terms & Conditions'}>
-            <NavLink to={'/terms'}>
-              <TextSpan t3s light={lightText}>
-                {widthThreshold ? 'Terms & Conditions' : <StyledLockFile size={30} />}
-              </TextSpan>
-            </NavLink>
-          </StyledNavTooltip>
-        </Flex>
-        <Flex col marginAuto gap={10}>
           {widthThreshold ? (
             <ItemText jc={'space-between'} style={{ padding: '4px 0' }}>
               <HyperLink
@@ -436,25 +409,7 @@ export const MobileInfoSideNavbar: React.FC<
                 ))}
               </ItemList>
               <Flex col style={{ margin: '0 auto 30px' }}>
-                <ItemText style={{ height: '25px', justifyContent: 'center' }}>
-                  <HyperLink
-                    href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <TextSpan t3s light bold>
-                      {`We\'re hiring!`}
-                    </TextSpan>
-                  </HyperLink>
-                </ItemText>
-                <ItemText style={{ height: '25px', justifyContent: 'center' }}>
-                  <NavLink to={'/terms'} onClick={() => setShow(false)}>
-                    <TextSpan t3s light>
-                      {'Terms & Conditions'}
-                    </TextSpan>
-                  </NavLink>
-                </ItemText>
-                <ItemText jc={'space-between'} style={{ padding: '4px 0' }}>
+                <ItemText jc={'space-between'} style={{ padding: '4px 0', gap: '20px' }}>
                   <HyperLink
                     href={'https://discord.gg/7v8qsyepfu'}
                     target="_blank"
