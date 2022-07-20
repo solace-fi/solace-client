@@ -80,16 +80,8 @@ const data = [
     path: '/stake',
   },
   {
-    name: 'Farms',
-    path: '/farms',
-  },
-  {
     name: 'Govern',
     path: '/govern',
-  },
-  {
-    name: 'Archive',
-    path: '/archive',
   },
 ]
 

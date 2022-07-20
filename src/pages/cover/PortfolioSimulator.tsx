@@ -47,7 +47,7 @@ export const PortfolioSimulator = (): JSX.Element => {
     return mapEditableProtocols(editableProtocols)
   }, [editableProtocols])
 
-  const tierColors = useTierColors(editableProtocols.map((p) => p.tier))
+  const tierColors = useTierColors()
 
   const getColorByTier = (tier: number) => {
     const index = tier - 1

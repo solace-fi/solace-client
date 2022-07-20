@@ -13,8 +13,6 @@ import { FRAX_TOKEN } from '../constants/mappings/token'
 
 import {
   xsLocker_ABI,
-  SolaceCoverProductV2_ABI,
-  StakingRewards_ABI,
   ERC20_ABI,
   StakingRewardsV2_ABI,
   CoverPaymentManager_ABI,
@@ -22,6 +20,7 @@ import {
 } from '../constants/abi'
 import {
   COVER_PAYMENT_MANAGER_ADDRESS,
+  NETWORKS_MAPPING,
   SOLACE_COVER_PRODUCT_V3_ADDRESS,
   STAKING_REWARDS_V2_ADDRESS,
 } from '@solace-fi/sdk-nightly'
@@ -60,15 +59,6 @@ export const MumbaiNetwork: NetworkConfig = {
         addr: KEY_ADDRS.XSLOCKER,
         abi: xsLocker_ABI,
       },
-      stakingRewards: {
-        addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: StakingRewards_ABI,
-      },
-      solaceCoverProduct: {
-        addr: SPECIAL_ADDRS.SOLACE_COVER_PRODUCT_V2,
-        abi: SolaceCoverProductV2_ABI,
-        additionalInfo: 'v2',
-      },
       solaceCoverProductV3: {
         addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
         abi: SolaceCoverProductV3_ABI,
@@ -82,11 +72,7 @@ export const MumbaiNetwork: NetworkConfig = {
         abi: StakingRewardsV2_ABI,
       },
     },
-    restrictedFeatures: {
-      noBondingV1: true,
-      noFarmingV1: true,
-      noStakingV1: true,
-    },
+    generalFeatures: NETWORKS_MAPPING[chainId].features.general,
     specialFeatures: {
       unwrapBridgedSolace: true,
       solaceBuyLink: `https://app.uniswap.org/#/swap?chain=polygon_mumbai&inputCurrency=${FRAX_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,

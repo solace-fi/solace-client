@@ -49,7 +49,7 @@ export const useScpBalance = (): string => {
   const { version } = useCachedData()
   const [scpBalance, setScpBalance] = useState<string>('0')
   const scpObj = useMemo(
-    () => (activeNetwork.config.restrictedFeatures.noCoverageV3 ? undefined : new SCP(activeNetwork.chainId, provider)),
+    () => (activeNetwork.config.generalFeatures.coverageV3 ? new SCP(activeNetwork.chainId, provider) : undefined),
     [activeNetwork, provider]
   )
 
@@ -77,42 +77,6 @@ export const useScpBalance = (): string => {
       scpObj?.scp.removeAllListeners()
     }
   }, [account, scpObj, version])
-
-  return scpBalance
-}
-
-export const useVaultScpBalance = (): string => {
-  const { keyContracts } = useContracts()
-  const { vault } = useMemo(() => keyContracts, [keyContracts])
-  const { activeNetwork } = useNetwork()
-  const { account } = useWeb3React()
-  const [scpBalance, setScpBalance] = useState<string>('0')
-  const { version } = useCachedData()
-
-  const getScpBalance = async () => {
-    if (!vault || !account) return
-    try {
-      const balance = await queryBalance(vault, account)
-      const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
-      setScpBalance(formattedBalance)
-    } catch (err) {
-      console.log('getScpBalance', err)
-    }
-  }
-
-  useEffect(() => {
-    if (!vault || !account) return
-    getScpBalance()
-    vault.on('Transfer', (from, to) => {
-      if (from == account || to == account) {
-        getScpBalance()
-      }
-    })
-
-    return () => {
-      vault.removeAllListeners()
-    }
-  }, [account, vault, version])
 
   return scpBalance
 }
@@ -302,7 +266,7 @@ export const useBatchBalances = (
 
   useEffect(() => {
     const getBalances = async () => {
-      if (activeNetwork.config.restrictedFeatures.noCoverageV3 || !account || loading) return
+      if (!activeNetwork.config.generalFeatures.coverageV3 || !account || loading) return
       setLoading(true)
       const batchBalances = await Promise.all(
         coinOptions.map((o) => queryBalance(new Contract(o.address, ERC20_ABI, provider), account))

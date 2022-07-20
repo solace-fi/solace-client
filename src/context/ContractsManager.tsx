@@ -15,18 +15,12 @@ the web application mainly reads the contracts.
 
 type Contracts = {
   keyContracts: {
-    farmController?: Contract | null
-    farmRewards?: Contract | null
-    vault?: Contract | null
     solace?: Contract | null
     xSolace?: Contract | null
     xSolaceV1?: Contract | null
     xsLocker?: Contract | null
-    stakingRewards?: Contract | null
     stakingRewardsV2?: Contract | null
     xSolaceMigrator?: Contract | null
-    cpFarm?: Contract | null
-    solaceCoverProduct?: Contract | null
   }
   tellers: (BondTellerContractData & {
     metadata: TellerTokenMetadata
@@ -36,18 +30,12 @@ type Contracts = {
 
 const ContractsContext = createContext<Contracts>({
   keyContracts: {
-    farmController: undefined,
-    farmRewards: undefined,
-    vault: undefined,
     solace: undefined,
     xSolace: undefined,
     xSolaceV1: undefined,
     xsLocker: undefined,
-    stakingRewards: undefined,
     stakingRewardsV2: undefined,
     xSolaceMigrator: undefined,
-    cpFarm: undefined,
-    solaceCoverProduct: undefined,
   },
   tellers: [],
   contractSources: [],
@@ -58,55 +46,28 @@ const ContractsProvider: React.FC = (props) => {
   const contractSources = useContractArray()
   const keyContracts = useMemo(() => activeNetwork.config.keyContracts, [activeNetwork])
 
-  const farmController = useGetContract(keyContracts.farmController)
-  const farmRewards = useGetContract(keyContracts.farmRewards)
-  const vault = useGetContract(keyContracts.vault)
   const solace = useGetContract(keyContracts.solace)
   const xSolace = useGetContract(keyContracts.xSolace)
   const xSolaceV1 = useGetContract(keyContracts.xSolaceV1)
   const xsLocker = useGetContract(keyContracts.xsLocker)
-  const stakingRewards = useGetContract(keyContracts.stakingRewards)
   const stakingRewardsV2 = useGetContract(keyContracts.stakingRewardsV2)
   const xSolaceMigrator = useGetContract(keyContracts.xSolaceMigrator)
-  const cpFarm = useGetContract(keyContracts.cpFarm)
-  const solaceCoverProduct = useGetContract(keyContracts.solaceCoverProduct)
   const tellers = useGetBondTellerContracts()
 
   const value = useMemo<Contracts>(
     () => ({
       keyContracts: {
-        farmController,
-        farmRewards,
-        vault,
         solace,
         xSolace,
         xSolaceV1,
         xsLocker,
-        stakingRewards,
         stakingRewardsV2,
         xSolaceMigrator,
-        cpFarm,
-        solaceCoverProduct,
       },
       tellers,
       contractSources,
     }),
-    [
-      farmController,
-      farmRewards,
-      vault,
-      solace,
-      xSolace,
-      xSolaceV1,
-      xsLocker,
-      stakingRewards,
-      stakingRewardsV2,
-      xSolaceMigrator,
-      cpFarm,
-      solaceCoverProduct,
-      tellers,
-      contractSources,
-    ]
+    [solace, xSolace, xSolaceV1, xsLocker, stakingRewardsV2, xSolaceMigrator, tellers, contractSources]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>

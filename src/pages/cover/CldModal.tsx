@@ -67,6 +67,7 @@ export const CldModal = () => {
     selectedCoin,
     handleSelectedCoin,
     selectedCoinPrice,
+    isAcceptableDeposit,
   } = input
   const { curHighestPosition, curPortfolio, curDailyCost } = portfolioKit
   const { importCounter } = simulator
@@ -79,7 +80,7 @@ export const CldModal = () => {
     applyReferralCode,
     handleCodeApplicationStatus,
   } = referral
-  const { signatureObj, depositApproval, scpBalance, status, availCovCap, unlimitedApproveCPM } = policy
+  const { signatureObj, depositApproval, scpBalance, status, availCovCap, approveCPM } = policy
 
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [localCoinsOpen, setLocalCoinsOpen] = useState<boolean>(false)
@@ -257,7 +258,7 @@ export const CldModal = () => {
     const filtered = filterAmount(usd_value, enteredUSDDeposit)
     const formatted = formatAmount(filtered)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) return
-    if (floatUnits(selectedCoinBalance, 18) * selectedCoinPrice < parseFloat(formatted)) return
+    if (floatUnits(selectedCoinBalance, maxDecimals ?? 18) * selectedCoinPrice < parseFloat(formatted)) return
     setEnteredUSDDeposit(filtered)
     const token_amount_equivalent = parseFloat(formatAmount(filtered)) / selectedCoinPrice
     handleEnteredDeposit(formatAmount(token_amount_equivalent.toString()), maxDecimals)
@@ -334,6 +335,7 @@ export const CldModal = () => {
             if (isImportOrigin) handleShowSimulatorModal(true)
             handleShowCLDModal(false)
             setIsImportOrigin(false)
+            handleEnteredUSDDeposit('')
           }}
           lightColor={appTheme == 'dark'}
         />
@@ -477,21 +479,33 @@ export const CldModal = () => {
               </Button>
             )}
             {!depositApproval && (
-              <Button
-                {...gradientStyle}
-                {...bigButtonStyle}
-                secondary
-                noborder
-                onClick={() => unlimitedApproveCPM(selectedCoin.address)}
-              >
-                Approve Max {selectedCoin.symbol}
-              </Button>
+              <>
+                <Button
+                  {...gradientStyle}
+                  {...bigButtonStyle}
+                  secondary
+                  noborder
+                  onClick={() => approveCPM(selectedCoin.address, parseUnits(enteredDeposit, selectedCoin.decimals))}
+                  disabled={!isAcceptableDeposit}
+                >
+                  Approve Entered {selectedCoin.symbol}
+                </Button>
+                <Button
+                  {...gradientStyle}
+                  {...bigButtonStyle}
+                  secondary
+                  noborder
+                  onClick={() => approveCPM(selectedCoin.address)}
+                >
+                  Approve Max {selectedCoin.symbol}
+                </Button>
+              </>
             )}
           </ButtonWrapper>
         )}
         {lackingScp != 'meets requirement' && lackingScp != 'both zeroes' && (
           <Text textAlignCenter pt={16}>
-            You need at least ${lackingScp} for the desired cover limit. Lower the value or use the form below to
+            You need at least over ~${lackingScp} for the desired cover limit. Lower the value or use the form below to
             deposit the additional premium.
           </Text>
         )}
@@ -543,8 +557,9 @@ export const CldModal = () => {
                   secondary
                   noborder
                   onClick={() => {
-                    const selectedCoinBalance_USD = floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
-                    handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
+                    const selectedCoinBalance_USD =
+                      floatUnits(selectedCoinBalance, selectedCoin.decimals) * selectedCoinPrice
+                    handleEnteredDeposit(formatUnits(selectedCoinBalance, selectedCoin.decimals), selectedCoin.decimals)
                     setEnteredUSDDeposit(fixed(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`)).toString())
                   }}
                   widthP={100}
@@ -573,15 +588,27 @@ export const CldModal = () => {
                 </Button>
               )}
               {!depositApproval && (
-                <Button
-                  {...gradientStyle}
-                  {...bigButtonStyle}
-                  secondary
-                  noborder
-                  onClick={() => unlimitedApproveCPM(selectedCoin.address)}
-                >
-                  Approve Max {selectedCoin.symbol}
-                </Button>
+                <>
+                  <Button
+                    {...gradientStyle}
+                    {...bigButtonStyle}
+                    secondary
+                    noborder
+                    onClick={() => approveCPM(selectedCoin.address, parseUnits(enteredDeposit, selectedCoin.decimals))}
+                    disabled={!isAcceptableDeposit}
+                  >
+                    Approve Entered {selectedCoin.symbol}
+                  </Button>
+                  <Button
+                    {...gradientStyle}
+                    {...bigButtonStyle}
+                    secondary
+                    noborder
+                    onClick={() => approveCPM(selectedCoin.address)}
+                  >
+                    Approve Max {selectedCoin.symbol}
+                  </Button>
+                </>
               )}
             </ButtonWrapper>
           </Flex>

@@ -87,7 +87,7 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
             Compound
           </Button>
         </ButtonWrapper>
-        {!activeNetwork.config.restrictedFeatures.noStakingRewardsV2 && policyId?.gt(ZERO) && (
+        {activeNetwork.config.generalFeatures.stakingRewardsV2 && policyId?.gt(ZERO) && (
           <GrayBox>
             <Flex stretch col gap={5}>
               <Button
@@ -102,7 +102,7 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
               <VerticalSeparator />
               {status ? (
                 <Text t3s success autoAlignVertical>
-                  + {truncateValue(additionalDuration, 2)} days
+                  + ~{truncateValue(additionalDuration, 2)} days
                 </Text>
               ) : (
                 <Text t5s warning autoAlignVertical>

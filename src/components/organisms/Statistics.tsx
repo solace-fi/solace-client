@@ -142,8 +142,7 @@ export const Statistics: React.FC = () => {
           {`$${pairPrice} `}
         </Text>
       </BoxItem>
-      {(!activeNetwork.config.restrictedFeatures.noBondingV1 ||
-        !activeNetwork.config.restrictedFeatures.noBondingV2) && (
+      {activeNetwork.config.generalFeatures.bondingV2 && (
         <BoxItem>
           <BoxItemTitle t4 light>
             Underwriting Pool Size
@@ -152,26 +151,6 @@ export const Statistics: React.FC = () => {
             {underwritingPoolBalance == '-' ? '$-' : `$${truncateValue(underwritingPoolBalance, 2)}`}
           </Text>
         </BoxItem>
-      )}
-      {!activeNetwork.config.restrictedFeatures.noSoteria && (
-        <>
-          <BoxItem>
-            <BoxItemTitle t4 light>
-              Active Cover Limit
-            </BoxItemTitle>
-            <Text t2 nowrap light bold>
-              ${totalActiveCoverLimit}{' '}
-            </Text>
-          </BoxItem>
-          <BoxItem>
-            <BoxItemTitle t4 light>
-              Total Active Policies
-            </BoxItemTitle>
-            <Text t2 nowrap light bold>
-              {totalActivePolicies}
-            </Text>
-          </BoxItem>
-        </>
       )}
     </Box>
   )
@@ -199,30 +178,13 @@ export const Statistics: React.FC = () => {
             {`$${pairPrice}`}
           </Text>
         </Flex>
-        {(!activeNetwork.config.restrictedFeatures.noBondingV1 ||
-          !activeNetwork.config.restrictedFeatures.noBondingV2) && (
+        {activeNetwork.config.generalFeatures.bondingV2 && (
           <Flex stretch between mb={24}>
             <Text light>Underwriting Pool Size</Text>
             <Text t2 nowrap light>
               {underwritingPoolBalance == '-' ? '$-' : `$${truncateValue(underwritingPoolBalance, 2)}`}
             </Text>
           </Flex>
-        )}
-        {!activeNetwork.config.restrictedFeatures.noSoteria && (
-          <>
-            <Flex stretch between mb={24}>
-              <Text light>Active Cover Limit</Text>
-              <Text t2 nowrap light>
-                ${totalActiveCoverLimit}
-              </Text>
-            </Flex>
-            <Flex stretch between mb={24}>
-              <Text light>Total Active Policies</Text>
-              <Text t2 nowrap light>
-                {totalActivePolicies}
-              </Text>
-            </Flex>
-          </>
         )}
       </Card>
     )
@@ -246,7 +208,7 @@ export const Statistics: React.FC = () => {
                     </TextSpan>
                   </Text>
                 </BoxItem>
-                {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
+                {activeNetwork.config.generalFeatures.stakingV2 && (
                   <BoxItem>
                     <BoxItemTitle t4 light>
                       My Stake
@@ -265,7 +227,7 @@ export const Statistics: React.FC = () => {
                 <WalletConnectButton light welcome />
               </BoxItem>
             )}
-            {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
+            {activeNetwork.config.generalFeatures.stakingV2 && (
               <>
                 <BoxItem>
                   <BoxItemTitle t4 light>
@@ -307,7 +269,7 @@ export const Statistics: React.FC = () => {
                       </TextSpan>
                     </Text>
                   </Flex>
-                  {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
+                  {activeNetwork.config.generalFeatures.stakingV2 && (
                     <Flex stretch between mb={24}>
                       <Text light>My Stake</Text>
                       <Text t2 light>
@@ -324,7 +286,7 @@ export const Statistics: React.FC = () => {
                   <WalletConnectButton light welcome />
                 </BoxRow>
               )}
-              {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
+              {activeNetwork.config.generalFeatures.stakingV2 && (
                 <>
                   <Flex stretch between mb={24}>
                     <Text light>Global Stake</Text>

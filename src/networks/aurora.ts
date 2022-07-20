@@ -14,13 +14,13 @@ import { AURORASCAN_API_KEY } from '../constants'
 import {
   xsLocker_ABI,
   ERC20_ABI,
-  StakingRewards_ABI,
   StakingRewardsV2_ABI,
   CoverPaymentManager_ABI,
   SolaceCoverProductV3_ABI,
 } from '../constants/abi'
 import {
   COVER_PAYMENT_MANAGER_ADDRESS,
+  NETWORKS_MAPPING,
   SOLACE_COVER_PRODUCT_V3_ADDRESS,
   STAKING_REWARDS_V2_ADDRESS,
 } from '@solace-fi/sdk-nightly'
@@ -59,10 +59,6 @@ export const AuroraNetwork: NetworkConfig = {
         addr: KEY_ADDRS.XSLOCKER,
         abi: xsLocker_ABI,
       },
-      stakingRewards: {
-        addr: KEY_ADDRS.STAKING_REWARDS,
-        abi: StakingRewards_ABI,
-      },
       solaceCoverProductV3: {
         addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
         abi: SolaceCoverProductV3_ABI,
@@ -76,12 +72,7 @@ export const AuroraNetwork: NetworkConfig = {
         abi: StakingRewardsV2_ABI,
       },
     },
-    restrictedFeatures: {
-      noSoteria: true,
-      noBondingV1: true,
-      noFarmingV1: true,
-      noStakingV1: true,
-    },
+    generalFeatures: NETWORKS_MAPPING[chainId].features.general,
     specialFeatures: {
       solaceBuyLink: `https://www.trisolaris.io/#/swap?inputCurrency=${NEAR_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
       unwrapBridgedSolace: true,

@@ -58,8 +58,8 @@ export const BondV2 = () => {
 
   const [showBondModal, setShowBondModal] = useState<boolean>(false)
 
-  const canBond = useMemo(() => !activeNetwork.config.restrictedFeatures.noBondingV2, [
-    activeNetwork.config.restrictedFeatures.noBondingV2,
+  const canBond = useMemo(() => activeNetwork.config.generalFeatures.bondingV2, [
+    activeNetwork.config.generalFeatures.bondingV2,
   ])
 
   const btd = useBondTellerFullDetailsV2()
