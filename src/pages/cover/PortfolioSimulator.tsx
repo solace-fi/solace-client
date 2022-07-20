@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { BigNumber } from 'ethers'
 import { Flex } from '../../components/atoms/Layout'
 import { useCoverageContext } from './CoverageContext'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
@@ -7,24 +6,20 @@ import { Button } from '../../components/atoms/Button'
 import { formatAmount } from '../../utils/formatting'
 import { useTierColors } from '../../hooks/internal/useTierColors'
 import { Protocol } from './Protocol'
-import usePrevious from '../../hooks/internal/usePrevious'
 import { ProtocolMap, SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { LoaderText } from '../../components/molecules/LoaderText'
 import { Projections } from './Projections'
 import { useWeb3React } from '@web3-react/core'
-import { StyledAdd } from '../../components/atoms/Icon'
 import { Text } from '../../components/atoms/Typography'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
 import AddProtocolForm from './AddProtocolForm'
 import { mapEditableProtocols, mapUniqueRiskProtocols } from '../../utils/mapProtocols'
-import { useNetwork } from '../../context/NetworkManager'
 
 export const PortfolioSimulator = (): JSX.Element => {
   const { appTheme } = useGeneral()
 
   const { active, account } = useWeb3React()
-  const { activeNetwork } = useNetwork()
   const { portfolioKit, simulator, input, styles, seriesKit, intrface } = useCoverageContext()
   const { series } = seriesKit
   const { simCoverLimit } = input
@@ -36,33 +31,23 @@ export const PortfolioSimulator = (): JSX.Element => {
   const [editingItem, setEditingItem] = useState<string | undefined>(undefined)
   const [simulating, setSimulating] = useState(false)
   const [compiling, setCompiling] = useState(false)
+  const [addingProtocol, setAddingProtocol] = useState(false)
 
   const startup = useRef(true)
 
   const [editableProtocols, setEditableProtocols] = useState<LocalSolaceRiskProtocol[]>([])
+  const editableProtocolAppIds = useMemo(() => editableProtocols.map((p) => p.appId.toLowerCase()), [editableProtocols])
+
   const protocolsByName = useMemo(() => {
     if (!portfolioScore) return {}
     return mapUniqueRiskProtocols(portfolioScore.protocols)
   }, [portfolioScore])
 
-  const [bottomButtonHeight, setBottomButtonHeight] = useState(91)
-  const [addingProtocol, setAddingProtocol] = useState(false)
-  useEffect(() => {
-    // initial button height is 91, but when it opens, it's a bit taller
-    if (addingProtocol) {
-      setBottomButtonHeight(91 + 50)
-    } else {
-      setBottomButtonHeight(91)
-    }
-  }, [addingProtocol])
-
   const _mapEditableProtocols = useMemo(() => {
     return mapEditableProtocols(editableProtocols)
   }, [editableProtocols])
 
-  const editableProtocolAppIds = useMemo(() => editableProtocols.map((p) => p.appId.toLowerCase()), [editableProtocols])
-
-  const tierColors = useTierColors(editableProtocols.map((p) => p.tier))
+  const tierColors = useTierColors()
 
   const getColorByTier = (tier: number) => {
     const index = tier - 1
@@ -148,13 +133,11 @@ export const PortfolioSimulator = (): JSX.Element => {
   const runSimulation = useCallback(async () => {
     if (portfolioLoading && active) return
     setSimulating(true)
-    const riskBalances: SolaceRiskBalance[] = editableProtocols
-      .filter((p) => !p.appId.includes('Empty'))
-      .map((p) => ({
-        appId: p.appId,
-        network: p.network,
-        balanceUSD: p.balanceUSD,
-      }))
+    const riskBalances: SolaceRiskBalance[] = editableProtocols.map((p) => ({
+      appId: p.appId,
+      network: p.network,
+      balanceUSD: p.balanceUSD,
+    }))
     const score: SolaceRiskScore | undefined = await riskScores(riskBalances)
     handleSimPortfolio(score)
     setCompiling(false)
@@ -271,8 +254,6 @@ export const PortfolioSimulator = (): JSX.Element => {
         style={{
           overflowY: 'auto',
           height: '100%',
-          // why this height specifically? i have no clue, but it works pixel-perfectly and it's responive (??)
-          // height: `calc(100% - ${376}px)`,
         }}
         bgLightGray
       >

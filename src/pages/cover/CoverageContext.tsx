@@ -6,29 +6,27 @@ import { coinsMap } from '../../constants/mappings/coverageStablecoins'
 import { NetworkConfig, ReadToken, TokenInfo } from '../../constants/types'
 import { useGeneral } from '../../context/GeneralManager'
 import { networks, useNetwork } from '../../context/NetworkManager'
-import { useBatchBalances, useScpBalance } from '../../hooks/balance/useBalance'
+import { useBatchBalances } from '../../hooks/balance/useBalance'
 import { useInputAmount } from '../../hooks/internal/useInputAmount'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import {
   usePortfolio,
   useRiskSeries,
-  useCheckIsCoverageActive,
   useExistingPolicy,
   useCoverageFunctions,
 } from '../../hooks/policy/useSolaceCoverProductV3'
 import { BigNumber, Contract } from 'ethers'
 import { SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { useCachedData } from '../../context/CachedDataManager'
-import { accurateMultiply, formatAmount, truncateValue } from '../../utils/formatting'
+import { accurateMultiply, fixed, formatAmount } from '../../utils/formatting'
 import { parseUnits } from 'ethers/lib/utils'
 import { usePortfolioAnalysis } from '../../hooks/policy/usePortfolioAnalysis'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { useProvider } from '../../context/ProviderManager'
 import { ERC20_ABI } from '../../constants/abi'
-import { useTokenAllowance, useTokenInfiniteApprove } from '../../hooks/contract/useToken'
+import { useTokenAllowance, useTokenApprove } from '../../hooks/contract/useToken'
 import SOLACE from '../../constants/abi/SOLACE.json'
 import useReferralApi from '../../hooks/api/useReferralApi'
-import { useWeb3React } from '@web3-react/core'
 import { isAddress } from '../../utils'
 
 type CoverageContextType = {
@@ -123,7 +121,7 @@ type CoverageContextType = {
     scpObj?: SCP
     signatureObj: any
     depositApproval: boolean
-    unlimitedApproveCPM: (tokenAddr: string) => void
+    approveCPM: (tokenAddr: string, amount?: BigNumber) => void
   }
   referral: {
     appliedReferralCode?: string
@@ -231,7 +229,7 @@ const CoverageContext = createContext<CoverageContextType>({
     scpObj: undefined,
     signatureObj: undefined,
     depositApproval: false,
-    unlimitedApproveCPM: () => undefined,
+    approveCPM: () => undefined,
   },
   referral: {
     appliedReferralCode: undefined,
@@ -248,7 +246,6 @@ const CoverageContext = createContext<CoverageContextType>({
 })
 
 const CoverageManager: React.FC = (props) => {
-  const { account } = useWeb3React()
   const { appTheme, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
   const { tokenPriceMapping, minute, coverage } = useCachedData()
@@ -308,7 +305,7 @@ const CoverageManager: React.FC = (props) => {
     dailyRate: simDailyRate,
     dailyCost: simDailyCost,
   } = usePortfolioAnalysis(simPortfolio, simCoverLimit)
-  const { unlimitedApprove } = useTokenInfiniteApprove(setTransactionLoading)
+  const { approve } = useTokenApprove(setTransactionLoading)
 
   const [availCovCap, setAvailCovCap] = useState<BigNumber>(ZERO)
 
@@ -401,12 +398,12 @@ const CoverageManager: React.FC = (props) => {
     [appTheme]
   )
 
-  const unlimitedApproveCPM = useCallback(
-    async (tokenAddr: string) => {
+  const approveCPM = useCallback(
+    async (tokenAddr: string, amount?: BigNumber) => {
       if (!scpObj || !isAddress(tokenAddr) || !isAddress(scpObj.coverPaymentManager.address)) return
-      await unlimitedApprove(tokenAddr, ERC20_ABI, scpObj.coverPaymentManager.address)
+      await approve(tokenAddr, ERC20_ABI, scpObj.coverPaymentManager.address, amount)
     },
-    [scpObj, unlimitedApprove]
+    [scpObj, approve]
   )
 
   const handleSimCoverLimit = useCallback((coverageLimit: BigNumber) => {
@@ -422,7 +419,7 @@ const CoverageManager: React.FC = (props) => {
       const coin = coinOptions.find((c) => c.address === addr)
       if (coin) {
         if (coin.decimals < selectedCoin.decimals) {
-          handleEnteredDeposit(truncateValue(formatAmount(enteredDeposit), coin.decimals, false))
+          handleEnteredDeposit(fixed(formatAmount(enteredDeposit), coin.decimals).toString())
         }
         setSelectedCoin(coin)
       }
@@ -542,7 +539,7 @@ const CoverageManager: React.FC = (props) => {
   }, [selectedCoin, tokenPriceMapping, signer])
 
   useEffect(() => {
-    if (!signer || activeNetwork.config.restrictedFeatures.noCoverageV3) {
+    if (!signer || !activeNetwork.config.generalFeatures.coverageV3) {
       setScpObj(undefined)
       return
     }
@@ -658,7 +655,7 @@ const CoverageManager: React.FC = (props) => {
         scpObj,
         signatureObj,
         depositApproval,
-        unlimitedApproveCPM,
+        approveCPM,
       },
       referral: {
         appliedReferralCode,
@@ -757,7 +754,7 @@ const CoverageManager: React.FC = (props) => {
       handleShowReferralModal,
       handleShowShareReferralModal,
       handleTransactionLoading,
-      unlimitedApproveCPM,
+      approveCPM,
       handleImportCounter,
       handleSimCounter,
     ]

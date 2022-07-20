@@ -6,12 +6,7 @@ import { InputSectionWrapper, StyledInput } from '../../components/atoms/Input'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
-
 import { capitalizeFirstLetter } from '../../utils/formatting'
-// import ScrollContainer from 'react-indiana-drag-scroll'
-
-// import { TableRow } from '../../components/atoms/Table'
-// import { SolaceRiskProtocol } from '../../constants/types'
 
 export function processProtocolName(str: string): string {
   // remove hyphen & capitalize first letter of each word
@@ -132,13 +127,6 @@ export const DropdownInputSection = ({
               </Text>
             )}
             {hasArrow && (
-              // <Text
-              //   autoAlignVertical
-              //   {...gradientStyle}
-              //   style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: '10px' }}
-              // >
-              //   ⯆
-              // </Text>
               <StyledArrowDropDown style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} size={18} />
             )}
           </Flex>
@@ -233,7 +221,6 @@ export const DropdownOptionsUnique = ({
       thinScrollbar
     >
       <Flex col gap={8} px={12}>
-        {/* <ScrollContainer className="scroll-container"> */}
         {searchedList.map((item) => (
           <ButtonAppearance
             key={item.label}
@@ -269,7 +256,6 @@ export const DropdownOptionsUnique = ({
             {noneText ?? 'No results found'}
           </Text>
         )}
-        {/* </ScrollContainer> */}
       </Flex>
     </Accordion>
   )

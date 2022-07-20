@@ -19,8 +19,6 @@ import { Route, Switch, useLocation } from 'react-router-dom'
 /* import managers */
 
 /* import pages */
-// import About from './about'
-import Invest from './invest'
 import Stake from './stake'
 import Bond from './bond'
 import Govern from './govern'
@@ -30,14 +28,7 @@ import Terms from './terms'
 import { MenusTopNavBar } from '../components/organisms/MenusTopNavbar'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent, Flex } from '../components/atoms/Layout'
 // import { Statistics } from '../components/organisms/Statistics'
-import {
-  StyledDashboard,
-  StyledCoinStack,
-  StyledCommunity,
-  StyledReceiptMoney,
-  StyledFolderHistory,
-  StyledTractor,
-} from '../components/atoms/Icon'
+import { StyledDashboard, StyledCoinStack, StyledCommunity, StyledReceiptMoney } from '../components/atoms/Icon'
 
 /* import constants */
 import { BKPT_2, BKPT_NAVBAR, MARKETING_SITE } from '../constants'
@@ -47,7 +38,6 @@ import { useWindowDimensions } from '../hooks/internal/useWindowDimensions'
 
 import { AnalyticsReporter } from '../analytics'
 import { PageInfo } from '../constants/types'
-import Archive from './archive'
 import { AppMenu } from '../components/organisms/RightNavbar'
 import { InfoSideNavbar, MobileInfoSideNavbar } from '../components/organisms/LeftNavbar'
 import { AppMenuHeader } from '../components/organisms/AppMenuHeader'
@@ -82,25 +72,11 @@ export default function App(): any {
       component: Stake,
     },
     {
-      name: 'Farms',
-      title: 'My Farming',
-      to: '/farms',
-      icon: <StyledTractor size={30} />,
-      component: Invest,
-    },
-    {
       name: 'Govern',
       title: 'Governance',
       to: '/govern',
       icon: <StyledCommunity size={30} />,
       component: Govern,
-    },
-    {
-      name: 'Archive',
-      title: 'Archived Features',
-      to: '/archive',
-      icon: <StyledFolderHistory size={30} />,
-      component: Archive,
     },
   ]
 
@@ -172,6 +148,22 @@ export default function App(): any {
                     path="/"
                     component={() => {
                       window.location.href = MARKETING_SITE
+                      return null
+                    }}
+                  />
+                  <Route
+                    exact
+                    path="/farms"
+                    component={() => {
+                      window.location.href = 'https://legacy.solace.fi/farms'
+                      return null
+                    }}
+                  />
+                  <Route
+                    exact
+                    path="/archive"
+                    component={() => {
+                      window.location.href = 'https://legacy.solace.fi/archive'
                       return null
                     }}
                   />

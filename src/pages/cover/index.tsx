@@ -79,15 +79,7 @@ const CoverageContent = () => {
   const _showShareReferralModal =
     showShareReferralModal && !showCLDModal && !showSimulatorModal && !showSimCoverModal && !showPortfolioModal
 
-  // const _showReferralModal = true
-  // const _showCldModal = false
-  // const _showSimulatorModal = false
-  // const _showSimCoverModal = false
-  // const _showDefault = false
-  // const _showPortfolioModal = false
-
   return (
-    // <Content>
     <>
       <CodeNoticeModal />
       <Flex justifyCenter>
@@ -116,7 +108,6 @@ const CoverageContent = () => {
         </Flex>
       </Flex>
     </>
-    // </Content>
   )
 }
 
@@ -134,8 +125,8 @@ const CoveragePage = (): JSX.Element => {
   const { styles, intrface } = useCoverageContext()
   const { handleShowSimulatorModal } = intrface
   const { gradientStyle } = styles
-  const canShowCoverageV3 = useMemo(() => !activeNetwork.config.restrictedFeatures.noCoverageV3, [
-    activeNetwork.config.restrictedFeatures.noCoverageV3,
+  const canShowCoverageV3 = useMemo(() => activeNetwork.config.generalFeatures.coverageV3, [
+    activeNetwork.config.generalFeatures.coverageV3,
   ])
 
   return (

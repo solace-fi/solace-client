@@ -17,7 +17,6 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { FunctionGasLimits } from '../../constants/mappings/gas'
 
 export const useStakingRewards = () => {
-  // const { account } = useWeb3React()
   const { provider, signer } = useProvider()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
@@ -92,7 +91,6 @@ export const useStakingRewards = () => {
       console.log('stakingRewardsV2.estimateGas.harvestLocks', estGas.toString())
       tx = await stakingRewardsV2.harvestLocks(xsLockIDs, {
         ...gasConfig,
-        // gasLimit: FunctionGasLimits['stakingRewards.harvestLocks'],
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.HARVEST_LOCKS
@@ -101,7 +99,6 @@ export const useStakingRewards = () => {
       console.log('stakingRewardsV2.estimateGas.harvestLock', estGas.toString())
       tx = await stakingRewardsV2.harvestLock(xsLockIDs[0], {
         ...gasConfig,
-        // gasLimit: FunctionGasLimits['stakingRewards.harvestLock'],
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
     }
@@ -124,10 +121,6 @@ export const useStakingRewards = () => {
         ...gasConfig,
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
-      // tx = await staker1.compoundLocks(xsLockIDs, targetXsLockID, {
-      //   ...gasConfig,
-      //   gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
-      // })
       type = FunctionName.COMPOUND_LOCKS
     } else {
       const estGas = await stakingRewardsV2.estimateGas.compoundLock(xsLockIDs[0])
@@ -136,10 +129,6 @@ export const useStakingRewards = () => {
         ...gasConfig,
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
-      // tx = await staker1.compoundLock(xsLockIDs[0], {
-      //   ...gasConfig,
-      //   gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
-      // })
     }
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -150,7 +139,7 @@ export const useStakingRewards = () => {
   }
 
   const harvestLockRewardsForScp = async (xsLockIDs: BigNumber[]) => {
-    if (xsLockIDs.length == 0 || activeNetwork.config.restrictedFeatures.noStakingRewardsV2)
+    if (xsLockIDs.length == 0 || !activeNetwork.config.generalFeatures.stakingRewardsV2)
       return { tx: null, localTx: null }
     const p = new Price()
     const priceInfo = await p.getPriceInfo()
@@ -161,13 +150,6 @@ export const useStakingRewards = () => {
     let type = FunctionName.HARVEST_LOCK_FOR_SCP
     const staker = new Staker(activeNetwork.chainId, signer)
     if (xsLockIDs.length > 1) {
-      // const estGas = await stakingRewards.estimateGas.harvestLocksForScp(
-      //   xsLockIDs,
-      //   tokenSignatureProps.price,
-      //   tokenSignatureProps.deadline,
-      //   tokenSignatureProps.signature
-      // )
-      // console.log('stakingRewards.estimateGas.harvestLocksForScp', estGas.toString())
       tx = await staker.harvestLocksForScp(
         xsLockIDs,
         tokenSignatureProps.price,
@@ -176,18 +158,10 @@ export const useStakingRewards = () => {
         {
           ...gasConfig,
           gasLimit: FunctionGasLimits['stakingRewards.harvestLocksForScp'],
-          // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
         }
       )
       type = FunctionName.HARVEST_LOCKS_FOR_SCP
     } else {
-      // const estGas = await stakingRewards.estimateGas.harvestLockForScp(
-      //   xsLockIDs[0],
-      //   tokenSignatureProps.price,
-      //   tokenSignatureProps.deadline,
-      //   tokenSignatureProps.signature
-      // )
-      // console.log('stakingRewards.estimateGas.harvestLockForScp', estGas.toString())
       tx = await staker.harvestLockForScp(
         xsLockIDs[0],
         tokenSignatureProps.price,
@@ -196,7 +170,6 @@ export const useStakingRewards = () => {
         {
           ...gasConfig,
           gasLimit: FunctionGasLimits['stakingRewards.harvestLockForScp'],
-          // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
         }
       )
     }

@@ -14,13 +14,6 @@ const coverageStablecoins_Rinkeby = [
   { address: '0x86E5B6485e28E52a0dEEd28Cc10772FeB9c4C400', name: 'Frax', symbol: 'FRAX', decimals: 18 },
 ]
 
-const coverageStablecoins_Kovan = [
-  { address: '0x512d93ADc3DF4E24cb4b26c44A91682Ec073F559', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
-  { address: '0x31a1D59460a9619ec6965a5684C6d3Ae470D0fE5', name: 'DAI Stablecoin', symbol: 'DAI', decimals: 18 },
-  { address: '0xAEA2B0F4763c8Ffc33A4c454CD08F803B02B6B53', name: 'Tether USD', symbol: 'USDT', decimals: 6 },
-  { address: '0x58B23b32a9774153E1E344762751aDfdca2764DD', name: 'Frax', symbol: 'FRAX', decimals: 18 },
-]
-
 const coverageStablecoins_Aurora = [
   { address: '0xe3520349F477A5F6EB06107066048508498A291b', name: 'Dai Stablecoin', symbol: 'DAI', decimals: 18 },
   { address: '0xB12BFcA5A55806AaF64E99521918A4bf0fC40802', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
@@ -49,8 +42,8 @@ const coverageStablecoins_Polygon = [
   { address: '0x45c32fA6DF82ead1e2EF74d17b76547EDdFaFF89', name: 'Frax', symbol: 'FRAX', decimals: 18 },
   {
     address: '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1',
-    name: 'miMATIC',
-    symbol: 'miMATIC',
+    name: 'MAI',
+    symbol: 'MAI',
     decimals: 18,
   },
 ]
@@ -68,7 +61,7 @@ const coverageStablecoins_Fantom = [
   { address: '0xdc301622e621166BD8E82f2cA0A26c13Ad0BE355', name: 'Frax', symbol: 'FRAX', decimals: 18 },
   { address: '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75', name: 'USD Coin', symbol: 'USDC', decimals: 6 },
   { address: '0x049d68029688eAbF473097a2fC38ef61633A3C7A', name: 'Frapped USDT', symbol: 'fUSDT', decimals: 6 },
-  { address: '0xfB98B335551a418cD0737375a2ea0ded62Ea213b', name: 'miMATIC', symbol: 'miMATIC', decimals: 18 },
+  { address: '0xfB98B335551a418cD0737375a2ea0ded62Ea213b', name: 'MAI', symbol: 'MAI', decimals: 18 },
   {
     address: '0x82f0B8B456c1A451378467398982d4834b6829c1',
     name: 'Magic Internet Money',
@@ -92,7 +85,6 @@ const coverageStablecoins_Fantom_Testnet = [
 export const coinsMap: { [key: number]: ReadToken[] } = {
   [1]: coverageStablecoins_Mainnet,
   [4]: coverageStablecoins_Rinkeby,
-  [42]: coverageStablecoins_Kovan,
   [1313161554]: coverageStablecoins_Aurora,
   [1313161555]: coverageStablecoins_Aurora_Testnet,
   [137]: coverageStablecoins_Polygon,

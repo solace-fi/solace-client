@@ -123,8 +123,8 @@ export const useBondTellerFullDetailsV2 = (): { tellerDetails: BondTellerFullDet
   const { activeNetwork } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerFullDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
-  const canBondV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noBondingV2, [
-    activeNetwork.config.restrictedFeatures.noBondingV2,
+  const canBondV2 = useMemo(() => activeNetwork.config.generalFeatures.bondingV2, [
+    activeNetwork.config.generalFeatures.bondingV2,
   ])
   const { tokenPriceMapping } = useCachedData()
   const running = useRef(false)

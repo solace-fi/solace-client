@@ -6,7 +6,7 @@ import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
 import { ZERO } from '../../constants'
-import { ApiStatus, FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
+import { ApiStatus, FunctionName, InterfaceState } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
@@ -14,6 +14,7 @@ import {
   accurateMultiply,
   convertSciNotaToPrecise,
   filterAmount,
+  fixed,
   floatUnits,
   formatAmount,
   truncateValue,
@@ -31,6 +32,7 @@ import { BigNumber } from 'ethers'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useGeneral } from '../../context/GeneralManager'
 import { Risk } from '@solace-fi/sdk-nightly'
+import { usePortfolioAnalysis } from '../../hooks/policy/usePortfolioAnalysis'
 
 export const PolicyContent = (): JSX.Element => {
   const { appTheme } = useGeneral()
@@ -76,7 +78,7 @@ export const PolicyContent = (): JSX.Element => {
     signatureObj,
     depositApproval,
     availCovCap,
-    unlimitedApproveCPM,
+    approveCPM,
   } = policy
   const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
   const { curPortfolio, curDailyCost, curUsdBalanceSum, curHighestPosition, fetchStatus } = portfolioKit
@@ -104,7 +106,6 @@ export const PolicyContent = (): JSX.Element => {
     depositNonStable,
     getMinRequiredAccountBalance,
     policyOf,
-    getBalanceOfNonRefundable,
   } = useCoverageFunctions()
 
   const [showExistingPolicyMessage, setShowExistingPolicyMessage] = useState<boolean>(true)
@@ -150,6 +151,13 @@ export const PolicyContent = (): JSX.Element => {
 
   const [suggestedCoverLimit, setSuggestedCoverLimit] = useState<BigNumber>(ZERO)
 
+  const { dailyCost: initiativeDailyCost } = usePortfolioAnalysis(curPortfolio, suggestedCoverLimit)
+
+  const initiativeDuration = useMemo(
+    () => (initiativeDailyCost > 0 ? parseFloat(formatAmount(enteredUSDDeposit)) / initiativeDailyCost : 0),
+    [initiativeDailyCost, enteredUSDDeposit]
+  )
+
   const portfolioFetchStatus = useMemo(() => {
     let message = undefined
     switch (fetchStatus) {
@@ -171,16 +179,7 @@ export const PolicyContent = (): JSX.Element => {
     return message
   }, [fetchStatus])
 
-  // MANUALLY ADJUST INTERFACE STATE HERE FOR NOW
-  // const newUserState = false
-  // const curUserState = true
-  // const returningUserState = false
-
-  // const depositCta = false
-  // const withdrawCta = false
-
   const [refundableSOLACEAmount, setRefundableSOLACEAmount] = useState<BigNumber>(ZERO)
-  const [nonrefundableBalance, setNonrefundableBalance] = useState<BigNumber>(ZERO)
   const [withdrawingMoreThanRefundable, setWithdrawingMoreThanRefundable] = useState<boolean>(false)
   const [insufficientCovCap, setInsufficientCovCap] = useState<boolean>(false)
 
@@ -350,7 +349,7 @@ export const PolicyContent = (): JSX.Element => {
     const filtered = filterAmount(usd_value, enteredUSDDeposit)
     const formatted = formatAmount(filtered)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) return
-    if (floatUnits(selectedCoinBalance, 18) * selectedCoinPrice < parseFloat(formatted)) return
+    if (floatUnits(selectedCoinBalance, maxDecimals ?? 18) * selectedCoinPrice < parseFloat(formatted)) return
     setEnteredUSDDeposit(filtered)
     const token_amount_equivalent = parseFloat(formatAmount(filtered)) / selectedCoinPrice
     handleEnteredDeposit(formatAmount(token_amount_equivalent.toString()), maxDecimals)
@@ -378,6 +377,7 @@ export const PolicyContent = (): JSX.Element => {
 
   useEffect(() => {
     getRefundableSOLACEAmount()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [version, latestBlock])
 
   useEffect(() => {
@@ -412,16 +412,6 @@ export const PolicyContent = (): JSX.Element => {
     init()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [suggestedCoverLimit])
-
-  useEffect(() => {
-    const init = async () => {
-      if (!account) return
-      const nr = await getBalanceOfNonRefundable(account)
-      setNonrefundableBalance(nr)
-    }
-    init()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account])
 
   useEffect(() => {
     if (suggestedCoverLimit.gt(availCovCap)) {
@@ -668,8 +658,8 @@ export const PolicyContent = (): JSX.Element => {
                       </Text>
                     ) : lackingScp != 'meets requirement' && lackingScp != 'both zeroes' ? (
                       <Text textAlignCenter pb={12}>
-                        You need at least ${lackingScp} for the suggested cover limit. Lower the value or use the form
-                        below to deposit the additional premium.
+                        You need at least over ~${lackingScp} for the suggested cover limit. Lower the value or use the
+                        form below to deposit the additional premium.
                       </Text>
                     ) : null)}
                   <Flex col gap={12}>
@@ -713,9 +703,6 @@ export const PolicyContent = (): JSX.Element => {
                             <Text t4>Withdrawable (excludes earned rewards):</Text>
                           </Flex>
                           <Flex gap={5}>
-                            {/* <Flex col>
-                              <Text t4>{truncateValue(formatUnits(refundableSOLACEAmount, 18), 2)} SOLACE</Text>
-                            </Flex> */}
                             <Flex col>
                               <Text t4>{`~ $${truncateValue(
                                 tokenPriceMapping['solace']
@@ -747,10 +734,14 @@ export const PolicyContent = (): JSX.Element => {
                           secondary
                           noborder
                           onClick={() => {
-                            const selectedCoinBalance_USD = floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
-                            handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
+                            const selectedCoinBalance_USD =
+                              floatUnits(selectedCoinBalance, selectedCoin.decimals) * selectedCoinPrice
+                            handleEnteredDeposit(
+                              formatUnits(selectedCoinBalance, selectedCoin.decimals),
+                              selectedCoin.decimals
+                            )
                             setEnteredUSDDeposit(
-                              truncateValue(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2, false)
+                              fixed(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2).toString()
                             )
                           }}
                           widthP={100}
@@ -762,7 +753,7 @@ export const PolicyContent = (): JSX.Element => {
                       {newUserState && parseFloat(formatAmount(enteredUSDDeposit)) > 0 && (
                         <Text textAlignCenter t5s>
                           With this deposit, your policy will extend by{' '}
-                          <TextSpan success>{truncateValue(newDuration, 1)} days</TextSpan>.
+                          <TextSpan success>{truncateValue(initiativeDuration, 1)} days</TextSpan>.
                         </Text>
                       )}
                       {(newUserState || returningUserState) && depositApproval && homeCta && (
@@ -788,17 +779,29 @@ export const PolicyContent = (): JSX.Element => {
                         </Button>
                       )}
                       {(newUserState || returningUserState) && !depositApproval && homeCta && (
-                        <Button
-                          {...gradientStyle}
-                          {...bigButtonStyle}
-                          secondary
-                          noborder
-                          onClick={() => unlimitedApproveCPM(selectedCoin.address)}
-                        >
-                          <Text bold t4s>
+                        <>
+                          <Button
+                            {...gradientStyle}
+                            {...bigButtonStyle}
+                            secondary
+                            noborder
+                            onClick={() =>
+                              approveCPM(selectedCoin.address, parseUnits(enteredDeposit, selectedCoin.decimals))
+                            }
+                            disabled={!isAcceptableDeposit}
+                          >
+                            Approve Entered {selectedCoin.symbol}
+                          </Button>
+                          <Button
+                            {...gradientStyle}
+                            {...bigButtonStyle}
+                            secondary
+                            noborder
+                            onClick={() => approveCPM(selectedCoin.address)}
+                          >
                             Approve Max {selectedCoin.symbol}
-                          </Text>
-                        </Button>
+                          </Button>
+                        </>
                       )}
                       {(curUserState || returningUserState) && homeCta && (
                         <Button
@@ -829,25 +832,39 @@ export const PolicyContent = (): JSX.Element => {
                       {depositCta && (
                         <>
                           {!depositApproval && (
-                            <Button
-                              {...gradientStyle}
-                              {...bigButtonStyle}
-                              secondary
-                              noborder
-                              onClick={() => unlimitedApproveCPM(selectedCoin.address)}
-                              widthP={100}
-                            >
-                              <Text bold t4s>
+                            <>
+                              <Button
+                                {...gradientStyle}
+                                {...bigButtonStyle}
+                                secondary
+                                noborder
+                                onClick={() =>
+                                  approveCPM(selectedCoin.address, parseUnits(enteredDeposit, selectedCoin.decimals))
+                                }
+                                disabled={!isAcceptableDeposit}
+                              >
+                                Approve Entered {selectedCoin.symbol}
+                              </Button>
+                              <Button
+                                {...gradientStyle}
+                                {...bigButtonStyle}
+                                secondary
+                                noborder
+                                onClick={() => approveCPM(selectedCoin.address)}
+                              >
                                 Approve Max {selectedCoin.symbol}
-                              </Text>
-                            </Button>
+                              </Button>
+                            </>
                           )}
                           {depositApproval && (
                             <>
                               {parseFloat(formatAmount(enteredUSDDeposit)) > 0 && (
                                 <Text textAlignCenter t5s>
                                   With this deposit, your policy will extend by{' '}
-                                  <TextSpan success>{truncateValue(newDuration, 1)} days</TextSpan>.
+                                  <TextSpan success>
+                                    {truncateValue(returningUserState ? initiativeDuration : newDuration, 1)} days
+                                  </TextSpan>
+                                  .
                                 </Text>
                               )}
                               <Button
@@ -884,10 +901,13 @@ export const PolicyContent = (): JSX.Element => {
                                 noborder
                                 onClick={() => {
                                   const selectedCoinBalance_USD =
-                                    floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
-                                  handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
+                                    floatUnits(selectedCoinBalance, selectedCoin.decimals) * selectedCoinPrice
+                                  handleEnteredDeposit(
+                                    formatUnits(selectedCoinBalance, selectedCoin.decimals),
+                                    selectedCoin.decimals
+                                  )
                                   setEnteredUSDDeposit(
-                                    truncateValue(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2, false)
+                                    fixed(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2).toString()
                                   )
                                 }}
                                 widthP={100}

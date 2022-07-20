@@ -14,7 +14,6 @@ export const useFetchGasData = (): GasData | undefined => {
   const { activeNetwork } = useNetwork()
   const { latestBlock, provider } = useProvider()
   const running = useRef(false)
-  // const running = useRef(false)
   const [gasData, setGasData] = useState<GasData | undefined>(undefined)
 
   useEffect(() => {

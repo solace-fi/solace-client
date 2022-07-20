@@ -30,12 +30,11 @@ import { useLocation } from 'react-router'
 import { BKPT_1, BKPT_3, Z_TOOLTIP } from '../../constants'
 
 /* import components */
-import { StyledInfo, StyledLinkExternal } from '../atoms/Icon'
+import { StyledLinkExternal } from '../atoms/Icon'
 import { Text } from '../atoms/Typography'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
-import { timingSafeEqual } from 'crypto'
 
 type StyledTooltipProps = {
   id: string
