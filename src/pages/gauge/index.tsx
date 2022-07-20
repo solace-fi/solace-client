@@ -1,11 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
-import { Content } from '../../components/atoms/Layout'
+import { Card } from '../../components/atoms/Card'
+import { Flex } from '../../components/atoms/Layout'
+import { Text } from '../../components/atoms/Typography'
 import { LoaderText } from '../../components/molecules/LoaderText'
+import { BKPT_NAVBAR } from '../../constants'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 function Gauge(): JSX.Element {
   const [loading, setLoading] = useState(true)
   const [animate, setAnimate] = useState(true)
+  const { width } = useWindowDimensions()
 
   const COLORS = useMemo(() => ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'], [])
 
@@ -32,6 +37,7 @@ function Gauge(): JSX.Element {
 
       return (
         <text
+          fontSize={width > BKPT_NAVBAR ? '1rem' : '3vw'}
           x={x}
           y={y}
           fill={COLORS[index % COLORS.length]}
@@ -42,7 +48,7 @@ function Gauge(): JSX.Element {
         </text>
       )
     },
-    [COLORS, data]
+    [COLORS, data, width]
   )
 
   useEffect(() => {
@@ -58,19 +64,19 @@ function Gauge(): JSX.Element {
   }, [])
 
   return (
-    <Content>
+    <div style={{ width: '90%', margin: 'auto' }}>
       <ResponsiveContainer width="100%" height={350}>
         {loading ? (
           <LoaderText />
         ) : (
-          <PieChart height={250}>
+          <PieChart width={20}>
             <Pie
               isAnimationActive={animate}
               onAnimationStart={onAnimationStart}
               data={data}
               cx="50%"
               cy="50%"
-              outerRadius={100}
+              outerRadius={width > BKPT_NAVBAR ? '60%' : '40%'}
               fill="#8884d8"
               dataKey="value"
               label={renderCustomizedLabel}
@@ -82,7 +88,69 @@ function Gauge(): JSX.Element {
           </PieChart>
         )}
       </ResponsiveContainer>
-    </Content>
+      <Flex style={{ flexWrap: 'wrap' }} gap={10} justifyCenter marginAuto>
+        <Card>
+          <Flex col>
+            <Text textAlignCenter t4>
+              Underwriting Pool Size
+            </Text>
+            <Text textAlignCenter t2>
+              333
+            </Text>
+          </Flex>
+        </Card>
+        <Card>
+          <Flex col>
+            <Text textAlignCenter t4>
+              Underwriting Pool Size
+            </Text>
+            <Text textAlignCenter t2>
+              333
+            </Text>
+          </Flex>
+        </Card>
+        <Card>
+          <Flex col>
+            <Text textAlignCenter t4>
+              Underwriting Pool Size
+            </Text>
+            <Text textAlignCenter t2>
+              333
+            </Text>
+          </Flex>
+        </Card>
+        <Card>
+          <Flex col>
+            <Text textAlignCenter t4>
+              Underwriting Pool Size
+            </Text>
+            <Text textAlignCenter t2>
+              333
+            </Text>
+          </Flex>
+        </Card>
+        <Card>
+          <Flex col>
+            <Text textAlignCenter t4>
+              Underwriting Pool Size
+            </Text>
+            <Text textAlignCenter t2>
+              333
+            </Text>
+          </Flex>
+        </Card>
+        <Card>
+          <Flex col>
+            <Text textAlignCenter t4>
+              Underwriting Pool Size
+            </Text>
+            <Text textAlignCenter t2>
+              333
+            </Text>
+          </Flex>
+        </Card>
+      </Flex>
+    </div>
   )
 }
 
