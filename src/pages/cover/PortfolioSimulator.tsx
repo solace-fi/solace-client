@@ -249,7 +249,6 @@ export const PortfolioSimulator = (): JSX.Element => {
         col
         gap={12}
         px={20}
-        pb={18}
         style={{
           zIndex: 2,
         }}

@@ -209,7 +209,7 @@ export const Protocol: React.FC<{
                 }
               }
         }
-        style={{ position: 'relative', cursor: isEditing ? 'default' : 'pointer' }}
+        style={{ position: 'relative', cursor: isEditing ? 'default' : 'move' }}
       >
         <Flex col gap={8}>
           <Flex stretch between gap={10}>
