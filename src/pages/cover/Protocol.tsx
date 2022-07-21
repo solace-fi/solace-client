@@ -51,10 +51,6 @@ export const ReadOnlyProtocol: React.FC<{
                     <Text autoAlignVertical>
                       <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={36} />
                     </Text>
-                    {networkLogos.map((logo, i) => {
-                      if (logo) return <img key={i} src={logo} width={20} height={20} />
-                      return <StyledHelpCircle key={i} size={20} />
-                    })}
                   </Flex>
                   <Flex col gap={5}>
                     {/* protocol name */}
@@ -63,8 +59,12 @@ export const ReadOnlyProtocol: React.FC<{
                         protocol.appId.includes('Empty') ? 'Empty' : processProtocolName(protocol.appId)
                       )}
                     </Text>
-                    {/* protocol category */}
-                    <Text t5s>{capitalizeFirstLetter(protocol.category)}</Text>
+                    <Flex>
+                      {networkLogos.map((logo, i) => {
+                        if (logo) return <img key={i} src={logo} width={16} height={16} />
+                        return <StyledHelpCircle key={i} size={16} />
+                      })}
+                    </Flex>
                   </Flex>
                 </Flex>
                 <Flex col itemsEnd gap={2}>
@@ -283,18 +283,18 @@ export const Protocol: React.FC<{
                           <StyledHelpCircle size={36} />
                         )}
                       </Text>
-                      {networkLogos.map((logo, i) => {
-                        if (logo) return <img key={i} src={logo} width={20} height={20} />
-                        return <StyledHelpCircle key={i} size={20} />
-                      })}
                     </Flex>
                     <Flex col gap={5}>
                       {/* protocol name */}
                       <Text t5s bold>
                         {capitalizeFirstLetter(processProtocolName(protocol.appId))}
                       </Text>
-                      {/* protocol category */}
-                      <Text t5s>{capitalizeFirstLetter(protocol.category)}</Text>
+                      <Flex>
+                        {networkLogos.map((logo, i) => {
+                          if (logo) return <img key={i} src={logo} width={16} height={16} />
+                          return <StyledHelpCircle key={i} size={16} />
+                        })}
+                      </Flex>
                     </Flex>
                   </Flex>
                   <Flex col itemsEnd gap={2}>
