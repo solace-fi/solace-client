@@ -12,7 +12,6 @@ import { NEAR_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 import bridgeWrapperABI from '../constants/abi/BridgeWrapper.json'
 
 import { AURORASCAN_API_KEY } from '../constants'
-import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/auroraTestnet'
 
 import {
   xsLocker_ABI,
@@ -91,9 +90,6 @@ export const AuroraTestnetNetwork: NetworkConfig = {
       },
     },
     underwritingPoolAddr: '0x501ace27a074471f099fffec008bd1b151c7f7de',
-  },
-  cache: {
-    tellerToTokenMapping,
   },
   metamaskChain: {
     chainId: hexValue(chainId),

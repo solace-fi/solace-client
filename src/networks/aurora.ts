@@ -8,7 +8,6 @@ import { NEAR_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 import solaceABI from '../constants/abi/SOLACE.json'
 import xSolaceABI from '../constants/abi/xSOLACE.json'
 import bridgeWrapperABI from '../constants/abi/BridgeWrapper.json'
-import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/aurora'
 import { AURORASCAN_API_KEY } from '../constants'
 
 import {
@@ -89,9 +88,6 @@ export const AuroraNetwork: NetworkConfig = {
       },
     },
     underwritingPoolAddr: '0x501ace27a074471f099fffec008bd1b151c7f7de',
-  },
-  cache: {
-    tellerToTokenMapping,
   },
   metamaskChain: {
     chainId: hexValue(chainId),

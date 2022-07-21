@@ -6,7 +6,6 @@ import solaceABI from '../constants/abi/SOLACE.json'
 import xSolaceABI from '../constants/abi/xSOLACE.json'
 import { hexValue } from 'ethers/lib/utils'
 
-import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/fantomTestnet'
 import { FTMSCAN_API_KEY } from '../constants'
 import { NetworkConfig } from '../constants/types'
 import FantomLogo from '../resources/svg/networks/fantom-logo.svg'
@@ -70,9 +69,6 @@ export const FantomTestnetNetwork: NetworkConfig = {
     specialContracts: {},
     generalFeatures: NETWORKS_MAPPING[chainId].features.general,
     specialFeatures: {},
-  },
-  cache: {
-    tellerToTokenMapping,
   },
   metamaskChain: {
     chainId: hexValue(chainId),

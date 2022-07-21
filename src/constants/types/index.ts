@@ -1,4 +1,3 @@
-export * from './bond'
 export * from './contract'
 export * from './gas'
 export * from './local'

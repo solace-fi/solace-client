@@ -13,9 +13,6 @@ import { PolicyContent } from './PolicyContent'
 import { CldModal } from './CldModal'
 import { SimCoverModal } from './SimCoverModal'
 import { Portfolio } from './Portfolio'
-import ReferralModal from './ReferralModal'
-import ShareModal from './ShareModal'
-import { CodeNoticeModal } from './CodeNoticeModal'
 
 function VisibilityController({ show, children }: { show: boolean; children: React.ReactNode }) {
   return <div style={{ display: show ? 'block' : 'none' }}>{children}</div>
@@ -81,7 +78,6 @@ const CoverageContent = () => {
 
   return (
     <>
-      <CodeNoticeModal />
       <Flex justifyCenter>
         <Flex col w={450}>
           <VisibilityController show={_showCldModal}>
@@ -98,12 +94,6 @@ const CoverageContent = () => {
           </VisibilityController>
           <VisibilityController show={_showDefault}>
             <CoveragePage />
-          </VisibilityController>
-          <VisibilityController show={_showReferralModal}>
-            <ReferralModal />
-          </VisibilityController>
-          <VisibilityController show={_showShareReferralModal}>
-            <ShareModal />
           </VisibilityController>
         </Flex>
       </Flex>

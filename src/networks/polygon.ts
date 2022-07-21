@@ -11,7 +11,6 @@ import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/polygon'
 
 import bridgeWrapperABI from '../constants/abi/BridgeWrapper.json'
 
-import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/polygon'
 import { FRAX_TOKEN } from '../constants/mappings/token'
 
 import {
@@ -94,9 +93,6 @@ export const PolygonNetwork: NetworkConfig = {
       },
     },
     underwritingPoolAddr: '0xd1108a800363C262774B990e9DF75a4287d5c075',
-  },
-  cache: {
-    tellerToTokenMapping,
   },
   metamaskChain: {
     chainId: hexValue(chainId),

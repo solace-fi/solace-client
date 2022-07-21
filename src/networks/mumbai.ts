@@ -8,7 +8,6 @@ import solaceABI from '../constants/abi/SOLACE.json'
 import xSolaceABI from '../constants/abi/xSOLACE.json'
 import bridgeWrapperABI from '../constants/abi/BridgeWrapper.json'
 import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/mumbai'
-import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/mumbai'
 import { FRAX_TOKEN } from '../constants/mappings/token'
 
 import {
@@ -87,9 +86,6 @@ export const MumbaiNetwork: NetworkConfig = {
         abi: bridgeWrapperABI.abi,
       },
     },
-  },
-  cache: {
-    tellerToTokenMapping,
   },
   metamaskChain: {
     chainId: hexValue(chainId),

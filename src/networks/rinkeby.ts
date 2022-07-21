@@ -12,7 +12,6 @@ import xSolaceMigratorABI from '../constants/abi/xSolaceMigrator.json'
 
 import { KEY_ADDRS } from '../constants/addresses/rinkeby'
 import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
-import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/rinkeby'
 import {
   COVER_PAYMENT_MANAGER_ADDRESS,
   NETWORKS_MAPPING,
@@ -83,9 +82,6 @@ export const RinkebyNetwork: NetworkConfig = {
       solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },
     specialContracts: {},
-  },
-  cache: {
-    tellerToTokenMapping,
   },
   metamaskChain: {
     chainId: hexValue(chainId),

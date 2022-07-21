@@ -1,6 +1,5 @@
 import { ContractSources } from './contract'
 import { Unit } from '../enums'
-import { TellerTokenMetadata } from '.'
 
 export type NetworkConfig = {
   name: string
@@ -45,11 +44,6 @@ export type NetworkConfig = {
       hardcodedMaxPriorityFeePerGas?: number
     }
     underwritingPoolAddr?: string
-  }
-  cache: {
-    tellerToTokenMapping: {
-      [key: string]: TellerTokenMetadata
-    }
   }
   metamaskChain?: MetamaskAddEthereumChain
   walletConfig: any

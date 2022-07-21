@@ -50,7 +50,7 @@ export const CldModal = () => {
     getMinRequiredAccountBalance,
     policyOf,
   } = useCoverageFunctions()
-  const { intrface, portfolioKit, simulator, input, dropdowns, styles, referral, policy } = useCoverageContext()
+  const { intrface, portfolioKit, simulator, input, dropdowns, styles, policy } = useCoverageContext()
   const {
     userState,
     handleShowCLDModal,
@@ -73,13 +73,6 @@ export const CldModal = () => {
   const { importCounter } = simulator
   const { batchBalanceData } = dropdowns
   const { bigButtonStyle, gradientStyle } = styles
-  const {
-    cookieReferralCode,
-    appliedReferralCode,
-    cookieCodeUsable,
-    applyReferralCode,
-    handleCodeApplicationStatus,
-  } = referral
   const { signatureObj, depositApproval, scpBalance, status, availCovCap, approveCPM } = policy
 
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -166,8 +159,6 @@ export const CldModal = () => {
     handleTransactionLoading(true)
     await purchase(account, parseUnits(localNewCoverageLimit, 18))
       .then(async (res) => await _handleToast(res.tx, res.localTx, true))
-      .then((res) => handleCodeApplication(res))
-
       .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
   }
 
@@ -181,8 +172,6 @@ export const CldModal = () => {
       parseUnits(enteredDeposit, selectedCoin.decimals)
     )
       .then(async (res) => await _handleToast(res.tx, res.localTx, true))
-      .then((res) => handleCodeApplication(res))
-
       .catch((err) => _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
   }
 
@@ -202,8 +191,6 @@ export const CldModal = () => {
       tokenSignature.signature
     )
       .then(async (res) => await _handleToast(res.tx, res.localTx, true))
-      .then((res) => handleCodeApplication(res))
-
       .catch((err) =>
         _handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
       )
@@ -220,10 +207,6 @@ export const CldModal = () => {
   }
 
   const _handleToast = async (tx: any, localTx: any, codeApplication?: boolean) => {
-    if (codeApplication && !appliedReferralCode && cookieReferralCode && newUserState) {
-      handleCodeApplicationStatus(ApiStatus.PENDING)
-      handleShowCodeNoticeModal(true)
-    }
     handleEnteredUSDDeposit('')
     handleTransactionLoading(false)
     return await handleToast(tx, localTx)
@@ -232,26 +215,6 @@ export const CldModal = () => {
   const _handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
     handleContractCallError(functionName, err, txType)
     handleTransactionLoading(false)
-  }
-
-  const handleCodeApplication = async (activationStatus: boolean) => {
-    if (!activationStatus || !account || !cookieReferralCode || appliedReferralCode || !newUserState) {
-      handleCodeApplicationStatus('activation failed')
-      return
-    }
-    const policyId: BigNumber = await policyOf(account)
-    if (policyId?.isZero()) {
-      handleCodeApplicationStatus('activation failed')
-      return
-    }
-    handleCodeApplicationStatus('handling referral')
-    await applyReferralCode(cookieReferralCode, policyId.toNumber(), activeNetwork.chainId).then((r) => {
-      if (r) {
-        handleCodeApplicationStatus(ApiStatus.OK)
-      } else {
-        handleCodeApplicationStatus(ApiStatus.ERROR)
-      }
-    })
   }
 
   const handleEnteredUSDDeposit = (usd_value: string, maxDecimals?: number) => {
@@ -421,11 +384,7 @@ export const CldModal = () => {
             />
           </Flex>
         </Flex>
-        {cookieReferralCode && !cookieCodeUsable && newUserState ? (
-          <Text textAlignCenter pt={16} error>
-            Cannot use invalid referral code
-          </Text>
-        ) : insufficientCovCap ? (
+        {insufficientCovCap ? (
           <Text textAlignCenter pt={16}>
             Your desired cover limit is too high.
           </Text>
@@ -462,22 +421,6 @@ export const CldModal = () => {
         )}
         {scpBalanceMeetsMrab && !showDeposit && (
           <ButtonWrapper>
-            {depositApproval && (
-              <Button
-                {...gradientStyle}
-                {...bigButtonStyle}
-                secondary
-                noborder
-                onClick={callPurchase}
-                disabled={
-                  parseFloat(formatAmount(localNewCoverageLimit)) == 0 ||
-                  insufficientCovCap ||
-                  (cookieReferralCode && !cookieCodeUsable && newUserState)
-                }
-              >
-                {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}
-              </Button>
-            )}
             {!depositApproval && (
               <>
                 <Button
@@ -566,25 +509,6 @@ export const CldModal = () => {
                   disabled={selectedCoinBalance.isZero()}
                 >
                   <Text {...gradientStyle}>MAX</Text>
-                </Button>
-              )}
-              {depositApproval && (
-                <Button
-                  {...bigButtonStyle}
-                  {...gradientStyle}
-                  secondary
-                  noborder
-                  onClick={handlePurchase}
-                  disabled={
-                    parseFloat(formatAmount(localNewCoverageLimit)) == 0 ||
-                    lackingScp != 'meets requirement' ||
-                    insufficientCovCap ||
-                    (cookieReferralCode && !cookieCodeUsable && newUserState)
-                  }
-                >
-                  <Text>
-                    {curUserState ? `Deposit & Save` : newUserState || returningUserState ? `Deposit & Activate` : ``}
-                  </Text>
                 </Button>
               )}
               {!depositApproval && (

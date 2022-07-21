@@ -67,7 +67,6 @@ import '../../styles/tailwind.min.css'
 // util imports
 
 import { getTimeFromMillis } from '../../utils/time'
-import { BridgeModal } from './organisms/BridgeModal'
 import { Loader } from '../../components/atoms/Loader'
 import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
 import { useWeb3React } from '@web3-react/core'
@@ -84,7 +83,6 @@ export default function Stake(): JSX.Element {
   const [newSafeIsOpen, setNewSafeIsOpen] = useState(false)
   const [batchActionsIsEnabled, setBatchActionsIsEnabled] = useState(false)
   const [isCompoundModalOpen, setIsCompoundModalOpen] = useState<boolean>(false)
-  const [isBridgeModalOpen, setIsBridgeModalOpen] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
 
   const fetchingLocks = useRef(false)
@@ -335,11 +333,6 @@ export default function Stake(): JSX.Element {
                   </ButtonWrapper>
                 )}
               </Modal>
-              <BridgeModal
-                modalTitle={'Bridge SOLACE'}
-                handleClose={() => setIsBridgeModalOpen(false)}
-                isOpen={isBridgeModalOpen}
-              />
               <AggregatedStakeData stakeData={userLockInfo} />
               <Flex
                 between

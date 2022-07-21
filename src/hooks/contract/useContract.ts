@@ -1,11 +1,10 @@
 import { useMemo } from 'react'
 import { isAddress } from '../../utils'
 import { Contract } from '@ethersproject/contracts'
-import { ContractSources, TellerTokenMetadata } from '../../constants/types'
+import { ContractSources } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { AddressZero } from '@ethersproject/constants'
-import { BondTellerContractData } from '@solace-fi/sdk-nightly'
 
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
   const { provider, signer } = useProvider()
@@ -31,43 +30,11 @@ export function useGetContract(source: ContractSources | undefined, hasSigner = 
   }, [source, hasSigner, provider, signer])
 }
 
-export function useGetBondTellerContracts(): (BondTellerContractData & {
-  metadata: TellerTokenMetadata
-})[] {
-  const { activeNetwork } = useNetwork()
-  const { provider, signer } = useProvider()
-  return useMemo(() => {
-    const cache = activeNetwork.cache
-    if (!cache) return []
-    const bondTellerContracts: (BondTellerContractData & { metadata: TellerTokenMetadata })[] = []
-    Object.keys(cache.tellerToTokenMapping).forEach((key) => {
-      const mapping = cache.tellerToTokenMapping[key]
-      const tellerAbi = mapping.tellerAbi
-      const contract = new Contract(key, tellerAbi, signer ?? provider)
-      const type = mapping.isBondTellerErc20
-        ? 'erc20'
-        : mapping.name == 'ETH'
-        ? 'eth'
-        : mapping.name == 'FTM'
-        ? 'ftm'
-        : 'matic'
-      const cntct: BondTellerContractData & { metadata: TellerTokenMetadata } = {
-        contract,
-        type,
-        metadata: mapping,
-      }
-      bondTellerContracts.push(cntct)
-    })
-    return bondTellerContracts
-  }, [provider, signer, activeNetwork])
-}
-
 export function useContractArray(): ContractSources[] {
   const { activeNetwork } = useNetwork()
 
   return useMemo(() => {
     const config = activeNetwork.config
-    const cache = activeNetwork.cache
     const contractSources: ContractSources[] = []
     const excludedContractAddrs = activeNetwork.explorer.excludedContractAddrs
 
@@ -76,15 +43,6 @@ export function useContractArray(): ContractSources[] {
         contractSources.push({
           addr: config.keyContracts[key].addr.toLowerCase(),
           abi: config.keyContracts[key].abi,
-        })
-      }
-    })
-    Object.keys(cache.tellerToTokenMapping).forEach((key) => {
-      if (!excludedContractAddrs.includes(key)) {
-        const abi = cache.tellerToTokenMapping[key].tellerAbi
-        contractSources.push({
-          addr: key.toLowerCase(),
-          abi,
         })
       }
     })

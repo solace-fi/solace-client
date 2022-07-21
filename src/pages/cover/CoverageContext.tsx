@@ -26,7 +26,6 @@ import { useProvider } from '../../context/ProviderManager'
 import { ERC20_ABI } from '../../constants/abi'
 import { useTokenAllowance, useTokenApprove } from '../../hooks/contract/useToken'
 import SOLACE from '../../constants/abi/SOLACE.json'
-import useReferralApi from '../../hooks/api/useReferralApi'
 import { isAddress } from '../../utils'
 
 type CoverageContextType = {
@@ -122,18 +121,6 @@ type CoverageContextType = {
     signatureObj: any
     depositApproval: boolean
     approveCPM: (tokenAddr: string, amount?: BigNumber) => void
-  }
-  referral: {
-    appliedReferralCode?: string
-    earnedAmount?: number
-    referredCount?: number
-    userReferralCode?: string
-    cookieReferralCode?: string
-    cookieCodeUsable: boolean
-    handleCookieReferralCode: (code: string | undefined) => void
-    applyReferralCode: (referral_code: string, policy_id: number, chain_id: number) => Promise<boolean>
-    codeApplicationStatus: string
-    handleCodeApplicationStatus: (status: string) => void
   }
 }
 
@@ -231,18 +218,6 @@ const CoverageContext = createContext<CoverageContextType>({
     depositApproval: false,
     approveCPM: () => undefined,
   },
-  referral: {
-    appliedReferralCode: undefined,
-    earnedAmount: 0,
-    referredCount: 0,
-    userReferralCode: undefined,
-    cookieReferralCode: undefined,
-    cookieCodeUsable: false,
-    handleCookieReferralCode: () => undefined,
-    applyReferralCode: () => Promise.reject(),
-    codeApplicationStatus: ApiStatus.IDLE,
-    handleCodeApplicationStatus: () => undefined,
-  },
 })
 
 const CoverageManager: React.FC = (props) => {
@@ -277,17 +252,6 @@ const CoverageManager: React.FC = (props) => {
   } = useInputAmount()
   const { amount: enteredWithdrawal, handleInputChange: handleEnteredWithdrawal } = useInputAmount()
   const { getAvailableCoverCapacity } = useCoverageFunctions()
-
-  const {
-    appliedReferralCode,
-    earnedAmount,
-    referredCount,
-    userReferralCode,
-    cookieReferralCode,
-    setCookieReferralCode,
-    applyReferralCode,
-    cookieCodeUsable,
-  } = useReferralApi()
 
   const [importedCoverLimit, setImportedCoverLimit] = useState<BigNumber>(ZERO)
   const [simCoverLimit, setSimCoverLimit] = useState<BigNumber>(ZERO)
@@ -492,11 +456,6 @@ const CoverageManager: React.FC = (props) => {
     setSimChosenLimit(chosenLimit)
   }, [])
 
-  const handleCookieReferralCode = useCallback((referralCode: string | undefined) => {
-    setCookieReferralCode(referralCode)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   useEffect(() => {
     setSelectedCoin(coinOptions[0])
   }, [coinOptions])
@@ -657,18 +616,6 @@ const CoverageManager: React.FC = (props) => {
         depositApproval,
         approveCPM,
       },
-      referral: {
-        appliedReferralCode,
-        earnedAmount,
-        referredCount,
-        userReferralCode, // referral code entered
-        cookieReferralCode,
-        handleCookieReferralCode,
-        applyReferralCode,
-        codeApplicationStatus,
-        cookieCodeUsable,
-        handleCodeApplicationStatus,
-      },
     }),
     [
       navbarThreshold,
@@ -725,16 +672,6 @@ const CoverageManager: React.FC = (props) => {
       simChosenLimit,
       fetchStatus,
       clearCounter,
-      earnedAmount,
-      referredCount,
-      userReferralCode,
-      appliedReferralCode,
-      cookieReferralCode,
-      codeApplicationStatus,
-      cookieCodeUsable,
-      handleCodeApplicationStatus,
-      handleCookieReferralCode,
-      applyReferralCode,
       handleClearCounter,
       handleSimChosenLimit,
       handleImportedCoverLimit,

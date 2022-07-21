@@ -12,7 +12,6 @@ import xSolaceMigratorABI from '../constants/abi/xSolaceMigrator.json'
 
 import { KEY_ADDRS } from '../constants/addresses/mainnet'
 import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
-import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/mainnet'
 
 import { xsLocker_ABI, SolaceCoverProductV3_ABI, CoverPaymentManager_ABI, StakingRewardsV2_ABI } from '../constants/abi'
 import {
@@ -89,9 +88,6 @@ export const MainNetwork: NetworkConfig = {
     },
     specialContracts: {},
     underwritingPoolAddr: '0x5efc0d9ee3223229ce3b53e441016efc5ba83435',
-  },
-  cache: {
-    tellerToTokenMapping,
   },
   metamaskChain: {
     chainId: hexValue(chainId),

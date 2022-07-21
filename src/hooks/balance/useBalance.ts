@@ -6,7 +6,6 @@ import { formatUnits } from '@ethersproject/units'
 import { queryBalance } from '../../utils/contract'
 import { networks, useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
-import { useBridge } from './useBridge'
 import { withBackoffRetries } from '../../utils/time'
 import { SOLACE_TOKEN, XSOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
 import { SCP, UnderwritingPoolUSDBalances } from '@solace-fi/sdk-nightly'
@@ -149,36 +148,6 @@ export const useXSolaceBalance = (): string => {
   }, [account, xSolace, getXSolaceBalance, version])
 
   return xSolaceBalance
-}
-
-export const useBridgeBalance = (): string => {
-  const { bSolace, getUserBridgeBalance } = useBridge()
-  const { account } = useWeb3React()
-  const { version } = useCachedData()
-  const [bridgeBalance, setBridgeBalance] = useState<string>('0')
-
-  useEffect(() => {
-    if (!bSolace || !account) return
-    const getBalance = async () => {
-      const balance = await getUserBridgeBalance()
-      const formattedBalance = formatUnits(balance, 18)
-      setBridgeBalance(formattedBalance)
-      bSolace.on('Transfer', async (from, to) => {
-        if (from == account || to == account) {
-          const balance = await getUserBridgeBalance()
-          const formattedBalance = formatUnits(balance, 18)
-          setBridgeBalance(formattedBalance)
-        }
-      })
-    }
-    getBalance()
-
-    return () => {
-      bSolace.removeAllListeners()
-    }
-  }, [account, bSolace, getUserBridgeBalance, version])
-
-  return bridgeBalance
 }
 
 export const useXSolaceV1Balance = (): { xSolaceV1Balance: string; v1StakedSolaceBalance: string } => {

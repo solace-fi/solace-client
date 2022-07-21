@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useMemo } from 'react'
 import { Contract } from '@ethersproject/contracts'
 
-import { useContractArray, useGetBondTellerContracts, useGetContract } from '../hooks/contract/useContract'
-import { ContractSources, TellerTokenMetadata } from '../constants/types'
+import { useContractArray, useGetContract } from '../hooks/contract/useContract'
+import { ContractSources } from '../constants/types'
 import { useNetwork } from './NetworkManager'
-import { BondTellerContractData } from '@solace-fi/sdk-nightly'
 
 /*
 
@@ -22,9 +21,6 @@ type Contracts = {
     stakingRewardsV2?: Contract | null
     xSolaceMigrator?: Contract | null
   }
-  tellers: (BondTellerContractData & {
-    metadata: TellerTokenMetadata
-  })[]
   contractSources: ContractSources[]
 }
 
@@ -37,7 +33,6 @@ const ContractsContext = createContext<Contracts>({
     stakingRewardsV2: undefined,
     xSolaceMigrator: undefined,
   },
-  tellers: [],
   contractSources: [],
 })
 
@@ -52,7 +47,6 @@ const ContractsProvider: React.FC = (props) => {
   const xsLocker = useGetContract(keyContracts.xsLocker)
   const stakingRewardsV2 = useGetContract(keyContracts.stakingRewardsV2)
   const xSolaceMigrator = useGetContract(keyContracts.xSolaceMigrator)
-  const tellers = useGetBondTellerContracts()
 
   const value = useMemo<Contracts>(
     () => ({
@@ -64,10 +58,9 @@ const ContractsProvider: React.FC = (props) => {
         stakingRewardsV2,
         xSolaceMigrator,
       },
-      tellers,
       contractSources,
     }),
-    [solace, xSolace, xSolaceV1, xsLocker, stakingRewardsV2, xSolaceMigrator, tellers, contractSources]
+    [solace, xSolace, xSolaceV1, xsLocker, stakingRewardsV2, xSolaceMigrator, contractSources]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>

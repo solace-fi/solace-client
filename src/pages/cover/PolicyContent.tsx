@@ -37,7 +37,7 @@ import { usePortfolioAnalysis } from '../../hooks/policy/usePortfolioAnalysis'
 export const PolicyContent = (): JSX.Element => {
   const { appTheme } = useGeneral()
   const { latestBlock } = useProvider()
-  const { intrface, styles, input, dropdowns, policy, referral, portfolioKit } = useCoverageContext()
+  const { intrface, styles, input, dropdowns, policy, portfolioKit } = useCoverageContext()
   const {
     navbarThreshold,
     coverageLoading,
@@ -82,13 +82,6 @@ export const PolicyContent = (): JSX.Element => {
   } = policy
   const { batchBalanceData, coinsOpen, setCoinsOpen } = dropdowns
   const { curPortfolio, curDailyCost, curUsdBalanceSum, curHighestPosition, fetchStatus } = portfolioKit
-  const {
-    cookieReferralCode,
-    appliedReferralCode,
-    cookieCodeUsable,
-    applyReferralCode,
-    handleCodeApplicationStatus,
-  } = referral
 
   const { account } = useWeb3React()
   const { activeNetwork, changeNetwork } = useNetwork()
@@ -251,8 +244,7 @@ export const PolicyContent = (): JSX.Element => {
     if (!account) return
     handleTransactionLoading(true)
     await purchase(account, suggestedCoverLimit)
-      .then(async (res) => await _handleToast(res.tx, res.localTx, true))
-      .then((res) => handleCodeApplication(res))
+      .then(async (res) => await _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
   }
 
@@ -265,8 +257,7 @@ export const PolicyContent = (): JSX.Element => {
       selectedCoin.address,
       parseUnits(enteredDeposit, selectedCoin.decimals)
     )
-      .then(async (res) => await _handleToast(res.tx, res.localTx, true))
-      .then((res) => handleCodeApplication(res))
+      .then(async (res) => await _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
   }
 
@@ -285,8 +276,7 @@ export const PolicyContent = (): JSX.Element => {
       tokenSignature.deadline,
       tokenSignature.signature
     )
-      .then(async (res) => await _handleToast(res.tx, res.localTx, true))
-      .then((res) => handleCodeApplication(res))
+      .then(async (res) => await _handleToast(res.tx, res.localTx))
       .catch((err) =>
         _handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
       )
@@ -302,11 +292,7 @@ export const PolicyContent = (): JSX.Element => {
     }
   }
 
-  const _handleToast = async (tx: any, localTx: any, codeApplication?: boolean) => {
-    if (codeApplication && !appliedReferralCode && cookieReferralCode && newUserState) {
-      handleCodeApplicationStatus(ApiStatus.PENDING)
-      handleShowCodeNoticeModal(true)
-    }
+  const _handleToast = async (tx: any, localTx: any) => {
     handleCtaState(undefined)
     handleEnteredUSDDeposit('')
     handleTransactionLoading(false)
@@ -316,26 +302,6 @@ export const PolicyContent = (): JSX.Element => {
   const _handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
     handleContractCallError(functionName, err, txType)
     handleTransactionLoading(false)
-  }
-
-  const handleCodeApplication = async (activationStatus: boolean) => {
-    if (!activationStatus || !account || !cookieReferralCode || appliedReferralCode || !newUserState) {
-      handleCodeApplicationStatus('activation failed')
-      return
-    }
-    const policyId: BigNumber = await policyOf(account)
-    if (policyId?.isZero()) {
-      handleCodeApplicationStatus('activation failed')
-      return
-    }
-    handleCodeApplicationStatus('handling referral')
-    await applyReferralCode(cookieReferralCode, policyId.toNumber(), activeNetwork.chainId).then((r) => {
-      if (r) {
-        handleCodeApplicationStatus(ApiStatus.OK)
-      } else {
-        handleCodeApplicationStatus(ApiStatus.ERROR)
-      }
-    })
   }
 
   const handleEnteredUSDWithdrawal = (usd_value: string) => {
@@ -560,31 +526,6 @@ export const PolicyContent = (): JSX.Element => {
               <Flex button noborder py={6.5} px={16} mx={20} mt={12} bgRaised style={{ borderRadius: '8px' }}>
                 <Text t5s bold info>
                   <Flex between gap={12} onClick={() => handleShowReferralModal(true)}>
-                    {!newUserState ? (
-                      <Text t4>Manage your referrals</Text>
-                    ) : cookieReferralCode && cookieCodeUsable && !appliedReferralCode ? (
-                      <Text success t4>
-                        Referral code active:{' '}
-                        {cookieReferralCode.length > 10
-                          ? `${cookieReferralCode.substring(0, 10)}...`
-                          : cookieReferralCode}
-                      </Text>
-                    ) : cookieReferralCode && !cookieCodeUsable && !appliedReferralCode ? (
-                      <Text error t4>
-                        Invalid referral code:{' '}
-                        {cookieReferralCode.length > 10
-                          ? `${cookieReferralCode.substring(0, 10)}...`
-                          : cookieReferralCode}
-                      </Text>
-                    ) : appliedReferralCode ? (
-                      <Text warning t4>
-                        This account has already used a referral code
-                      </Text>
-                    ) : (
-                      <Text warning t4>
-                        No referral code detected
-                      </Text>
-                    )}
                     <StyledOptions width={12} />
                   </Flex>
                 </Text>
@@ -641,11 +582,6 @@ export const PolicyContent = (): JSX.Element => {
                         </Text>
                       </Flex>
                     </Flex>
-                  )}
-                  {cookieReferralCode && !cookieCodeUsable && newUserState && (
-                    <Text textAlignCenter pb={12}>
-                      Cannot use invalid referral code
-                    </Text>
                   )}
                   {(newUserState || returningUserState) &&
                     (suggestedCoverLimit.isZero() ? (
@@ -755,28 +691,6 @@ export const PolicyContent = (): JSX.Element => {
                           With this deposit, your policy will extend by{' '}
                           <TextSpan success>{truncateValue(initiativeDuration, 1)} days</TextSpan>.
                         </Text>
-                      )}
-                      {(newUserState || returningUserState) && depositApproval && homeCta && (
-                        <Button
-                          {...gradientStyle}
-                          {...bigButtonStyle}
-                          secondary={newUserState}
-                          noborder={newUserState}
-                          success={returningUserState}
-                          onClick={handlePurchase}
-                          disabled={
-                            suggestedCoverLimit.isZero() ||
-                            portfolioLoading ||
-                            lackingScp != 'meets requirement' ||
-                            (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
-                              !isAcceptableDeposit) ||
-                            (cookieReferralCode && !cookieCodeUsable && newUserState)
-                          }
-                        >
-                          <Text bold t4s>
-                            Activate Policy
-                          </Text>
-                        </Button>
                       )}
                       {(newUserState || returningUserState) && !depositApproval && homeCta && (
                         <>
