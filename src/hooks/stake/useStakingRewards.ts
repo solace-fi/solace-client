@@ -2,26 +2,21 @@ import { useEffect, useState, useMemo } from 'react'
 import { useContracts } from '../../context/ContractsManager'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import { LocalTx } from '../../constants/types'
 import { ZERO } from '../../constants'
-import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { rangeFrom0 } from '../../utils/numeric'
 import { useProvider } from '../../context/ProviderManager'
 import { convertSciNotaToPrecise, truncateValue, formatAmount } from '../../utils/formatting'
-import { useGetFunctionGas } from '../provider/useGas'
 import { withBackoffRetries } from '../../utils/time'
 import { useNetwork } from '../../context/NetworkManager'
 
-import { Lock, Staker, GlobalLockInfo, Price } from '@solace-fi/sdk-nightly'
+import { Lock, GlobalLockInfo } from '@solace-fi/sdk-nightly'
 import { useCachedData } from '../../context/CachedDataManager'
-import { FunctionGasLimits } from '../../constants/mappings/gas'
 
 export const useStakingRewards = () => {
-  const { provider, signer } = useProvider()
+  const { provider } = useProvider()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { stakingRewardsV2, xsLocker } = useMemo(() => keyContracts, [keyContracts])
-  const { gasConfig } = useGetFunctionGas()
 
   const getUserPendingRewards = async (account: string) => {
     let pendingRewards = ZERO
@@ -82,113 +77,11 @@ export const useStakingRewards = () => {
     }
   }
 
-  const harvestLockRewards = async (xsLockIDs: BigNumber[]) => {
-    if (!stakingRewardsV2 || xsLockIDs.length == 0) return { tx: null, localTx: null }
-    let tx = null
-    let type = FunctionName.HARVEST_LOCK
-    if (xsLockIDs.length > 1) {
-      const estGas = await stakingRewardsV2.estimateGas.harvestLocks(xsLockIDs)
-      console.log('stakingRewardsV2.estimateGas.harvestLocks', estGas.toString())
-      tx = await stakingRewardsV2.harvestLocks(xsLockIDs, {
-        ...gasConfig,
-        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
-      })
-      type = FunctionName.HARVEST_LOCKS
-    } else {
-      const estGas = await stakingRewardsV2.estimateGas.harvestLock(xsLockIDs[0])
-      console.log('stakingRewardsV2.estimateGas.harvestLock', estGas.toString())
-      tx = await stakingRewardsV2.harvestLock(xsLockIDs[0], {
-        ...gasConfig,
-        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
-      })
-    }
-    const localTx: LocalTx = {
-      hash: tx.hash,
-      type: type,
-      status: TransactionCondition.PENDING,
-    }
-    return { tx, localTx }
-  }
-
-  const compoundLockRewards = async (xsLockIDs: BigNumber[], multipleLocks: boolean, targetXsLockID?: BigNumber) => {
-    if (!stakingRewardsV2 || xsLockIDs.length == 0) return { tx: null, localTx: null }
-    let tx = null
-    let type = FunctionName.COMPOUND_LOCK
-    if (xsLockIDs.length > 1 && targetXsLockID && multipleLocks) {
-      const estGas = await stakingRewardsV2.estimateGas.compoundLocks(xsLockIDs, targetXsLockID)
-      console.log('stakingRewardsV2.estimateGas.compoundLocks', estGas.toString())
-      tx = await stakingRewardsV2.compoundLocks(xsLockIDs, targetXsLockID, {
-        ...gasConfig,
-        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
-      })
-      type = FunctionName.COMPOUND_LOCKS
-    } else {
-      const estGas = await stakingRewardsV2.estimateGas.compoundLock(xsLockIDs[0])
-      console.log('stakingRewardsV2.estimateGas.compoundLock', estGas.toString())
-      tx = await stakingRewardsV2.compoundLock(xsLockIDs[0], {
-        ...gasConfig,
-        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
-      })
-    }
-    const localTx: LocalTx = {
-      hash: tx.hash,
-      type: type,
-      status: TransactionCondition.PENDING,
-    }
-    return { tx, localTx }
-  }
-
-  const harvestLockRewardsForScp = async (xsLockIDs: BigNumber[]) => {
-    if (xsLockIDs.length == 0 || !activeNetwork.config.generalFeatures.stakingRewardsV2)
-      return { tx: null, localTx: null }
-    const p = new Price()
-    const priceInfo = await p.getPriceInfo()
-    const signature = priceInfo.signatures[`${activeNetwork.chainId}`]
-    if (!signature) return { tx: null, localTx: null }
-    const tokenSignatureProps: any = Object.values(signature)[0]
-    let tx = null
-    let type = FunctionName.HARVEST_LOCK_FOR_SCP
-    const staker = new Staker(activeNetwork.chainId, signer)
-    if (xsLockIDs.length > 1) {
-      tx = await staker.harvestLocksForScp(
-        xsLockIDs,
-        tokenSignatureProps.price,
-        tokenSignatureProps.deadline,
-        tokenSignatureProps.signature,
-        {
-          ...gasConfig,
-          gasLimit: FunctionGasLimits['stakingRewards.harvestLocksForScp'],
-        }
-      )
-      type = FunctionName.HARVEST_LOCKS_FOR_SCP
-    } else {
-      tx = await staker.harvestLockForScp(
-        xsLockIDs[0],
-        tokenSignatureProps.price,
-        tokenSignatureProps.deadline,
-        tokenSignatureProps.signature,
-        {
-          ...gasConfig,
-          gasLimit: FunctionGasLimits['stakingRewards.harvestLockForScp'],
-        }
-      )
-    }
-    const localTx: LocalTx = {
-      hash: tx.hash,
-      type: type,
-      status: TransactionCondition.PENDING,
-    }
-    return { tx, localTx }
-  }
-
   return {
     getUserPendingRewards,
     getPendingRewardsOfLock,
     getStakedLockInfo,
     getGlobalLockStats,
-    harvestLockRewards,
-    harvestLockRewardsForScp,
-    compoundLockRewards,
   }
 }
 
