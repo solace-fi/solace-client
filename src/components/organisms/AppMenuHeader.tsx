@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 import { Flex, ShadowDiv } from '../atoms/Layout'
 
 import { UserImage } from '../atoms/User'
@@ -8,7 +8,6 @@ import { Text } from '../atoms/Typography'
 import { useLocation } from 'react-router-dom'
 import { PageInfo } from '../../constants/types'
 import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
-import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import UserGradient from '../../resources/svg/user_gradient.svg'
 import { useWeb3React } from '@web3-react/core'
 import { shortenAddress } from '../../utils/formatting'
@@ -24,7 +23,7 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
   const { account } = useWeb3React()
   const name = useENS()
   const { activeNetwork } = useNetwork()
-  const { scrollPosition } = useWindowDimensions()
+  const [scrollPosition, setScrollPosition] = useState(0)
   const location = useLocation()
   const title = useMemo(() => {
     const to = location.pathname
@@ -34,6 +33,18 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
     }
     return ''
   }, [location.pathname, pages])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const position = window.pageYOffset
+      setScrollPosition(position)
+    }
+    window.addEventListener('scroll', handleScroll)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
 
   return (
     <Flex stretch between itemsCenter pb={40}>
@@ -67,7 +78,7 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
             ) : (
               <img src={UserGradient} />
             )}
-            {scrollPosition == 0 &&
+            {scrollPosition <= 40 &&
               (account ? (
                 <Flex col around>
                   <Text textAlignLeft t4 dark techygradient>
