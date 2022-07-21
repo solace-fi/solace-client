@@ -8,7 +8,6 @@ import CardSectionValue from '../../components/CardSectionValue'
 import InfoPair, { Label } from '../../molecules/InfoPair'
 import DepositForm from './DepositForm'
 import LockForm from './LockForm'
-import RewardsForm from './RewardsForm'
 import WithdrawForm from './WithdrawForm'
 import { Tab } from '../../../../constants/enums'
 import { Accordion } from '../../../../components/atoms/Accordion'
@@ -113,24 +112,6 @@ export default function Safe({
               isSafePreview
               batch={batchActionsIsEnabled}
               importance="tertiary"
-              label="Multiplier"
-              desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
-            >
-              <CardSectionValue highlight={multiplier > 1}>{stringifiedMultiplier}x</CardSectionValue>
-            </InfoPair>
-            <InfoPair
-              isSafePreview
-              batch={batchActionsIsEnabled}
-              importance="tertiary"
-              label="APR"
-              desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
-            >
-              <CardSectionValue highlight={true}>{truncateValue(lock.apr.toString(), 1)}%</CardSectionValue>
-            </InfoPair>
-            <InfoPair
-              isSafePreview
-              batch={batchActionsIsEnabled}
-              importance="tertiary"
               label="Rewards"
               desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
             >
@@ -195,20 +176,11 @@ export default function Safe({
                   >
                     Withdraw
                   </Label>
-                  <Label
-                    importance={activeTab === Tab.REWARDS ? 'primary' : 'secondary'}
-                    clickable
-                    onClick={() => setActiveTab(Tab.REWARDS)}
-                  >
-                    Rewards
-                  </Label>
                 </Flex>
               </Flex>
-              {/* depending on the tab, use <DepositForm />, or LockForm, RewardsForm or WithdrawForm */}
               {activeTab === Tab.DEPOSIT && <DepositForm lock={lock} />}
               {activeTab === Tab.LOCK && <LockForm lock={lock} />}
               {activeTab === Tab.WITHDRAW && <WithdrawForm lock={lock} />}
-              {activeTab === Tab.REWARDS && <RewardsForm lock={lock} />}
             </Flex>
           </div>
         </Accordion>

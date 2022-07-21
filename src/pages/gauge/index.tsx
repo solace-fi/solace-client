@@ -1,18 +1,23 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
-import { Card } from '../../components/atoms/Card'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { LoaderText } from '../../components/molecules/LoaderText'
 import { BKPT_NAVBAR } from '../../constants'
+import { useGeneral } from '../../context/GeneralManager'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
+import { TileCard } from '../../components/molecules/TileCard'
+import InfoPair from '../lock/molecules/InfoPair'
+import CardSectionValue from '../lock/components/CardSectionValue'
 
 function Gauge(): JSX.Element {
   const [loading, setLoading] = useState(true)
   const [animate, setAnimate] = useState(true)
+  const { appTheme } = useGeneral()
   const { width } = useWindowDimensions()
 
-  const COLORS = useMemo(() => ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'], [])
+  const COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', 'rgb(95,93,249)', 'rgb(240,77,66)'], [])
+  const DARK_COLORS = useMemo(() => ['rgb(166, 95, 168)', 'rgb(187, 136, 0)', '#4644b9', '#b83c33'], [])
 
   const data = useMemo(
     () => [
@@ -40,7 +45,7 @@ function Gauge(): JSX.Element {
           fontSize={width > BKPT_NAVBAR ? '1rem' : '3vw'}
           x={x}
           y={y}
-          fill={COLORS[index % COLORS.length]}
+          fill={appTheme == 'dark' ? COLORS[index % COLORS.length] : DARK_COLORS[index % DARK_COLORS.length]}
           textAnchor={x > cx ? 'start' : 'end'}
           dominantBaseline="central"
         >
@@ -48,7 +53,7 @@ function Gauge(): JSX.Element {
         </text>
       )
     },
-    [COLORS, data, width]
+    [COLORS, DARK_COLORS, data, width, appTheme]
   )
 
   useEffect(() => {
@@ -89,66 +94,36 @@ function Gauge(): JSX.Element {
         )}
       </ResponsiveContainer>
       <Flex style={{ flexWrap: 'wrap' }} gap={10} justifyCenter marginAuto>
-        <Card>
-          <Flex col>
-            <Text textAlignCenter t4>
-              Underwriting Pool Size
-            </Text>
-            <Text textAlignCenter t2>
-              333
-            </Text>
-          </Flex>
-        </Card>
-        <Card>
-          <Flex col>
-            <Text textAlignCenter t4>
-              Underwriting Pool Size
-            </Text>
-            <Text textAlignCenter t2>
-              333
-            </Text>
-          </Flex>
-        </Card>
-        <Card>
-          <Flex col>
-            <Text textAlignCenter t4>
-              Underwriting Pool Size
-            </Text>
-            <Text textAlignCenter t2>
-              333
-            </Text>
-          </Flex>
-        </Card>
-        <Card>
-          <Flex col>
-            <Text textAlignCenter t4>
-              Underwriting Pool Size
-            </Text>
-            <Text textAlignCenter t2>
-              333
-            </Text>
-          </Flex>
-        </Card>
-        <Card>
-          <Flex col>
-            <Text textAlignCenter t4>
-              Underwriting Pool Size
-            </Text>
-            <Text textAlignCenter t2>
-              333
-            </Text>
-          </Flex>
-        </Card>
-        <Card>
-          <Flex col>
-            <Text textAlignCenter t4>
-              Underwriting Pool Size
-            </Text>
-            <Text textAlignCenter t2>
-              333
-            </Text>
-          </Flex>
-        </Card>
+        <TileCard>
+          <InfoPair importance="primary" label="Underwriting Pool Size">
+            <CardSectionValue annotation="UWE">{333}</CardSectionValue>
+          </InfoPair>
+        </TileCard>
+        <TileCard>
+          <InfoPair importance="primary" label="Underwriting Pool Size">
+            <CardSectionValue annotation="UWE">{333}</CardSectionValue>
+          </InfoPair>
+        </TileCard>
+        <TileCard>
+          <InfoPair importance="primary" label="Underwriting Pool Size">
+            <CardSectionValue annotation="UWE">{333}</CardSectionValue>
+          </InfoPair>
+        </TileCard>
+        <TileCard>
+          <InfoPair importance="primary" label="Underwriting Pool Size">
+            <CardSectionValue annotation="UWE">{333}</CardSectionValue>
+          </InfoPair>
+        </TileCard>
+        <TileCard>
+          <InfoPair importance="primary" label="Underwriting Pool Size">
+            <CardSectionValue annotation="UWE">{333}</CardSectionValue>
+          </InfoPair>
+        </TileCard>
+        <TileCard>
+          <InfoPair importance="primary" label="Underwriting Pool Size">
+            <CardSectionValue annotation="UWE">{333}</CardSectionValue>
+          </InfoPair>
+        </TileCard>
       </Flex>
     </div>
   )
