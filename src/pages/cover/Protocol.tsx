@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { Button, GraySquareButton, ThinButton } from '../../components/atoms/Button'
 import { capitalizeFirstLetter, filterAmount, truncateValue } from '../../utils/formatting'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { useCoverageContext } from './CoverageContext'
-import { Accordion } from '../../components/atoms/Accordion'
 import { TileCard } from '../../components/molecules/TileCard'
 import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
 import { StyledArrowDropDown, StyledClose, StyledHelpCircle } from '../../components/atoms/Icon'
@@ -187,6 +186,15 @@ export const Protocol: React.FC<{
     if (simulating) handleEditingItem(undefined)
   }, [simulating, handleEditingItem])
 
+  // input ref to focus
+  const inputRef = useRef<HTMLInputElement>(null)
+  // when enteredAppId changes and is not undefined, focus input
+  React.useEffect(() => {
+    if (enteredAppId) {
+      inputRef.current?.focus()
+    }
+  }, [enteredAppId])
+
   return (
     <div>
       <TileCard
@@ -243,6 +251,7 @@ export const Protocol: React.FC<{
                   </ThinButton>
                 </div>
                 <SmallerInputSection
+                  ref={inputRef}
                   placeholder={'Enter USD Amount'}
                   value={enteredAmount}
                   onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
