@@ -347,18 +347,20 @@ export const Protocol: React.FC<{
             </Button>
           </Flex>
         )}
-        <Modal isOpen={accordionOpen} handleClose={handleCloseAccordion} modalTitle={'Select Protocol'}>
-          <SmallerInputSection
-            placeholder={'Search Protocol'}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: '100%',
-              border: 'none',
-            }}
-          />
-          {cachedDropdownOptions}
-        </Modal>
+        {accordionOpen && (
+          <Modal isOpen={accordionOpen} handleClose={handleCloseAccordion} modalTitle={'Select Protocol'}>
+            <SmallerInputSection
+              placeholder={'Search Protocol'}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                border: 'none',
+              }}
+            />
+            {cachedDropdownOptions}
+          </Modal>
+        )}
       </TileCard>
     </div>
   )
