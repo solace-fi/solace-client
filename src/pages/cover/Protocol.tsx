@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { Button, GraySquareButton, ThinButton } from '../../components/atoms/Button'
 import { capitalizeFirstLetter, filterAmount, truncateValue } from '../../utils/formatting'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { useCoverageContext } from './CoverageContext'
-import { Accordion } from '../../components/atoms/Accordion'
 import { TileCard } from '../../components/molecules/TileCard'
 import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
 import { StyledArrowDropDown, StyledClose, StyledHelpCircle } from '../../components/atoms/Icon'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { networks } from '../../context/NetworkManager'
 import commaNumber from '../../utils/commaNumber'
+import { Modal } from '../../components/molecules/Modal'
 
 function mapNumberToLetter(number: number): string {
   const grade = {
@@ -118,7 +118,6 @@ export const Protocol: React.FC<{
 
   const [isEditing, setIsEditing] = useState(false)
   const [accordionOpen, setAccordionOpen] = useState(false)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
   const [enteredAppId, setEnteredAppId] = useState<string>(protocol.appId)
   const [enteredAmount, setEnteredAmount] = useState(
     protocol.balanceUSD.toString() == '0' ? '' : protocol.balanceUSD.toString()
@@ -147,23 +146,26 @@ export const Protocol: React.FC<{
     () => (
       <DropdownOptionsUnique
         comparingList={editableProtocolAppIds}
-        isOpen={dropdownOpen}
+        isOpen={true}
         searchedList={activeList}
         noneText={'No matching protocols found'}
         onClick={(value: string) => {
           setEnteredAppId(value)
-          setDropdownOpen(false)
           setAccordionOpen(false)
         }}
       />
     ),
-    [editableProtocolAppIds, dropdownOpen, activeList]
+    [editableProtocolAppIds, activeList]
   )
 
   const handleSaveEditedItem = useCallback(() => {
     const status = saveEditedItem(protocol.appId, enteredAppId, enteredAmount)
     if (status) handleEditingItem(undefined)
   }, [enteredAmount, enteredAppId, protocol, saveEditedItem, handleEditingItem])
+
+  const handleCloseAccordion = useCallback(() => {
+    setAccordionOpen(false)
+  }, [])
 
   useEffect(() => {
     setEnteredAmount(protocol.balanceUSD.toString() == '0' ? '' : protocol.balanceUSD.toString())
@@ -174,26 +176,24 @@ export const Protocol: React.FC<{
   }, [protocol.appId, editingItem])
 
   useEffect(() => {
-    if (!accordionOpen) {
-      setTimeout(() => {
-        setDropdownOpen(false)
-      }, 100)
-    } else {
-      setDropdownOpen(true)
-    }
-  }, [accordionOpen])
-
-  useEffect(() => {
     if (!editingItem || editingItem.toString() !== protocol.appId.toString()) {
       setIsEditing(false)
-      setAccordionOpen(false)
-      setDropdownOpen(false)
+      handleCloseAccordion()
     }
-  }, [editingItem, protocol])
+  }, [editingItem, protocol, handleCloseAccordion])
 
   useEffect(() => {
     if (simulating) handleEditingItem(undefined)
   }, [simulating, handleEditingItem])
+
+  // input ref to focus
+  const inputRef = useRef<HTMLInputElement>(null)
+  // when enteredAppId changes and is not undefined, focus input
+  React.useEffect(() => {
+    if (enteredAppId) {
+      inputRef.current?.focus()
+    }
+  }, [enteredAppId])
 
   return (
     <div>
@@ -251,6 +251,7 @@ export const Protocol: React.FC<{
                   </ThinButton>
                 </div>
                 <SmallerInputSection
+                  ref={inputRef}
                   placeholder={'Enter USD Amount'}
                   value={enteredAmount}
                   onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
@@ -355,26 +356,20 @@ export const Protocol: React.FC<{
             </Button>
           </Flex>
         )}
-        <Accordion noScroll isOpen={accordionOpen} style={{ backgroundColor: 'inherit' }}>
-          {/* <div style={{ padding: 8 }}> */}
-          <Flex col gap={8} mt={12}>
-            <div>
-              {accordionOpen && (
-                <SmallerInputSection
-                  placeholder={'Search Protocol'}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{
-                    width: '100%',
-                    border: 'none',
-                  }}
-                />
-              )}
-              {dropdownOpen && cachedDropdownOptions}
-            </div>
-          </Flex>
-          {/* </div> */}
-        </Accordion>
+        {accordionOpen && (
+          <Modal isOpen={accordionOpen} handleClose={handleCloseAccordion} modalTitle={'Select Protocol'}>
+            <SmallerInputSection
+              placeholder={'Search Protocol'}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                border: 'none',
+              }}
+            />
+            {cachedDropdownOptions}
+          </Modal>
+        )}
       </TileCard>
     </div>
   )

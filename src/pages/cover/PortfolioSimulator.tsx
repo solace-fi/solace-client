@@ -202,6 +202,10 @@ export const PortfolioSimulator = (): JSX.Element => {
     setEditingItem(appId)
   }, [])
 
+  const handleAddingProtocol = useCallback((toggle: boolean) => {
+    setAddingProtocol(toggle)
+  }, [])
+
   useEffect(() => {
     const handleSim = async () => {
       if (canSimulate) await runSimulation()
@@ -236,6 +240,12 @@ export const PortfolioSimulator = (): JSX.Element => {
 
   return (
     <Flex col style={{ height: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
+      <AddProtocolForm
+        editableProtocols={editableProtocols}
+        isAddingProtocol={addingProtocol}
+        setIsAddingProtocol={handleAddingProtocol}
+        onAddProtocol={onAddProtocol}
+      />
       <Flex py={18} itemsCenter between px={20} zIndex={3} bgSecondary>
         <Text t1s mont semibold>
           Quote Simulator
@@ -270,30 +280,18 @@ export const PortfolioSimulator = (): JSX.Element => {
         bgSecondary
         shadow
       >
-        {!addingProtocol ? (
-          <Button
-            secondary
-            raised
-            {...bigButtonStyle}
-            onClick={() => setAddingProtocol(true)}
-            disabled={portfolioLoading && active}
-            height={51}
-          >
-            <Text techygradient t4s>
-              + Add Position
-            </Text>
-          </Button>
-        ) : (
-          <>
-            <Flex p={16} col bgRaised rounded style={{ width: '100%' }}>
-              <AddProtocolForm
-                editableProtocols={editableProtocols}
-                setIsAddingProtocol={setAddingProtocol}
-                onAddProtocol={onAddProtocol}
-              />
-            </Flex>
-          </>
-        )}
+        <Button
+          secondary
+          raised
+          {...bigButtonStyle}
+          onClick={() => setAddingProtocol(true)}
+          disabled={portfolioLoading && active}
+          height={51}
+        >
+          <Text techygradient t4s>
+            + Add Position
+          </Text>
+        </Button>
       </Flex>
       <Flex
         thinScrollbar
