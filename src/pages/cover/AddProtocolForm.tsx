@@ -78,6 +78,7 @@ export default function AddProtocolForm({
     setEnteredBalance('')
     setEnteredProtocolMap(undefined)
     setIsAddingProtocol(false)
+    setDropdownOpen(true)
   }, [setIsAddingProtocol])
 
   return (
