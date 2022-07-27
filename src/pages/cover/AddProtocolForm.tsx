@@ -8,7 +8,7 @@ import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { filterAmount } from '../../utils/formatting'
 import { useCoverageContext } from './CoverageContext'
-import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
+import { DropdownOptionsUnique, processProtocolName } from '../../components/organisms/Dropdown'
 import { formatAmount } from '../../utils/formatting'
 import { Button } from '../../components/atoms/Button'
 

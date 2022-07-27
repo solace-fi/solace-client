@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers'
 import React, { useState, useMemo } from 'react'
 import { useCachedData } from '../../context/CachedDataManager'
-import { DropdownOptions } from '../../pages/cover/Dropdown'
+import { DropdownOptions } from './Dropdown'
 import { SmallerInputSection } from '../molecules/InputSection'
 import { Modal } from '../molecules/Modal'
 

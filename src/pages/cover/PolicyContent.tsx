@@ -20,7 +20,7 @@ import {
   truncateValue,
 } from '../../utils/formatting'
 import { useCoverageContext } from './CoverageContext'
-import { BalanceDropdownOptions, DropdownInputSection } from './Dropdown'
+import { BalanceDropdownOptions, DropdownInputSection } from '../../components/organisms/Dropdown'
 
 import Zapper from '../../resources/svg/zapper.svg'
 import ZapperDark from '../../resources/svg/zapper-dark.svg'

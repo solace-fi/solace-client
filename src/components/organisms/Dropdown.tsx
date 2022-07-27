@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react'
-import { useCoverageContext } from './CoverageContext'
-import { Accordion } from '../../components/atoms/Accordion'
-import { Button, ButtonAppearance } from '../../components/atoms/Button'
-import { InputSectionWrapper, StyledInput } from '../../components/atoms/Input'
-import { Flex } from '../../components/atoms/Layout'
-import { Text } from '../../components/atoms/Typography'
+import { useCoverageContext } from '../../pages/cover/CoverageContext'
+import { Accordion } from '../atoms/Accordion'
+import { Button, ButtonAppearance } from '../atoms/Button'
+import { InputSectionWrapper, StyledInput } from '../atoms/Input'
+import { Flex } from '../atoms/Layout'
+import { Text } from '../atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
 import { capitalizeFirstLetter } from '../../utils/formatting'
 
@@ -57,7 +57,7 @@ export function processProtocolName(str: string): string {
 import { TokenInfo } from '../../constants/types'
 import { formatUnits } from 'ethers/lib/utils'
 import { truncateValue } from '../../utils/formatting'
-import { StyledArrowDropDown } from '../../components/atoms/Icon'
+import { StyledArrowDropDown } from '../atoms/Icon'
 
 export const DropdownInputSection = ({
   hasArrow,
@@ -163,9 +163,12 @@ export const DropdownOptions = ({
   noneText?: string
   onClick: (value: string) => void
 }): JSX.Element => {
-  const { styles } = useCoverageContext()
-  const { bigButtonStyle, gradientStyle } = styles
-
+  const { appTheme } = useGeneral()
+  const gradientStyle = useMemo(
+    () =>
+      appTheme == 'light' ? { techygradient: true, warmgradient: false } : { techygradient: false, warmgradient: true },
+    [appTheme]
+  )
   return (
     <Accordion
       isOpen={isOpen}
@@ -178,7 +181,6 @@ export const DropdownOptions = ({
         {searchedList.map((item) => (
           <ButtonAppearance
             key={item.label}
-            {...bigButtonStyle}
             matchBg
             secondary
             noborder
@@ -223,8 +225,12 @@ export const DropdownOptionsUnique = ({
   noneText?: string
   onClick: (value: string) => void
 }): JSX.Element => {
-  const { styles } = useCoverageContext()
-  const { bigButtonStyle, gradientStyle } = styles
+  const { appTheme } = useGeneral()
+  const gradientStyle = useMemo(
+    () =>
+      appTheme == 'light' ? { techygradient: true, warmgradient: false } : { techygradient: false, warmgradient: true },
+    [appTheme]
+  )
 
   return (
     <Accordion
@@ -238,7 +244,6 @@ export const DropdownOptionsUnique = ({
         {searchedList.map((item) => (
           <ButtonAppearance
             key={item.label}
-            {...bigButtonStyle}
             matchBg
             secondary
             noborder
@@ -286,8 +291,12 @@ export const BalanceDropdownOptions = ({
   noneText?: string
   onClick: (value: string) => void
 }): JSX.Element => {
-  const { styles } = useCoverageContext()
-  const { bigButtonStyle, gradientStyle } = styles
+  const { appTheme } = useGeneral()
+  const gradientStyle = useMemo(
+    () =>
+      appTheme == 'light' ? { techygradient: true, warmgradient: false } : { techygradient: false, warmgradient: true },
+    [appTheme]
+  )
 
   return (
     <Accordion isOpen={isOpen} style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }} customHeight={'380px'}>
@@ -295,7 +304,8 @@ export const BalanceDropdownOptions = ({
         {searchedList.map((item) => (
           <ButtonAppearance
             key={item.address}
-            {...bigButtonStyle}
+            py={16}
+            widthP={100}
             matchBg
             secondary
             noborder
