@@ -248,7 +248,7 @@ const CoverageContext = createContext<CoverageContextType>({
 const CoverageManager: React.FC = (props) => {
   const { appTheme, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
-  const { tokenPriceMapping, minute, coverage } = useCachedData()
+  const { tokenPriceMapping, minute, coverage, seriesKit } = useCachedData()
   const {
     portfolio: curPortfolio,
     portfolioLoading,
@@ -268,7 +268,7 @@ const CoverageManager: React.FC = (props) => {
   const { width } = useWindowDimensions()
   const { riskScores } = usePortfolio()
   const [simPortfolio, setSimPortfolio] = useState<SolaceRiskScore | undefined>(undefined)
-  const { series, loading: seriesLoading } = useRiskSeries()
+  const { series, seriesLoading } = seriesKit
   const [transactionLoading, setTransactionLoading] = useState<boolean>(false)
   const {
     amount: enteredDeposit,

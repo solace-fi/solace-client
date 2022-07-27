@@ -167,7 +167,13 @@ export const DropdownOptions = ({
   const { bigButtonStyle, gradientStyle } = styles
 
   return (
-    <Accordion isOpen={isOpen} style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }} customHeight={'380px'}>
+    <Accordion
+      isOpen={isOpen}
+      style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }}
+      customHeight={'380px'}
+      noBackgroundColor
+      thinScrollbar
+    >
       <Flex col gap={8} p={12}>
         {searchedList.map((item) => (
           <ButtonAppearance
@@ -176,13 +182,21 @@ export const DropdownOptions = ({
             matchBg
             secondary
             noborder
+            height={37}
+            pt={10.5}
+            pb={10.5}
+            pl={12}
+            pr={12}
             onClick={() => onClick(item.value)}
+            style={{ borderRadius: '8px' }}
           >
-            <Flex stretch between pl={16} pr={16}>
+            <Flex stretch gap={12}>
               <Flex gap={8} itemsCenter>
                 {item.icon ?? <Text {...gradientStyle}>{item.label}</Text>}
               </Flex>
-              <Text autoAlignVertical>{processProtocolName(item.value)}</Text>
+              <Text autoAlignVertical t5s bold>
+                {processProtocolName(item.value)}
+              </Text>
             </Flex>
           </ButtonAppearance>
         ))}
