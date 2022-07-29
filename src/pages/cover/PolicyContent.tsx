@@ -253,7 +253,10 @@ export const PolicyContent = (): JSX.Element => {
     await purchase(account, suggestedCoverLimit)
       .then(async (res) => await _handleToast(res.tx, res.localTx, true))
       .then((res) => handleCodeApplication(res))
-      .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
+      .catch((err) => {
+        _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE)
+        handleCodeApplicationStatus('activation failed')
+      })
   }
 
   const callPurchaseWithStable = async () => {
@@ -267,7 +270,10 @@ export const PolicyContent = (): JSX.Element => {
     )
       .then(async (res) => await _handleToast(res.tx, res.localTx, true))
       .then((res) => handleCodeApplication(res))
-      .catch((err) => _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
+      .catch((err) => {
+        _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE)
+        handleCodeApplicationStatus('activation failed')
+      })
   }
 
   const callPurchaseWithNonStable = async () => {
@@ -287,9 +293,10 @@ export const PolicyContent = (): JSX.Element => {
     )
       .then(async (res) => await _handleToast(res.tx, res.localTx, true))
       .then((res) => handleCodeApplication(res))
-      .catch((err) =>
+      .catch((err) => {
         _handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
-      )
+        handleCodeApplicationStatus('activation failed')
+      })
   }
 
   const handlePurchase = async () => {
@@ -303,6 +310,7 @@ export const PolicyContent = (): JSX.Element => {
   }
 
   const _handleToast = async (tx: any, localTx: any, codeApplication?: boolean) => {
+    console.log('purchase complete, awaiting tx')
     if (codeApplication && !appliedReferralCode && cookieReferralCode && newUserState) {
       handleCodeApplicationStatus(ApiStatus.PENDING)
       handleShowCodeNoticeModal(true)
@@ -319,16 +327,19 @@ export const PolicyContent = (): JSX.Element => {
   }
 
   const handleCodeApplication = async (activationStatus: boolean) => {
+    console.log('tx confirmed')
     if (!activationStatus || !account || !cookieReferralCode || appliedReferralCode || !newUserState) {
       handleCodeApplicationStatus('activation failed')
       return
     }
+    console.log('confirming policy')
     const policyId: BigNumber = await policyOf(account)
     if (policyId?.isZero()) {
       handleCodeApplicationStatus('activation failed')
       return
     }
     handleCodeApplicationStatus('handling referral')
+    console.log('handling referral')
     await applyReferralCode(cookieReferralCode, policyId.toNumber(), activeNetwork.chainId).then((r) => {
       if (r) {
         handleCodeApplicationStatus(ApiStatus.OK)
@@ -569,7 +580,7 @@ export const PolicyContent = (): JSX.Element => {
                           ? `${cookieReferralCode.substring(0, 10)}...`
                           : cookieReferralCode}
                       </Text>
-                    ) : cookieReferralCode && !cookieCodeUsable && !appliedReferralCode ? (
+                    ) : cookieReferralCode && cookieCodeUsable == false && !appliedReferralCode ? (
                       <Text error t4>
                         Invalid referral code:{' '}
                         {cookieReferralCode.length > 10
@@ -642,7 +653,7 @@ export const PolicyContent = (): JSX.Element => {
                       </Flex>
                     </Flex>
                   )}
-                  {cookieReferralCode && !cookieCodeUsable && newUserState && (
+                  {cookieReferralCode && cookieCodeUsable == false && newUserState && (
                     <Text textAlignCenter pb={12}>
                       Cannot use invalid referral code
                     </Text>
@@ -770,7 +781,7 @@ export const PolicyContent = (): JSX.Element => {
                             lackingScp != 'meets requirement' ||
                             (!parseUnits(formatAmount(enteredDeposit), selectedCoin.decimals).isZero() &&
                               !isAcceptableDeposit) ||
-                            (cookieReferralCode && !cookieCodeUsable && newUserState)
+                            (cookieReferralCode && cookieCodeUsable == false && newUserState)
                           }
                         >
                           <Text bold t4s>

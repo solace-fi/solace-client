@@ -10,6 +10,7 @@ import { StyledShare } from '../../components/atoms/Icon'
 import { truncateValue } from '../../utils/formatting'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 import { ButtonAppearance } from '../../components/atoms/Button'
+import { LoaderText } from '../../components/molecules/LoaderText'
 
 export default function ReferralModal(): JSX.Element {
   const { intrface, styles, policy, referral } = useCoverageContext()
@@ -22,7 +23,6 @@ export default function ReferralModal(): JSX.Element {
   const {
     appliedReferralCode,
     earnedAmount,
-    referredCount,
     userReferralCode,
     cookieReferralCode,
     cookieCodeUsable,
@@ -30,7 +30,7 @@ export default function ReferralModal(): JSX.Element {
   } = referral
 
   return (
-    <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative', overflow: 'hidden' }}>
+    <Flex col style={{ height: 'calc(100vh - 170px)' }}>
       <Flex py={18} itemsCenter between px={20} zIndex={3} bgSecondary>
         <Text t1s mont semibold>
           Referrals
@@ -115,7 +115,7 @@ export default function ReferralModal(): JSX.Element {
                   </Text>
                 </>
               )}
-              {cookieReferralCode && !appliedReferralCode && !cookieCodeUsable && (
+              {cookieReferralCode && !appliedReferralCode && cookieCodeUsable == false && (
                 <>
                   <Text t4 error textAlignCenter>
                     The current active referral code is invalid:{' '}
@@ -129,6 +129,9 @@ export default function ReferralModal(): JSX.Element {
                     Please use another referral code.
                   </Text>
                 </>
+              )}
+              {cookieCodeUsable == undefined && (
+                <LoaderText loaderWidth={100} loaderHeight={100} width={100} text={'Checking code'} />
               )}
             </Flex>
             <ButtonAppearance

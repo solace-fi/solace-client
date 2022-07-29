@@ -19,7 +19,7 @@ export const CodeNoticeModal = () => {
       handleClose={() => handleShowCodeNoticeModal(false)}
       disableCloseButton={codeApplicationStatus == ApiStatus.PENDING || codeApplicationStatus == 'handling referral'}
     >
-      <Flex col gap={15} w={300}>
+      <Flex col gap={15} w={300} marginAuto>
         {(codeApplicationStatus == ApiStatus.PENDING || codeApplicationStatus == 'handling referral') && (
           <>
             <Text textAlignCenter bold t2>

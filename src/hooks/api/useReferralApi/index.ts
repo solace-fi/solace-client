@@ -12,7 +12,7 @@ export default function useReferralApi(): {
   appliedReferralCode: string | undefined
   cookieReferralCode: string | undefined
   setCookieReferralCode: (code: string | undefined) => void
-  cookieCodeUsable: boolean
+  cookieCodeUsable: boolean | undefined
   applyReferralCode: (referral_code: string, policy_id: number, chain_id: number) => Promise<boolean>
 } {
   const { account } = useWeb3React()
@@ -27,7 +27,7 @@ export default function useReferralApi(): {
   const [referredCount, setReferredCount] = useState<number | undefined>(undefined)
   const [appliedCode, setAppliedCode] = useState<string | undefined>(undefined)
   const [cookieCode, setCookieCode] = useState<string | undefined>(undefined)
-  const [cookieCodeUsable, setCookieCodeUsable] = useState<boolean>(false)
+  const [cookieCodeUsable, setCookieCodeUsable] = useState<boolean | undefined>(false)
 
   const getInfo = useCallback(async () => {
     if (!account || !policyId || policyId.isZero()) return
@@ -41,10 +41,11 @@ export default function useReferralApi(): {
 
   const checkReferralCodeUsability = useCallback(
     async (referral_code: string) => {
-      const canBeUsed = await policyReferralObj.isReferralCodeUsable(referral_code)
+      setCookieCodeUsable(undefined)
+      const canBeUsed = await policyReferralObj.isReferralCodeUsable(referral_code, activeNetwork.chainId)
       setCookieCodeUsable(canBeUsed)
     },
-    [policyReferralObj]
+    [policyReferralObj, activeNetwork.chainId]
   )
 
   useEffect(() => {
@@ -66,12 +67,14 @@ export default function useReferralApi(): {
   }, [cookieCode, checkReferralCodeUsability])
 
   const applyCode = useCallback(
-    async (referral_code: string, policy_id: number, chain_id: number) => {
+    async (referral_code: string, policy_id: number, chain_id: number): Promise<boolean> => {
       console.log('referral - applying code', referral_code)
+      console.log('referral - applied code', appliedCode)
+      console.log('referral - user referral code', userReferralCode)
       console.log('referral - policy_id', policy_id)
       console.log('referral - chain_id', chain_id)
+      console.log('referral - account', account)
       if (!account) return false
-      console.log('referral - account found, policyId found')
       if (appliedCode) return false
       const res = await policyReferralObj.applyCode(account, referral_code, BigNumber.from(policy_id), chain_id)
       console.log('referral - api response', res)
@@ -81,7 +84,7 @@ export default function useReferralApi(): {
       }
       return false
     },
-    [account, appliedCode, policyReferralObj]
+    [account, appliedCode, policyReferralObj, userReferralCode]
   )
 
   return {
