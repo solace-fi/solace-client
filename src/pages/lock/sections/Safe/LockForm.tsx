@@ -85,7 +85,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
               max={DAYS_PER_YEAR * 4}
             />
           </Flex>
-          <Flex column stretch w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
+          <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
             <Label importance="quaternary" style={{ marginBottom: '8px' }}>
               Projected benefits
             </Label>

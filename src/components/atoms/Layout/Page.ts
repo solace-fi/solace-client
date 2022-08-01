@@ -25,22 +25,7 @@ export interface FlexProps {
   stretch?: boolean
   wrapped?: boolean
   marginAuto?: boolean
-  m?: number
-  mb?: number
-  mt?: number
-  ml?: number
-  mr?: number
-  mx?: number
-  my?: number
-  p?: number
-  pb?: number
-  pl?: number
-  pr?: number
-  pt?: number
-  px?: number
-  py?: number
   gap?: number
-  w?: number
   hidden?: boolean
   baseline?: boolean
   flex1?: boolean
@@ -65,7 +50,7 @@ export interface FlexProps {
 // }
 
 // prettier-ignore
-export const Flex = styled.div<FlexProps & ButtonProps>`
+export const Flex = styled.div<FlexProps & ButtonProps & GeneralElementProps>`
   display: flex;
   ${({ button })        => button                      ? ButtonAppearanceCss                                 : ""}
   ${({ button })        => button                      ? css`min-height: auto; min-width: auto;`             : ""}
@@ -87,25 +72,7 @@ export const Flex = styled.div<FlexProps & ButtonProps>`
   ${({ wrapped })          => wrapped                  ? css`flex-wrap: wrap;`                               : ""}
   ${({ marginAuto })    => marginAuto                  ? css`margin: auto;`                                  : ""}
 
-  ${({ m })             => m             !== undefined ? css`margin: ${m}px;`                                : ""}
-  ${({ mb })            => mb            !== undefined ? css`margin-bottom: ${mb}px;`                        : ""}
-  ${({ mt })            => mt            !== undefined ? css`margin-top: ${mt}px;`                           : ""}
-  ${({ ml })            => ml            !== undefined ? css`margin-left: ${ml}px;`                          : ""}
-  ${({ mr })            => mr            !== undefined ? css`margin-right: ${mr}px;`                         : ""}
-  ${({ mx })            => mx            !== undefined ? css`margin-left: ${mx}px; margin-right: ${mx}px;`   : ""}
-  ${({ my })            => my            !== undefined ? css`margin-top: ${my}px; margin-bottom: ${my}px;`   : ""}
-
-  ${({ p })             => p             !== undefined ? css`padding: ${p}px;`                               : ""}
-  ${({ pb })            => pb            !== undefined ? css`padding-bottom: ${pb}px;`                       : ""}
-  ${({ pt })            => pt            !== undefined ? css`padding-top: ${pt}px;`                          : ""}
-  ${({ pl })            => pl            !== undefined ? css`padding-left: ${pl}px;`                         : ""}
-  ${({ pr })            => pr            !== undefined ? css`padding-right: ${pr}px;`                        : ""}
-  ${({ px })            => px            !== undefined ? css`padding-left: ${px}px; padding-right: ${px}px;` : ""}
-  ${({ py })            => py            !== undefined ? css`padding-top: ${py}px; padding-bottom: ${py}px;` : ""}
-
   ${({ gap })           => gap           !== undefined ? css`gap: ${gap}px;`                                 : ""}
-
-  ${({ w })             => w             !== undefined ? css`width: ${w}px;`                                 : ""}
   
   ${({ hidden })        => hidden                      ? css`display: none;`                                              : ""}
   ${({ baseline })      => baseline                    ? css`display: inline-block;`                                      : ""}
@@ -123,6 +90,7 @@ export const Flex = styled.div<FlexProps & ButtonProps>`
   ${(props)             => props.bgError               ? css`background-color: ${(props.theme as Theme).typography.errorText};` : ""}
   ${(props)             => props.bgSuccess             ? css`background-color: ${(props.theme as Theme).typography.successText};` : ""}
   ${(props)             => props.bgLightGray           ? css`background-color: ${(props.theme as Theme).typography.lightGray};` : ""}
+  ${GeneralElementCss}
 `
 
 export const GridOrRow = styled(Flex)<{ preferredWidth?: number }>`

@@ -65,12 +65,12 @@ const RightAppNavItemText = styled.li`
 
 const data = [
   {
-    name: 'Lock',
-    path: '/lock',
+    name: 'Vote',
+    path: '/vote',
   },
   {
-    name: 'Gauge',
-    path: '/gauge',
+    name: 'Lock',
+    path: '/lock',
   },
 ]
 

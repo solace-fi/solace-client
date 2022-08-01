@@ -1,6 +1,5 @@
 import { useWeb3React } from '@web3-react/core'
 import React, { useMemo } from 'react'
-import { Box } from '../../components/atoms/Box'
 import { Button } from '../../components/atoms/Button'
 import { StyledInfo } from '../../components/atoms/Icon'
 import { Content, Flex, HeroContainer } from '../../components/atoms/Layout'
@@ -13,6 +12,7 @@ import { PolicyContent } from './PolicyContent'
 import { CldModal } from './CldModal'
 import { SimCoverModal } from './SimCoverModal'
 import { Portfolio } from './Portfolio'
+import { Card } from '../../components/atoms/Card'
 
 function VisibilityController({ show, children }: { show: boolean; children: React.ReactNode }) {
   return <div style={{ display: show ? 'block' : 'none' }}>{children}</div>
@@ -79,7 +79,7 @@ const CoverageContent = () => {
   return (
     <>
       <Flex justifyCenter>
-        <Flex col w={450}>
+        <Flex col width={450}>
           <VisibilityController show={_showCldModal}>
             <CldModal />
           </VisibilityController>
@@ -125,14 +125,14 @@ const CoveragePage = (): JSX.Element => {
         <PolicyContent />
       ) : account ? (
         <Content>
-          <Box error pt={10} pb={10} pl={15} pr={15}>
+          <Card error pt={10} pb={10} pl={15} pr={15}>
             <TextSpan light textAlignLeft>
               <StyledInfo size={30} />
             </TextSpan>
             <Text light bold style={{ margin: '0 auto' }}>
               This dashboard is not supported on this network.
             </Text>
-          </Box>
+          </Card>
           <Flex justifyCenter>
             <HeroContainer>
               <Button {...gradientStyle} secondary noborder p={20} onClick={() => handleShowSimulatorModal(true)}>

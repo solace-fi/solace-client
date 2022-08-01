@@ -47,7 +47,6 @@ import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
 import CardSectionValue from './components/CardSectionValue'
-import { Box } from '../../components/atoms/Box'
 
 /* import hooks */
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
@@ -476,14 +475,14 @@ export default function Stake(): JSX.Element {
             </>
           ) : (
             <Content>
-              <Box error pt={10} pb={10} pl={15} pr={15}>
+              <Card error pt={10} pb={10} pl={15} pr={15}>
                 <TextSpan light textAlignLeft>
                   <StyledInfo size={30} />
                 </TextSpan>
                 <Text light bold style={{ margin: '0 auto' }}>
                   Staking V2 is not available on this network.
                 </Text>
-              </Box>
+              </Card>
             </Content>
           )}
         </Content>

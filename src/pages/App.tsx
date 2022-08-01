@@ -20,7 +20,7 @@ import { Route, Switch, useLocation } from 'react-router-dom'
 
 /* import pages */
 import Lock from './lock'
-import Gauge from './gauge'
+import Gauge from './vote'
 /* import components */
 import { MenusTopNavBar } from '../components/organisms/MenusTopNavbar'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent, Flex } from '../components/atoms/Layout'
@@ -54,9 +54,9 @@ export default function App(): any {
       component: Lock,
     },
     {
-      name: 'Gauge',
-      title: 'My Gauge',
-      to: '/gauge',
+      name: 'Vote',
+      title: 'My Voting',
+      to: '/vote',
       icon: <StyledVoteYea size={30} />,
       component: Gauge,
     },

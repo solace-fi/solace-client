@@ -10,6 +10,10 @@ interface CardProps extends ClickProps, GeneralElementProps {
   fade?: boolean
   color1?: boolean
   color2?: boolean
+  success?: boolean
+  warning?: boolean
+  error?: boolean
+  info?: boolean
   glow?: boolean
   isHighlight?: boolean
 }
@@ -25,7 +29,10 @@ const CardCss = css<CardProps>`
   ${(props) => props.color1 && `background: ${props.theme.card.bg_color_1};`}
   ${(props) => props.color2 && `background: ${props.theme.card.bg_color_2};`}
   ${(props) => props.isHighlight && `background: ${props.theme.table.highlight_bg_color};`}
-
+  ${(props) => props.success && `background: ${props.theme.typography.successText};`}
+  ${(props) => props.info && `background: ${props.theme.box.info};`}
+  ${(props) => props.warning && `background: ${props.theme.box.warning};`}
+  ${(props) => props.error && `background: ${props.theme.box.error};`}
   ${(props) => props.transparent && `background: rgba(255, 255, 255, 0);`}
   ${(props) => props.fade && `background: ${props.theme.card.fade};`}
   ${(props) =>

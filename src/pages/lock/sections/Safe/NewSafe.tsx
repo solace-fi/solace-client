@@ -125,7 +125,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     max={parseUnits(solaceBalance, 18).toString()}
                   />
                 </Flex>
-                <Flex column stretch w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
+                <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
                   <Label importance="quaternary" style={{ marginBottom: '8px' }}>
                     Projected benefits
                   </Label>
@@ -212,7 +212,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 forceExpand
               />
             </Flex> */}
-            <Flex pb={24} pl={24} w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 333 : undefined}>
+            <Flex pb={24} pl={24} width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 333 : undefined}>
               <Button
                 secondary
                 info
