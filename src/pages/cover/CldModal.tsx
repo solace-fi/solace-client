@@ -431,11 +431,11 @@ export const CldModal = () => {
             Cannot use invalid referral code
           </Text>
         ) : insufficientCovCap ? (
-          <Text textAlignCenter pt={16}>
-            Your desired cover limit is too high.
+          <Text textAlignCenter pt={16} error>
+            {`Please choose a lower cover limit. (Available: ~$${truncateValue(formatUnits(availCovCap, 18), 2)})`}
           </Text>
         ) : lackingScp == 'both zeroes' ? (
-          <Text textAlignCenter pt={16}>
+          <Text textAlignCenter pt={16} error>
             You cannot purchase a policy with a cover limit of 0.
           </Text>
         ) : null}

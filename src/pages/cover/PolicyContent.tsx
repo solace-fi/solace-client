@@ -632,7 +632,7 @@ export const PolicyContent = (): JSX.Element => {
                         <Text bold t7s textAlignCenter>
                           Policy Status
                         </Text>
-                        {status ? (
+                        {status && !parseUnits(scpBalance, 18).isZero() ? (
                           <Text textAlignCenter bold t4s success>
                             Active
                           </Text>
@@ -654,18 +654,21 @@ export const PolicyContent = (): JSX.Element => {
                     </Flex>
                   )}
                   {cookieReferralCode && cookieCodeUsable == false && newUserState && (
-                    <Text textAlignCenter pb={12}>
+                    <Text textAlignCenter pb={12} error>
                       Cannot use invalid referral code
                     </Text>
                   )}
                   {(newUserState || returningUserState) &&
                     (suggestedCoverLimit.isZero() ? (
-                      <Text textAlignCenter pb={12}>
+                      <Text textAlignCenter pb={12} error>
                         You cannot purchase a policy with a cover limit of 0.
                       </Text>
                     ) : insufficientCovCap ? (
-                      <Text textAlignCenter pb={12}>
-                        Please choose a lower cover limit to activate the policy.
+                      <Text textAlignCenter pb={12} error>
+                        {`Please choose a lower cover limit to activate the policy. (Available: ~$${truncateValue(
+                          formatUnits(availCovCap, 18),
+                          2
+                        )})`}
                       </Text>
                     ) : lackingScp != 'meets requirement' && lackingScp != 'both zeroes' ? (
                       <Text textAlignCenter pb={12}>
