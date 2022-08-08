@@ -1,27 +1,26 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
-import { Flex, Scrollable } from '../../components/atoms/Layout'
+import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { LoaderText } from '../../components/molecules/LoaderText'
 import { BKPT_NAVBAR } from '../../constants'
 import { useGeneral } from '../../context/GeneralManager'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { TileCard } from '../../components/molecules/TileCard'
-import InfoPair from '../lock/molecules/InfoPair'
-import CardSectionValue from '../lock/components/CardSectionValue'
 import { Button } from '../../components/atoms/Button'
-import { CheckboxData } from '../../constants/types'
 import { VoteLock } from '../../components/organisms/VoteLock'
-import { boxIsChecked, updateBoxCheck } from '../../utils/checkbox'
-import { BigNumber } from 'ethers'
+import { RaisedBox } from '../../components/atoms/Box'
+import { formatAmount } from '../../utils/formatting'
+import { GaugeSelectionModal } from '../../components/organisms/GaugeSelectionModal'
 
 function Vote(): JSX.Element {
   const [loading, setLoading] = useState(true)
   const [animate, setAnimate] = useState(true)
+  const [openGaugeModal, setOpenGaugeModal] = useState(false)
+  const [editingIndex, setEditingIndex] = useState<number | undefined>(undefined)
+
   const { appTheme } = useGeneral()
   const { width, isMobile } = useWindowDimensions()
-
-  const [locksChecked, setLocksChecked] = useState<CheckboxData[]>([])
 
   const COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', 'rgb(95,93,249)', 'rgb(240,77,66)'], [])
   const DARK_COLORS = useMemo(() => ['rgb(166, 95, 168)', 'rgb(187, 136, 0)', '#4644b9', '#b83c33'], [])
@@ -63,12 +62,6 @@ function Vote(): JSX.Element {
     [COLORS, DARK_COLORS, data, width, appTheme]
   )
 
-  const handleLockCheck = (lockId: BigNumber) => {
-    const checkboxStatus = boxIsChecked(locksChecked, lockId.toString())
-    const newArr = updateBoxCheck(locksChecked, lockId.toString(), !checkboxStatus)
-    setLocksChecked(newArr)
-  }
-
   useEffect(() => {
     setTimeout(() => {
       setLoading(false)
@@ -81,8 +74,84 @@ function Vote(): JSX.Element {
     }, 2000)
   }, [])
 
+  const [votesData, setVotesData] = useState<
+    {
+      gauge: string
+      votes: string
+    }[]
+  >([])
+
+  const onVoteInput = useCallback(
+    (input: string, index: number) => {
+      const formatted = formatAmount(input)
+      if (formatted === votesData[index].votes) return
+      setVotesData(
+        votesData.map((voteData, i) => {
+          if (i == index) {
+            return {
+              ...voteData,
+              votes: input,
+            }
+          }
+          return voteData
+        })
+      )
+    },
+    [votesData]
+  )
+
+  const handleGaugeModal = useCallback(
+    (index: number) => {
+      const resultingToggle = !openGaugeModal
+      if (resultingToggle) {
+        setEditingIndex(index)
+      } else {
+        setEditingIndex(undefined)
+      }
+      setOpenGaugeModal(resultingToggle)
+    },
+    [openGaugeModal]
+  )
+
+  const deleteVote = useCallback(
+    (index: number) => {
+      const newVotesData = votesData.filter((voteData, i) => i == index)
+      setVotesData(newVotesData)
+    },
+    [votesData]
+  )
+
+  const addVote = useCallback(() => {
+    const newVotesData = [...votesData, { gauge: '', votes: '0' }]
+    setVotesData(newVotesData)
+  }, [votesData])
+
+  const assign = useCallback(
+    (protocol: string, index: number) => {
+      setVotesData(
+        votesData.map((voteData, i) => {
+          if (i == index) {
+            return {
+              ...voteData,
+              gauge: protocol,
+            }
+          }
+          return voteData
+        })
+      )
+    },
+    [votesData]
+  )
+
   return (
     <div style={{ margin: 'auto' }}>
+      <GaugeSelectionModal
+        show={openGaugeModal}
+        index={editingIndex ?? 0}
+        votesData={votesData}
+        handleCloseModal={() => handleGaugeModal(editingIndex ?? 0)}
+        assign={assign}
+      />
       <Flex col={isMobile} row={!isMobile}>
         <Flex col widthP={!isMobile ? 60 : undefined} p={10}>
           <ResponsiveContainer width="100%" height={350}>
@@ -108,158 +177,67 @@ function Vote(): JSX.Element {
               </PieChart>
             )}
           </ResponsiveContainer>
-          <Flex style={{ flexWrap: 'wrap' }} gap={10} justifyCenter>
-            <TileCard>
-              <InfoPair importance="primary" label="Underwriting Pool Size">
-                <CardSectionValue annotation="UWE">{333}</CardSectionValue>
-              </InfoPair>
-            </TileCard>
-            <TileCard>
-              <InfoPair importance="primary" label="Underwriting Pool Size">
-                <CardSectionValue annotation="UWE">{333}</CardSectionValue>
-              </InfoPair>
-            </TileCard>
-            <TileCard>
-              <InfoPair importance="primary" label="Underwriting Pool Size">
-                <CardSectionValue annotation="UWE">{333}</CardSectionValue>
-              </InfoPair>
-            </TileCard>
-            <TileCard>
-              <InfoPair importance="primary" label="Underwriting Pool Size">
-                <CardSectionValue annotation="UWE">{333}</CardSectionValue>
-              </InfoPair>
-            </TileCard>
-            <TileCard>
-              <InfoPair importance="primary" label="Underwriting Pool Size">
-                <CardSectionValue annotation="UWE">{333}</CardSectionValue>
-              </InfoPair>
-            </TileCard>
-            <TileCard>
-              <InfoPair importance="primary" label="Underwriting Pool Size">
-                <CardSectionValue annotation="UWE">{333}</CardSectionValue>
-              </InfoPair>
-            </TileCard>
-          </Flex>
+          <TileCard gap={10}>
+            <Flex between>
+              <Text>Underwriting Pool Size</Text>
+              <Text>$100</Text>
+            </Flex>
+            <Flex between>
+              <Text>Underwriting Pool Size</Text>
+              <Text>$100</Text>
+            </Flex>
+            <Flex between>
+              <Text>Underwriting Pool Size</Text>
+              <Text>$100</Text>
+            </Flex>
+            <Flex between>
+              <Text>Underwriting Pool Size</Text>
+              <Text>$100</Text>
+            </Flex>
+            <Flex between>
+              <Text>Underwriting Pool Size</Text>
+              <Text>$100</Text>
+            </Flex>
+            <Flex between>
+              <Text>Underwriting Pool Size</Text>
+              <Text>$100</Text>
+            </Flex>
+          </TileCard>
         </Flex>
-        <Flex col widthP={!isMobile ? 40 : undefined} p={10} pt={isMobile ? 40 : undefined} gap={20}>
-          <Button secondary techygradient noborder>
-            Set Gauge for all
-          </Button>
-          <Flex
-            thinScrollbar
-            col
-            gap={12}
-            pt={20}
-            px={20}
-            pb={10}
-            style={
-              !isMobile
-                ? {
-                    overflowY: 'auto',
-                    height: '60vh',
-                    minHeight: '561px',
-                  }
-                : {
-                    overflowY: 'auto',
-                    height: '400px',
-                  }
-            }
-            bgLightGray
-          >
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '1')}
-              onCheck={() => handleLockCheck(BigNumber.from(1))}
-              index={0}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '2')}
-              onCheck={() => handleLockCheck(BigNumber.from(2))}
-              index={1}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />{' '}
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />{' '}
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />{' '}
-            <VoteLock
-              isChecked={boxIsChecked(locksChecked, '3')}
-              onCheck={() => handleLockCheck(BigNumber.from(3))}
-              index={2}
-            />
-          </Flex>
-          <Button secondary techygradient noborder>
-            Multi-Vote
-          </Button>
+        <Flex col widthP={!isMobile ? 40 : undefined} p={10}>
+          <TileCard style={{ alignItems: 'center' }} gap={15}>
+            <RaisedBox>
+              <Flex gap={12}>
+                <Flex col itemsCenter width={126}>
+                  <Text techygradient t6s>
+                    My Total Votes
+                  </Text>
+                  <Text techygradient big3>
+                    239
+                  </Text>
+                </Flex>
+                <VerticalSeparator />
+                <Flex col itemsCenter width={126}>
+                  <Text t6s>My Used Votes</Text>
+                  <Text big3>239</Text>
+                </Flex>
+              </Flex>
+            </RaisedBox>
+            {votesData.map((voteData, i) => (
+              <VoteLock
+                key={i}
+                handleGaugeModal={handleGaugeModal}
+                onVoteInput={onVoteInput}
+                deleteVote={deleteVote}
+                votesData={votesData}
+                index={i}
+              />
+            ))}
+            <Button onClick={addVote}>+ Add Vote</Button>
+            <Button techygradient secondary noborder widthP={100}>
+              Send Votes
+            </Button>
+          </TileCard>
         </Flex>
       </Flex>
     </div>

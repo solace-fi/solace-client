@@ -1,45 +1,60 @@
-import React from 'react'
-import { RaisedBox } from '../atoms/Box'
-import { ThinButton } from '../atoms/Button'
-import { StyledArrowDropDown } from '../atoms/Icon'
-import { Checkbox } from '../atoms/Input'
-import { Flex, ShadowDiv } from '../atoms/Layout'
+import React, { useMemo } from 'react'
+import { GraySquareButton, ThinButton } from '../atoms/Button'
+import { StyledArrowDropDown, StyledClose } from '../atoms/Icon'
+import { Flex } from '../atoms/Layout'
 import { Text } from '../atoms/Typography'
+import { SmallerInputSection } from '../molecules/InputSection'
+import { processProtocolName } from './Dropdown'
 
 export const VoteLock = ({
-  isChecked,
-  onCheck,
+  handleGaugeModal,
+  onVoteInput,
+  deleteVote,
+  votesData,
   index,
 }: {
-  isChecked: boolean
-  onCheck: (index: number) => void
+  handleGaugeModal: (index: number) => void
+  onVoteInput: (input: string, index: number) => void
+  deleteVote: (index: number) => void
+  votesData: {
+    gauge: string
+    votes: string
+  }[]
   index: number
 }): JSX.Element => {
+  const appId = useMemo(() => votesData[index].gauge, [votesData, index])
+
   return (
-    <ShadowDiv>
-      <RaisedBox>
-        <Flex between justifyCenter stretch gap={10} p={10}>
-          <Flex itemsCenter>
-            <Checkbox type="checkbox" checked={isChecked} onChange={() => onCheck(index)} />
-          </Flex>
-          <ThinButton>
+    <Flex gap={10}>
+      <div style={{ width: '100px' }}>
+        <SmallerInputSection
+          placeholder={'Number of Votes'}
+          value={votesData[index].votes}
+          onChange={(e) => onVoteInput(e.target.value, index)}
+        />
+      </div>
+      <div style={{ width: '150px' }}>
+        <ThinButton onClick={() => handleGaugeModal(index)}>
+          <Flex style={{ width: '100%' }} itemsCenter>
             <Text autoAlignVertical p={5}>
-              Icon
+              <img src={`https://assets.solace.fi/zapperLogos/${appId}`} height={16} />
             </Text>
             <Text t5s style={{ width: '100%' }}>
               <Flex between>
                 <Text t5s techygradient mont>
-                  Protocol
+                  {appId != '' ? processProtocolName(appId) : 'Choose Protocol'}
                 </Text>
                 <StyledArrowDropDown size={16} />
               </Flex>
             </Text>
-          </ThinButton>
-          <ThinButton secondary techygradient>
-            Vote
-          </ThinButton>
-        </Flex>
-      </RaisedBox>
-    </ShadowDiv>
+          </Flex>
+        </ThinButton>
+      </div>
+      <div style={{ width: '50px' }}>
+        <GraySquareButton width={32} height={32} onClick={() => deleteVote(index)}>
+          <StyledClose size={12} />
+        </GraySquareButton>
+      </div>
+    </Flex>
   )
 }

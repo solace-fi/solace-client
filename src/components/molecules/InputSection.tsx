@@ -146,7 +146,7 @@ export const SmallerInputSection = styled.input<{ asideBg?: boolean; theme: Them
   font-size: 12px !important;
   font-family: 'Open Sans', sans-serif !important;
   box-sizing: border-box !important;
-  color: ${({ theme }: { theme: Theme }) => theme.typography.darkText} !important;
+  color: ${({ theme }: { theme: Theme }) => theme.typography.contrastText} !important;
   background-color: ${({ theme }: { theme: Theme }) => theme.v2.raised} !important;
   outline: none !important;
   &:focus,

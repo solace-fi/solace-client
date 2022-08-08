@@ -1,20 +1,21 @@
-import { BigNumber } from 'ethers'
 import React, { useState, useMemo } from 'react'
 import { useCachedData } from '../../context/CachedDataManager'
-import { DropdownOptions } from './Dropdown'
+import { DropdownOptionsUnique } from './Dropdown'
 import { SmallerInputSection } from '../molecules/InputSection'
 import { Modal } from '../molecules/Modal'
 
-export const ProtocolSelectionModal = ({
+export const GaugeSelectionModal = ({
   show,
-  lockIds,
+  index,
+  votesData,
   handleCloseModal,
   assign,
 }: {
   show: boolean
-  lockIds: BigNumber[]
+  index: number
+  votesData: { gauge: string; votes: string }[]
   handleCloseModal: () => void
-  assign: (protocol: string, lockIds: BigNumber[]) => void
+  assign: (protocol: string, index: number) => void
 }): JSX.Element => {
   const { seriesKit } = useCachedData()
   const [searchTerm, setSearchTerm] = useState('')
@@ -28,9 +29,9 @@ export const ProtocolSelectionModal = ({
   )
 
   return (
-    <Modal isOpen={show} handleClose={handleCloseModal} modalTitle={'Select a protocol'}>
+    <Modal isOpen={show} handleClose={handleCloseModal} modalTitle={'Select a gauge'}>
       <SmallerInputSection
-        placeholder={'Search Protocol'}
+        placeholder={'Search'}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         style={{
@@ -38,12 +39,13 @@ export const ProtocolSelectionModal = ({
           border: 'none',
         }}
       />
-      <DropdownOptions
+      <DropdownOptionsUnique
         isOpen={true}
         searchedList={activeList}
-        noneText={'No matching protocols found'}
+        comparingList={votesData.map((voteData) => voteData.gauge)}
+        noneText={'No matches found'}
         onClick={(value: string) => {
-          assign(value, lockIds)
+          assign(value, index)
           handleCloseModal()
         }}
       />
