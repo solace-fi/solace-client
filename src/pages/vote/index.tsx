@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, TooltipProps } from 'recharts'
+
 import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { LoaderText } from '../../components/molecules/LoaderText'
@@ -12,54 +13,42 @@ import { VoteLock } from '../../components/organisms/VoteLock'
 import { RaisedBox } from '../../components/atoms/Box'
 import { formatAmount } from '../../utils/formatting'
 import { GaugeSelectionModal } from '../../components/organisms/GaugeSelectionModal'
+import { Modal } from '../../components/molecules/Modal'
+import { CustomPieChartTooltip, GaugeWeightsModal } from '../../components/organisms/GaugeWeightsModal'
 
 function Vote(): JSX.Element {
   const [loading, setLoading] = useState(true)
   const [animate, setAnimate] = useState(true)
-  const [openGaugeModal, setOpenGaugeModal] = useState(false)
+  const [openGaugeWeightsModal, setOpenGaugeWeightsModal] = useState(false)
+  const [openGaugeSelectionModal, setOpenGaugeSelectionModal] = useState(false)
   const [editingIndex, setEditingIndex] = useState<number | undefined>(undefined)
 
-  const { appTheme } = useGeneral()
   const { width, isMobile } = useWindowDimensions()
 
   const COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', 'rgb(95,93,249)', 'rgb(240,77,66)'], [])
-  const DARK_COLORS = useMemo(() => ['rgb(166, 95, 168)', 'rgb(187, 136, 0)', '#4644b9', '#b83c33'], [])
 
   const data = useMemo(
     () => [
-      { name: 'protocol 1', value: 2 },
-      { name: 'protocol 3', value: 4 },
-      { name: 'protocol 2', value: 6 },
-      { name: 'protocol 4', value: 8 },
-      { name: 'protocol 5', value: 12 },
-      { name: 'protocol 6', value: 1 },
-      { name: 'protocol 7', value: 3 },
-      { name: 'protocol 8', value: 7 },
+      { name: 'stake-dao', value: 17 },
+      { name: 'aave', value: 16 },
+      { name: 'compound', value: 15 },
+      { name: 'solace', value: 13 },
+      { name: 'sushiswap', value: 12 },
+      { name: 'fox-bank', value: 10 },
+      { name: 'monkey-barrel', value: 9 },
+      { name: 'nexus-farm', value: 7 },
+      { name: 'quickswap', value: 3 },
+      { name: 'lemonade-stake', value: 1 },
     ],
     []
   )
 
-  const renderCustomizedLabel = useCallback(
-    ({ cx, cy, midAngle, innerRadius, outerRadius, value, index }: any) => {
-      const RADIAN = Math.PI / 180
-      const radius = 25 + innerRadius + (outerRadius - innerRadius)
-      const x = cx + radius * Math.cos(-midAngle * RADIAN)
-      const y = cy + radius * Math.sin(-midAngle * RADIAN)
-
-      return (
-        <text
-          fontSize={width > BKPT_NAVBAR ? '1rem' : '3vw'}
-          x={x}
-          y={y}
-          fill={appTheme == 'dark' ? COLORS[index % COLORS.length] : DARK_COLORS[index % DARK_COLORS.length]}
-          textAnchor={x > cx ? 'start' : 'end'}
-          dominantBaseline="central"
-        >
-          {data[index].name} ({value})
-        </text>
-      )
-    },
-    [COLORS, DARK_COLORS, data, width, appTheme]
+  const summarizedData = useMemo(
+    () => [
+      ...data.slice(0, 4),
+      { name: 'Other Protocols', value: data.slice(3).reduce((acc, pv) => pv.value + acc, 0) },
+    ],
+    [data]
   )
 
   useEffect(() => {
@@ -100,18 +89,22 @@ function Vote(): JSX.Element {
     [votesData]
   )
 
-  const handleGaugeModal = useCallback(
+  const handleGaugeSelectionModal = useCallback(
     (index: number) => {
-      const resultingToggle = !openGaugeModal
+      const resultingToggle = !openGaugeSelectionModal
       if (resultingToggle) {
         setEditingIndex(index)
       } else {
         setEditingIndex(undefined)
       }
-      setOpenGaugeModal(resultingToggle)
+      setOpenGaugeSelectionModal(resultingToggle)
     },
-    [openGaugeModal]
+    [openGaugeSelectionModal]
   )
+
+  const handleGaugeWeightsModal = useCallback(() => {
+    setOpenGaugeWeightsModal(!openGaugeWeightsModal)
+  }, [openGaugeWeightsModal])
 
   const deleteVote = useCallback(
     (index: number) => {
@@ -146,37 +139,72 @@ function Vote(): JSX.Element {
   return (
     <div style={{ margin: 'auto' }}>
       <GaugeSelectionModal
-        show={openGaugeModal}
+        show={openGaugeSelectionModal}
         index={editingIndex ?? 0}
         votesData={votesData}
-        handleCloseModal={() => handleGaugeModal(editingIndex ?? 0)}
+        handleCloseModal={() => handleGaugeSelectionModal(editingIndex ?? 0)}
         assign={assign}
       />
+      <GaugeWeightsModal
+        isOpen={openGaugeWeightsModal}
+        handleClose={handleGaugeWeightsModal}
+        data={data}
+        colors={COLORS}
+      />
       <Flex col={isMobile} row={!isMobile}>
-        <Flex col widthP={!isMobile ? 60 : undefined} p={10}>
-          <ResponsiveContainer width="100%" height={350}>
-            {loading ? (
-              <LoaderText />
-            ) : (
-              <PieChart width={20}>
-                <Pie
-                  isAnimationActive={animate}
-                  onAnimationStart={onAnimationStart}
-                  data={data}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={width > BKPT_NAVBAR ? '60%' : '40%'}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={renderCustomizedLabel}
-                >
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
-            )}
-          </ResponsiveContainer>
+        <Flex col widthP={!isMobile ? 60 : undefined} p={10} gap={20}>
+          <TileCard gap={20}>
+            <Flex between>
+              <Text semibold t2>
+                Current Gauge Weights
+              </Text>
+              <Button secondary techygradient noborder onClick={handleGaugeWeightsModal} disabled={loading}>
+                See More
+              </Button>
+            </Flex>
+            <Flex justifyCenter>
+              {loading ? (
+                <LoaderText />
+              ) : (
+                <>
+                  <ResponsiveContainer width="60%" height={200}>
+                    <PieChart width={25}>
+                      <Pie
+                        isAnimationActive={animate}
+                        onAnimationStart={onAnimationStart}
+                        data={summarizedData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={width > BKPT_NAVBAR ? '100%' : '80%'}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {summarizedData.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={index == summarizedData.length - 1 ? '#DCDCDC' : COLORS[index % COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<CustomPieChartTooltip />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <Flex col gap={18} widthP={50}>
+                    {summarizedData.map((entry, index) => (
+                      <Flex key={`${entry.name}-${index}`} between>
+                        <Text
+                          bold
+                          textAlignLeft
+                          style={{ color: index < COLORS.length ? COLORS[index] : 'inherit' }}
+                        >{`${entry.name}`}</Text>
+                        <Text bold textAlignRight>{`${entry.value}%`}</Text>
+                      </Flex>
+                    ))}
+                  </Flex>
+                </>
+              )}
+            </Flex>
+          </TileCard>
           <TileCard gap={10}>
             <Flex between>
               <Text>Underwriting Pool Size</Text>
@@ -226,7 +254,7 @@ function Vote(): JSX.Element {
             {votesData.map((voteData, i) => (
               <VoteLock
                 key={i}
-                handleGaugeModal={handleGaugeModal}
+                handleGaugeSelectionModal={handleGaugeSelectionModal}
                 onVoteInput={onVoteInput}
                 deleteVote={deleteVote}
                 votesData={votesData}
@@ -235,7 +263,7 @@ function Vote(): JSX.Element {
             ))}
             <Button onClick={addVote}>+ Add Vote</Button>
             <Button techygradient secondary noborder widthP={100}>
-              Send Votes
+              Set Votes
             </Button>
           </TileCard>
         </Flex>

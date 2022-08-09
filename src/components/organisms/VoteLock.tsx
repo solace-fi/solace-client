@@ -7,13 +7,13 @@ import { SmallerInputSection } from '../molecules/InputSection'
 import { processProtocolName } from './Dropdown'
 
 export const VoteLock = ({
-  handleGaugeModal,
+  handleGaugeSelectionModal,
   onVoteInput,
   deleteVote,
   votesData,
   index,
 }: {
-  handleGaugeModal: (index: number) => void
+  handleGaugeSelectionModal: (index: number) => void
   onVoteInput: (input: string, index: number) => void
   deleteVote: (index: number) => void
   votesData: {
@@ -34,7 +34,7 @@ export const VoteLock = ({
         />
       </div>
       <div style={{ width: '150px' }}>
-        <ThinButton onClick={() => handleGaugeModal(index)}>
+        <ThinButton onClick={() => handleGaugeSelectionModal(index)}>
           <Flex style={{ width: '100%' }} itemsCenter>
             <Text autoAlignVertical p={5}>
               <img src={`https://assets.solace.fi/zapperLogos/${appId}`} height={16} />
