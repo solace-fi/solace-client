@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import { useSolaceBalance } from '../../../../hooks/balance/useBalance'
-import { accurateMultiply, convertSciNotaToPrecise, filterAmount, truncateValue } from '../../../../utils/formatting'
+import { accurateMultiply, convertSciNotaToPrecise, filterAmount } from '../../../../utils/formatting'
 import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
@@ -16,11 +16,9 @@ import { BKPT_7, BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
 import { RaisedBox, SmallBox } from '../../../../components/atoms/Box'
 import { Label } from '../../molecules/InfoPair'
-import { Flex, ShadowDiv, VerticalSeparator } from '../../../../components/atoms/Layout'
-import { GrayBox } from '../../../../components/molecules/GrayBox'
+import { Flex, ShadowDiv } from '../../../../components/atoms/Layout'
 import { Accordion } from '../../../../components/atoms/Accordion'
 import { useProvider } from '../../../../context/ProviderManager'
-import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
@@ -37,7 +35,7 @@ const StyledForm = styled.div`
 `
 
 export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
-  const { appTheme, rightSidebar } = useGeneral()
+  const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
   const { account } = useWeb3React()
   const { latestBlock } = useProvider()
@@ -51,10 +49,6 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const [stakeInputValue, setStakeInputValue] = React.useState('0')
   const [stakeRangeValue, setStakeRangeValue] = React.useState('0')
   const [lockInputValue, setLockInputValue] = React.useState('0')
-  const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
-    stakeRangeValue,
-    latestBlock ? latestBlock.timestamp + parseInt(lockInputValue) * 86400 : 0
-  )
 
   const callCreateLock = async () => {
     if (!latestBlock || !account) return
@@ -125,52 +119,6 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     max={parseUnits(solaceBalance, 18).toString()}
                   />
                 </Flex>
-                <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
-                  <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-                    Projected benefits
-                  </Label>
-                  <GrayBox>
-                    <Flex stretch column>
-                      <Flex stretch gap={24}>
-                        <Flex column gap={2}>
-                          <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                            APR
-                          </Text>
-                          <div
-                            style={
-                              (rightSidebar ? BKPT_7 : BKPT_5) > width
-                                ? { margin: '-4px 0', display: 'block' }
-                                : { display: 'none' }
-                            }
-                          >
-                            &nbsp;
-                          </div>
-                          <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                            <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
-                          </Text>
-                        </Flex>
-                        <VerticalSeparator />
-                        <Flex column gap={2}>
-                          <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                            Reward Multiplier
-                          </Text>
-                          <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                            {projectedMultiplier}x
-                          </Text>
-                        </Flex>
-                        <VerticalSeparator />
-                        <Flex column gap={2}>
-                          <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                            Yearly Return
-                          </Text>
-                          <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                            {truncateValue(formatUnits(projectedYearlyReturns, 18), 4, false)}
-                          </Text>
-                        </Flex>
-                      </Flex>
-                    </Flex>
-                  </GrayBox>
-                </Flex>
               </Flex>
               <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
                 <Flex column gap={24}>
@@ -205,13 +153,6 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 </Flex>
               </Flex>
             </Flex>
-            {/* <Flex p={24} stretch>
-              <InformationBox
-                type={InfoBoxType.info}
-                text="New deposit will be added to current locked amount locked for the same time."
-                forceExpand
-              />
-            </Flex> */}
             <Flex pb={24} pl={24} width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 333 : undefined}>
               <Button
                 secondary

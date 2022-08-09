@@ -17,20 +17,16 @@ import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 import { FunctionName, InfoBoxType } from '../../../../constants/enums'
 import InformationBox from '../../components/InformationBox'
 import { StyledForm } from '../../atoms/StyledForm'
-import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
+import { Flex } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { Label } from '../../molecules/InfoPair'
-import { GrayBox } from '../../../../components/molecules/GrayBox'
-import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { BKPT_7, BKPT_5 } from '../../../../constants'
-import { Text } from '../../../../components/atoms/Typography'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
 import { VoteLockData } from '../../../../constants/types'
 import { useProvider } from '../../../../context/ProviderManager'
 
 export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Element {
-  const { appTheme, rightSidebar } = useGeneral()
+  const { rightSidebar } = useGeneral()
   const { latestBlock } = useProvider()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -40,10 +36,6 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
 
   const [inputValue, setInputValue] = React.useState('0')
   const [rangeValue, setRangeValue] = React.useState('0')
-  const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
-    convertSciNotaToPrecise((parseFloat(lock.amount.toString()) - parseFloat(rangeValue)).toString()),
-    lock.end.toNumber()
-  )
 
   const callWithdrawFromLock = async () => {
     if (!account) return
@@ -83,10 +75,7 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
         gap: '30px',
       }}
     >
-      <InformationBox
-        type={InfoBoxType.info}
-        text="Withdrawal is available only when the lockup period ends. Withdrawing harvests rewards for you."
-      />
+      <InformationBox type={InfoBoxType.info} text="Withdrawal is available only when the lockup period ends." />
       <StyledForm>
         <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
           <Flex column gap={24}>
@@ -102,52 +91,6 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
               min={1}
               max={lock.amount.toString()}
             />
-          </Flex>
-          <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
-            <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-              Projected benefits
-            </Label>
-            <GrayBox>
-              <Flex stretch column>
-                <Flex stretch gap={24}>
-                  <Flex column gap={2}>
-                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                      APR
-                    </Text>
-                    <div
-                      style={
-                        (rightSidebar ? BKPT_7 : BKPT_5) > width
-                          ? { margin: '-4px 0', display: 'block' }
-                          : { display: 'none' }
-                      }
-                    >
-                      &nbsp;
-                    </div>
-                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                      <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
-                    </Text>
-                  </Flex>
-                  <VerticalSeparator />
-                  <Flex column gap={2}>
-                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                      Reward Multiplier
-                    </Text>
-                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                      {projectedMultiplier}x
-                    </Text>
-                  </Flex>
-                  <VerticalSeparator />
-                  <Flex column gap={2}>
-                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                      Yearly Return
-                    </Text>
-                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                      {truncateValue(formatUnits(projectedYearlyReturns, 18), 4, false)}
-                    </Text>
-                  </Flex>
-                </Flex>
-              </Flex>
-            </GrayBox>
           </Flex>
         </Flex>
 

@@ -216,18 +216,29 @@ export const useUserLockData = () => {
   const { provider } = useProvider()
 
   const getUserLocks = async (user: string): Promise<UserVoteLocksData> => {
-    // if (provider) {
-    //   const lock = new Lock(activeNetwork.chainId, provider)
-    //   const userLocks = await lock.getUserLocks(user)
-    //   return userLocks
-    // }
     return {
       user: {
         stakedBalance: BigNumber.from(0),
         lockedBalance: BigNumber.from(0),
         unlockedBalance: BigNumber.from(0),
       },
-      locks: [],
+      locks: [
+        {
+          lockID: BigNumber.from(0),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(1),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(2),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+      ],
       successfulFetch: true,
     }
   }

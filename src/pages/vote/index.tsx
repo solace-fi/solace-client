@@ -272,7 +272,7 @@ function Vote(): JSX.Element {
                   ))}
                 </Flex>
               </Accordion>
-              <Button onClick={addVote}>+ Add Vote</Button>
+              <Button onClick={addVote}>+ Add Gauge Vote</Button>
               <Button techygradient secondary noborder widthP={100}>
                 Set Votes
               </Button>

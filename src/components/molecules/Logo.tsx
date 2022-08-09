@@ -36,14 +36,12 @@ export const Logo: React.FC<GeneralElementProps & LogoProps> = ({ ...props }) =>
 
   *************************************************************************************/
   return (
-    <a href={MARKETING_SITE}>
-      <LogoBase {...props}>
-        <img
-          src={props.location.pathname !== '/' ? coloredLogo : whiteLogo}
-          alt="Solace | Decentralized Coverage Protocol"
-        />
-      </LogoBase>
-    </a>
+    <LogoBase {...props}>
+      <img
+        src={props.location.pathname !== '/' ? coloredLogo : whiteLogo}
+        alt="Solace | Decentralized Coverage Protocol"
+      />
+    </LogoBase>
   )
 }
 
@@ -54,13 +52,11 @@ export const MiniLogo: React.FC<GeneralElementProps & LogoProps & { style?: Reac
 
   *************************************************************************************/
   return (
-    <a href={MARKETING_SITE}>
-      <LogoBase {...props} width={40}>
-        <img
-          src={props.location.pathname !== '/' ? coloredCircle : whiteCircle}
-          alt="Solace | Decentralized Coverage Protocol"
-        />
-      </LogoBase>
-    </a>
+    <LogoBase {...props} width={40}>
+      <img
+        src={props.location.pathname !== '/' ? coloredCircle : whiteCircle}
+        alt="Solace | Decentralized Coverage Protocol"
+      />
+    </LogoBase>
   )
 }

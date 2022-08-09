@@ -25,7 +25,6 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
-import { FunctionName } from '../../constants/enums'
 import { BKPT_5, BKPT_6, ZERO } from '../../constants'
 import { CheckboxData, UserVoteLocksData, UserVoteLocksInfo, VoteLockData } from '../../constants/types'
 
@@ -41,8 +40,7 @@ import NewSafe from './sections/Safe/NewSafe'
 import CardSectionValue from './components/CardSectionValue'
 
 /* import hooks */
-import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
-import { useUserLockData, useXSLocker } from '../../hooks/stake/useXSLocker'
+import { useUserLockData } from '../../hooks/stake/useXSLocker'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 /* import utils */
@@ -60,6 +58,7 @@ import '../../styles/tailwind.min.css'
 import { Loader } from '../../components/atoms/Loader'
 import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
 import { useWeb3React } from '@web3-react/core'
+import { MultiDepositModal } from './organisms/MultiDepositModal'
 
 /*
  Components
@@ -72,6 +71,10 @@ export default function Stake(): JSX.Element {
   const [newSafeIsOpen, setNewSafeIsOpen] = useState(false)
   const [batchActionsIsEnabled, setBatchActionsIsEnabled] = useState(false)
   const [loading, setLoading] = useState<boolean>(true)
+
+  const [openDepositModal, setOpenDepositModal] = useState(false)
+  const [openExtendModal, setOpenExtendModal] = useState(false)
+  const [openWithdrawModal, setOpenWithdrawModal] = useState(false)
 
   const fetchingLocks = useRef(false)
 
@@ -90,8 +93,7 @@ export default function Stake(): JSX.Element {
     unlockedBalance: ZERO,
   })
   const { getUserLocks } = useUserLockData()
-  const { withdrawFromLock } = useXSLocker()
-  const { handleToast, handleContractCallError } = useTransactionExecution()
+
   const navbarThreshold = useMemo(() => width < (rightSidebar ? BKPT_6 : BKPT_5), [rightSidebar, width])
 
   const calculateTotalWithdrawable = useCallback(
@@ -186,17 +188,17 @@ export default function Stake(): JSX.Element {
     }
   }
 
-  const handleBatchWithdraw = async () => {
-    if (!account || !latestBlock) return
-    const selectedLocks = getCheckedLocks(locks, locksChecked)
-    const eligibleLocks = selectedLocks.filter((lock) => lock.end.toNumber() <= latestBlock.timestamp)
-    const eligibleIds = eligibleLocks.map((lock) => lock.lockID)
-    if (eligibleIds.length == 0) return
-    const type = eligibleIds.length > 1 ? FunctionName.WITHDRAW_MANY_FROM_LOCK : FunctionName.WITHDRAW_FROM_LOCK
-    await withdrawFromLock(account, eligibleIds)
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('handleBatchWithdraw', err, type))
-  }
+  // const handleBatchWithdraw = async () => {
+  //   if (!account || !latestBlock) return
+  //   const selectedLocks = getCheckedLocks(locks, locksChecked)
+  //   const eligibleLocks = selectedLocks.filter((lock) => lock.end.toNumber() <= latestBlock.timestamp)
+  //   const eligibleIds = eligibleLocks.map((lock) => lock.lockID)
+  //   if (eligibleIds.length == 0) return
+  //   const type = eligibleIds.length > 1 ? FunctionName.WITHDRAW_MANY_FROM_LOCK : FunctionName.WITHDRAW_FROM_LOCK
+  //   await withdrawFromLock(account, eligibleIds)
+  //     .then((res) => handleToast(res.tx, res.localTx))
+  //     .catch((err) => handleContractCallError('handleBatchWithdraw', err, type))
+  // }
 
   return (
     <>
@@ -204,6 +206,11 @@ export default function Stake(): JSX.Element {
         <PleaseConnectWallet />
       ) : (
         <Content>
+          <MultiDepositModal
+            isOpen={openDepositModal}
+            handleClose={() => setOpenDepositModal(false)}
+            selectedLocks={locks}
+          />
           <AggregatedStakeData stakeData={userLockInfo} />
           <Flex
             between
@@ -280,7 +287,29 @@ export default function Stake(): JSX.Element {
                     pl={10}
                     pr={10}
                     py={navbarThreshold ? 20 : 0}
-                    onClick={handleBatchWithdraw}
+                    onClick={() => setOpenDepositModal(true)}
+                  >
+                    Deposit
+                  </Button>
+                  <Button
+                    secondary
+                    info
+                    noborder
+                    pl={10}
+                    pr={10}
+                    py={navbarThreshold ? 20 : 0}
+                    onClick={() => setOpenExtendModal(true)}
+                  >
+                    Extend
+                  </Button>
+                  <Button
+                    secondary
+                    info
+                    noborder
+                    pl={10}
+                    pr={10}
+                    py={navbarThreshold ? 20 : 0}
+                    onClick={() => setOpenWithdrawModal(true)}
                     disabled={withdrawalsAreZero}
                   >
                     Withdraw

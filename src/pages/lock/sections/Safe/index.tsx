@@ -49,7 +49,7 @@ export default function Safe({
   const amount = useMemo(() => formatUnits(lock.amount, 18), [lock.amount])
 
   const lockTimeLeft = useMemo(
-    () => getTimeFromMillis((latestBlock ? lock.end.toNumber() - latestBlock.timestamp : 0) * 1000),
+    () => getTimeFromMillis((latestBlock ? Math.max(lock.end.toNumber() - latestBlock.timestamp, 0) : 0) * 1000),
     [lock.end, latestBlock]
   )
   const safeStatus = useMemo(() => {
@@ -70,7 +70,6 @@ export default function Safe({
             {batchActionsIsEnabled && <Checkbox type="checkbox" checked={isChecked} onChange={() => onCheck(index)} />}
           </Flex>
           <GridOrRow preferredWidth={rightSidebar ? BKPT_7 : BKPT_6}>
-            {/* <Flex stretch gap={90}> */}
             <InfoPair
               isSafePreview
               batch={batchActionsIsEnabled}
@@ -128,10 +127,7 @@ export default function Safe({
               )}
             </Flex>
           </GridOrRow>
-          {/* </Flex> */}
         </Flex>
-        {/* Separator */}
-        {/* <div style={{ height: '1px', backgroundColor: '#e6e6e6',  }} /> */}
         {/******************************************************
 				                        SAFE BODY
 				******************************************************/}
