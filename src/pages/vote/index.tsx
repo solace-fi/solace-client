@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, TooltipProps } from 'recharts'
 
-import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
+import { Flex, ShadowDiv, VerticalSeparator } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { LoaderText } from '../../components/molecules/LoaderText'
 import { BKPT_NAVBAR } from '../../constants'
@@ -9,12 +9,13 @@ import { useGeneral } from '../../context/GeneralManager'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { TileCard } from '../../components/molecules/TileCard'
 import { Button } from '../../components/atoms/Button'
-import { VoteLock } from '../../components/organisms/VoteLock'
+import { VoteGauge } from '../../components/organisms/VoteGauge'
 import { RaisedBox } from '../../components/atoms/Box'
 import { formatAmount } from '../../utils/formatting'
 import { GaugeSelectionModal } from '../../components/organisms/GaugeSelectionModal'
 import { Modal } from '../../components/molecules/Modal'
 import { CustomPieChartTooltip, GaugeWeightsModal } from '../../components/organisms/GaugeWeightsModal'
+import { Accordion } from '../../components/atoms/Accordion'
 
 function Vote(): JSX.Element {
   const [loading, setLoading] = useState(true)
@@ -108,7 +109,7 @@ function Vote(): JSX.Element {
 
   const deleteVote = useCallback(
     (index: number) => {
-      const newVotesData = votesData.filter((voteData, i) => i == index)
+      const newVotesData = votesData.filter((voteData, i) => i !== index)
       setVotesData(newVotesData)
     },
     [votesData]
@@ -233,38 +234,49 @@ function Vote(): JSX.Element {
           </TileCard>
         </Flex>
         <Flex col widthP={!isMobile ? 40 : undefined} p={10}>
-          <TileCard style={{ alignItems: 'center' }} gap={15}>
-            <RaisedBox>
-              <Flex gap={12}>
-                <Flex col itemsCenter width={126}>
-                  <Text techygradient t6s>
-                    My Total Votes
-                  </Text>
-                  <Text techygradient big3>
-                    239
-                  </Text>
+          <TileCard gap={15}>
+            <Flex>
+              <Text semibold t2>
+                My Gauge Votes
+              </Text>
+            </Flex>
+            <Flex col itemsCenter gap={15}>
+              <ShadowDiv>
+                <Flex gap={12} p={10}>
+                  <Flex col itemsCenter width={126}>
+                    <Text techygradient t6s>
+                      My Total Points
+                    </Text>
+                    <Text techygradient big3>
+                      239
+                    </Text>
+                  </Flex>
+                  <VerticalSeparator />
+                  <Flex col itemsCenter width={126}>
+                    <Text t6s>My Used Points</Text>
+                    <Text big3>239</Text>
+                  </Flex>
                 </Flex>
-                <VerticalSeparator />
-                <Flex col itemsCenter width={126}>
-                  <Text t6s>My Used Votes</Text>
-                  <Text big3>239</Text>
+              </ShadowDiv>
+              <Accordion isOpen={votesData.length > 0} thinScrollbar>
+                <Flex col gap={10} p={10}>
+                  {votesData.map((voteData, i) => (
+                    <VoteGauge
+                      key={i}
+                      handleGaugeSelectionModal={handleGaugeSelectionModal}
+                      onVoteInput={onVoteInput}
+                      deleteVote={deleteVote}
+                      votesData={votesData}
+                      index={i}
+                    />
+                  ))}
                 </Flex>
-              </Flex>
-            </RaisedBox>
-            {votesData.map((voteData, i) => (
-              <VoteLock
-                key={i}
-                handleGaugeSelectionModal={handleGaugeSelectionModal}
-                onVoteInput={onVoteInput}
-                deleteVote={deleteVote}
-                votesData={votesData}
-                index={i}
-              />
-            ))}
-            <Button onClick={addVote}>+ Add Vote</Button>
-            <Button techygradient secondary noborder widthP={100}>
-              Set Votes
-            </Button>
+              </Accordion>
+              <Button onClick={addVote}>+ Add Vote</Button>
+              <Button techygradient secondary noborder widthP={100}>
+                Set Votes
+              </Button>
+            </Flex>
           </TileCard>
         </Flex>
       </Flex>
