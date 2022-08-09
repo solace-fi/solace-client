@@ -80,50 +80,12 @@ export default function App(): any {
     },
   ]
 
-  const tabs = [
-    {
-      collapsibleName: 'Products',
-      pages: [
-        { pageName: 'Coverage', to: `${MARKETING_SITE}/about/cover` },
-        { pageName: 'Staking', to: `${MARKETING_SITE}/about/staking` },
-        { pageName: 'Bonding', to: `${MARKETING_SITE}/about/tokenomics` },
-      ],
-    },
-    {
-      collapsibleName: 'Governance',
-      pages: [
-        {
-          pageName: 'Token',
-          to: 'https://etherscan.io/token/0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
-          newTab: true,
-        },
-        { pageName: 'DAO', to: 'https://forum.solace.fi/', newTab: true },
-      ],
-    },
-    {
-      collapsibleName: 'Developers',
-      pages: [
-        { pageName: 'Docs', to: 'https://docs.solace.fi/', newTab: true },
-        { pageName: 'SDK', to: 'https://docs.solace.fi/docs/dev-docs/sdk/getting-started', newTab: true },
-      ],
-    },
-    {
-      collapsibleName: 'About',
-      pages: [
-        { pageName: 'Roadmap', to: `${MARKETING_SITE}/#roadmap` },
-        { pageName: 'Investors', to: `${MARKETING_SITE}/#investors` },
-        { pageName: 'Advisors', to: `${MARKETING_SITE}/#advisors` },
-        { pageName: 'Core Contributors', to: `${MARKETING_SITE}/#coreContributors` },
-      ],
-    },
-  ]
-
   return (
     <Fragment>
       <AnalyticsReporter />
       <GlobalStyle location={location} />
       <MenusTopNavBar setShowLeft={setLeftSidebar} setShowRight={setRightSidebar} />
-      <InfoSideNavbar show={width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR)} tabs={tabs} />
+      <InfoSideNavbar show={width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR)} />
       <AppMenu show={rightSidebar} setShow={setRightSidebar} />
       <Layout>
         <ContentContainer>
@@ -131,7 +93,6 @@ export default function App(): any {
           <MobileInfoSideNavbar
             show={leftSidebar && width < (rightSidebar ? BKPT_2 : BKPT_NAVBAR)}
             setShow={setLeftSidebar}
-            tabs={tabs}
           />
           <LayoutContent>
             {width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR) && (
