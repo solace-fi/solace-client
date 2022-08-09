@@ -4,7 +4,6 @@ import { StyledSlider } from '../../../../components/atoms/Input'
 import InformationBox from '../../components/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
-import { LockData } from '@solace-fi/sdk-nightly'
 import { BKPT_7, BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 import { useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
@@ -23,8 +22,9 @@ import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { formatUnits } from 'ethers/lib/utils'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { useGeneral } from '../../../../context/GeneralManager'
+import { VoteLockData } from '../../../../constants/types'
 
-export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
+export default function LockForm({ lock }: { lock: VoteLockData }): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
   const { latestBlock } = useProvider()
   const { extendLock } = useXSLocker()
@@ -33,14 +33,14 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
 
   const [inputValue, setInputValue] = React.useState('0')
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
-    lock.unboostedAmount.toString(),
+    lock.amount.toString(),
     latestBlock ? latestBlock.timestamp + parseInt(inputValue) * 86400 : 0
   )
 
   const callExtendLock = async () => {
     if (!latestBlock || !inputValue || inputValue == '0') return
     const seconds = latestBlock.timestamp + parseInt(inputValue) * 86400
-    await extendLock(lock.xsLockID, BigNumber.from(seconds))
+    await extendLock(lock.lockID, BigNumber.from(seconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callExtendLock', err, FunctionName.EXTEND_LOCK))
   }
@@ -143,10 +143,13 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
           secondary
           info
           noborder
-          disabled={!inputValue || parseInt(inputValue) * 86400 <= lock.timeLeft.toNumber()}
+          disabled={
+            !inputValue ||
+            parseInt(inputValue) * 86400 <= (latestBlock ? lock.end.toNumber() > latestBlock.timestamp : 0)
+          }
           onClick={callExtendLock}
         >
-          {lock.timeLeft.toNumber() > 0 ? `Reset Lockup` : `Start Lockup`}
+          {(latestBlock ? lock.end.toNumber() > latestBlock.timestamp : true) ? `Reset Lockup` : `Start Lockup`}
         </Button>
       </StyledForm>
     </div>

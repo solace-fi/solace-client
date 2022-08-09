@@ -4,28 +4,24 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import { useSolaceBalance } from '../../../../hooks/balance/useBalance'
-import { accurateMultiply, convertSciNotaToPrecise, filterAmount, truncateValue } from '../../../../utils/formatting'
+import { accurateMultiply, convertSciNotaToPrecise, filterAmount } from '../../../../utils/formatting'
 import InformationBox from '../../components/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
-import { LockData } from '@solace-fi/sdk-nightly'
 import { FunctionName } from '../../../../constants/enums'
 import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 
 import { StyledForm } from '../../atoms/StyledForm'
-import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
+import { Flex } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { Label } from '../../molecules/InfoPair'
-import { GrayBox } from '../../../../components/molecules/GrayBox'
-import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { BKPT_5, BKPT_7 } from '../../../../constants'
-import { Text } from '../../../../components/atoms/Typography'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
+import { VoteLockData } from '../../../../constants/types'
 
-export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
-  const { appTheme, rightSidebar } = useGeneral()
+export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Element {
+  const { rightSidebar } = useGeneral()
   const solaceBalance = useSolaceBalance()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -33,19 +29,14 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
   const { account } = useWeb3React()
   const { width } = useWindowDimensions()
 
-  const [disabled, setDisabled] = React.useState(false)
+  const disabled = false
 
   const [inputValue, setInputValue] = React.useState('0')
   const [rangeValue, setRangeValue] = React.useState('0')
 
-  const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
-    convertSciNotaToPrecise((parseFloat(lock.unboostedAmount.toString()) + parseFloat(rangeValue)).toString()),
-    lock.end.toNumber()
-  )
-
   const callIncreaseLockAmount = async () => {
     if (!account) return
-    await increaseLockAmount(account, lock.xsLockID, parseUnits(inputValue, 18))
+    await increaseLockAmount(account, lock.lockID, parseUnits(inputValue, 18))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callIncreaseLockAmount', err, FunctionName.INCREASE_LOCK_AMOUNT))
   }
@@ -99,52 +90,6 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
               max={parseUnits(solaceBalance, 18).toString()}
               disabled={disabled}
             />
-          </Flex>
-          <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
-            <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-              Projected benefits
-            </Label>
-            <GrayBox>
-              <Flex stretch column>
-                <Flex stretch gap={24}>
-                  <Flex column gap={2}>
-                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                      APR
-                    </Text>
-                    <div
-                      style={
-                        (rightSidebar ? BKPT_7 : BKPT_5) > width
-                          ? { margin: '-4px 0', display: 'block' }
-                          : { display: 'none' }
-                      }
-                    >
-                      &nbsp;
-                    </div>
-                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                      <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
-                    </Text>
-                  </Flex>
-                  <VerticalSeparator />
-                  <Flex column gap={2}>
-                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                      Reward Multiplier
-                    </Text>
-                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                      {projectedMultiplier}x
-                    </Text>
-                  </Flex>
-                  <VerticalSeparator />
-                  <Flex column gap={2}>
-                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                      Yearly Return
-                    </Text>
-                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                      {truncateValue(formatUnits(projectedYearlyReturns, 18), 4, false)}
-                    </Text>
-                  </Flex>
-                </Flex>
-              </Flex>
-            </GrayBox>
           </Flex>
         </Flex>
         <Button

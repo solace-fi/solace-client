@@ -3,7 +3,6 @@ import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
-import { LockData } from '@solace-fi/sdk-nightly'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import {
   accurateMultiply,
@@ -27,9 +26,12 @@ import { BKPT_7, BKPT_5 } from '../../../../constants'
 import { Text } from '../../../../components/atoms/Typography'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
+import { VoteLockData } from '../../../../constants/types'
+import { useProvider } from '../../../../context/ProviderManager'
 
-export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element {
+export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
+  const { latestBlock } = useProvider()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { withdrawFromLock } = useXSLocker()
@@ -39,18 +41,18 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
   const [inputValue, setInputValue] = React.useState('0')
   const [rangeValue, setRangeValue] = React.useState('0')
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
-    convertSciNotaToPrecise((parseFloat(lock.unboostedAmount.toString()) - parseFloat(rangeValue)).toString()),
+    convertSciNotaToPrecise((parseFloat(lock.amount.toString()) - parseFloat(rangeValue)).toString()),
     lock.end.toNumber()
   )
 
   const callWithdrawFromLock = async () => {
     if (!account) return
     let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
-    const isMax = parseUnits(inputValue, 18).eq(lock.unboostedAmount)
+    const isMax = parseUnits(inputValue, 18).eq(lock.amount)
     if (isMax) {
       type = FunctionName.WITHDRAW_FROM_LOCK
     }
-    await withdrawFromLock(account, [lock.xsLockID], isMax ? undefined : parseUnits(inputValue, 18))
+    await withdrawFromLock(account, [lock.lockID], isMax ? undefined : parseUnits(inputValue, 18))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callWithdrawFromLock', err, type))
   }
@@ -60,7 +62,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
     const formatted = formatAmount(filtered)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
 
-    if (parseUnits(formatted, 18).gt(lock.unboostedAmount)) return
+    if (parseUnits(formatted, 18).gt(lock.amount)) return
 
     setRangeValue(accurateMultiply(filtered, 18))
     setInputValue(filtered)
@@ -71,7 +73,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
     setRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`)
   }
 
-  const setMax = () => rangeOnChange(lock.unboostedAmount.toString())
+  const setMax = () => rangeOnChange(lock.amount.toString())
 
   return (
     <div
@@ -98,7 +100,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
               value={rangeValue}
               onChange={(e) => rangeOnChange(e.target.value)}
               min={1}
-              max={lock.unboostedAmount.toString()}
+              max={lock.amount.toString()}
             />
           </Flex>
           <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
@@ -153,7 +155,10 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
           secondary
           info
           noborder
-          disabled={!isAppropriateAmount(inputValue, 18, lock.unboostedAmount) || lock.timeLeft.toNumber() > 0}
+          disabled={
+            !isAppropriateAmount(inputValue, 18, lock.amount) ||
+            (latestBlock ? lock.end.toNumber() > latestBlock.timestamp : true)
+          }
           onClick={callWithdrawFromLock}
         >
           Withdraw

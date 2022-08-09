@@ -3,14 +3,14 @@ import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { LocalTx } from '../../constants/types'
+import { LocalTx, UserVoteLocksData } from '../../constants/types'
 import { getPermitErc20Signature } from '../../utils/signature'
 import { DEADLINE, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { useGetFunctionGas } from '../provider/useGas'
 import { withBackoffRetries } from '../../utils/time'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
-import { Lock, UserLocksData } from '@solace-fi/sdk-nightly'
+import { Lock } from '@solace-fi/sdk-nightly'
 import { useProvider } from '../../context/ProviderManager'
 
 export const useXSLocker = () => {
@@ -215,23 +215,20 @@ export const useUserLockData = () => {
   const { activeNetwork } = useNetwork()
   const { provider } = useProvider()
 
-  const getUserLocks = async (user: string): Promise<UserLocksData> => {
-    if (provider) {
-      const lock = new Lock(activeNetwork.chainId, provider)
-      const userLocks = await lock.getUserLocks(user)
-      return userLocks
-    }
+  const getUserLocks = async (user: string): Promise<UserVoteLocksData> => {
+    // if (provider) {
+    //   const lock = new Lock(activeNetwork.chainId, provider)
+    //   const userLocks = await lock.getUserLocks(user)
+    //   return userLocks
+    // }
     return {
       user: {
-        pendingRewards: BigNumber.from(0),
         stakedBalance: BigNumber.from(0),
         lockedBalance: BigNumber.from(0),
         unlockedBalance: BigNumber.from(0),
-        yearlyReturns: BigNumber.from(0),
-        apr: BigNumber.from(0),
       },
       locks: [],
-      successfulFetch: false,
+      successfulFetch: true,
     }
   }
 

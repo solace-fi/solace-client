@@ -1,5 +1,5 @@
 import { TransactionCondition, SystemNotice, Error } from '../enums'
-import { SolaceRiskProtocol } from '@solace-fi/sdk-nightly'
+import { BigNumber, SolaceRiskProtocol } from '@solace-fi/sdk-nightly'
 
 export type CheckboxData = { id: string; checked: boolean }
 
@@ -46,4 +46,22 @@ export type PageInfo = {
 export type LocalSolaceRiskProtocol = SolaceRiskProtocol & {
   index: number
   networks: string[]
+}
+
+export type VoteLockData = {
+  lockID: BigNumber
+  amount: BigNumber
+  end: BigNumber
+}
+
+export type UserVoteLocksInfo = {
+  stakedBalance: BigNumber
+  lockedBalance: BigNumber
+  unlockedBalance: BigNumber
+}
+
+export type UserVoteLocksData = {
+  user: UserVoteLocksInfo
+  locks: VoteLockData[]
+  successfulFetch: boolean
 }
