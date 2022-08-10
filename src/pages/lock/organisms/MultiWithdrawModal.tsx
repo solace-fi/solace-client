@@ -11,7 +11,7 @@ import { Modal } from '../../../components/molecules/Modal'
 import { VoteLockData } from '../../../constants/types'
 import { filterAmount } from '../../../utils/formatting'
 
-export const MultiDepositModal = ({
+export const MultiWithdrawModal = ({
   isOpen,
   handleClose,
   selectedLocks,
@@ -88,7 +88,7 @@ export const MultiDepositModal = ({
   }, [isOpen])
 
   return (
-    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Deposit'}>
+    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Withdraw'}>
       <Flex col gap={10}>
         <Flex col>
           <Text>Set all to this amount</Text>
@@ -113,7 +113,10 @@ export const MultiDepositModal = ({
           </Flex>
         </Accordion>
         <Button secondary warmgradient noborder>
-          Make Deposits
+          Make Withdrawals
+        </Button>
+        <Button noborder matchBg>
+          <Text warmgradient>Withdraw everything</Text>
         </Button>
       </Flex>
     </Modal>

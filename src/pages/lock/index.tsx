@@ -59,12 +59,14 @@ import { Loader } from '../../components/atoms/Loader'
 import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
 import { useWeb3React } from '@web3-react/core'
 import { MultiDepositModal } from './organisms/MultiDepositModal'
+import { MultiWithdrawModal } from './organisms/MultiWithdrawModal'
+import { MultiExtendModal } from './organisms/MultiExtendModal'
 
 /*
  Components
  */
 
-export default function Stake(): JSX.Element {
+export default function Lock(): JSX.Element {
   const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
   // account usewallet
@@ -93,6 +95,13 @@ export default function Stake(): JSX.Element {
     unlockedBalance: ZERO,
   })
   const { getUserLocks } = useUserLockData()
+  const selectedLocks = useMemo(
+    () =>
+      locks.filter((lock) =>
+        locksChecked.find((checkedLock) => checkedLock.id == lock.lockID.toString() && checkedLock.checked)
+      ),
+    [locks, locksChecked]
+  )
 
   const navbarThreshold = useMemo(() => width < (rightSidebar ? BKPT_6 : BKPT_5), [rightSidebar, width])
 
@@ -188,18 +197,6 @@ export default function Stake(): JSX.Element {
     }
   }
 
-  // const handleBatchWithdraw = async () => {
-  //   if (!account || !latestBlock) return
-  //   const selectedLocks = getCheckedLocks(locks, locksChecked)
-  //   const eligibleLocks = selectedLocks.filter((lock) => lock.end.toNumber() <= latestBlock.timestamp)
-  //   const eligibleIds = eligibleLocks.map((lock) => lock.lockID)
-  //   if (eligibleIds.length == 0) return
-  //   const type = eligibleIds.length > 1 ? FunctionName.WITHDRAW_MANY_FROM_LOCK : FunctionName.WITHDRAW_FROM_LOCK
-  //   await withdrawFromLock(account, eligibleIds)
-  //     .then((res) => handleToast(res.tx, res.localTx))
-  //     .catch((err) => handleContractCallError('handleBatchWithdraw', err, type))
-  // }
-
   return (
     <>
       {!account ? (
@@ -209,7 +206,17 @@ export default function Stake(): JSX.Element {
           <MultiDepositModal
             isOpen={openDepositModal}
             handleClose={() => setOpenDepositModal(false)}
-            selectedLocks={locks}
+            selectedLocks={selectedLocks}
+          />
+          <MultiExtendModal
+            isOpen={openExtendModal}
+            handleClose={() => setOpenExtendModal(false)}
+            selectedLocks={selectedLocks}
+          />
+          <MultiWithdrawModal
+            isOpen={openWithdrawModal}
+            handleClose={() => setOpenWithdrawModal(false)}
+            selectedLocks={selectedLocks}
           />
           <AggregatedStakeData stakeData={userLockInfo} />
           <Flex
@@ -248,7 +255,11 @@ export default function Stake(): JSX.Element {
                     }}
                     onClick={handleLockCheckAll}
                   >
-                    <Checkbox type="checkbox" checked={allBoxesAreChecked(locksChecked)} />
+                    <Checkbox
+                      type="checkbox"
+                      checked={allBoxesAreChecked(locksChecked)}
+                      onChange={handleLockCheckAll}
+                    />
                     <Text bold t4 info>
                       Select all
                     </Text>
@@ -310,7 +321,7 @@ export default function Stake(): JSX.Element {
                     pr={10}
                     py={navbarThreshold ? 20 : 0}
                     onClick={() => setOpenWithdrawModal(true)}
-                    disabled={withdrawalsAreZero}
+                    // disabled={withdrawalsAreZero}
                   >
                     Withdraw
                   </Button>

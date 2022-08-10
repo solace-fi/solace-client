@@ -238,6 +238,111 @@ export const useUserLockData = () => {
           amount: BigNumber.from(0),
           end: BigNumber.from(0),
         },
+        {
+          lockID: BigNumber.from(3),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(4),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(5),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(6),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(7),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(8),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(9),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(10),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(11),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(12),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(13),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(14),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(15),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(16),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(17),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(18),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(19),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(20),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(21),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(22),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(23),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
       ],
       successfulFetch: true,
     }

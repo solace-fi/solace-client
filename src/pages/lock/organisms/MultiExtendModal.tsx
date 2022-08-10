@@ -11,7 +11,7 @@ import { Modal } from '../../../components/molecules/Modal'
 import { VoteLockData } from '../../../constants/types'
 import { filterAmount } from '../../../utils/formatting'
 
-export const MultiDepositModal = ({
+export const MultiExtendModal = ({
   isOpen,
   handleClose,
   selectedLocks,
@@ -20,93 +20,93 @@ export const MultiDepositModal = ({
   handleClose: () => void
   selectedLocks: VoteLockData[]
 }): JSX.Element => {
-  const [amountTracker, setAmountTracker] = useState<
+  const [durationTracker, setDurationTracker] = useState<
     {
       lockID: BigNumber
-      amount: string
+      days: string
     }[]
   >([])
 
-  const [commonAmount, setCommonAmount] = useState<string>('')
+  const [commonDays, setCommonDays] = useState<string>('')
 
-  const handleAmountInput = useCallback(
+  const handleDaysInput = useCallback(
     (input: string, index: number) => {
-      const filtered = filterAmount(input, amountTracker[index].amount.toString())
-      setAmountTracker(
-        amountTracker.map((item, i) => {
+      const filtered = filterAmount(input, durationTracker[index].days.toString())
+      setDurationTracker(
+        durationTracker.map((item, i) => {
           if (i === index) {
             return {
               ...item,
-              amount: filtered,
+              days: filtered,
             }
           }
           return item
         })
       )
     },
-    [amountTracker]
+    [durationTracker]
   )
 
-  const handleCommonAmountInput = useCallback(
+  const handleCommonDaysInput = useCallback(
     (input: string) => {
-      const filtered = filterAmount(input, commonAmount)
-      setCommonAmount(filtered)
+      const filtered = filterAmount(input, commonDays)
+      setCommonDays(filtered)
     },
-    [commonAmount]
+    [commonDays]
   )
 
-  const changeAlltoCommonAmount = useDebounce((commonAmount: string) => {
-    setAmountTracker(
-      amountTracker.map((item) => {
+  const changeAlltoCommonDays = useDebounce((commonDays: string) => {
+    setDurationTracker(
+      durationTracker.map((item) => {
         return {
           ...item,
-          amount: commonAmount,
+          amount: commonDays,
         }
       })
     )
   }, 400)
 
   useEffect(() => {
-    changeAlltoCommonAmount(commonAmount)
-  }, [changeAlltoCommonAmount, commonAmount])
+    changeAlltoCommonDays(commonDays)
+  }, [changeAlltoCommonDays, commonDays])
 
   useEffect(() => {
     if (isOpen)
-      setAmountTracker(
+      setDurationTracker(
         selectedLocks.map((lock) => {
           return {
             lockID: lock.lockID,
-            amount: '',
+            days: '',
           }
         })
       )
     else {
-      setAmountTracker([])
-      setCommonAmount('')
+      setDurationTracker([])
+      setCommonDays('')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   return (
-    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Deposit'}>
+    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Extend'}>
       <Flex col gap={10}>
         <Flex col>
-          <Text>Set all to this amount</Text>
+          <Text>Set all to this number of days</Text>
           <SmallerInputSection
-            placeholder={'Amount'}
-            value={commonAmount}
-            onChange={(e) => handleCommonAmountInput(e.target.value)}
+            placeholder={'Days'}
+            value={commonDays}
+            onChange={(e) => handleCommonDaysInput(e.target.value)}
           />
         </Flex>
         <Accordion isOpen={true} thinScrollbar customHeight={'50vh'}>
           <Flex col gap={10} p={10}>
-            {amountTracker.map((lock, i) => (
+            {durationTracker.map((lock, i) => (
               <Flex gap={10} key={i}>
                 <Text autoAlign>Lock</Text>
                 <SmallerInputSection
-                  placeholder={'Amount'}
-                  value={lock.amount}
-                  onChange={(e) => handleAmountInput(e.target.value, i)}
+                  placeholder={'Days'}
+                  value={lock.days}
+                  onChange={(e) => handleDaysInput(e.target.value, i)}
                 />
               </Flex>
             ))}
