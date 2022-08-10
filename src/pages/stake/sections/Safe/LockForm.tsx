@@ -40,7 +40,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   const [inputValue, setInputValue] = React.useState('0')
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     lock.unboostedAmount.toString(),
-    lockEnd + parseInt(inputValue) * 86400
+    lockEnd + parseInt(!inputValue ? '0' : inputValue) * 86400
   )
 
   const callExtendLock = async () => {
@@ -154,7 +154,9 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
           secondary
           info
           noborder
-          disabled={!inputValue || parseInt(inputValue) * 86400 + lockTimeInSeconds / 86400 <= DAYS_PER_YEAR * 4}
+          disabled={
+            !inputValue || inputValue == '0' || parseInt(inputValue) + lockTimeInSeconds / 86400 > DAYS_PER_YEAR * 4
+          }
           onClick={callExtendLock}
         >
           Extend
