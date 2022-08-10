@@ -14,7 +14,7 @@ import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 import { Text } from '../../../../components/atoms/Typography'
 import { BKPT_7, BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
-import { RaisedBox, SmallBox } from '../../../../components/atoms/Box'
+import { RaisedBox } from '../../../../components/atoms/Box'
 import { Label } from '../../molecules/InfoPair'
 import { Flex, ShadowDiv } from '../../../../components/atoms/Layout'
 import { Accordion } from '../../../../components/atoms/Accordion'
@@ -139,17 +139,15 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     min={0}
                     max={DAYS_PER_YEAR * 4}
                   />
-                  {
-                    <SmallBox transparent collapse={!lockInputValue || lockInputValue == '0'} m={0} p={0}>
-                      <Text
-                        style={{
-                          fontWeight: 500,
-                        }}
-                      >
-                        Lock End Date: {getExpiration(parseInt(lockInputValue))}
-                      </Text>
-                    </SmallBox>
-                  }
+                  {lockInputValue && lockInputValue != '0' && (
+                    <Text
+                      style={{
+                        fontWeight: 500,
+                      }}
+                    >
+                      Lock End Date: {getExpiration(parseInt(lockInputValue))}
+                    </Text>
+                  )}
                 </Flex>
               </Flex>
             </Flex>
