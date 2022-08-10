@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import InformationBox from '../../components/InformationBox'
@@ -11,9 +11,8 @@ import { useTransactionExecution } from '../../../../hooks/internal/useInputAmou
 import { FunctionName } from '../../../../constants/enums'
 import { BigNumber } from 'ethers'
 import { useProvider } from '../../../../context/ProviderManager'
-import { SmallBox } from '../../../../components/atoms/Box'
 import { Text } from '../../../../components/atoms/Typography'
-import { getExpiration } from '../../../../utils/time'
+import { getDateStringWithMonthName } from '../../../../utils/time'
 import { StyledForm } from '../../atoms/StyledForm'
 import { truncateValue } from '../../../../utils/formatting'
 import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
@@ -30,32 +29,45 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   const { extendLock } = useXSLocker()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { width } = useWindowDimensions()
+  const [maxSelected, setMaxSelected] = useState(false)
+
+  const lockEnd = useMemo(() => Math.max(lock.end.toNumber(), latestBlock?.timestamp ?? 0), [lock.end, latestBlock])
+
+  const lockTimeInSeconds = useMemo(() => (latestBlock ? lockEnd - latestBlock.timestamp : 0), [latestBlock, lockEnd])
+
+  const extendableDays = useMemo(() => Math.floor(DAYS_PER_YEAR * 4 - lockTimeInSeconds / 86400), [lockTimeInSeconds])
 
   const [inputValue, setInputValue] = React.useState('0')
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     lock.unboostedAmount.toString(),
-    latestBlock ? latestBlock.timestamp + parseInt(inputValue) * 86400 : 0
+    lockEnd + parseInt(inputValue) * 86400
   )
 
   const callExtendLock = async () => {
     if (!latestBlock || !inputValue || inputValue == '0') return
-    const seconds = latestBlock.timestamp + parseInt(inputValue) * 86400
-    await extendLock(lock.xsLockID, BigNumber.from(seconds))
+    const newEndDateInSeconds =
+      lockEnd + (maxSelected ? DAYS_PER_YEAR * 4 * 86400 - lockTimeInSeconds : parseInt(inputValue) * 86400)
+    await extendLock(lock.xsLockID, BigNumber.from(newEndDateInSeconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callExtendLock', err, FunctionName.EXTEND_LOCK))
   }
 
   const inputOnChange = (value: string) => {
     const filtered = value.replace(/[^0-9]*/g, '')
-    if (parseFloat(filtered) <= DAYS_PER_YEAR * 4 || filtered == '') {
+    if (parseFloat(filtered) <= extendableDays || filtered == '') {
       setInputValue(filtered)
+      setMaxSelected(false)
     }
   }
   const rangeOnChange = (value: string) => {
     setInputValue(value)
+    setMaxSelected(false)
   }
 
-  const setMax = () => setInputValue(`${DAYS_PER_YEAR * 4}`)
+  const setMax = () => {
+    setInputValue(`${extendableDays}`)
+    setMaxSelected(true)
+  }
 
   return (
     <div
@@ -82,7 +94,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
               value={inputValue}
               onChange={(e) => rangeOnChange(e.target.value)}
               min={0}
-              max={DAYS_PER_YEAR * 4}
+              max={extendableDays}
             />
           </Flex>
           <Flex column stretch w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
@@ -132,21 +144,20 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
             </GrayBox>
           </Flex>
         </Flex>
-        {
-          <SmallBox transparent collapse={!inputValue || inputValue == '0'} m={0} p={0}>
-            <Text>Lockup End Date: {getExpiration(parseInt(inputValue))}</Text>
-          </SmallBox>
-        }
+        <Text>
+          Lockup End Date:{' '}
+          {getDateStringWithMonthName(new Date((lockEnd + parseInt(!inputValue ? '0' : inputValue) * 86400) * 1000))}
+        </Text>
         <Button
           pl={14}
           pr={14}
           secondary
           info
           noborder
-          disabled={!inputValue || parseInt(inputValue) * 86400 <= lock.timeLeft.toNumber()}
+          disabled={!inputValue || parseInt(inputValue) * 86400 + lockTimeInSeconds / 86400 <= DAYS_PER_YEAR * 4}
           onClick={callExtendLock}
         >
-          {lock.timeLeft.toNumber() > 0 ? `Reset Lockup` : `Start Lockup`}
+          Extend
         </Button>
       </StyledForm>
     </div>
