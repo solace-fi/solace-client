@@ -69,7 +69,7 @@ export const MultiWithdrawModal = ({
 
   const handleTotalAmount = useDebounce((amountTracker: { lockID: BigNumber; amount: string }[]) => {
     const amounts = amountTracker.map((item) => item.amount)
-    const total = amounts.reduce((acc, curr) => acc.add(parseUnits(curr, 18)), ZERO)
+    const total = amounts.reduce((acc, curr) => acc.add(curr == '' ? ZERO : parseUnits(curr, 18)), ZERO)
     setTotalAmountToWithdraw(formatUnits(total, 18))
   }, 300)
 

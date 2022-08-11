@@ -71,7 +71,7 @@ export const MultiDepositModal = ({
 
   const handleTotalAmount = useDebounce((amountTracker: { lockID: BigNumber; amount: string }[]) => {
     const amounts = amountTracker.map((item) => item.amount)
-    const total = amounts.reduce((acc, curr) => acc.add(parseUnits(curr, selectedCoinDecimals)), ZERO)
+    const total = amounts.reduce((acc, curr) => acc.add(curr == '' ? ZERO : parseUnits(curr, 18)), ZERO)
     setTotalAmountToDeposit(formatUnits(total, selectedCoinDecimals))
   }, 300)
 
