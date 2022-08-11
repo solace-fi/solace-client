@@ -4,7 +4,6 @@ import React, { createContext, useMemo, useState, useContext, useEffect, useCall
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { ReadToken, TokenInfo } from '../../constants/types'
 import { useCachedData } from '../../context/CachedDataManager'
-import { useGeneral } from '../../context/GeneralManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useBatchBalances } from '../../hooks/balance/useBalance'
@@ -13,9 +12,12 @@ import { useTokenAllowance, useTokenApprove } from '../../hooks/contract/useToke
 import SOLACE from '../../constants/abi/SOLACE.json'
 import { useInputAmount } from '../../hooks/internal/useInputAmount'
 import { isAddress } from '../../utils'
+import { fixed, formatAmount } from '../../utils/formatting'
 
 type LockContextType = {
   intrface: {
+    transactionLoading: boolean
+    balancesLoading: boolean
     handleTransactionLoading: (setLoading: boolean) => void
   }
   paymentCoins: {
@@ -27,13 +29,17 @@ type LockContextType = {
   }
   input: {
     enteredDeposit: string
+    isAcceptableDeposit: boolean
     selectedCoin: ReadToken & { stablecoin: boolean }
     selectedCoinPrice: number
+    handleSelectedCoin: (coin: string) => void
   }
 }
 
 const LockContext = createContext<LockContextType>({
   intrface: {
+    transactionLoading: false,
+    balancesLoading: false,
     handleTransactionLoading: () => undefined,
   },
   paymentCoins: {
@@ -51,13 +57,14 @@ const LockContext = createContext<LockContextType>({
       stablecoin: false,
     },
     selectedCoinPrice: 0,
+    handleSelectedCoin: () => undefined,
+    isAcceptableDeposit: false,
   },
 })
 
 const LockManager: React.FC = (props) => {
-  const { appTheme, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
-  const { signer, latestBlock } = useProvider()
+  const { signer } = useProvider()
   const { tokenPriceMapping } = useCachedData()
 
   const {
@@ -107,6 +114,26 @@ const LockManager: React.FC = (props) => {
     })
   }, [batchBalances, coinOptions, tokenPriceMapping])
 
+  const isAcceptableDeposit = useMemo(() => {
+    const selectedBalance = batchBalances.find((b) => b.addr === selectedCoin.address)
+    if (!selectedBalance) return false
+    return isAppropriateDeposit(enteredDeposit, selectedCoin.decimals, selectedBalance.balance)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchBalances, enteredDeposit, selectedCoin.address, selectedCoin.decimals])
+
+  const handleSelectedCoin = useCallback(
+    (addr: string) => {
+      const coin = coinOptions.find((c) => c.address === addr)
+      if (coin) {
+        if (coin.decimals < selectedCoin.decimals) {
+          handleEnteredDeposit(fixed(formatAmount(enteredDeposit), coin.decimals).toString())
+        }
+        setSelectedCoin(coin)
+      }
+    },
+    [coinOptions, enteredDeposit, selectedCoin.decimals, handleEnteredDeposit]
+  )
+
   const handleTransactionLoading = useCallback((setLoading: boolean) => {
     setTransactionLoading(setLoading)
   }, [])
@@ -148,6 +175,8 @@ const LockManager: React.FC = (props) => {
   const value = useMemo<LockContextType>(
     () => ({
       intrface: {
+        transactionLoading,
+        balancesLoading,
         handleTransactionLoading,
       },
       paymentCoins: {
@@ -161,6 +190,8 @@ const LockManager: React.FC = (props) => {
         enteredDeposit,
         selectedCoin,
         selectedCoinPrice,
+        handleSelectedCoin,
+        isAcceptableDeposit,
       },
     }),
     [
@@ -173,6 +204,10 @@ const LockManager: React.FC = (props) => {
       enteredDeposit,
       selectedCoin,
       selectedCoinPrice,
+      handleSelectedCoin,
+      isAcceptableDeposit,
+      transactionLoading,
+      balancesLoading,
     ]
   )
   return <LockContext.Provider value={value}>{props.children}</LockContext.Provider>
