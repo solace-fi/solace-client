@@ -400,10 +400,10 @@ const CoverageManager: React.FC = (props) => {
 
   const approveCPM = useCallback(
     async (tokenAddr: string, amount?: BigNumber) => {
-      if (!scpObj || !isAddress(tokenAddr) || !isAddress(scpObj.coverPaymentManager.address)) return
-      await approve(tokenAddr, ERC20_ABI, scpObj.coverPaymentManager.address, amount)
+      if (!spenderAddress || !isAddress(tokenAddr) || !isAddress(spenderAddress)) return
+      await approve(tokenAddr, ERC20_ABI, spenderAddress, amount)
     },
-    [scpObj, approve]
+    [spenderAddress, approve]
   )
 
   const handleSimCoverLimit = useCallback((coverageLimit: BigNumber) => {
@@ -541,6 +541,7 @@ const CoverageManager: React.FC = (props) => {
   useEffect(() => {
     if (!signer || !activeNetwork.config.generalFeatures.coverageV3) {
       setScpObj(undefined)
+      setSpenderAddress(null)
       return
     }
     const scpObj = new SCP(activeNetwork.chainId, signer)
