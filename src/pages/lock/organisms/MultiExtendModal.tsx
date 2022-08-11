@@ -1,7 +1,6 @@
 import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
-import { formatUnits } from 'ethers/lib/utils'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Accordion } from '../../../components/atoms/Accordion'
 import { Button } from '../../../components/atoms/Button'
 import { Flex } from '../../../components/atoms/Layout'
@@ -9,6 +8,7 @@ import { Text } from '../../../components/atoms/Typography'
 import { SmallerInputSection } from '../../../components/molecules/InputSection'
 import { Modal } from '../../../components/molecules/Modal'
 import { VoteLockData } from '../../../constants/types'
+import { useProvider } from '../../../context/ProviderManager'
 import { filterAmount } from '../../../utils/formatting'
 
 export const MultiExtendModal = ({
@@ -20,29 +20,34 @@ export const MultiExtendModal = ({
   handleClose: () => void
   selectedLocks: VoteLockData[]
 }): JSX.Element => {
+  const { latestBlock } = useProvider()
   const [durationTracker, setDurationTracker] = useState<
     {
       lockID: BigNumber
-      days: string
+      currDays: string
+      extraDays: string
+      validInput: boolean
     }[]
   >([])
+  const invalidLocks = useMemo(() => durationTracker.filter((lock) => !lock.validInput), [durationTracker])
 
+  const MAX_DAYS = 1460
   const [commonDays, setCommonDays] = useState<string>('')
 
   const handleDaysInput = useCallback(
     (input: string, index: number) => {
-      const filtered = filterAmount(input, durationTracker[index].days.toString())
-      setDurationTracker(
-        durationTracker.map((item, i) => {
-          if (i === index) {
-            return {
-              ...item,
-              days: filtered,
-            }
-          }
-          return item
-        })
-      )
+      const filtered = filterAmount(input, durationTracker[index].extraDays.toString())
+      setDurationTracker((prevState) => {
+        return [
+          ...prevState.slice(0, index),
+          {
+            ...prevState[index],
+            extraDays: filtered,
+            validInput: parseInt(filtered) + parseInt(prevState[index].currDays) <= MAX_DAYS,
+          },
+          ...prevState.slice(index + 1),
+        ]
+      })
     },
     [durationTracker]
   )
@@ -60,7 +65,7 @@ export const MultiExtendModal = ({
       durationTracker.map((item) => {
         return {
           ...item,
-          amount: commonDays,
+          extraDays: commonDays,
         }
       })
     )
@@ -71,21 +76,48 @@ export const MultiExtendModal = ({
   }, [changeAlltoCommonDays, commonDays])
 
   useEffect(() => {
-    if (isOpen)
+    if (isOpen) {
+      console.log('opened modal')
       setDurationTracker(
         selectedLocks.map((lock) => {
+          const updatedCurrDays = Math.floor(
+            Math.max(lock.end.toNumber() - (latestBlock?.timestamp ?? 0), 0) / 86400
+          ).toString()
           return {
             lockID: lock.lockID,
-            days: '',
+            currDays: updatedCurrDays,
+            extraDays: '',
+            validInput: true,
           }
         })
       )
-    else {
+    } else {
+      console.log('closed modal')
       setDurationTracker([])
       setCommonDays('')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
+
+  useEffect(() => {
+    if (isOpen) {
+      console.log('updated curr days')
+      setDurationTracker((prevState) =>
+        selectedLocks.map((lock, i) => {
+          const updatedCurrDays = Math.floor(
+            Math.max(lock.end.toNumber() - (latestBlock?.timestamp ?? 0), 0) / 86400
+          ).toString()
+          return {
+            ...lock,
+            currDays: updatedCurrDays,
+            extraDays: prevState[i].extraDays,
+            validInput: parseInt(prevState[i].extraDays) + parseInt(updatedCurrDays) <= MAX_DAYS,
+          }
+        })
+      )
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestBlock])
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Extend'}>
@@ -105,7 +137,7 @@ export const MultiExtendModal = ({
                 <Text autoAlign>Lock</Text>
                 <SmallerInputSection
                   placeholder={'Days'}
-                  value={lock.days}
+                  value={lock.extraDays}
                   onChange={(e) => handleDaysInput(e.target.value, i)}
                 />
               </Flex>
@@ -113,7 +145,7 @@ export const MultiExtendModal = ({
           </Flex>
         </Accordion>
         <Button secondary warmgradient noborder>
-          Make Deposits
+          Make Extensions
         </Button>
       </Flex>
     </Modal>

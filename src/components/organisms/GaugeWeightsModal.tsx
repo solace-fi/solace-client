@@ -36,11 +36,13 @@ export const GaugeWeightsModal = ({
   handleClose,
   data,
   colors,
+  darkColors,
 }: {
   isOpen: boolean
   handleClose: () => void
   data: { name: string; value: number }[]
   colors: string[]
+  darkColors: string[]
 }): JSX.Element => {
   const { isMobile } = useWindowDimensions()
   const [animate, setAnimate] = useState(true)
@@ -73,7 +75,10 @@ export const GaugeWeightsModal = ({
               dataKey="value"
             >
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={index < colors.length ? colors[index] : darkColors[index % darkColors.length]}
+                />
               ))}
             </Pie>
             <Tooltip content={<CustomPieChartTooltip />} />
@@ -93,7 +98,11 @@ export const GaugeWeightsModal = ({
             <Flex col>
               {searchedList.map((entry, index) => (
                 <Flex key={`${entry.name}-${index}`} between px={10} py={4} gap={5}>
-                  <Text bold textAlignLeft style={{ color: colors[index % colors.length] }}>{`${entry.name}`}</Text>
+                  <Text
+                    bold
+                    textAlignLeft
+                    style={{ color: index < colors.length ? colors[index] : darkColors[index % darkColors.length] }}
+                  >{`${entry.name}`}</Text>
                   <Text bold textAlignRight>{`${entry.value}%`}</Text>
                 </Flex>
               ))}

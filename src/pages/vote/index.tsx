@@ -1,19 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, TooltipProps } from 'recharts'
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
 
 import { Flex, ShadowDiv, VerticalSeparator } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { LoaderText } from '../../components/molecules/LoaderText'
 import { BKPT_NAVBAR } from '../../constants'
-import { useGeneral } from '../../context/GeneralManager'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { TileCard } from '../../components/molecules/TileCard'
 import { Button } from '../../components/atoms/Button'
 import { VoteGauge } from '../../components/organisms/VoteGauge'
-import { RaisedBox } from '../../components/atoms/Box'
 import { formatAmount } from '../../utils/formatting'
 import { GaugeSelectionModal } from '../../components/organisms/GaugeSelectionModal'
-import { Modal } from '../../components/molecules/Modal'
 import { CustomPieChartTooltip, GaugeWeightsModal } from '../../components/organisms/GaugeWeightsModal'
 import { Accordion } from '../../components/atoms/Accordion'
 
@@ -27,18 +24,21 @@ function Vote(): JSX.Element {
   const { width, isMobile } = useWindowDimensions()
 
   const COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', 'rgb(95,93,249)', 'rgb(240,77,66)'], [])
+  const DARK_COLORS = useMemo(() => ['rgb(166, 95, 168)', 'rgb(187, 136, 0)', '#4644b9', '#b83c33'], [])
+
+  const TOP_GAUGES = 4
 
   const data = useMemo(
     () => [
-      { name: 'stake-dao', value: 17 },
+      { name: 'stake-dao', value: 18 },
       { name: 'aave', value: 16 },
       { name: 'compound', value: 15 },
       { name: 'solace', value: 13 },
       { name: 'sushiswap', value: 12 },
       { name: 'fox-bank', value: 10 },
       { name: 'monkey-barrel', value: 9 },
-      { name: 'nexus-farm', value: 7 },
-      { name: 'quickswap', value: 3 },
+      { name: 'nexus-farm', value: 4 },
+      { name: 'quickswap', value: 2 },
       { name: 'lemonade-stake', value: 1 },
     ],
     []
@@ -46,8 +46,8 @@ function Vote(): JSX.Element {
 
   const summarizedData = useMemo(
     () => [
-      ...data.slice(0, 4),
-      { name: 'Other Protocols', value: data.slice(3).reduce((acc, pv) => pv.value + acc, 0) },
+      ...data.slice(0, TOP_GAUGES),
+      { name: 'Other Protocols', value: data.slice(TOP_GAUGES).reduce((acc, pv) => pv.value + acc, 0) },
     ],
     [data]
   )
@@ -75,17 +75,16 @@ function Vote(): JSX.Element {
     (input: string, index: number) => {
       const formatted = formatAmount(input)
       if (formatted === votesData[index].votes) return
-      setVotesData(
-        votesData.map((voteData, i) => {
-          if (i == index) {
-            return {
-              ...voteData,
-              votes: input,
-            }
-          }
-          return voteData
-        })
-      )
+      setVotesData((prevState) => {
+        return [
+          ...prevState.slice(0, index),
+          {
+            ...prevState[index],
+            votes: input,
+          },
+          ...prevState.slice(index + 1),
+        ]
+      })
     },
     [votesData]
   )
@@ -151,6 +150,7 @@ function Vote(): JSX.Element {
         handleClose={handleGaugeWeightsModal}
         data={data}
         colors={COLORS}
+        darkColors={DARK_COLORS}
       />
       <Flex col={isMobile} row={!isMobile}>
         <Flex col widthP={!isMobile ? 60 : undefined} p={10} gap={20}>

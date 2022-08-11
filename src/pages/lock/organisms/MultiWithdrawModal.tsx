@@ -1,6 +1,7 @@
 import useDebounce from '@rooks/use-debounce'
+import { ZERO } from '@solace-fi/sdk-nightly'
 import { BigNumber } from 'ethers'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Accordion } from '../../../components/atoms/Accordion'
 import { Button } from '../../../components/atoms/Button'
@@ -28,21 +29,21 @@ export const MultiWithdrawModal = ({
   >([])
 
   const [commonAmount, setCommonAmount] = useState<string>('')
+  const [totalAmountToWithdraw, setTotalAmountToWithdraw] = useState<string>('')
 
   const handleAmountInput = useCallback(
     (input: string, index: number) => {
       const filtered = filterAmount(input, amountTracker[index].amount.toString())
-      setAmountTracker(
-        amountTracker.map((item, i) => {
-          if (i === index) {
-            return {
-              ...item,
-              amount: filtered,
-            }
-          }
-          return item
-        })
-      )
+      setAmountTracker((prevState) => {
+        return [
+          ...prevState.slice(0, index),
+          {
+            ...prevState[index],
+            amount: filtered,
+          },
+          ...prevState.slice(index + 1),
+        ]
+      })
     },
     [amountTracker]
   )
@@ -65,6 +66,20 @@ export const MultiWithdrawModal = ({
       })
     )
   }, 400)
+
+  const handleTotalAmount = useDebounce((amountTracker: { lockID: BigNumber; amount: string }[]) => {
+    const amounts = amountTracker.map((item) => item.amount)
+    const total = amounts.reduce((acc, curr) => acc.add(parseUnits(curr, 18)), ZERO)
+    setTotalAmountToWithdraw(formatUnits(total, 18))
+  }, 300)
+
+  useEffect(() => {
+    changeAlltoCommonAmount(commonAmount)
+  }, [changeAlltoCommonAmount, commonAmount])
+
+  useEffect(() => {
+    handleTotalAmount(amountTracker)
+  }, [handleTotalAmount, amountTracker])
 
   useEffect(() => {
     changeAlltoCommonAmount(commonAmount)
