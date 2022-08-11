@@ -61,12 +61,21 @@ import { useWeb3React } from '@web3-react/core'
 import { MultiDepositModal } from './organisms/MultiDepositModal'
 import { MultiWithdrawModal } from './organisms/MultiWithdrawModal'
 import { MultiExtendModal } from './organisms/MultiExtendModal'
+import LockManager from './LockContext'
 
 /*
  Components
  */
 
 export default function Lock(): JSX.Element {
+  return (
+    <LockManager>
+      <LockContent />
+    </LockManager>
+  )
+}
+
+const LockContent = () => {
   const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
   // account usewallet
