@@ -2,8 +2,7 @@ import { BigNumber, Contract } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import React, { createContext, useMemo, useState, useContext, useEffect, useCallback } from 'react'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
-import { ReadToken, TokenInfo } from '../../constants/types'
-import { useCachedData } from '../../context/CachedDataManager'
+import { ReadToken } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useBatchBalances } from '../../hooks/balance/useBalance'
@@ -13,6 +12,7 @@ import SOLACE from '../../constants/abi/SOLACE.json'
 import { useInputAmount } from '../../hooks/internal/useInputAmount'
 import { isAddress } from '../../utils'
 import { fixed, formatAmount } from '../../utils/formatting'
+import { coinsMap } from '../../constants/mappings/whitelistedTokensForNative'
 
 type LockContextType = {
   intrface: {
@@ -21,7 +21,7 @@ type LockContextType = {
     handleTransactionLoading: (setLoading: boolean) => void
   }
   paymentCoins: {
-    batchBalanceData: TokenInfo[]
+    batchBalanceData: (ReadToken & { balance: BigNumber })[]
     coinsOpen: boolean
     setCoinsOpen: (value: boolean) => void
     depositApproval: boolean
@@ -30,8 +30,7 @@ type LockContextType = {
   input: {
     enteredDeposit: string
     isAcceptableDeposit: boolean
-    selectedCoin: ReadToken & { stablecoin: boolean }
-    selectedCoinPrice: number
+    selectedCoin: ReadToken
     handleSelectedCoin: (coin: string) => void
   }
 }
@@ -54,9 +53,7 @@ const LockContext = createContext<LockContextType>({
     selectedCoin: {
       address: SOLACE_TOKEN.address[1],
       ...SOLACE_TOKEN.constants,
-      stablecoin: false,
     },
-    selectedCoinPrice: 0,
     handleSelectedCoin: () => undefined,
     isAcceptableDeposit: false,
   },
@@ -65,7 +62,6 @@ const LockContext = createContext<LockContextType>({
 const LockManager: React.FC = (props) => {
   const { activeNetwork } = useNetwork()
   const { signer } = useProvider()
-  const { tokenPriceMapping } = useCachedData()
 
   const {
     amount: enteredDeposit,
@@ -81,18 +77,14 @@ const LockManager: React.FC = (props) => {
       {
         address: SOLACE_TOKEN.address[activeNetwork.chainId],
         ...SOLACE_TOKEN.constants,
-        stablecoin: false,
       },
-      //   ...(coinsMap[activeNetwork.chainId] ?? []).map((t) => {
-      //     return { ...t, stablecoin: true }
-      //   }),
+      ...(coinsMap[activeNetwork.chainId] ?? []),
     ],
     [activeNetwork]
   )
   const { loading: balancesLoading, batchBalances } = useBatchBalances(coinOptions)
 
-  const [selectedCoin, setSelectedCoin] = useState<ReadToken & { stablecoin: boolean }>(coinOptions[0])
-  const [selectedCoinPrice, setSelectedCoinPrice] = useState<number>(0)
+  const [selectedCoin, setSelectedCoin] = useState<ReadToken>(coinOptions[0])
 
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
@@ -106,13 +98,9 @@ const LockManager: React.FC = (props) => {
   const batchBalanceData = useMemo(() => {
     if (batchBalances.length !== coinOptions.length) return []
     return batchBalances.map((b, i) => {
-      const name = coinOptions[i].name
-      const price = tokenPriceMapping[name.toLowerCase()]
-      let tokenprice = 1
-      if (price) tokenprice = price
-      return { balance: b.balance, price: tokenprice, ...coinOptions[i] }
+      return { balance: b.balance, ...coinOptions[i] }
     })
-  }, [batchBalances, coinOptions, tokenPriceMapping])
+  }, [batchBalances, coinOptions])
 
   const isAcceptableDeposit = useMemo(() => {
     const selectedBalance = batchBalances.find((b) => b.addr === selectedCoin.address)
@@ -151,12 +139,6 @@ const LockManager: React.FC = (props) => {
   }, [coinOptions])
 
   useEffect(() => {
-    const price = tokenPriceMapping[selectedCoin.name.toLowerCase()]
-    if (price) {
-      setSelectedCoinPrice(price)
-    } else if (selectedCoin.stablecoin) {
-      setSelectedCoinPrice(1)
-    }
     let abi = null
     switch (selectedCoin.symbol) {
       case 'SOLACE':
@@ -166,7 +148,7 @@ const LockManager: React.FC = (props) => {
         abi = ERC20_ABI
     }
     setContractForAllowance(new Contract(selectedCoin.address, abi, signer))
-  }, [selectedCoin, tokenPriceMapping, signer])
+  }, [selectedCoin, signer])
 
   useEffect(() => {
     setSpenderAddress(null)
@@ -189,7 +171,6 @@ const LockManager: React.FC = (props) => {
       input: {
         enteredDeposit,
         selectedCoin,
-        selectedCoinPrice,
         handleSelectedCoin,
         isAcceptableDeposit,
       },
@@ -203,7 +184,6 @@ const LockManager: React.FC = (props) => {
       depositApproval,
       enteredDeposit,
       selectedCoin,
-      selectedCoinPrice,
       handleSelectedCoin,
       isAcceptableDeposit,
       transactionLoading,

@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react'
-import { useCoverageContext } from '../../pages/cover/CoverageContext'
 import { Accordion } from '../atoms/Accordion'
 import { Button, ButtonAppearance } from '../atoms/Button'
 import { InputSectionWrapper, StyledInput } from '../atoms/Input'

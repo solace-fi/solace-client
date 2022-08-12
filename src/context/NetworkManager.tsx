@@ -23,14 +23,14 @@ This manager keeps track of the current network and other important information.
 */
 
 export const networks: NetworkConfig[] = [
-  MainNetwork,
-  RinkebyNetwork,
-  PolygonNetwork,
-  MumbaiNetwork,
+  // MainNetwork,
+  // RinkebyNetwork,
+  // PolygonNetwork,
+  // MumbaiNetwork,
   AuroraNetwork,
-  AuroraTestnetNetwork,
-  FantomNetwork,
-  FantomTestnetNetwork,
+  // AuroraTestnetNetwork,
+  // FantomNetwork,
+  // FantomTestnetNetwork,
 ]
 
 export const networksMapping = networks.reduce((configs: any, networkConfig: NetworkConfig) => ({

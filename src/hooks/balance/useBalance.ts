@@ -216,7 +216,6 @@ export const useCrossChainUnderwritingPoolBalance = () => {
 
 export const useBatchBalances = (
   coinOptions: {
-    stablecoin: boolean
     address: string
     name: string
     symbol: string
