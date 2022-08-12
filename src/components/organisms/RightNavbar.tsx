@@ -83,7 +83,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
     const userLockData = await getUserLockerBalances(account)
     setUserLockInfo(userLockData)
     fetching.current = false
-  }, [account])
+  }, [account, activeNetwork])
 
   useEffect(() => {
     _getUserLocks()

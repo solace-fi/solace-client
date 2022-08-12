@@ -108,7 +108,7 @@ export default function App(): any {
                     exact
                     path="/"
                     component={() => {
-                      window.location.href = 'https://app.solace.fi/cover'
+                      window.location.href = `${(window as any).location.href}cover`
                       return null
                     }}
                   />
