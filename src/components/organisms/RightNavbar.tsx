@@ -268,7 +268,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                   onClick={appTheme == 'dark' ? toggleTheme : undefined}
                   style={{ minWidth: '0', minHeight: '0' }}
                 >
-                  <StyledSun size={20} />
+                  <StyledSun size={30} />
                 </Button>
                 <VerticalSeparator />
                 <Button
@@ -277,7 +277,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                   onClick={appTheme == 'light' ? toggleTheme : undefined}
                   style={{ minWidth: '0', minHeight: '0' }}
                 >
-                  {<StyledMoon size={20} />}
+                  <StyledMoon size={30} />
                 </Button>
               </Flex>
             </Flex>
