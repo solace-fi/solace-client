@@ -1,40 +1,21 @@
 export enum FunctionName {
   APPROVE = 'Approve',
 
-  STAKING_MIGRATE = 'MigrateSigned',
+  // UWP Lock Voting
+  VOTE = 'Vote',
+  VOTE_MULTIPLE = 'VoteMultiple',
+  REMOVE_VOTE = 'RemoveVote',
+  REMOVE_VOTE_MULTIPLE = 'RemoveVoteMultiple',
+  SET_DELEGATE = 'SetDelegate',
 
-  // xsLocker
+  // UWP Locker
   CREATE_LOCK = 'CreateLock',
-  INCREASE_LOCK_AMOUNT = 'IncreaseAmount',
+  INCREASE_AMOUNT = 'IncreaseAmount',
+  INCREASE_AMOUNT_MULTIPLE = 'IncreaseAmountMultiple',
   EXTEND_LOCK = 'ExtendLock',
-  WITHDRAW_FROM_LOCK = 'Withdraw',
-  WITHDRAW_IN_PART_FROM_LOCK = 'WithdrawInPart',
-  WITHDRAW_MANY_FROM_LOCK = 'WithdrawMany',
-
-  // coverage v3
-  COVER_PURCHASE_WITH_STABLE = 'PurchaseWithStable',
-  COVER_PURCHASE_WITH_NON_STABLE = 'PurchaseWithNonStable',
-  COVER_DEPOSIT_STABLE = 'DepositStable',
-  COVER_DEPOSIT_NON_STABLE = 'DepositNonStable',
-  COVER_PURCHASE = 'Purchase',
-  COVER_CANCEL = 'Cancel',
-  COVER_WITHDRAW = 'Withdraw',
-
-  // bond tellers v2
-  BOND_DEPOSIT_WMATIC = 'DepositWmatic',
-  BOND_DEPOSIT_MATIC = 'DepositMatic',
-  BOND_DEPOSIT_WFTM = 'DepositWftm',
-  BOND_DEPOSIT_FTM = 'DepositFtm',
-  BOND_DEPOSIT_WETH_V2 = 'DepositWeth',
-  BOND_DEPOSIT_ETH_V2 = 'DepositEth',
-  BOND_DEPOSIT_ERC20_V2 = 'Deposit',
-  BOND_CLAIM_PAYOUT_V2 = 'ClaimPayout',
-
-  // bridge
-  BRIDGE_BSOLACE_TO_SOLACE = 'BSolaceToSolace',
-  BRIDGE_SOLACE_TO_BSOLACE = 'SolaceToBSolace',
-
-  // legacy
-  STAKE_V1 = 'StakeSigned',
-  UNSTAKE_V1 = 'Unstake',
+  EXTEND_LOCK_MULTIPLE = 'ExtendLockMultiple',
+  WITHDRAW_LOCK = 'Withdraw',
+  WITHDRAW_LOCK_IN_PART = 'WithdrawInPart',
+  WITHDRAW_LOCK_MULTIPLE = 'WithdrawMultiple',
+  WITHDRAW_LOCK_IN_PART_MULTIPLE = 'WithdrawInPartMultiple',
 }

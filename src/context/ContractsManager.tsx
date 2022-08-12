@@ -15,11 +15,9 @@ the web application mainly reads the contracts.
 type Contracts = {
   keyContracts: {
     solace?: Contract | null
-    xSolace?: Contract | null
-    xSolaceV1?: Contract | null
-    xsLocker?: Contract | null
-    stakingRewardsV2?: Contract | null
-    xSolaceMigrator?: Contract | null
+    gaugeController?: Contract | null
+    uwpLockVoting?: Contract | null
+    uwpLocker?: Contract | null
   }
   contractSources: ContractSources[]
 }
@@ -27,11 +25,9 @@ type Contracts = {
 const ContractsContext = createContext<Contracts>({
   keyContracts: {
     solace: undefined,
-    xSolace: undefined,
-    xSolaceV1: undefined,
-    xsLocker: undefined,
-    stakingRewardsV2: undefined,
-    xSolaceMigrator: undefined,
+    gaugeController: undefined,
+    uwpLockVoting: undefined,
+    uwpLocker: undefined,
   },
   contractSources: [],
 })
@@ -42,25 +38,21 @@ const ContractsProvider: React.FC = (props) => {
   const keyContracts = useMemo(() => activeNetwork.config.keyContracts, [activeNetwork])
 
   const solace = useGetContract(keyContracts.solace)
-  const xSolace = useGetContract(keyContracts.xSolace)
-  const xSolaceV1 = useGetContract(keyContracts.xSolaceV1)
-  const xsLocker = useGetContract(keyContracts.xsLocker)
-  const stakingRewardsV2 = useGetContract(keyContracts.stakingRewardsV2)
-  const xSolaceMigrator = useGetContract(keyContracts.xSolaceMigrator)
+  const gaugeController = useGetContract(keyContracts.gaugeController)
+  const uwpLockVoting = useGetContract(keyContracts.uwpLockVoting)
+  const uwpLocker = useGetContract(keyContracts.uwpLocker)
 
   const value = useMemo<Contracts>(
     () => ({
       keyContracts: {
         solace,
-        xSolace,
-        xSolaceV1,
-        xsLocker,
-        stakingRewardsV2,
-        xSolaceMigrator,
+        gaugeController,
+        uwpLockVoting,
+        uwpLocker,
       },
       contractSources,
     }),
-    [solace, xSolace, xSolaceV1, xsLocker, stakingRewardsV2, xSolaceMigrator, contractSources]
+    [solace, gaugeController, uwpLockVoting, uwpLocker, , contractSources]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>

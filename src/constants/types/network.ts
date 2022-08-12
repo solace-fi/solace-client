@@ -28,13 +28,7 @@ export type NetworkConfig = {
     keyContracts: { [key: string]: ContractSources }
     specialContracts: { [key: string]: ContractSources }
     generalFeatures: {
-      bondingV2?: boolean
-      coverageV1?: boolean
-      coverageV2?: boolean
-      coverageV3?: boolean
-      stakingRewardsV2?: boolean
-      stakingV1?: boolean
-      stakingV2?: boolean
+      native?: boolean
     }
     specialFeatures: {
       solaceBuyLink?: string

@@ -13,17 +13,17 @@ import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { Lock } from '@solace-fi/sdk-nightly'
 import { useProvider } from '../../context/ProviderManager'
 
-export const useXSLocker = () => {
+export const useXsLocker = () => {
   const { keyContracts } = useContracts()
-  const { xsLocker, solace } = useMemo(() => keyContracts, [keyContracts])
+  const { uwpLocker, solace } = useMemo(() => keyContracts, [keyContracts])
   const { signer, provider } = useProvider()
   const { activeNetwork } = useNetwork()
   const { gasConfig } = useGetFunctionGas()
 
   const getLock = async (xsLockID: BigNumber) => {
-    if (!xsLocker) return null
+    if (!uwpLocker) return null
     try {
-      const lock = await withBackoffRetries(async () => xsLocker.locks(xsLockID))
+      const lock = await withBackoffRetries(async () => uwpLocker.locks(xsLockID))
       return lock
     } catch (err) {
       console.log('error getLock ', xsLockID.toString(), err)
@@ -32,9 +32,9 @@ export const useXSLocker = () => {
   }
 
   const getIsLocked = async (xsLockID: BigNumber): Promise<boolean> => {
-    if (!xsLocker) return false
+    if (!uwpLocker) return false
     try {
-      const lock = await withBackoffRetries(async () => xsLocker.isLocked(xsLockID))
+      const lock = await withBackoffRetries(async () => uwpLocker.isLocked(xsLockID))
       return lock
     } catch (err) {
       console.log('error getIsLocked ', xsLockID.toString(), err)
@@ -43,9 +43,9 @@ export const useXSLocker = () => {
   }
 
   const getTimeLeft = async (xsLockID: BigNumber): Promise<BigNumber> => {
-    if (!xsLocker) return ZERO
+    if (!uwpLocker) return ZERO
     try {
-      const lock = await withBackoffRetries(async () => xsLocker.timeLeft(xsLockID))
+      const lock = await withBackoffRetries(async () => uwpLocker.timeLeft(xsLockID))
       return lock
     } catch (err) {
       console.log('error getTimeLeft ', xsLockID.toString(), err)
@@ -54,9 +54,9 @@ export const useXSLocker = () => {
   }
 
   const getStakedBalance = async (account: string) => {
-    if (!xsLocker) return '0'
+    if (!uwpLocker) return '0'
     try {
-      const stakedBalance = await withBackoffRetries(async () => xsLocker.stakedBalance(account))
+      const stakedBalance = await withBackoffRetries(async () => uwpLocker.stakedBalance(account))
       const formattedStakedBalance = formatUnits(stakedBalance, SOLACE_TOKEN.constants.decimals)
       return formattedStakedBalance
     } catch (err) {
@@ -66,20 +66,20 @@ export const useXSLocker = () => {
   }
 
   const createLock = async (recipient: string, amount: BigNumber, end: BigNumber) => {
-    if (!xsLocker || !solace || !signer) return { tx: null, localTx: null }
+    if (!uwpLocker || !solace || !signer) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(
       recipient,
       activeNetwork.chainId,
       signer,
-      xsLocker.address,
+      uwpLocker.address,
       solace,
       amount
     )
-    const estGas = await xsLocker.estimateGas.createLockSigned(amount, end, DEADLINE, v, r, s)
-    console.log('xsLocker.estimateGas.createLockSigned', estGas.toString())
-    const tx = await xsLocker.createLockSigned(amount, end, DEADLINE, v, r, s, {
+    const estGas = await uwpLocker.estimateGas.createLockSigned(amount, end, DEADLINE, v, r, s)
+    console.log('uwpLocker.estimateGas.createLockSigned', estGas.toString())
+    const tx = await uwpLocker.createLockSigned(amount, end, DEADLINE, v, r, s, {
       ...gasConfig,
-      // gasLimit: FunctionGasLimits['xsLocker.createLockSigned'],
+      // gasLimit: FunctionGasLimits['uwpLocker.createLockSigned'],
       gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
@@ -91,20 +91,20 @@ export const useXSLocker = () => {
   }
 
   const increaseLockAmount = async (recipient: string, xsLockID: BigNumber, amount: BigNumber) => {
-    if (!xsLocker || !solace || !signer) return { tx: null, localTx: null }
+    if (!uwpLocker || !solace || !signer) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(
       recipient,
       activeNetwork.chainId,
       signer,
-      xsLocker.address,
+      uwpLocker.address,
       solace,
       amount
     )
-    const estGas = await xsLocker.estimateGas.increaseAmountSigned(xsLockID, amount, DEADLINE, v, r, s)
-    console.log('xsLocker.estimateGas.increaseAmountSigned', estGas.toString())
-    const tx = await xsLocker.increaseAmountSigned(xsLockID, amount, DEADLINE, v, r, s, {
+    const estGas = await uwpLocker.estimateGas.increaseAmountSigned(xsLockID, amount, DEADLINE, v, r, s)
+    console.log('uwpLocker.estimateGas.increaseAmountSigned', estGas.toString())
+    const tx = await uwpLocker.increaseAmountSigned(xsLockID, amount, DEADLINE, v, r, s, {
       ...gasConfig,
-      // gasLimit: FunctionGasLimits['xsLocker.increaseAmountSigned'],
+      // gasLimit: FunctionGasLimits['uwpLocker.increaseAmountSigned'],
       gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
@@ -116,12 +116,12 @@ export const useXSLocker = () => {
   }
 
   const extendLock = async (xsLockID: BigNumber, end: BigNumber) => {
-    if (!xsLocker || !solace) return { tx: null, localTx: null }
-    const estGas = await xsLocker.estimateGas.extendLock(xsLockID, end)
-    console.log('xsLocker.estimateGas.extendLock', estGas.toString())
-    const tx = await xsLocker.extendLock(xsLockID, end, {
+    if (!uwpLocker || !solace) return { tx: null, localTx: null }
+    const estGas = await uwpLocker.estimateGas.extendLock(xsLockID, end)
+    console.log('uwpLocker.estimateGas.extendLock', estGas.toString())
+    const tx = await uwpLocker.extendLock(xsLockID, end, {
       ...gasConfig,
-      // gasLimit: FunctionGasLimits['xsLocker.extendLock'],
+      // gasLimit: FunctionGasLimits['uwpLocker.extendLock'],
       gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
@@ -133,32 +133,32 @@ export const useXSLocker = () => {
   }
 
   const withdrawFromLock = async (recipient: string, xsLockIDs: BigNumber[], amount?: BigNumber) => {
-    if (!xsLocker || !solace || xsLockIDs.length == 0) return { tx: null, localTx: null }
+    if (!uwpLocker || !solace || xsLockIDs.length == 0) return { tx: null, localTx: null }
     let tx = null
     let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
     if (amount) {
-      const estGas = await xsLocker.estimateGas.withdrawInPart(xsLockIDs[0], recipient, amount)
-      console.log('xsLocker.estimateGas.withdrawInPart', estGas.toString())
-      tx = await xsLocker.withdrawInPart(xsLockIDs[0], recipient, amount, {
+      const estGas = await uwpLocker.estimateGas.withdrawInPart(xsLockIDs[0], recipient, amount)
+      console.log('uwpLocker.estimateGas.withdrawInPart', estGas.toString())
+      tx = await uwpLocker.withdrawInPart(xsLockIDs[0], recipient, amount, {
         ...gasConfig,
-        // gasLimit: FunctionGasLimits['xsLocker.withdrawInPart'],
+        // gasLimit: FunctionGasLimits['uwpLocker.withdrawInPart'],
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
     } else if (xsLockIDs.length > 1) {
-      const estGas = await xsLocker.estimateGas.withdrawMany(xsLockIDs, recipient)
-      console.log('xsLocker.estimateGas.withdrawMany', estGas.toString())
-      tx = await xsLocker.withdrawMany(xsLockIDs, recipient, {
+      const estGas = await uwpLocker.estimateGas.withdrawMany(xsLockIDs, recipient)
+      console.log('uwpLocker.estimateGas.withdrawMany', estGas.toString())
+      tx = await uwpLocker.withdrawMany(xsLockIDs, recipient, {
         ...gasConfig,
-        // gasLimit: FunctionGasLimits['xsLocker.withdrawMany'],
+        // gasLimit: FunctionGasLimits['uwpLocker.withdrawMany'],
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.WITHDRAW_MANY_FROM_LOCK
     } else {
-      const estGas = await xsLocker.estimateGas.withdraw(xsLockIDs[0], recipient)
-      console.log('xsLocker.estimateGas.withdraw', estGas.toString())
-      tx = await xsLocker.withdraw(xsLockIDs[0], recipient, {
+      const estGas = await uwpLocker.estimateGas.withdraw(xsLockIDs[0], recipient)
+      console.log('uwpLocker.estimateGas.withdraw', estGas.toString())
+      tx = await uwpLocker.withdraw(xsLockIDs[0], recipient, {
         ...gasConfig,
-        // gasLimit: FunctionGasLimits['xsLocker.withdraw'],
+        // gasLimit: FunctionGasLimits['uwpLocker.withdraw'],
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.WITHDRAW_FROM_LOCK

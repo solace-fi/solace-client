@@ -50,9 +50,7 @@ export type LocalSolaceRiskProtocol = SolaceRiskProtocol & {
 
 export type VoteLockData = {
   lockID: BigNumber
-  amount: BigNumber
-  end: BigNumber
-}
+} & VoteLock
 
 export type UserVoteLocksInfo = {
   stakedBalance: BigNumber
@@ -64,4 +62,14 @@ export type UserVoteLocksData = {
   user: UserVoteLocksInfo
   locks: VoteLockData[]
   successfulFetch: boolean
+}
+
+export type Vote = {
+  gaugeID: BigNumber
+  votePowerBPS: BigNumber
+}
+
+export type VoteLock = {
+  amount: BigNumber
+  end: BigNumber
 }
