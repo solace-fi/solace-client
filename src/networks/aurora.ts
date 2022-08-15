@@ -47,6 +47,14 @@ export const AuroraNetwork: NetworkConfig = {
         addr: KEY_ADDRS.UWP_LOCKER,
         abi: null,
       },
+      uwp: {
+        addr: KEY_ADDRS.UWP,
+        abi: null,
+      },
+      uwe: {
+        addr: KEY_ADDRS.UWE,
+        abi: null,
+      },
     },
     generalFeatures: { native: true },
     specialFeatures: {

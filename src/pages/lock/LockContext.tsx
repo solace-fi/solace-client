@@ -13,6 +13,7 @@ import { useInputAmount } from '../../hooks/internal/useInputAmount'
 import { isAddress } from '../../utils'
 import { fixed, formatAmount } from '../../utils/formatting'
 import { coinsMap } from '../../constants/mappings/whitelistedTokensForNative'
+import { TokenSelectionModal } from '../../components/organisms/TokenSelectionModal'
 
 type LockContextType = {
   intrface: {
@@ -190,7 +191,19 @@ const LockManager: React.FC = (props) => {
       balancesLoading,
     ]
   )
-  return <LockContext.Provider value={value}>{props.children}</LockContext.Provider>
+  return (
+    <LockContext.Provider value={value}>
+      <TokenSelectionModal
+        show={coinsOpen}
+        balanceData={batchBalanceData.map((item) => {
+          return { ...item, price: 0 }
+        })}
+        handleSelectedCoin={handleSelectedCoin}
+        handleCloseModal={() => setCoinsOpen(false)}
+      />
+      {props.children}
+    </LockContext.Provider>
+  )
 }
 
 export function useLockContext(): LockContextType {

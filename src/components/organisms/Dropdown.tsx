@@ -318,7 +318,7 @@ export const BalanceDropdownOptions = ({
               <Text autoAlignVertical>
                 {item.price > 0
                   ? `~$${truncateValue(parseFloat(formatUnits(item.balance, item.decimals)) * item.price, 2)}`
-                  : `${truncateValue(formatUnits(item.balance, item.decimals), 2)} ${item.symbol}`}
+                  : `${truncateValue(formatUnits(item.balance, item.decimals), 2)}`}
               </Text>
             </Flex>
           </ButtonAppearance>

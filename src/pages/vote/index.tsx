@@ -68,6 +68,7 @@ function Vote(): JSX.Element {
     {
       gauge: string
       votes: string
+      added: boolean
     }[]
   >([])
 
@@ -115,7 +116,7 @@ function Vote(): JSX.Element {
   )
 
   const addVote = useCallback(() => {
-    const newVotesData = [...votesData, { gauge: '', votes: '0' }]
+    const newVotesData = [...votesData, { gauge: '', votes: '0', added: true }]
     setVotesData(newVotesData)
   }, [votesData])
 

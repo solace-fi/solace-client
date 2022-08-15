@@ -71,3 +71,10 @@ export type VoteLock = {
   amount: BigNumber
   end: BigNumber
 }
+
+export type TokenData = {
+  token: string
+  oracle: string
+  min: BigNumber
+  max: BigNumber
+}

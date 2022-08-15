@@ -87,7 +87,7 @@ export default function App(): any {
                     exact
                     path="/"
                     component={() => {
-                      window.location.href = MARKETING_SITE
+                      window.location.href = `${(window as any).location.href}vote`
                       return null
                     }}
                   />

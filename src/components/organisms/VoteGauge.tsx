@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { ButtonAppearance, GraySquareButton, ThinButton } from '../atoms/Button'
+import { Button, ButtonAppearance, GraySquareButton, ThinButton } from '../atoms/Button'
 import { StyledArrowDropDown, StyledClose } from '../atoms/Icon'
 import { Flex } from '../atoms/Layout'
 import { Text } from '../atoms/Typography'
@@ -19,6 +19,7 @@ export const VoteGauge = ({
   votesData: {
     gauge: string
     votes: string
+    added: boolean
   }[]
   index: number
 }): JSX.Element => {
@@ -51,6 +52,7 @@ export const VoteGauge = ({
             onChange={(e) => onVoteInput(e.target.value, index)}
           />
         </div>
+        {votesData[index].added && <Button onClick={() => deleteVote(index)}>Close</Button>}
       </Flex>
     </ButtonAppearance>
   )

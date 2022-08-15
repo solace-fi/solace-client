@@ -1,15 +1,20 @@
 import useDebounce from '@rooks/use-debounce'
-import { ZERO } from '@solace-fi/sdk-nightly'
-import { BigNumber } from 'ethers'
+import { ERC20_ABI, ZERO } from '@solace-fi/sdk-nightly'
+import { BigNumber, Contract } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Accordion } from '../../../components/atoms/Accordion'
 import { Button } from '../../../components/atoms/Button'
+import { StyledArrowDropDown } from '../../../components/atoms/Icon'
 import { Flex } from '../../../components/atoms/Layout'
 import { Text } from '../../../components/atoms/Typography'
 import { SmallerInputSection } from '../../../components/molecules/InputSection'
 import { Modal } from '../../../components/molecules/Modal'
 import { VoteLockData } from '../../../constants/types'
+import { useGeneral } from '../../../context/GeneralManager'
+import { useProvider } from '../../../context/ProviderManager'
+import { useTokenAllowance } from '../../../hooks/contract/useToken'
+import { useInputAmount } from '../../../hooks/internal/useInputAmount'
 import { filterAmount } from '../../../utils/formatting'
 import { useLockContext } from '../LockContext'
 
@@ -29,10 +34,38 @@ export const MultiDepositModal = ({
     }[]
   >([])
 
+  const { appTheme } = useGeneral()
+  const { paymentCoins, input } = useLockContext()
+  const { signer } = useProvider()
+  const { isAppropriateAmount } = useInputAmount()
+  const { batchBalanceData, coinsOpen, setCoinsOpen } = paymentCoins
+  const { selectedCoin } = input
+
+  const selectedCoinContract = useMemo(() => new Contract(selectedCoin.address, ERC20_ABI, signer), [
+    selectedCoin.address,
+    signer,
+  ])
+
+  const selectedCoinBalance = useMemo(() => {
+    return batchBalanceData.find((d) => d.address.toLowerCase() == selectedCoin.address.toLowerCase())?.balance ?? ZERO
+  }, [batchBalanceData, selectedCoin])
+
   const [commonAmount, setCommonAmount] = useState<string>('')
   const [totalAmountToDeposit, setTotalAmountToDeposit] = useState<string>('')
 
-  const selectedCoinDecimals = 18
+  const depositApproval = useTokenAllowance(
+    selectedCoinContract,
+    null,
+    totalAmountToDeposit && totalAmountToDeposit != '.'
+      ? parseUnits(totalAmountToDeposit, selectedCoin.decimals).toString()
+      : '0'
+  )
+
+  const isAcceptableDeposit = useMemo(() => {
+    if (!selectedCoinBalance) return false
+    return isAppropriateAmount(totalAmountToDeposit, selectedCoin.decimals, selectedCoinBalance)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchBalanceData, totalAmountToDeposit, selectedCoin.address, selectedCoin.decimals])
 
   const handleAmountInput = useCallback(
     (input: string, index: number) => {
@@ -72,8 +105,11 @@ export const MultiDepositModal = ({
 
   const handleTotalAmount = useDebounce((amountTracker: { lockID: BigNumber; amount: string }[]) => {
     const amounts = amountTracker.map((item) => item.amount)
-    const total = amounts.reduce((acc, curr) => acc.add(curr == '' ? ZERO : parseUnits(curr, 18)), ZERO)
-    setTotalAmountToDeposit(formatUnits(total, selectedCoinDecimals))
+    const total = amounts.reduce(
+      (acc, curr) => acc.add(curr == '' ? ZERO : parseUnits(curr, selectedCoin.decimals)),
+      ZERO
+    )
+    setTotalAmountToDeposit(formatUnits(total, selectedCoin.decimals))
   }, 300)
 
   useEffect(() => {
@@ -105,6 +141,31 @@ export const MultiDepositModal = ({
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Deposit'}>
       <Flex col gap={10}>
         <Flex col>
+          <Button
+            nohover
+            noborder
+            p={8}
+            mt={12}
+            ml={12}
+            mb={12}
+            widthP={100}
+            style={{
+              justifyContent: 'center',
+              height: '32px',
+              backgroundColor: appTheme === 'light' ? '#FFFFFF' : '#2a2f3b',
+            }}
+            onClick={() => setCoinsOpen(!coinsOpen)}
+          >
+            <Flex center gap={4}>
+              <Text autoAlignVertical>
+                <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
+              </Text>
+              <Text t4>{selectedCoin.symbol}</Text>
+              <StyledArrowDropDown style={{ transform: coinsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} size={18} />
+            </Flex>
+          </Button>
+        </Flex>
+        <Flex col>
           <Text>Set all to this amount</Text>
           <SmallerInputSection
             placeholder={'Amount'}
@@ -126,7 +187,7 @@ export const MultiDepositModal = ({
             ))}
           </Flex>
         </Accordion>
-        <Button secondary warmgradient noborder>
+        <Button secondary warmgradient noborder disabled={!depositApproval || !isAcceptableDeposit}>
           Make Deposits
         </Button>
       </Flex>

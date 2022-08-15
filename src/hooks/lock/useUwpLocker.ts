@@ -1,13 +1,19 @@
 import { ZERO } from '@solace-fi/sdk-nightly'
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { useMemo } from 'react'
+import { DEADLINE } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx, VoteLock } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
+import { useNetwork } from '../../context/NetworkManager'
+import { useProvider } from '../../context/ProviderManager'
+import { getPermitErc20Signature } from '../../utils/signature'
 import { useGetFunctionGas } from '../provider/useGas'
 
 export const useUwpLocker = () => {
   const { keyContracts } = useContracts()
+  const { signer } = useProvider()
+  const { activeNetwork } = useNetwork()
   const { uwpLocker } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
 
@@ -132,9 +138,17 @@ export const useUwpLocker = () => {
     }
   }
 
-  const createLock = async (recipient: string, amount: BigNumber, end: BigNumber) => {
-    if (!uwpLocker) return { tx: null, localTx: null }
-    const tx = await uwpLocker.createLock(recipient, amount, end, {
+  const createLock = async (recipient: string, amount: BigNumber, end: BigNumber, tokenContract: Contract) => {
+    if (!uwpLocker || !signer) return { tx: null, localTx: null }
+    const { v, r, s } = await getPermitErc20Signature(
+      recipient,
+      activeNetwork.chainId,
+      signer,
+      uwpLocker.address,
+      tokenContract,
+      amount
+    )
+    const tx = await uwpLocker.createLockSigned(amount, end, DEADLINE, v, r, s, {
       ...gasConfig,
       gasLimit: 800000,
     })
@@ -146,9 +160,17 @@ export const useUwpLocker = () => {
     return { tx, localTx }
   }
 
-  const increaseAmount = async (lockId: BigNumber, amount: BigNumber) => {
-    if (!uwpLocker) return { tx: null, localTx: null }
-    const tx = await uwpLocker.increaseAmount(lockId, amount, {
+  const increaseAmount = async (recipient: string, lockId: BigNumber, amount: BigNumber, tokenContract: Contract) => {
+    if (!uwpLocker || !signer) return { tx: null, localTx: null }
+    const { v, r, s } = await getPermitErc20Signature(
+      recipient,
+      activeNetwork.chainId,
+      signer,
+      uwpLocker.address,
+      tokenContract,
+      amount
+    )
+    const tx = await uwpLocker.increaseAmountSigned(lockId, amount, DEADLINE, v, r, s, {
       ...gasConfig,
       gasLimit: 800000,
     })

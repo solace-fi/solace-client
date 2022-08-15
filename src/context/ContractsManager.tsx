@@ -18,6 +18,8 @@ type Contracts = {
     gaugeController?: Contract | null
     uwpLockVoting?: Contract | null
     uwpLocker?: Contract | null
+    uwp?: Contract | null
+    uwe?: Contract | null
   }
   contractSources: ContractSources[]
 }
@@ -28,6 +30,8 @@ const ContractsContext = createContext<Contracts>({
     gaugeController: undefined,
     uwpLockVoting: undefined,
     uwpLocker: undefined,
+    uwp: undefined,
+    uwe: undefined,
   },
   contractSources: [],
 })
@@ -41,6 +45,8 @@ const ContractsProvider: React.FC = (props) => {
   const gaugeController = useGetContract(keyContracts.gaugeController)
   const uwpLockVoting = useGetContract(keyContracts.uwpLockVoting)
   const uwpLocker = useGetContract(keyContracts.uwpLocker)
+  const uwp = useGetContract(keyContracts.uwp)
+  const uwe = useGetContract(keyContracts.uwe)
 
   const value = useMemo<Contracts>(
     () => ({
@@ -49,10 +55,12 @@ const ContractsProvider: React.FC = (props) => {
         gaugeController,
         uwpLockVoting,
         uwpLocker,
+        uwp,
+        uwe,
       },
       contractSources,
     }),
-    [solace, gaugeController, uwpLockVoting, uwpLocker, , contractSources]
+    [solace, gaugeController, uwpLockVoting, uwpLocker, uwp, uwe, contractSources]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>

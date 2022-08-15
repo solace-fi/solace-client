@@ -26,7 +26,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { BKPT_5, BKPT_6, ZERO } from '../../constants'
-import { CheckboxData, UserVoteLocksData, UserVoteLocksInfo, VoteLockData } from '../../constants/types'
+import { CheckboxData, VoteLockData } from '../../constants/types'
 
 /* import components */
 import { Button, GraySquareButton } from '../../components/atoms/Button'
@@ -147,13 +147,26 @@ const LockContent = () => {
       if (!account || fetchingLocks.current) return
       fetchingLocks.current = true
       const [staked, lockIDs] = await Promise.all([totalStakedBalance(account), getAllLockIDsOf(account)])
-      const voteLocks = await Promise.all(lockIDs.map((lockID) => getLock(lockID)))
+      // const voteLocks = await Promise.all(lockIDs.map((lockID) => getLock(lockID)))
 
-      const locks = lockIDs.map((lockID, index) => ({ ...voteLocks[index], lockID }))
+      // const locks = lockIDs.map((lockID, index) => ({ ...voteLocks[index], lockID }))
+      const locks = [
+        {
+          lockID: BigNumber.from(0),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(1),
+          amount: BigNumber.from(0),
+          end: BigNumber.from(0),
+        },
+      ]
       const sortedLocks = locks.sort((a, b) => {
         return floatUnits(b.amount.sub(a.amount), 18)
       })
-      setLocksChecked(updateLocksChecked(locks, locksCheckedRef.current))
+
+      setLocksChecked(updateLocksChecked(sortedLocks, locksCheckedRef.current))
       setLocks(sortedLocks)
       setStaked(staked)
       setLoading(false)

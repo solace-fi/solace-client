@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import React, { useMemo, useRef } from 'react'
 import styled from 'styled-components'
@@ -23,7 +23,8 @@ import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
 import { useUwpLocker } from '../../../../hooks/lock/useUwpLocker'
 import { useLockContext } from '../../LockContext'
-import { ZERO } from '@solace-fi/sdk-nightly'
+import { ERC20_ABI, ZERO } from '@solace-fi/sdk-nightly'
+import { StyledArrowDropDown } from '../../../../components/atoms/Icon'
 
 const StyledForm = styled.div`
   display: flex;
@@ -37,16 +38,21 @@ const StyledForm = styled.div`
 `
 
 export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
-  const { rightSidebar } = useGeneral()
+  const { appTheme, rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
   const { account } = useWeb3React()
-  const { latestBlock } = useProvider()
+  const { latestBlock, signer } = useProvider()
   const { paymentCoins, input } = useLockContext()
-  const { batchBalanceData, coinsOpen, setCoinsOpen, depositApproval, approveCPM } = paymentCoins
-  const { enteredDeposit, selectedCoin, handleSelectedCoin, isAcceptableDeposit } = input
+  const { batchBalanceData, coinsOpen, setCoinsOpen } = paymentCoins
+  const { selectedCoin } = input
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { createLock } = useUwpLocker()
+
+  const selectedCoinContract = useMemo(() => new Contract(selectedCoin.address, ERC20_ABI, signer), [
+    selectedCoin.address,
+    signer,
+  ])
 
   const selectedCoinBalance = useMemo(() => {
     return batchBalanceData.find((d) => d.address.toLowerCase() == selectedCoin.address.toLowerCase())?.balance ?? ZERO
@@ -61,7 +67,12 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const callCreateLock = async () => {
     if (!latestBlock || !account) return
     const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
-    await createLock(account, parseUnits(stakeInputValue, 18), BigNumber.from(seconds))
+    await createLock(
+      account,
+      parseUnits(stakeInputValue, selectedCoin.decimals),
+      BigNumber.from(seconds),
+      selectedCoinContract
+    )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callCreateLock', err, FunctionName.CREATE_LOCK))
   }
@@ -69,14 +80,17 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   /*            STAKE INPUT & RANGE HANDLERS             */
   const stakeInputOnChange = (value: string) => {
     const filtered = filterAmount(value, stakeInputValue)
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
-    setStakeRangeValue(accurateMultiply(filtered, 18))
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > selectedCoin.decimals) return
+    setStakeRangeValue(accurateMultiply(filtered, selectedCoin.decimals))
     setStakeInputValue(filtered)
   }
 
   const stakeRangeOnChange = (value: string, convertFromSciNota = true) => {
     setStakeInputValue(
-      formatUnits(BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`), 18)
+      formatUnits(
+        BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`),
+        selectedCoin.decimals
+      )
     )
     setStakeRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`)
   }
@@ -97,16 +111,39 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const lockSetMax = () => setLockInputValue(`${DAYS_PER_YEAR * 4}`)
 
   return (
-    <Accordion
-      noScroll
-      isOpen={isOpen}
-      style={{ backgroundColor: 'inherit', marginBottom: '20px' }}
-      customHeight={accordionRef.current != null ? `${accordionRef.current.scrollHeight}px` : undefined}
-    >
+    <Accordion noScroll isOpen={isOpen} style={{ backgroundColor: 'inherit', marginBottom: '20px' }}>
       <ShadowDiv ref={accordionRef} style={{ marginBottom: '20px' }}>
         <RaisedBox>
           <StyledForm>
             <Flex column p={24} gap={30}>
+              <Flex col>
+                <Button
+                  nohover
+                  noborder
+                  p={8}
+                  mt={12}
+                  ml={12}
+                  mb={12}
+                  widthP={100}
+                  style={{
+                    justifyContent: 'center',
+                    height: '32px',
+                    backgroundColor: appTheme === 'light' ? '#FFFFFF' : '#2a2f3b',
+                  }}
+                  onClick={() => setCoinsOpen(!coinsOpen)}
+                >
+                  <Flex center gap={4}>
+                    <Text autoAlignVertical>
+                      <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
+                    </Text>
+                    <Text t4>{selectedCoin.symbol}</Text>
+                    <StyledArrowDropDown
+                      style={{ transform: coinsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                      size={18}
+                    />
+                  </Flex>
+                </Button>
+              </Flex>
               <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
                 <Flex column gap={24}>
                   <div>

@@ -5,4 +5,6 @@ export const KEY_ADDRS = {
   GAUGE_CONTROLLER: '',
   UWP_LOCK_VOTING: '',
   UWP_LOCKER: '',
+  UWP: '',
+  UWE: '',
 }
