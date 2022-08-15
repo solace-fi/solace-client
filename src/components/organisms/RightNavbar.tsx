@@ -18,7 +18,6 @@ import { getExplorerItemUrl } from '../../utils/explorer'
 import { ExplorerscanApi } from '../../constants/enums'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useSolaceBalance } from '../../hooks/balance/useBalance'
-import { useXSLocker } from '../../hooks/stake/useXSLocker'
 import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
 import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
 import UserWhite from '../../resources/svg/user_white.svg'
@@ -26,6 +25,9 @@ import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { useWeb3React } from '@web3-react/core'
 import { useENS } from '../../hooks/wallet/useENS'
 import { ThinScrollbarCss } from '../atoms/Scrollbar/ThinScrollbar'
+import { ZERO } from '@solace-fi/sdk-nightly'
+import { useUwpLocker } from '../../hooks/lock/useUwpLocker'
+import { formatUnits } from 'ethers/lib/utils'
 
 const RightAppNav = styled.div<{ shouldShow: boolean }>`
   background-color: ${({ theme }) => theme.modal.base_color};
@@ -62,30 +64,20 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
   const [isCopied, setCopied] = useCopyClipboard()
 
   const solaceBalance = useSolaceBalance()
-  const { getUserLockerBalances } = useXSLocker()
-  const [userLockInfo, setUserLockInfo] = useState({
-    stakedBalance: '0',
-    lockedBalance: '0',
-    unlockedBalance: '0',
-    successfulFetch: true,
-  })
+  const { totalStakedBalance } = useUwpLocker()
+  const [stakedBalance, setStakedBalance] = useState(ZERO)
 
-  const _getUserLocks = useCallback(async () => {
+  const _getUserStake = useCallback(async () => {
     if (!account || fetching.current) return
     fetching.current = true
-    const userLockData = await getUserLockerBalances(account)
-    setUserLockInfo(userLockData)
+    const staked = await totalStakedBalance(account)
+    setStakedBalance(staked)
     fetching.current = false
-  }, [account])
+  }, [account, activeNetwork])
 
   useEffect(() => {
-    _getUserLocks()
-  }, [account, version, _getUserLocks])
-
-  useEffect(() => {
-    if (userLockInfo.successfulFetch) return
-    _getUserLocks()
-  }, [latestBlock, userLockInfo.successfulFetch, _getUserLocks])
+    _getUserStake()
+  }, [account, version, _getUserStake])
 
   return (
     <>
@@ -175,7 +167,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                           bold
                           warmgradient={appTheme == 'dark'}
                           techygradient={appTheme == 'light'}
-                        >{`${truncateValue(userLockInfo.stakedBalance, 1)} `}</TextSpan>
+                        >{`${truncateValue(formatUnits(stakedBalance), 1)} `}</TextSpan>
                         <TextSpan t4 warmgradient={appTheme == 'dark'} techygradient={appTheme == 'light'}>
                           {SOLACE_TOKEN.constants.symbol}
                         </TextSpan>

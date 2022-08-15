@@ -10,7 +10,6 @@ import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
-import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 
 import { StyledForm } from '../../atoms/StyledForm'
 import { Flex } from '../../../../components/atoms/Layout'
@@ -19,15 +18,16 @@ import { BKPT_5, BKPT_7 } from '../../../../constants'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
 import { VoteLockData } from '../../../../constants/types'
+import { useUwpLocker } from '../../../../hooks/lock/useUwpLocker'
 
 export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Element {
   const { rightSidebar } = useGeneral()
   const solaceBalance = useSolaceBalance()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { increaseLockAmount } = useXSLocker()
   const { account } = useWeb3React()
   const { width } = useWindowDimensions()
+  const { increaseAmount } = useUwpLocker()
 
   const disabled = false
 
@@ -36,9 +36,9 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
 
   const callIncreaseLockAmount = async () => {
     if (!account) return
-    await increaseLockAmount(account, lock.lockID, parseUnits(inputValue, 18))
+    await increaseAmount(lock.lockID, parseUnits(inputValue, 18))
       .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callIncreaseLockAmount', err, FunctionName.INCREASE_LOCK_AMOUNT))
+      .catch((err) => handleContractCallError('callIncreaseAmount', err, FunctionName.INCREASE_AMOUNT))
   }
 
   const inputOnChange = (value: string) => {

@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import React, { useRef } from 'react'
+import React, { useMemo, useRef } from 'react'
 import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
@@ -10,7 +10,6 @@ import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
-import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 import { Text } from '../../../../components/atoms/Typography'
 import { BKPT_7, BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
@@ -22,6 +21,9 @@ import { useProvider } from '../../../../context/ProviderManager'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
+import { useUwpLocker } from '../../../../hooks/lock/useUwpLocker'
+import { useLockContext } from '../../LockContext'
+import { ZERO } from '@solace-fi/sdk-nightly'
 
 const StyledForm = styled.div`
   display: flex;
@@ -39,10 +41,16 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const { width } = useWindowDimensions()
   const { account } = useWeb3React()
   const { latestBlock } = useProvider()
-  const solaceBalance = useSolaceBalance()
+  const { paymentCoins, input } = useLockContext()
+  const { batchBalanceData, coinsOpen, setCoinsOpen, depositApproval, approveCPM } = paymentCoins
+  const { enteredDeposit, selectedCoin, handleSelectedCoin, isAcceptableDeposit } = input
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { createLock } = useXSLocker()
+  const { createLock } = useUwpLocker()
+
+  const selectedCoinBalance = useMemo(() => {
+    return batchBalanceData.find((d) => d.address.toLowerCase() == selectedCoin.address.toLowerCase())?.balance ?? ZERO
+  }, [batchBalanceData, selectedCoin])
 
   const accordionRef = useRef<HTMLDivElement>(null)
 
@@ -85,7 +93,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   }
 
   /*            MAX HANDLERS             */
-  const stakeSetMax = () => stakeRangeOnChange(parseUnits(solaceBalance, 18).toString())
+  const stakeSetMax = () => stakeRangeOnChange(selectedCoinBalance.toString())
   const lockSetMax = () => setLockInputValue(`${DAYS_PER_YEAR * 4}`)
 
   return (
@@ -116,7 +124,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     value={stakeRangeValue}
                     onChange={(e) => stakeRangeOnChange(e.target.value)}
                     min={1}
-                    max={parseUnits(solaceBalance, 18).toString()}
+                    max={selectedCoinBalance.toString()}
                   />
                 </Flex>
               </Flex>
@@ -156,7 +164,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 secondary
                 info
                 noborder
-                disabled={!isAppropriateAmount(stakeInputValue, 18, parseUnits(solaceBalance, 18))}
+                disabled={!isAppropriateAmount(stakeInputValue, selectedCoin.decimals, selectedCoinBalance)}
                 onClick={callCreateLock}
               >
                 Stake

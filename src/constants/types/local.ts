@@ -54,8 +54,6 @@ export type VoteLockData = {
 
 export type UserVoteLocksInfo = {
   stakedBalance: BigNumber
-  lockedBalance: BigNumber
-  unlockedBalance: BigNumber
 }
 
 export type UserVoteLocksData = {

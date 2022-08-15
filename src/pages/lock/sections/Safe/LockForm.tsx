@@ -5,7 +5,6 @@ import InformationBox from '../../components/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { BKPT_7, BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
-import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 import { useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
 import { BigNumber } from 'ethers'
@@ -17,11 +16,12 @@ import { Flex } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { useGeneral } from '../../../../context/GeneralManager'
 import { VoteLockData } from '../../../../constants/types'
+import { useUwpLocker } from '../../../../hooks/lock/useUwpLocker'
 
 export default function LockForm({ lock }: { lock: VoteLockData }): JSX.Element {
   const { rightSidebar } = useGeneral()
   const { latestBlock } = useProvider()
-  const { extendLock } = useXSLocker()
+  const { extendLock } = useUwpLocker()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { width } = useWindowDimensions()
   const [maxSelected, setMaxSelected] = useState(false)

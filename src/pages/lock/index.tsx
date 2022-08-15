@@ -40,8 +40,8 @@ import NewSafe from './sections/Safe/NewSafe'
 import CardSectionValue from './components/CardSectionValue'
 
 /* import hooks */
-import { useUserLockData } from '../../hooks/stake/useXSLocker'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
+import { useUwpLocker } from '../../hooks/lock/useUwpLocker'
 
 /* import utils */
 import { floatUnits, truncateValue } from '../../utils/formatting'
@@ -98,12 +98,8 @@ const LockContent = () => {
   const { activeNetwork } = useNetwork()
   const { version } = useCachedData()
   const [locks, setLocks] = useState<VoteLockData[]>([])
-  const [userLockInfo, setUserLockInfo] = useState<UserVoteLocksInfo>({
-    stakedBalance: ZERO,
-    lockedBalance: ZERO,
-    unlockedBalance: ZERO,
-  })
-  const { getUserLocks } = useUserLockData()
+  const [staked, setStaked] = useState<BigNumber>(ZERO)
+  const { totalStakedBalance, getAllLockIDsOf, locks: getLock } = useUwpLocker()
   const selectedLocks = useMemo(
     () =>
       locks.filter((lock) =>
@@ -150,19 +146,18 @@ const LockContent = () => {
     const _getUserLocks = async () => {
       if (!account || fetchingLocks.current) return
       fetchingLocks.current = true
-      await getUserLocks(account).then((userLockData: UserVoteLocksData) => {
-        if (userLockData.successfulFetch) {
-          setLocks(
-            userLockData.locks.sort((a, b) => {
-              return floatUnits(b.amount.sub(a.amount), 18)
-            })
-          )
-          setLocksChecked(updateLocksChecked(userLockData.locks, locksCheckedRef.current))
-          setUserLockInfo(userLockData.user)
-          setLoading(false)
-          fetchingLocks.current = false
-        }
+      const [staked, lockIDs] = await Promise.all([totalStakedBalance(account), getAllLockIDsOf(account)])
+      const voteLocks = await Promise.all(lockIDs.map((lockID) => getLock(lockID)))
+
+      const locks = lockIDs.map((lockID, index) => ({ ...voteLocks[index], lockID }))
+      const sortedLocks = locks.sort((a, b) => {
+        return floatUnits(b.amount.sub(a.amount), 18)
       })
+      setLocksChecked(updateLocksChecked(locks, locksCheckedRef.current))
+      setLocks(sortedLocks)
+      setStaked(staked)
+      setLoading(false)
+      fetchingLocks.current = false
     }
     _getUserLocks()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -227,7 +222,7 @@ const LockContent = () => {
             handleClose={() => setOpenWithdrawModal(false)}
             selectedLocks={selectedLocks}
           />
-          <AggregatedStakeData stakeData={userLockInfo} />
+          <AggregatedStakeData stakeData={{ stakedBalance: staked }} />
           <Flex
             between
             mt={20}

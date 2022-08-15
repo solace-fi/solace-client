@@ -4,16 +4,9 @@ import { StyledSlider } from '../../../../components/atoms/Input'
 import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import {
-  accurateMultiply,
-  convertSciNotaToPrecise,
-  filterAmount,
-  formatAmount,
-  truncateValue,
-} from '../../../../utils/formatting'
+import { accurateMultiply, convertSciNotaToPrecise, filterAmount, formatAmount } from '../../../../utils/formatting'
 import { BigNumber } from 'ethers'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
-import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 import { FunctionName, InfoBoxType } from '../../../../constants/enums'
 import InformationBox from '../../components/InformationBox'
 import { StyledForm } from '../../atoms/StyledForm'
@@ -24,13 +17,14 @@ import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
 import { VoteLockData } from '../../../../constants/types'
 import { useProvider } from '../../../../context/ProviderManager'
+import { useUwpLocker } from '../../../../hooks/lock/useUwpLocker'
 
 export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Element {
   const { rightSidebar } = useGeneral()
   const { latestBlock } = useProvider()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { withdrawFromLock } = useXSLocker()
+  const { withdraw, withdrawInPart } = useUwpLocker()
   const { account } = useWeb3React()
   const { width } = useWindowDimensions()
 
@@ -39,14 +33,20 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
 
   const callWithdrawFromLock = async () => {
     if (!account) return
-    let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
+    let type = FunctionName.WITHDRAW_LOCK_IN_PART
     const isMax = parseUnits(inputValue, 18).eq(lock.amount)
     if (isMax) {
-      type = FunctionName.WITHDRAW_FROM_LOCK
+      type = FunctionName.WITHDRAW_LOCK
     }
-    await withdrawFromLock(account, [lock.lockID], isMax ? undefined : parseUnits(inputValue, 18))
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callWithdrawFromLock', err, type))
+    if (!isMax) {
+      await withdrawInPart(lock.lockID, parseUnits(inputValue, 18), account)
+        .then((res) => handleToast(res.tx, res.localTx))
+        .catch((err) => handleContractCallError('callWithdrawInPart', err, type))
+    } else {
+      await withdraw(lock.lockID, account)
+        .then((res) => handleToast(res.tx, res.localTx))
+        .catch((err) => handleContractCallError('callWithdraw', err, type))
+    }
   }
 
   const inputOnChange = (value: string) => {

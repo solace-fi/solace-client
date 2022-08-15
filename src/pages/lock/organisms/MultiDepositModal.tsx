@@ -11,6 +11,7 @@ import { SmallerInputSection } from '../../../components/molecules/InputSection'
 import { Modal } from '../../../components/molecules/Modal'
 import { VoteLockData } from '../../../constants/types'
 import { filterAmount } from '../../../utils/formatting'
+import { useLockContext } from '../LockContext'
 
 export const MultiDepositModal = ({
   isOpen,

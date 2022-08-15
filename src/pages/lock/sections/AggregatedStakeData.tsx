@@ -28,22 +28,6 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserVote
                   </CardSectionValue>
                 </InfoPair>
               </div>
-              <div>
-                <InfoPair importance="primary" label="Unlocked Balance">
-                  <CardSectionValue annotation="SOLACE">
-                    {truncateValue(formatUnits(stakeData.unlockedBalance, 18), 2)}
-                  </CardSectionValue>
-                </InfoPair>
-              </div>
-            </Flex>
-            <Flex gap={91}>
-              <div>
-                <InfoPair importance="primary" label="Locked Balance">
-                  <CardSectionValue annotation="SOLACE">
-                    {truncateValue(formatUnits(stakeData.lockedBalance, 18), 2)}
-                  </CardSectionValue>
-                </InfoPair>
-              </div>
             </Flex>
           </Flex>
         </RaisedBox>
@@ -55,22 +39,6 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserVote
             </Text>
             <Text t2 nowrap bold>
               {truncateValue(formatUnits(stakeData.stakedBalance, 18), 2)} SOLACE
-            </Text>
-          </Flex>
-          <Flex stretch between mb={24}>
-            <Text info bold>
-              Unlocked Balance
-            </Text>
-            <Text t2 nowrap bold>
-              {truncateValue(formatUnits(stakeData.unlockedBalance, 18), 2)} SOLACE
-            </Text>
-          </Flex>
-          <Flex stretch between mb={24}>
-            <Text info bold>
-              Locked Balance
-            </Text>
-            <Text t2 nowrap bold>
-              {truncateValue(formatUnits(stakeData.lockedBalance, 18), 2)} SOLACE
             </Text>
           </Flex>
         </Card>
