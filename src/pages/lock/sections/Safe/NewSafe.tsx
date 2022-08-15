@@ -15,7 +15,7 @@ import { BKPT_7, BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
 import { RaisedBox } from '../../../../components/atoms/Box'
 import { Label } from '../../molecules/InfoPair'
-import { Flex, ShadowDiv } from '../../../../components/atoms/Layout'
+import { Flex, GrayBgDiv, ShadowDiv } from '../../../../components/atoms/Layout'
 import { Accordion } from '../../../../components/atoms/Accordion'
 import { useProvider } from '../../../../context/ProviderManager'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
@@ -115,86 +115,94 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
       <ShadowDiv ref={accordionRef} style={{ marginBottom: '20px' }}>
         <RaisedBox>
           <StyledForm>
-            <Flex column p={24} gap={30}>
-              <Flex col>
-                <Button
-                  nohover
-                  noborder
-                  p={8}
-                  mt={12}
-                  ml={12}
-                  mb={12}
-                  widthP={100}
-                  style={{
-                    justifyContent: 'center',
-                    height: '32px',
-                    backgroundColor: appTheme === 'light' ? '#FFFFFF' : '#2a2f3b',
-                  }}
-                  onClick={() => setCoinsOpen(!coinsOpen)}
-                >
-                  <Flex center gap={4}>
-                    <Text autoAlignVertical>
-                      <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
-                    </Text>
-                    <Text t4>{selectedCoin.symbol}</Text>
-                    <StyledArrowDropDown
-                      style={{ transform: coinsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                      size={18}
+            <Flex>
+              <Flex column p={24} gap={30}>
+                <Flex col>
+                  <Button
+                    nohover
+                    noborder
+                    p={8}
+                    mt={12}
+                    ml={12}
+                    mb={12}
+                    widthP={100}
+                    style={{
+                      justifyContent: 'center',
+                      height: '32px',
+                      backgroundColor: appTheme === 'light' ? '#FFFFFF' : '#2a2f3b',
+                    }}
+                    onClick={() => setCoinsOpen(!coinsOpen)}
+                  >
+                    <Flex center gap={4}>
+                      <Text autoAlignVertical>
+                        <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
+                      </Text>
+                      <Text t4>{selectedCoin.symbol}</Text>
+                      <StyledArrowDropDown
+                        style={{ transform: coinsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                        size={18}
+                      />
+                    </Flex>
+                  </Button>
+                </Flex>
+                <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
+                  <Flex column gap={24}>
+                    <div>
+                      <Label importance="quaternary" style={{ marginBottom: '8px' }}>
+                        Deposit amount
+                      </Label>
+                      <InputSection
+                        tab={Tab.DEPOSIT}
+                        value={stakeInputValue}
+                        onChange={(e) => stakeInputOnChange(e.target.value)}
+                        setMax={stakeSetMax}
+                      />
+                    </div>
+                    <StyledSlider
+                      value={stakeRangeValue}
+                      onChange={(e) => stakeRangeOnChange(e.target.value)}
+                      min={1}
+                      max={selectedCoinBalance.toString()}
                     />
                   </Flex>
-                </Button>
-              </Flex>
-              <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
-                <Flex column gap={24}>
-                  <div>
-                    <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-                      Deposit amount
-                    </Label>
-                    <InputSection
-                      tab={Tab.DEPOSIT}
-                      value={stakeInputValue}
-                      onChange={(e) => stakeInputOnChange(e.target.value)}
-                      setMax={stakeSetMax}
-                    />
-                  </div>
-                  <StyledSlider
-                    value={stakeRangeValue}
-                    onChange={(e) => stakeRangeOnChange(e.target.value)}
-                    min={1}
-                    max={selectedCoinBalance.toString()}
-                  />
                 </Flex>
-              </Flex>
-              <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
-                <Flex column gap={24}>
-                  <div>
-                    <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-                      Lock time
-                    </Label>
-                    <InputSection
-                      tab={Tab.LOCK}
+                <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
+                  <Flex column gap={24}>
+                    <div>
+                      <Label importance="quaternary" style={{ marginBottom: '8px' }}>
+                        Lock time
+                      </Label>
+                      <InputSection
+                        tab={Tab.LOCK}
+                        value={lockInputValue}
+                        onChange={(e) => lockInputOnChange(e.target.value)}
+                        setMax={lockSetMax}
+                      />
+                    </div>
+                    <StyledSlider
                       value={lockInputValue}
-                      onChange={(e) => lockInputOnChange(e.target.value)}
-                      setMax={lockSetMax}
+                      onChange={(e) => lockRangeOnChange(e.target.value)}
+                      min={0}
+                      max={DAYS_PER_YEAR * 4}
                     />
-                  </div>
-                  <StyledSlider
-                    value={lockInputValue}
-                    onChange={(e) => lockRangeOnChange(e.target.value)}
-                    min={0}
-                    max={DAYS_PER_YEAR * 4}
-                  />
-                  {lockInputValue && lockInputValue != '0' && (
-                    <Text
-                      style={{
-                        fontWeight: 500,
-                      }}
-                    >
-                      Lock End Date: {getExpiration(parseInt(lockInputValue))}
-                    </Text>
-                  )}
+                    {lockInputValue && lockInputValue != '0' && (
+                      <Text
+                        style={{
+                          fontWeight: 500,
+                        }}
+                      >
+                        Lock End Date: {getExpiration(parseInt(lockInputValue))}
+                      </Text>
+                    )}
+                  </Flex>
                 </Flex>
               </Flex>
+              <GrayBgDiv>
+                <Flex col>
+                  <Text>Amount of UWE minted in exchange</Text>
+                  <Text>$$$</Text>
+                </Flex>
+              </GrayBgDiv>
             </Flex>
             <Flex pb={24} pl={24} width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 333 : undefined}>
               <Button

@@ -1,17 +1,12 @@
-import { BigNumber, Contract } from 'ethers'
-import { parseUnits } from 'ethers/lib/utils'
+import { BigNumber } from 'ethers'
 import React, { createContext, useMemo, useState, useContext, useEffect, useCallback } from 'react'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { ReadToken } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
-import { useProvider } from '../../context/ProviderManager'
 import { useBatchBalances } from '../../hooks/balance/useBalance'
 import { ERC20_ABI } from '../../constants/abi'
-import { useTokenAllowance, useTokenApprove } from '../../hooks/contract/useToken'
-import SOLACE from '../../constants/abi/SOLACE.json'
-import { useInputAmount } from '../../hooks/internal/useInputAmount'
+import { useTokenApprove } from '../../hooks/contract/useToken'
 import { isAddress } from '../../utils'
-import { fixed, formatAmount } from '../../utils/formatting'
 import { coinsMap } from '../../constants/mappings/whitelistedTokensForNative'
 import { TokenSelectionModal } from '../../components/organisms/TokenSelectionModal'
 
@@ -25,12 +20,9 @@ type LockContextType = {
     batchBalanceData: (ReadToken & { balance: BigNumber })[]
     coinsOpen: boolean
     setCoinsOpen: (value: boolean) => void
-    depositApproval: boolean
-    approveCPM: (tokenAddr: string, amount?: BigNumber) => void
+    approveCPM: (spenderAddress: string, tokenAddr: string, amount?: BigNumber) => void
   }
   input: {
-    enteredDeposit: string
-    isAcceptableDeposit: boolean
     selectedCoin: ReadToken
     handleSelectedCoin: (coin: string) => void
   }
@@ -46,29 +38,19 @@ const LockContext = createContext<LockContextType>({
     batchBalanceData: [],
     coinsOpen: false,
     setCoinsOpen: () => undefined,
-    depositApproval: false,
     approveCPM: () => undefined,
   },
   input: {
-    enteredDeposit: '',
     selectedCoin: {
       address: SOLACE_TOKEN.address[1],
       ...SOLACE_TOKEN.constants,
     },
     handleSelectedCoin: () => undefined,
-    isAcceptableDeposit: false,
   },
 })
 
 const LockManager: React.FC = (props) => {
   const { activeNetwork } = useNetwork()
-  const { signer } = useProvider()
-
-  const {
-    amount: enteredDeposit,
-    isAppropriateAmount: isAppropriateDeposit,
-    handleInputChange: handleEnteredDeposit,
-  } = useInputAmount()
 
   const [coinsOpen, setCoinsOpen] = useState(false)
   const [transactionLoading, setTransactionLoading] = useState<boolean>(false)
@@ -87,13 +69,6 @@ const LockManager: React.FC = (props) => {
 
   const [selectedCoin, setSelectedCoin] = useState<ReadToken>(coinOptions[0])
 
-  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
-  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
-  const depositApproval = useTokenAllowance(
-    contractForAllowance,
-    spenderAddress,
-    enteredDeposit && enteredDeposit != '.' ? parseUnits(enteredDeposit, selectedCoin.decimals).toString() : '0'
-  )
   const { approve } = useTokenApprove(setTransactionLoading)
 
   const batchBalanceData = useMemo(() => {
@@ -103,24 +78,14 @@ const LockManager: React.FC = (props) => {
     })
   }, [batchBalances, coinOptions])
 
-  const isAcceptableDeposit = useMemo(() => {
-    const selectedBalance = batchBalances.find((b) => b.addr === selectedCoin.address)
-    if (!selectedBalance) return false
-    return isAppropriateDeposit(enteredDeposit, selectedCoin.decimals, selectedBalance.balance)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [batchBalances, enteredDeposit, selectedCoin.address, selectedCoin.decimals])
-
   const handleSelectedCoin = useCallback(
     (addr: string) => {
       const coin = coinOptions.find((c) => c.address === addr)
       if (coin) {
-        if (coin.decimals < selectedCoin.decimals) {
-          handleEnteredDeposit(fixed(formatAmount(enteredDeposit), coin.decimals).toString())
-        }
         setSelectedCoin(coin)
       }
     },
-    [coinOptions, enteredDeposit, selectedCoin.decimals, handleEnteredDeposit]
+    [coinOptions]
   )
 
   const handleTransactionLoading = useCallback((setLoading: boolean) => {
@@ -128,32 +93,16 @@ const LockManager: React.FC = (props) => {
   }, [])
 
   const approveCPM = useCallback(
-    async (tokenAddr: string, amount?: BigNumber) => {
-      if (!spenderAddress || !isAddress(tokenAddr) || !isAddress(spenderAddress)) return
+    async (spenderAddress: string, tokenAddr: string, amount?: BigNumber) => {
+      if (!isAddress(tokenAddr) || !isAddress(spenderAddress)) return
       await approve(tokenAddr, ERC20_ABI, spenderAddress, amount)
     },
-    [spenderAddress, approve]
+    [approve]
   )
 
   useEffect(() => {
     setSelectedCoin(coinOptions[0])
   }, [coinOptions])
-
-  useEffect(() => {
-    let abi = null
-    switch (selectedCoin.symbol) {
-      case 'SOLACE':
-        abi = SOLACE
-        break
-      default:
-        abi = ERC20_ABI
-    }
-    setContractForAllowance(new Contract(selectedCoin.address, abi, signer))
-  }, [selectedCoin, signer])
-
-  useEffect(() => {
-    setSpenderAddress(null)
-  }, [activeNetwork, signer])
 
   const value = useMemo<LockContextType>(
     () => ({
@@ -166,14 +115,11 @@ const LockManager: React.FC = (props) => {
         batchBalanceData,
         coinsOpen,
         setCoinsOpen,
-        depositApproval,
         approveCPM,
       },
       input: {
-        enteredDeposit,
         selectedCoin,
         handleSelectedCoin,
-        isAcceptableDeposit,
       },
     }),
     [
@@ -182,11 +128,8 @@ const LockManager: React.FC = (props) => {
       batchBalanceData,
       coinsOpen,
       setCoinsOpen,
-      depositApproval,
-      enteredDeposit,
       selectedCoin,
       handleSelectedCoin,
-      isAcceptableDeposit,
       transactionLoading,
       balancesLoading,
     ]

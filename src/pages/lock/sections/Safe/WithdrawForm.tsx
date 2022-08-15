@@ -10,7 +10,7 @@ import { useInputAmount, useTransactionExecution } from '../../../../hooks/inter
 import { FunctionName, InfoBoxType } from '../../../../constants/enums'
 import InformationBox from '../../components/InformationBox'
 import { StyledForm } from '../../atoms/StyledForm'
-import { Flex } from '../../../../components/atoms/Layout'
+import { Flex, GrayBgDiv } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { BKPT_7, BKPT_5 } from '../../../../constants'
 import { useWeb3React } from '@web3-react/core'
@@ -18,6 +18,7 @@ import { useGeneral } from '../../../../context/GeneralManager'
 import { VoteLockData } from '../../../../constants/types'
 import { useProvider } from '../../../../context/ProviderManager'
 import { useUwpLocker } from '../../../../hooks/lock/useUwpLocker'
+import { Text } from '../../../../components/atoms/Typography'
 
 export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Element {
   const { rightSidebar } = useGeneral()
@@ -92,8 +93,17 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
               max={lock.amount.toString()}
             />
           </Flex>
+          <Flex col stretch>
+            <GrayBgDiv>
+              <Flex col stretch>
+                <Text>Token Amounts redeemed in exchange</Text>
+                <Text>$$$</Text>
+                <Text>$$$</Text>
+                <Text>$$$</Text>
+              </Flex>
+            </GrayBgDiv>
+          </Flex>
         </Flex>
-
         <Button
           secondary
           info

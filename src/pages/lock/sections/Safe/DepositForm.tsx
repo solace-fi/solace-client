@@ -11,7 +11,7 @@ import { useInputAmount, useTransactionExecution } from '../../../../hooks/inter
 import { FunctionName } from '../../../../constants/enums'
 
 import { StyledForm } from '../../atoms/StyledForm'
-import { Flex } from '../../../../components/atoms/Layout'
+import { Flex, GrayBgDiv } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { BKPT_5, BKPT_7 } from '../../../../constants'
 import { useWeb3React } from '@web3-react/core'
@@ -140,6 +140,12 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
               disabled={disabled}
             />
           </Flex>
+          <GrayBgDiv>
+            <Flex col>
+              <Text>Amount of UWE minted in exchange</Text>
+              <Text>$$$</Text>
+            </Flex>
+          </GrayBgDiv>
         </Flex>
         <Button secondary info noborder disabled={!isAcceptableDeposit} onClick={callIncreaseLockAmount}>
           Stake

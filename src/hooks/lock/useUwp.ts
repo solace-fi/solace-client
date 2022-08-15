@@ -53,28 +53,6 @@ export const useUwp = () => {
     }
   }
 
-  const issueFee = async (): Promise<BigNumber> => {
-    if (!uwp) return ZERO
-    try {
-      const issueFee = await uwp.issueFee()
-      return issueFee
-    } catch (error) {
-      console.error(error)
-      return ZERO
-    }
-  }
-
-  const issueFeeTo = async (): Promise<string> => {
-    if (!uwp) return ZERO_ADDRESS
-    try {
-      const issueFeeTo = await uwp.issueFeeTo()
-      return issueFeeTo
-    } catch (error) {
-      console.error(error)
-      return ZERO_ADDRESS
-    }
-  }
-
   const isPaused = async (): Promise<boolean> => {
     if (!uwp) return true
     try {
@@ -108,6 +86,12 @@ export const useUwp = () => {
     }
   }
 
+  /**
+   * @notice Determines the amount of tokens that would be minted for a given deposit.
+   * @param depositTokens The list of tokens to deposit.
+   * @param depositAmounts The amount of each token to deposit.
+   * @return amount The amount of `UWP` minted.
+   */
   const calculateIssue = async (depositTokens: string[], depositAmounts: BigNumber[]): Promise<BigNumber> => {
     if (!uwp) return ZERO
     try {
@@ -119,6 +103,11 @@ export const useUwp = () => {
     }
   }
 
+  /**
+   * @notice Determines the amount of underlying tokens that would be received for an amount of `UWP`.
+   * @param amount The amount of `UWP` to burn.
+   * @return amounts The amount of each token received.
+   */
   const calculateRedeem = async (amount: BigNumber): Promise<BigNumber[]> => {
     if (!uwp) return []
     try {
@@ -134,8 +123,6 @@ export const useUwp = () => {
     tokensLength,
     tokenData,
     tokenList,
-    issueFee,
-    issueFeeTo,
     isPaused,
     valueOfPool,
     valuePerShare,

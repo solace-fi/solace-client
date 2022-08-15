@@ -6,15 +6,17 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Accordion } from '../../../components/atoms/Accordion'
 import { Button } from '../../../components/atoms/Button'
 import { StyledArrowDropDown } from '../../../components/atoms/Icon'
-import { Flex } from '../../../components/atoms/Layout'
+import { Flex, GrayBgDiv } from '../../../components/atoms/Layout'
 import { Text } from '../../../components/atoms/Typography'
 import { SmallerInputSection } from '../../../components/molecules/InputSection'
 import { Modal } from '../../../components/molecules/Modal'
+import { FunctionName } from '../../../constants/enums'
 import { VoteLockData } from '../../../constants/types'
 import { useGeneral } from '../../../context/GeneralManager'
 import { useProvider } from '../../../context/ProviderManager'
 import { useTokenAllowance } from '../../../hooks/contract/useToken'
-import { useInputAmount } from '../../../hooks/internal/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../../hooks/internal/useInputAmount'
+import { useUwpLocker } from '../../../hooks/lock/useUwpLocker'
 import { filterAmount } from '../../../utils/formatting'
 import { useLockContext } from '../LockContext'
 
@@ -35,10 +37,12 @@ export const MultiDepositModal = ({
   >([])
 
   const { appTheme } = useGeneral()
-  const { paymentCoins, input } = useLockContext()
   const { signer } = useProvider()
   const { isAppropriateAmount } = useInputAmount()
-  const { batchBalanceData, coinsOpen, setCoinsOpen } = paymentCoins
+  const { increaseAmountMultiple } = useUwpLocker()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
+  const { paymentCoins, input } = useLockContext()
+  const { batchBalanceData, coinsOpen, setCoinsOpen, approveCPM } = paymentCoins
   const { selectedCoin } = input
 
   const selectedCoinContract = useMemo(() => new Contract(selectedCoin.address, ERC20_ABI, signer), [
@@ -66,6 +70,15 @@ export const MultiDepositModal = ({
     return isAppropriateAmount(totalAmountToDeposit, selectedCoin.decimals, selectedCoinBalance)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchBalanceData, totalAmountToDeposit, selectedCoin.address, selectedCoin.decimals])
+
+  const callIncreaseLockAmountMultiple = async () => {
+    await increaseAmountMultiple(
+      amountTracker.map((d) => d.lockID),
+      amountTracker.map((d) => parseUnits(d.amount, selectedCoin.decimals))
+    )
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callIncreaseAmountMultiple', err, FunctionName.INCREASE_AMOUNT_MULTIPLE))
+  }
 
   const handleAmountInput = useCallback(
     (input: string, index: number) => {
@@ -187,9 +200,41 @@ export const MultiDepositModal = ({
             ))}
           </Flex>
         </Accordion>
-        <Button secondary warmgradient noborder disabled={!depositApproval || !isAcceptableDeposit}>
-          Make Deposits
-        </Button>
+        <GrayBgDiv>
+          <Flex col>
+            <Text>Amount of UWE minted in exchange</Text>
+            <Text>$$$</Text>
+          </Flex>
+        </GrayBgDiv>
+        {depositApproval && (
+          <Button
+            secondary
+            warmgradient
+            noborder
+            disabled={!isAcceptableDeposit}
+            onClick={callIncreaseLockAmountMultiple}
+          >
+            Make Deposits
+          </Button>
+        )}
+        {!depositApproval && (
+          <Button
+            secondary
+            warmgradient
+            noborder
+            disabled={!isAcceptableDeposit}
+            onClick={() =>
+              approveCPM('', selectedCoinContract.address, parseUnits(totalAmountToDeposit, selectedCoin.decimals))
+            }
+          >
+            {`Approve Entered ${selectedCoin.symbol}`}
+          </Button>
+        )}
+        {!depositApproval && (
+          <Button secondary warmgradient noborder onClick={() => approveCPM('', selectedCoinContract.address)}>
+            {`Approve MAX ${selectedCoin.symbol}`}
+          </Button>
+        )}
       </Flex>
     </Modal>
   )
