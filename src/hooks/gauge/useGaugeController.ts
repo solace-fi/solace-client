@@ -1,8 +1,9 @@
 import { ZERO } from '@solace-fi/sdk-nightly'
 import { BigNumber } from 'ethers'
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Vote } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 export const useGaugeController = () => {
   const { keyContracts } = useContracts()
@@ -178,4 +179,67 @@ export const useGaugeController = () => {
     getVoteCount,
     getVotersCount,
   }
+}
+
+export const useGaugeControllerHelper = () => {
+  const { getAllGaugeWeights, getGaugeName, isGaugeActive, getVotePowerSum } = useGaugeController()
+  const { activeNetwork } = useNetwork()
+  const [loading, setLoading] = useState(false)
+  const running = useRef(false)
+  const [gaugesData, setGaugesData] = useState<
+    {
+      gaugeId: BigNumber
+      gaugeName: string
+      gaugeWeight: BigNumber
+      isActive: boolean
+    }[]
+  >([])
+
+  const [votePowerSum, setVotePowerSum] = useState<BigNumber>(ZERO)
+
+  const fetchGauges = useCallback(async () => {
+    setLoading(true)
+    const offset = 1
+    const gaugeWeights = await getAllGaugeWeights()
+    const adjustedGaugeWeights = gaugeWeights.slice(offset)
+
+    const gaugeNames = await Promise.all(
+      adjustedGaugeWeights.map(async (gaugeWeight, i) => {
+        return await getGaugeName(BigNumber.from(i).add(BigNumber.from(offset)))
+      })
+    )
+
+    const gaugesActive = await Promise.all(
+      adjustedGaugeWeights.map(async (gaugeWeight, i) => {
+        return await isGaugeActive(BigNumber.from(i).add(BigNumber.from(offset)))
+      })
+    )
+
+    const _votePowerSum = await getVotePowerSum()
+
+    const _gaugesData = []
+    for (let i = 0; i < adjustedGaugeWeights.length; i++) {
+      _gaugesData.push({
+        gaugeId: BigNumber.from(i).add(BigNumber.from(offset)),
+        gaugeName: gaugeNames[i],
+        gaugeWeight: adjustedGaugeWeights[i],
+        isActive: gaugesActive[i],
+      })
+    }
+    setGaugesData(_gaugesData)
+    setVotePowerSum(_votePowerSum)
+    setLoading(false)
+  }, [isGaugeActive, getGaugeName, getAllGaugeWeights, getVotePowerSum])
+
+  useEffect(() => {
+    const callFetchGauges = async () => {
+      if (running.current) return
+      running.current = true
+      await fetchGauges()
+      running.current = false
+    }
+    callFetchGauges()
+  }, [activeNetwork, fetchGauges])
+
+  return { loading, votePowerSum, gaugesData }
 }
