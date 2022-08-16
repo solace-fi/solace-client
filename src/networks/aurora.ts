@@ -55,6 +55,10 @@ export const AuroraNetwork: NetworkConfig = {
         addr: KEY_ADDRS.UWE,
         abi: null,
       },
+      fluxMegaOracle: {
+        addr: KEY_ADDRS.FLUX_MEGA_ORACLE,
+        abi: null,
+      },
     },
     generalFeatures: { native: true },
     specialFeatures: {

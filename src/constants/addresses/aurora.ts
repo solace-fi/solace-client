@@ -7,4 +7,5 @@ export const KEY_ADDRS = {
   UWP_LOCKER: '',
   UWP: '',
   UWE: '',
+  FLUX_MEGA_ORACLE: '',
 }

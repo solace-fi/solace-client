@@ -75,6 +75,10 @@ export const useUwp = () => {
     }
   }
 
+  /**
+   * @notice Calculates the value of one `UWP` in `USD`.
+   * @return valueInUSD The value of one token in `USD` with 18 decimals.
+   */
   const valuePerShare = async (): Promise<BigNumber> => {
     if (!uwp) return ZERO
     try {

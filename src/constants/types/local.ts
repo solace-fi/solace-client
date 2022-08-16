@@ -72,6 +72,17 @@ export type VoteLock = {
   end: BigNumber
 }
 
+export type VotesData = {
+  votePower: BigNumber
+  usedVotePower: BigNumber
+  voteAllocation: {
+    gauge: string
+    votes: string
+    added: boolean
+    changed: boolean
+  }[]
+}
+
 export type TokenData = {
   token: string
   oracle: string

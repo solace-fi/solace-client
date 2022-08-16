@@ -1,6 +1,6 @@
-import { ZERO } from '@solace-fi/sdk-nightly'
+import { ZERO, ZERO_ADDRESS } from '@solace-fi/sdk-nightly'
 import { BigNumber } from 'ethers'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx, Vote } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
@@ -136,6 +136,28 @@ export const useUwpLockVoting = () => {
     return { tx, localTx }
   }
 
+  const delegateOf = async (voter: string): Promise<string> => {
+    if (!uwpLockVoting) return ZERO_ADDRESS
+    try {
+      const delegate = await uwpLockVoting.delegateOf(voter)
+      return delegate
+    } catch (error) {
+      console.error(error)
+      return ZERO_ADDRESS
+    }
+  }
+
+  const usedVotePowerBPSOf = async (voter: string): Promise<BigNumber> => {
+    if (!uwpLockVoting) return ZERO
+    try {
+      const usedVotePowerBPS = await uwpLockVoting.usedVotePowerBPSOf(voter)
+      return usedVotePowerBPS
+    } catch (error) {
+      console.error(error)
+      return ZERO
+    }
+  }
+
   return {
     getVotePower,
     getVotes,
@@ -147,5 +169,24 @@ export const useUwpLockVoting = () => {
     removeVote,
     removeVoteMultiple,
     setDelegate,
+    delegateOf,
+    usedVotePowerBPSOf,
   }
+}
+
+export const useUwpLockVotingHelper = () => {
+  const { getVotePower, usedVotePowerBPSOf, getVotes, delegateOf } = useUwpLockVoting()
+
+  const getVoteInformation = useCallback(async (voter: string) => {
+    const [votePower, usedVotePowerBPS, votes, delegate] = await Promise.all([
+      getVotePower(voter),
+      usedVotePowerBPSOf(voter),
+      getVotes(voter),
+      delegateOf(voter),
+    ])
+    const usedVotePower = votePower.mul(usedVotePowerBPS).div(BigNumber.from('10000'))
+    return { votePower, usedVotePower, votes, delegate }
+  }, [])
+
+  return { getVoteInformation }
 }

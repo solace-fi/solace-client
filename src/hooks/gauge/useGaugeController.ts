@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Vote } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useProvider } from '../../context/ProviderManager'
 
 export const useGaugeController = () => {
   const { keyContracts } = useContracts()
@@ -182,8 +183,9 @@ export const useGaugeController = () => {
 }
 
 export const useGaugeControllerHelper = () => {
-  const { getAllGaugeWeights, getGaugeName, isGaugeActive, getVotePowerSum } = useGaugeController()
+  const { getAllGaugeWeights, getGaugeName, isGaugeActive } = useGaugeController()
   const { activeNetwork } = useNetwork()
+  const { latestBlock } = useProvider()
   const [loading, setLoading] = useState(false)
   const running = useRef(false)
   const [gaugesData, setGaugesData] = useState<
@@ -194,8 +196,6 @@ export const useGaugeControllerHelper = () => {
       isActive: boolean
     }[]
   >([])
-
-  const [votePowerSum, setVotePowerSum] = useState<BigNumber>(ZERO)
 
   const fetchGauges = useCallback(async () => {
     setLoading(true)
@@ -215,21 +215,18 @@ export const useGaugeControllerHelper = () => {
       })
     )
 
-    const _votePowerSum = await getVotePowerSum()
-
-    const _gaugesData = []
-    for (let i = 0; i < adjustedGaugeWeights.length; i++) {
-      _gaugesData.push({
+    const _gaugesData = adjustedGaugeWeights.map((gaugeWeight, i) => {
+      return {
         gaugeId: BigNumber.from(i).add(BigNumber.from(offset)),
         gaugeName: gaugeNames[i],
-        gaugeWeight: adjustedGaugeWeights[i],
+        gaugeWeight,
         isActive: gaugesActive[i],
-      })
-    }
+      }
+    })
+
     setGaugesData(_gaugesData)
-    setVotePowerSum(_votePowerSum)
     setLoading(false)
-  }, [isGaugeActive, getGaugeName, getAllGaugeWeights, getVotePowerSum])
+  }, [])
 
   useEffect(() => {
     const callFetchGauges = async () => {
@@ -239,7 +236,7 @@ export const useGaugeControllerHelper = () => {
       running.current = false
     }
     callFetchGauges()
-  }, [activeNetwork, fetchGauges])
+  }, [activeNetwork, latestBlock, fetchGauges])
 
-  return { loading, votePowerSum, gaugesData }
+  return { loading, gaugesData }
 }

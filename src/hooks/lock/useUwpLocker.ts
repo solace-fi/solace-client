@@ -61,17 +61,6 @@ export const useUwpLocker = () => {
     }
   }
 
-  const getLockListeners = async (): Promise<string[]> => {
-    if (!uwpLocker) return []
-    try {
-      const lockListeners = await uwpLocker.getLockListeners()
-      return lockListeners
-    } catch (error) {
-      console.error(error)
-      return []
-    }
-  }
-
   const getWithdrawAmount = async (lockId: BigNumber): Promise<BigNumber> => {
     if (!uwpLocker) return ZERO
     try {
@@ -110,17 +99,6 @@ export const useUwpLocker = () => {
     try {
       const burnOnWithdrawInPartAmount = await uwpLocker.getBurnOnWithdrawInPartAmount(lockId)
       return burnOnWithdrawInPartAmount
-    } catch (error) {
-      console.error(error)
-      return ZERO
-    }
-  }
-
-  const getLockMultiplier = async (lockId: BigNumber): Promise<BigNumber> => {
-    if (!uwpLocker) return ZERO
-    try {
-      const lockMultiplier = await uwpLocker.getLockMultiplier(lockId)
-      return lockMultiplier
     } catch (error) {
       console.error(error)
       return ZERO
@@ -281,8 +259,6 @@ export const useUwpLocker = () => {
   }
 
   return {
-    getBurnOnWithdrawInPartAmount,
-    getLockMultiplier,
     getAllLockIDsOf,
     createLock,
     increaseAmount,
@@ -297,9 +273,9 @@ export const useUwpLocker = () => {
     isLocked,
     timeLeft,
     totalStakedBalance,
-    getLockListeners,
     getWithdrawAmount,
     getWithdrawInPartAmount,
     getBurnOnWithdrawAmount,
+    getBurnOnWithdrawInPartAmount,
   }
 }
