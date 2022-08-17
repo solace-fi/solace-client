@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { isAddress } from 'ethers/lib/utils'
 import { Accordion } from '../../components/atoms/Accordion'
 import { Button } from '../../components/atoms/Button'
@@ -8,18 +8,66 @@ import { DelegatorVoteGauge } from './organisms/DelegatorVoteGauge'
 import { useUwpLockVoting } from '../../hooks/lock/useUwpLockVoting'
 import { useVoteContext } from './VoteContext'
 import { Text } from '../../components/atoms/Typography'
+import { BigNumber, ZERO } from '@solace-fi/sdk-nightly'
+import { FunctionName } from '../../constants/enums'
+import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 
 export const DelegatorVoteTab = () => {
-  const { gauges, voteGeneral, voteDelegator } = useVoteContext()
+  const { voteGeneral, voteDelegator } = useVoteContext()
   const { isVotingOpen, addEmptyVote } = voteGeneral
-  const { gaugesData } = gauges
   const { delegatorVotesData, delegator, handleDelegatorAddress } = voteDelegator
 
   const { voteMultiple, removeVoteMultiple } = useUwpLockVoting()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
 
-  const areAllGaugesActive_Delegator = useMemo(() => {
-    delegatorVotesData.voteAllocation.filter((g) => !g.gaugeActive).length === 0
-  }, [delegatorVotesData.voteAllocation])
+  /** cannot call vote multiple if any gauges of changed or added votes 
+      are inactive and the allocated vote power is not zero
+  */
+  const cannotCallVoteMultiple = useMemo(
+    () =>
+      delegatorVotesData.voteAllocation.filter((g) => {
+        return (
+          !g.gaugeActive &&
+          !(delegatorVotesData.votePower.isZero()
+            ? ZERO
+            : BigNumber.from(g.votes == '' ? '0' : g.votes).mul(
+                BigNumber.from('10000').div(delegatorVotesData.votePower)
+              )
+          ).isZero() &&
+          (g.changed || g.added)
+        )
+      }).length > 0,
+    [delegatorVotesData.voteAllocation, delegatorVotesData.votePower]
+  )
+
+  const callVoteMultiple = useCallback(async () => {
+    if (cannotCallVoteMultiple) return
+    if (!isVotingOpen) return
+    if (!delegator || !isAddress(delegator)) return
+    const queuedVotes = delegatorVotesData.voteAllocation.filter((g) => g.changed || g.added)
+    await voteMultiple(
+      delegator,
+      queuedVotes.map((g) => g.gaugeId),
+      queuedVotes.map((g) =>
+        delegatorVotesData.votePower.isZero()
+          ? ZERO
+          : BigNumber.from(g.votes == '' ? '0' : g.votes).mul(BigNumber.from('10000').div(delegatorVotesData.votePower))
+      )
+    )
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callVoteMultiple', err, FunctionName.VOTE_MULTIPLE))
+  }, [delegator, cannotCallVoteMultiple, isVotingOpen, delegatorVotesData.voteAllocation, delegatorVotesData.votePower])
+
+  const callRemoveVoteMultiple = useCallback(async () => {
+    if (!isVotingOpen) return
+    if (!delegator || !isAddress(delegator)) return
+    await removeVoteMultiple(
+      delegator,
+      delegatorVotesData.voteAllocation.map((g) => g.gaugeId)
+    )
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callRemoveVoteMultiple', err, FunctionName.REMOVE_VOTE_MULTIPLE))
+  }, [delegator, isVotingOpen, delegatorVotesData.voteAllocation])
 
   return (
     <>
@@ -56,7 +104,7 @@ export const DelegatorVoteTab = () => {
         <Accordion isOpen={delegatorVotesData.voteAllocation.length > 0} thinScrollbar>
           <Flex col gap={10} p={10}>
             {delegatorVotesData.voteAllocation.map((voteData, i) => (
-              <DelegatorVoteGauge key={i} delegator={delegator} index={i} />
+              <DelegatorVoteGauge key={i} index={i} />
             ))}
           </Flex>
         </Accordion>
@@ -68,28 +116,12 @@ export const DelegatorVoteTab = () => {
               secondary
               noborder
               widthP={100}
-              onClick={() => {
-                if (!delegator || !isAddress(delegator)) return
-                voteMultiple(
-                  delegator,
-                  gaugesData.map((item) => item.gaugeId),
-                  gaugesData.map((item) => item.gaugeWeight)
-                )
-              }}
+              disabled={!cannotCallVoteMultiple}
+              onClick={callVoteMultiple}
             >
               Set Votes
             </Button>
-            <Button
-              error
-              widthP={100}
-              onClick={() => {
-                if (!delegator || !isAddress(delegator)) return
-                removeVoteMultiple(
-                  delegator,
-                  gaugesData.map((item) => item.gaugeId)
-                )
-              }}
-            >
+            <Button error widthP={100} onClick={callRemoveVoteMultiple}>
               Remove all votes
             </Button>
           </>

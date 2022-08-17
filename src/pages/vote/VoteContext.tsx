@@ -8,7 +8,7 @@ import { GaugeData, VoteAllocation, VotesData } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGaugeControllerHelper } from '../../hooks/gauge/useGaugeController'
 import { useUwpLockVoting, useUwpLockVotingHelper } from '../../hooks/lock/useUwpLockVoting'
-import { formatAmount } from '../../utils/formatting'
+import { formatAmount, wholeNumberOnly } from '../../utils/formatting'
 
 type VoteContextType = {
   intrface: {
@@ -110,7 +110,7 @@ const VoteManager: React.FC = (props) => {
 
   const onVoteInput = useCallback(
     (input: string, index: number, isOwner: boolean) => {
-      const formatted: string = formatAmount(input)
+      const formatted: string = wholeNumberOnly(input)
 
       if (isOwner) {
         if (formatted === votesData.voteAllocation[index].votes) return
@@ -152,14 +152,15 @@ const VoteManager: React.FC = (props) => {
   const deleteVote = useCallback(
     (index: number, isOwner: boolean) => {
       if (isOwner) {
-        const newVoteAllocation = votesData.voteAllocation.filter((voteData, i) => i !== index)
         setVotesData((prevState) => {
-          return { ...prevState, voteAllocation: newVoteAllocation }
+          return { ...prevState, voteAllocation: votesData.voteAllocation.filter((voteData, i) => i !== index) }
         })
       } else {
-        const newVoteAllocation = delegatorVotesData.voteAllocation.filter((voteData, i) => i !== index)
         setDelegatorVotesData((prevState) => {
-          return { ...prevState, voteAllocation: newVoteAllocation }
+          return {
+            ...prevState,
+            voteAllocation: delegatorVotesData.voteAllocation.filter((voteData, i) => i !== index),
+          }
         })
       }
     },
@@ -173,7 +174,7 @@ const VoteManager: React.FC = (props) => {
           ...votesData,
           voteAllocation: [
             ...votesData.voteAllocation,
-            { gauge: '', gaugeId: ZERO, votes: '0', added: true, changed: false, gaugeActive: false },
+            { gauge: '', gaugeId: ZERO, votes: '', added: true, changed: false, gaugeActive: false },
           ],
         }
         setVotesData(newVotesData)
@@ -182,7 +183,7 @@ const VoteManager: React.FC = (props) => {
           ...delegatorVotesData,
           voteAllocation: [
             ...delegatorVotesData.voteAllocation,
-            { gauge: '', gaugeId: ZERO, votes: '0', added: true, changed: false, gaugeActive: false },
+            { gauge: '', gaugeId: ZERO, votes: '', added: true, changed: false, gaugeActive: false },
           ],
         }
         setDelegatorVotesData(newVotesData)

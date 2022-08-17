@@ -1,7 +1,6 @@
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { FunctionName, Unit } from '../constants/enums'
-import { NetworkConfig, TokenInfo } from '../constants/types'
+import { TokenInfo } from '../constants/types'
 import { rangeFrom0 } from './numeric'
 
 // truncate numbers without rounding
@@ -173,6 +172,10 @@ export const filterAmount = (input: string, amount: string): string => {
   if (!amount && input == '.') input = '.'
   const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
   return filtered
+}
+
+export const wholeNumberOnly = (input: string): string => {
+  return input.replace(/[^0-9]/g, '')
 }
 
 export const formatAmount = (amount: string): string =>

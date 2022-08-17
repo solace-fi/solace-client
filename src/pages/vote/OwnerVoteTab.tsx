@@ -1,6 +1,5 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useWeb3React } from '@web3-react/core'
-import { isAddress } from 'ethers/lib/utils'
 import { Accordion } from '../../components/atoms/Accordion'
 import { Button } from '../../components/atoms/Button'
 import { Flex, ShadowDiv } from '../../components/atoms/Layout'
@@ -8,19 +7,67 @@ import { Text } from '../../components/atoms/Typography'
 import { OwnerVoteGauge } from './organisms/OwnerVoteGauge'
 import { useUwpLockVoting } from '../../hooks/lock/useUwpLockVoting'
 import { useVoteContext } from './VoteContext'
+import { ZERO } from '../../constants'
+import { BigNumber } from '@solace-fi/sdk-nightly'
+import { FunctionName } from '../../constants/enums'
+import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
+import { isAddress } from '../../utils'
 
 export const OwnerVoteTab = () => {
-  const { gauges, voteGeneral, voteOwner } = useVoteContext()
+  const { voteGeneral, voteOwner } = useVoteContext()
   const { isVotingOpen, addEmptyVote } = voteGeneral
-  const { gaugesData } = gauges
   const { votesData } = voteOwner
 
   const { voteMultiple, removeVoteMultiple } = useUwpLockVoting()
   const { account } = useWeb3React()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
 
-  const areAllGaugesActive_Voter = useMemo(() => {
-    votesData.voteAllocation.filter((g) => !g.gaugeActive).length === 0
-  }, [votesData.voteAllocation])
+  /** cannot call vote multiple if any gauges of changed or added votes 
+      are inactive and the allocated vote power is not zero
+  */
+  const cannotCallVoteMultiple = useMemo(
+    () =>
+      votesData.voteAllocation.filter((g) => {
+        return (
+          !g.gaugeActive &&
+          !(votesData.votePower.isZero()
+            ? ZERO
+            : BigNumber.from(g.votes == '' ? '0' : g.votes).mul(BigNumber.from('10000').div(votesData.votePower))
+          ).isZero() &&
+          (g.changed || g.added)
+        )
+      }).length > 0,
+    [votesData.voteAllocation, votesData.votePower]
+  )
+
+  const callVoteMultiple = useCallback(async () => {
+    if (cannotCallVoteMultiple) return
+    if (!isVotingOpen) return
+    if (!account || !isAddress(account)) return
+    const queuedVotes = votesData.voteAllocation.filter((g) => g.changed || g.added)
+    await voteMultiple(
+      account,
+      queuedVotes.map((g) => g.gaugeId),
+      queuedVotes.map((g) =>
+        votesData.votePower.isZero()
+          ? ZERO
+          : BigNumber.from(g.votes == '' ? '0' : g.votes).mul(BigNumber.from('10000').div(votesData.votePower))
+      )
+    )
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callVoteMultiple', err, FunctionName.VOTE_MULTIPLE))
+  }, [account, cannotCallVoteMultiple, isVotingOpen, votesData.voteAllocation, votesData.votePower])
+
+  const callRemoveVoteMultiple = useCallback(async () => {
+    if (!isVotingOpen) return
+    if (!account || !isAddress(account)) return
+    await removeVoteMultiple(
+      account,
+      votesData.voteAllocation.map((g) => g.gaugeId)
+    )
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callRemoveVoteMultiple', err, FunctionName.REMOVE_VOTE_MULTIPLE))
+  }, [account, isVotingOpen, votesData.voteAllocation])
 
   return (
     <>
@@ -61,28 +108,12 @@ export const OwnerVoteTab = () => {
               secondary
               noborder
               widthP={100}
-              onClick={() => {
-                if (!account || !isAddress(account)) return
-                voteMultiple(
-                  account,
-                  gaugesData.map((item) => item.gaugeId),
-                  gaugesData.map((item) => item.gaugeWeight)
-                )
-              }}
+              disabled={cannotCallVoteMultiple}
+              onClick={callVoteMultiple}
             >
               Set Votes
             </Button>
-            <Button
-              error
-              widthP={100}
-              onClick={() => {
-                if (!account || !isAddress(account)) return
-                removeVoteMultiple(
-                  account,
-                  gaugesData.map((item) => item.gaugeId)
-                )
-              }}
-            >
+            <Button error widthP={100} onClick={callRemoveVoteMultiple}>
               Remove all votes
             </Button>
           </>

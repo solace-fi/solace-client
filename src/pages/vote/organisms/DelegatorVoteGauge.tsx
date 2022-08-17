@@ -12,38 +12,45 @@ import { Text } from '../../../components/atoms/Typography'
 import { SmallerInputSection } from '../../../components/molecules/InputSection'
 import { processProtocolName } from '../../../components/organisms/Dropdown'
 import { Card } from '../../../components/atoms/Card'
+import { isAddress } from '../../../utils'
 
-export const DelegatorVoteGauge = ({ delegator, index }: { delegator: string; index: number }): JSX.Element => {
+export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element => {
   const { gauges, voteGeneral, voteDelegator } = useVoteContext()
   const { isVotingOpen, onVoteInput, deleteVote } = voteGeneral
   const { handleGaugeSelectionModal } = gauges
-  const { delegatorVotesData: votesData } = voteDelegator
+  const { delegatorVotesData: votesData, delegator } = voteDelegator
   const appId = useMemo(() => votesData.voteAllocation[index].gauge, [votesData, index])
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { vote, removeVote } = useUwpLockVoting()
 
+  const votes = useMemo(
+    () => (votesData.voteAllocation[index].votes == '' ? '0' : votesData.voteAllocation[index].votes),
+    [votesData.voteAllocation, index]
+  )
+
   const convertedVoteBPS = useMemo(
     () =>
-      votesData.votePower.isZero()
-        ? ZERO
-        : BigNumber.from(votesData.voteAllocation[index].votes).mul(BigNumber.from('10000').div(votesData.votePower)),
-    [index, votesData.voteAllocation, votesData.votePower]
+      votesData.votePower.isZero() ? ZERO : BigNumber.from(votes).mul(BigNumber.from('10000').div(votesData.votePower)),
+    [votes, votesData.votePower]
   )
 
   const callVote = useCallback(async () => {
+    if (!delegator || !isAddress(delegator)) return
     if (!isVotingOpen) return
-    if (!votesData.voteAllocation[index].gaugeActive && convertedVoteBPS.isZero()) return
+    if (!votesData.voteAllocation[index].changed) return
+    if (!votesData.voteAllocation[index].gaugeActive && !convertedVoteBPS.isZero()) return
     await vote(delegator, votesData.voteAllocation[index].gaugeId, convertedVoteBPS)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callVote', err, FunctionName.VOTE))
-  }, [delegator, convertedVoteBPS])
+  }, [delegator, convertedVoteBPS, votesData.voteAllocation[index], isVotingOpen])
 
   const callRemoveVote = useCallback(async () => {
+    if (!delegator || !isAddress(delegator)) return
     if (!isVotingOpen) return
     await removeVote(delegator, votesData.voteAllocation[index].gaugeId)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callRemoveVote', err, FunctionName.REMOVE_VOTE))
-  }, [delegator, votesData, index])
+  }, [delegator, votesData.voteAllocation[index], isVotingOpen])
 
   return (
     <Card matchBg p={10}>
