@@ -3,14 +3,13 @@ import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { GaugeData, Vote } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
-import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 
 export const useGaugeController = () => {
   const { keyContracts } = useContracts()
   const { gaugeController } = useMemo(() => keyContracts, [keyContracts])
 
-  const getEpochStartTimestamp = async (): Promise<BigNumber> => {
+  const getEpochStartTimestamp = useCallback(async (): Promise<BigNumber> => {
     if (!gaugeController) return ZERO
     try {
       const epochStartTimestamp = await gaugeController.getEpochStartTimestamp()
@@ -19,9 +18,9 @@ export const useGaugeController = () => {
       console.error(error)
       return ZERO
     }
-  }
+  }, [gaugeController])
 
-  const getEpochEndTimestamp = async (): Promise<BigNumber> => {
+  const getEpochEndTimestamp = useCallback(async (): Promise<BigNumber> => {
     if (!gaugeController) return ZERO
     try {
       const epochEndTimestamp = await gaugeController.getEpochEndTimestamp()
@@ -30,20 +29,23 @@ export const useGaugeController = () => {
       console.error(error)
       return ZERO
     }
-  }
+  }, [gaugeController])
 
-  const getGaugeWeight = async (gaugeId: BigNumber): Promise<BigNumber> => {
-    if (!gaugeController) return ZERO
-    try {
-      const gaugeWeight = await gaugeController.getGaugeWeight(gaugeId)
-      return gaugeWeight
-    } catch (error) {
-      console.error(error)
-      return ZERO
-    }
-  }
+  const getGaugeWeight = useCallback(
+    async (gaugeId: BigNumber): Promise<BigNumber> => {
+      if (!gaugeController) return ZERO
+      try {
+        const gaugeWeight = await gaugeController.getGaugeWeight(gaugeId)
+        return gaugeWeight
+      } catch (error) {
+        console.error(error)
+        return ZERO
+      }
+    },
+    [gaugeController]
+  )
 
-  const getAllGaugeWeights = async (): Promise<BigNumber[]> => {
+  const getAllGaugeWeights = useCallback(async (): Promise<BigNumber[]> => {
     if (!gaugeController) return []
     try {
       const gaugeWeights = await gaugeController.getAllGaugeWeights()
@@ -52,9 +54,9 @@ export const useGaugeController = () => {
       console.error(error)
       return []
     }
-  }
+  }, [gaugeController])
 
-  const getNumActiveGauges = async (): Promise<BigNumber> => {
+  const getNumActiveGauges = useCallback(async (): Promise<BigNumber> => {
     if (!gaugeController) return ZERO
     try {
       const numActiveGauges = await gaugeController.getNumActiveGauges()
@@ -63,42 +65,51 @@ export const useGaugeController = () => {
       console.error(error)
       return ZERO
     }
-  }
+  }, [gaugeController])
 
-  const getGaugeName = async (gaugeId: BigNumber): Promise<string> => {
-    if (!gaugeController) return ''
-    try {
-      const gaugeName = await gaugeController.getGaugeName(gaugeId)
-      return gaugeName
-    } catch (error) {
-      console.error(error)
-      return ''
-    }
-  }
+  const getGaugeName = useCallback(
+    async (gaugeId: BigNumber): Promise<string> => {
+      if (!gaugeController) return ''
+      try {
+        const gaugeName = await gaugeController.getGaugeName(gaugeId)
+        return gaugeName
+      } catch (error) {
+        console.error(error)
+        return ''
+      }
+    },
+    [gaugeController]
+  )
 
-  const isGaugeActive = async (gaugeId: BigNumber): Promise<boolean> => {
-    if (!gaugeController) return false
-    try {
-      const isActive = await gaugeController.isGaugeActive(gaugeId)
-      return isActive
-    } catch (error) {
-      console.error(error)
-      return false
-    }
-  }
+  const isGaugeActive = useCallback(
+    async (gaugeId: BigNumber): Promise<boolean> => {
+      if (!gaugeController) return false
+      try {
+        const isActive = await gaugeController.isGaugeActive(gaugeId)
+        return isActive
+      } catch (error) {
+        console.error(error)
+        return false
+      }
+    },
+    [gaugeController]
+  )
 
-  const getRateOnLineOfGauge = async (gaugeId: BigNumber): Promise<BigNumber> => {
-    if (!gaugeController) return ZERO
-    try {
-      const rateOnLineOfGauge = await gaugeController.getRateOnLineOfGauge(gaugeId)
-      return rateOnLineOfGauge
-    } catch (error) {
-      console.error(error)
-      return ZERO
-    }
-  }
+  const getRateOnLineOfGauge = useCallback(
+    async (gaugeId: BigNumber): Promise<BigNumber> => {
+      if (!gaugeController) return ZERO
+      try {
+        const rateOnLineOfGauge = await gaugeController.getRateOnLineOfGauge(gaugeId)
+        return rateOnLineOfGauge
+      } catch (error) {
+        console.error(error)
+        return ZERO
+      }
+    },
+    [gaugeController]
+  )
 
-  const getInsuranceCapacity = async (): Promise<BigNumber> => {
+  const getInsuranceCapacity = useCallback(async (): Promise<BigNumber> => {
     if (!gaugeController) return ZERO
     try {
       const insuranceCapacity = await gaugeController.getInsuranceCapacity()
@@ -107,9 +118,9 @@ export const useGaugeController = () => {
       console.error(error)
       return ZERO
     }
-  }
+  }, [gaugeController])
 
-  const getVotePowerSum = async (): Promise<BigNumber> => {
+  const getVotePowerSum = useCallback(async (): Promise<BigNumber> => {
     if (!gaugeController) return ZERO
     try {
       const votePowerSum = await gaugeController.getVotePowerSum()
@@ -118,51 +129,63 @@ export const useGaugeController = () => {
       console.error(error)
       return ZERO
     }
-  }
+  }, [gaugeController])
 
-  const getVotes = async (votingContractAddr: string, voter: string): Promise<Vote[]> => {
-    if (!gaugeController) return []
-    try {
-      const votes = await gaugeController.getVotes(votingContractAddr, voter)
-      return votes
-    } catch (error) {
-      console.error(error)
-      return []
-    }
-  }
+  const getVotes = useCallback(
+    async (votingContractAddr: string, voter: string): Promise<Vote[]> => {
+      if (!gaugeController) return []
+      try {
+        const votes = await gaugeController.getVotes(votingContractAddr, voter)
+        return votes
+      } catch (error) {
+        console.error(error)
+        return []
+      }
+    },
+    [gaugeController]
+  )
 
-  const getVoters = async (votingContractAddr: string): Promise<string[]> => {
-    if (!gaugeController) return []
-    try {
-      const voters = await gaugeController.getVoters(votingContractAddr)
-      return voters
-    } catch (error) {
-      console.error(error)
-      return []
-    }
-  }
+  const getVoters = useCallback(
+    async (votingContractAddr: string): Promise<string[]> => {
+      if (!gaugeController) return []
+      try {
+        const voters = await gaugeController.getVoters(votingContractAddr)
+        return voters
+      } catch (error) {
+        console.error(error)
+        return []
+      }
+    },
+    [gaugeController]
+  )
 
-  const getVoteCount = async (votingContractAddr: string, voter: string): Promise<BigNumber> => {
-    if (!gaugeController) return ZERO
-    try {
-      const voteCount = await gaugeController.getVoteCount(votingContractAddr, voter)
-      return voteCount
-    } catch (error) {
-      console.error(error)
-      return ZERO
-    }
-  }
+  const getVoteCount = useCallback(
+    async (votingContractAddr: string, voter: string): Promise<BigNumber> => {
+      if (!gaugeController) return ZERO
+      try {
+        const voteCount = await gaugeController.getVoteCount(votingContractAddr, voter)
+        return voteCount
+      } catch (error) {
+        console.error(error)
+        return ZERO
+      }
+    },
+    [gaugeController]
+  )
 
-  const getVotersCount = async (votingContractAddr: string): Promise<BigNumber> => {
-    if (!gaugeController) return ZERO
-    try {
-      const votersCount = await gaugeController.getVotersCount(votingContractAddr)
-      return votersCount
-    } catch (error) {
-      console.error(error)
-      return ZERO
-    }
-  }
+  const getVotersCount = useCallback(
+    async (votingContractAddr: string): Promise<BigNumber> => {
+      if (!gaugeController) return ZERO
+      try {
+        const votersCount = await gaugeController.getVotersCount(votingContractAddr)
+        return votersCount
+      } catch (error) {
+        console.error(error)
+        return ZERO
+      }
+    },
+    [gaugeController]
+  )
 
   return {
     getEpochStartTimestamp,
@@ -184,12 +207,9 @@ export const useGaugeController = () => {
 
 export const useGaugeControllerHelper = () => {
   const { getAllGaugeWeights, getGaugeName, isGaugeActive } = useGaugeController()
-  const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
   const [loading, setLoading] = useState(false)
   const running = useRef(false)
-  const { keyContracts } = useContracts()
-  const { gaugeController } = useMemo(() => keyContracts, [keyContracts])
 
   const [gaugesData, setGaugesData] = useState<GaugeData[]>([])
 
@@ -222,7 +242,7 @@ export const useGaugeControllerHelper = () => {
 
     setGaugesData(_gaugesData)
     setLoading(false)
-  }, [gaugeController, activeNetwork, latestBlock])
+  }, [getAllGaugeWeights, getGaugeName, isGaugeActive])
 
   useEffect(() => {
     const callFetchGauges = async () => {
@@ -232,7 +252,7 @@ export const useGaugeControllerHelper = () => {
       running.current = false
     }
     callFetchGauges()
-  }, [fetchGauges])
+  }, [latestBlock, fetchGauges])
 
   return { loading, gaugesData }
 }

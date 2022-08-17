@@ -1,12 +1,11 @@
-import { ZERO } from '@solace-fi/sdk-nightly'
 import { BigNumber } from 'ethers'
 import React, { useCallback, useMemo } from 'react'
 import { FunctionName } from '../../../constants/enums'
 import { useTransactionExecution } from '../../../hooks/internal/useInputAmount'
 import { useUwpLockVoting } from '../../../hooks/lock/useUwpLockVoting'
 import { useVoteContext } from '../VoteContext'
-import { Button, ThinButton } from '../../../components/atoms/Button'
-import { StyledArrowDropDown } from '../../../components/atoms/Icon'
+import { Button, GraySquareButton, ThinButton } from '../../../components/atoms/Button'
+import { StyledArrowDropDown, StyledClose } from '../../../components/atoms/Icon'
 import { Flex } from '../../../components/atoms/Layout'
 import { Text } from '../../../components/atoms/Typography'
 import { SmallerInputSection } from '../../../components/molecules/InputSection'
@@ -44,13 +43,7 @@ export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element =>
     )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callVote', err, FunctionName.VOTE))
-  }, [
-    delegator,
-    votesData.localVoteAllocation[index].votePowerPercentage,
-    votesData.localVoteAllocation,
-    index,
-    isVotingOpen,
-  ])
+  }, [delegator, votesData.localVoteAllocation[index].votePowerPercentage, index, isVotingOpen])
 
   const callRemoveVote = useCallback(async () => {
     if (!delegator || !isAddress(delegator)) return
@@ -58,11 +51,11 @@ export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element =>
     await removeVote(delegator, votesData.localVoteAllocation[index].gaugeId)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callRemoveVote', err, FunctionName.REMOVE_VOTE))
-  }, [delegator, votesData.localVoteAllocation[index], isVotingOpen])
+  }, [delegator, votesData.localVoteAllocation, index, isVotingOpen])
 
   return (
     <Card matchBg p={10}>
-      <Flex col>
+      <Flex col gap={10}>
         <Flex gap={10}>
           <div style={{ width: '150px' }}>
             <ThinButton onClick={() => handleGaugeSelectionModal(index)}>
@@ -88,8 +81,12 @@ export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element =>
               onChange={(e) => onVoteInput(e.target.value, index, false)}
             />
           </div>
-          {votesData.localVoteAllocation[index].added && (
-            <Button onClick={() => deleteVote(index, false)}>Close</Button>
+          {votesData.localVoteAllocation[index].added ? (
+            <GraySquareButton width={32} height={32} noborder onClick={() => deleteVote(index, false)} darkText>
+              <StyledClose size={16} />
+            </GraySquareButton>
+          ) : (
+            <div style={{ width: '32px' }}></div>
           )}
         </Flex>
         <Flex justifyCenter gap={10}>

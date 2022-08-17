@@ -11,29 +11,35 @@ export const useUwpLockVoting = () => {
   const { uwpLockVoting } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
 
-  const getVotePower = async (voter: string): Promise<BigNumber> => {
-    if (!uwpLockVoting) return ZERO
-    try {
-      const votePower = await uwpLockVoting.getVotePower(voter)
-      return votePower
-    } catch (error) {
-      console.error(error)
-      return ZERO
-    }
-  }
+  const getVotePower = useCallback(
+    async (voter: string): Promise<BigNumber> => {
+      if (!uwpLockVoting) return ZERO
+      try {
+        const votePower = await uwpLockVoting.getVotePower(voter)
+        return votePower
+      } catch (error) {
+        console.error(error)
+        return ZERO
+      }
+    },
+    [uwpLockVoting]
+  )
 
-  const getVotes = async (voter: string): Promise<Vote[]> => {
-    if (!uwpLockVoting) return []
-    try {
-      const votes = await uwpLockVoting.getVotes(voter)
-      return votes
-    } catch (error) {
-      console.error(error)
-      return []
-    }
-  }
+  const getVotes = useCallback(
+    async (voter: string): Promise<Vote[]> => {
+      if (!uwpLockVoting) return []
+      try {
+        const votes = await uwpLockVoting.getVotes(voter)
+        return votes
+      } catch (error) {
+        console.error(error)
+        return []
+      }
+    },
+    [uwpLockVoting]
+  )
 
-  const getEpochStartTimestamp = async (): Promise<BigNumber> => {
+  const getEpochStartTimestamp = useCallback(async (): Promise<BigNumber> => {
     if (!uwpLockVoting) return ZERO
     try {
       const epochStartTimestamp = await uwpLockVoting.getEpochStartTimestamp()
@@ -42,9 +48,9 @@ export const useUwpLockVoting = () => {
       console.error(error)
       return ZERO
     }
-  }
+  }, [uwpLockVoting])
 
-  const getEpochEndTimestamp = async (): Promise<BigNumber> => {
+  const getEpochEndTimestamp = useCallback(async (): Promise<BigNumber> => {
     if (!uwpLockVoting) return ZERO
     try {
       const epochEndTimestamp = await uwpLockVoting.getEpochEndTimestamp()
@@ -53,9 +59,9 @@ export const useUwpLockVoting = () => {
       console.error(error)
       return ZERO
     }
-  }
+  }, [uwpLockVoting])
 
-  const isVotingOpen = async (): Promise<boolean> => {
+  const isVotingOpen = useCallback(async (): Promise<boolean> => {
     if (!uwpLockVoting) return false
     try {
       const isVotingOpen = await uwpLockVoting.isVotingOpen()
@@ -64,99 +70,120 @@ export const useUwpLockVoting = () => {
       console.error(error)
       return false
     }
-  }
+  }, [uwpLockVoting])
 
-  const vote = async (voter: string, gaugeId: BigNumber, votePowerBPS: BigNumber) => {
-    if (!uwpLockVoting) return { tx: null, localTx: null }
-    const tx = await uwpLockVoting.vote(voter, gaugeId, votePowerBPS, {
-      ...gasConfig,
-      gasLimit: 800000,
-    })
-    const localTx: LocalTx = {
-      hash: tx.hash,
-      type: FunctionName.VOTE,
-      status: TransactionCondition.PENDING,
-    }
-    return { tx, localTx }
-  }
+  const delegateOf = useCallback(
+    async (voter: string): Promise<string> => {
+      if (!uwpLockVoting) return ZERO_ADDRESS
+      try {
+        const delegate = await uwpLockVoting.delegateOf(voter)
+        return delegate
+      } catch (error) {
+        console.error(error)
+        return ZERO_ADDRESS
+      }
+    },
+    [uwpLockVoting]
+  )
 
-  const voteMultiple = async (voter: string, gaugeIds: BigNumber[], votePowerBPSs: BigNumber[]) => {
-    if (!uwpLockVoting) return { tx: null, localTx: null }
-    const tx = await uwpLockVoting.voteMultiple(voter, gaugeIds, votePowerBPSs, {
-      ...gasConfig,
-      gasLimit: 800000,
-    })
-    const localTx: LocalTx = {
-      hash: tx.hash,
-      type: FunctionName.VOTE_MULTIPLE,
-      status: TransactionCondition.PENDING,
-    }
-    return { tx, localTx }
-  }
+  const usedVotePowerBPSOf = useCallback(
+    async (voter: string): Promise<BigNumber> => {
+      if (!uwpLockVoting) return ZERO
+      try {
+        const usedVotePowerBPS = await uwpLockVoting.usedVotePowerBPSOf(voter)
+        return usedVotePowerBPS
+      } catch (error) {
+        console.error(error)
+        return ZERO
+      }
+    },
+    [uwpLockVoting]
+  )
 
-  const removeVote = async (voter: string, gaugeId: BigNumber) => {
-    if (!uwpLockVoting) return { tx: null, localTx: null }
-    const tx = await uwpLockVoting.removeVote(voter, gaugeId, {
-      ...gasConfig,
-      gasLimit: 800000,
-    })
-    const localTx: LocalTx = {
-      hash: tx.hash,
-      type: FunctionName.REMOVE_VOTE,
-      status: TransactionCondition.PENDING,
-    }
-    return { tx, localTx }
-  }
+  const vote = useCallback(
+    async (voter: string, gaugeId: BigNumber, votePowerBPS: BigNumber) => {
+      if (!uwpLockVoting) return { tx: null, localTx: null }
+      const tx = await uwpLockVoting.vote(voter, gaugeId, votePowerBPS, {
+        ...gasConfig,
+        gasLimit: 800000,
+      })
+      const localTx: LocalTx = {
+        hash: tx.hash,
+        type: FunctionName.VOTE,
+        status: TransactionCondition.PENDING,
+      }
+      return { tx, localTx }
+    },
+    [gasConfig, uwpLockVoting]
+  )
 
-  const removeVoteMultiple = async (voter: string, gaugeIds: BigNumber[]) => {
-    if (!uwpLockVoting) return { tx: null, localTx: null }
-    const tx = await uwpLockVoting.removeVoteMultiple(voter, gaugeIds, {
-      ...gasConfig,
-      gasLimit: 800000,
-    })
-    const localTx: LocalTx = {
-      hash: tx.hash,
-      type: FunctionName.REMOVE_VOTE_MULTIPLE,
-      status: TransactionCondition.PENDING,
-    }
-    return { tx, localTx }
-  }
+  const voteMultiple = useCallback(
+    async (voter: string, gaugeIds: BigNumber[], votePowerBPSs: BigNumber[]) => {
+      if (!uwpLockVoting) return { tx: null, localTx: null }
+      const tx = await uwpLockVoting.voteMultiple(voter, gaugeIds, votePowerBPSs, {
+        ...gasConfig,
+        gasLimit: 800000,
+      })
+      const localTx: LocalTx = {
+        hash: tx.hash,
+        type: FunctionName.VOTE_MULTIPLE,
+        status: TransactionCondition.PENDING,
+      }
+      return { tx, localTx }
+    },
+    [gasConfig, uwpLockVoting]
+  )
 
-  const setDelegate = async (delegate: string) => {
-    if (!uwpLockVoting) return { tx: null, localTx: null }
-    const tx = await uwpLockVoting.setDelegate(delegate, {
-      ...gasConfig,
-      gasLimit: 800000,
-    })
-    const localTx: LocalTx = {
-      hash: tx.hash,
-      type: FunctionName.SET_DELEGATE,
-      status: TransactionCondition.PENDING,
-    }
-    return { tx, localTx }
-  }
+  const removeVote = useCallback(
+    async (voter: string, gaugeId: BigNumber) => {
+      if (!uwpLockVoting) return { tx: null, localTx: null }
+      const tx = await uwpLockVoting.removeVote(voter, gaugeId, {
+        ...gasConfig,
+        gasLimit: 800000,
+      })
+      const localTx: LocalTx = {
+        hash: tx.hash,
+        type: FunctionName.REMOVE_VOTE,
+        status: TransactionCondition.PENDING,
+      }
+      return { tx, localTx }
+    },
+    [gasConfig, uwpLockVoting]
+  )
 
-  const delegateOf = async (voter: string): Promise<string> => {
-    if (!uwpLockVoting) return ZERO_ADDRESS
-    try {
-      const delegate = await uwpLockVoting.delegateOf(voter)
-      return delegate
-    } catch (error) {
-      console.error(error)
-      return ZERO_ADDRESS
-    }
-  }
+  const removeVoteMultiple = useCallback(
+    async (voter: string, gaugeIds: BigNumber[]) => {
+      if (!uwpLockVoting) return { tx: null, localTx: null }
+      const tx = await uwpLockVoting.removeVoteMultiple(voter, gaugeIds, {
+        ...gasConfig,
+        gasLimit: 800000,
+      })
+      const localTx: LocalTx = {
+        hash: tx.hash,
+        type: FunctionName.REMOVE_VOTE_MULTIPLE,
+        status: TransactionCondition.PENDING,
+      }
+      return { tx, localTx }
+    },
+    [gasConfig, uwpLockVoting]
+  )
 
-  const usedVotePowerBPSOf = async (voter: string): Promise<BigNumber> => {
-    if (!uwpLockVoting) return ZERO
-    try {
-      const usedVotePowerBPS = await uwpLockVoting.usedVotePowerBPSOf(voter)
-      return usedVotePowerBPS
-    } catch (error) {
-      console.error(error)
-      return ZERO
-    }
-  }
+  const setDelegate = useCallback(
+    async (delegate: string) => {
+      if (!uwpLockVoting) return { tx: null, localTx: null }
+      const tx = await uwpLockVoting.setDelegate(delegate, {
+        ...gasConfig,
+        gasLimit: 800000,
+      })
+      const localTx: LocalTx = {
+        hash: tx.hash,
+        type: FunctionName.SET_DELEGATE,
+        status: TransactionCondition.PENDING,
+      }
+      return { tx, localTx }
+    },
+    [gasConfig, uwpLockVoting]
+  )
 
   return {
     getVotePower,
@@ -177,15 +204,18 @@ export const useUwpLockVoting = () => {
 export const useUwpLockVotingHelper = () => {
   const { getVotePower, usedVotePowerBPSOf, getVotes, delegateOf } = useUwpLockVoting()
 
-  const getVoteInformation = useCallback(async (voter: string) => {
-    const [votePower, usedVotePowerBPS, votes, delegate] = await Promise.all([
-      getVotePower(voter),
-      usedVotePowerBPSOf(voter),
-      getVotes(voter),
-      delegateOf(voter),
-    ])
-    return { votePower, usedVotePowerBPS, votes, delegate }
-  }, [])
+  const getVoteInformation = useCallback(
+    async (voter: string) => {
+      const [votePower, usedVotePowerBPS, votes, delegate] = await Promise.all([
+        getVotePower(voter),
+        usedVotePowerBPSOf(voter),
+        getVotes(voter),
+        delegateOf(voter),
+      ])
+      return { votePower, usedVotePowerBPS, votes, delegate }
+    },
+    [delegateOf, getVotePower, getVotes, usedVotePowerBPSOf]
+  )
 
   return { getVoteInformation }
 }

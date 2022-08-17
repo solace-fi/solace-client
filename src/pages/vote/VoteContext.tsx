@@ -84,7 +84,7 @@ const VoteManager: React.FC = (props) => {
   const { latestBlock } = useProvider()
   const mounting = useRef(true)
 
-  const [isVotingOpen, setIsVotingOpen] = useState(false)
+  const [isVotingOpen, setIsVotingOpen] = useState(true)
   const [openGaugeSelectionModal, setOpenGaugeSelectionModal] = useState(false)
   const [editingIndex, setEditingIndex] = useState<number | undefined>(undefined)
   const [delegatorAddr, setDelegatorAddr] = useState('')
@@ -372,7 +372,7 @@ const VoteManager: React.FC = (props) => {
       const res = await checkIfVotingIsOpen()
       setIsVotingOpen(res)
     }
-    callVotingOpen()
+    // callVotingOpen()
   }, [activeNetwork, latestBlock])
 
   useEffect(() => {

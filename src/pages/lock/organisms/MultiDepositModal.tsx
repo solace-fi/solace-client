@@ -206,12 +206,14 @@ export const MultiDepositModal = ({
             ))}
           </Flex>
         </Accordion>
-        <GrayBgDiv>
-          <Flex col>
-            <Text>Amount of UWE minted in exchange</Text>
-            <Text>$$$</Text>
-          </Flex>
-        </GrayBgDiv>
+        <Flex column stretch width={500}>
+          <GrayBgDiv>
+            <Flex col stretch>
+              <Text>Amount of UWE minted in exchange</Text>
+              <Text>$$$</Text>
+            </Flex>
+          </GrayBgDiv>
+        </Flex>
         {depositApproval && (
           <Button
             secondary

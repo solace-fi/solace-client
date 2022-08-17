@@ -139,7 +139,7 @@ export const GenericInputSection = ({
 
 export const SmallerInputSection = styled.input<{ asideBg?: boolean; theme: Theme }>`
   border-color: ${({ theme }: { theme: Theme }) => theme.separator.bg_color} !important;
-  width: 100% !important;
+  width: 100%;
   height: 36px !important;
   border-radius: 8px !important;
   border-width: 1px !important;

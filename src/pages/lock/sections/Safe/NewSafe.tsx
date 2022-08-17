@@ -25,6 +25,7 @@ import { useLockContext } from '../../LockContext'
 import { ERC20_ABI, ZERO } from '@solace-fi/sdk-nightly'
 import { StyledArrowDropDown } from '../../../../components/atoms/Icon'
 import { LoaderText } from '../../../../components/molecules/LoaderText'
+import { GrayBox } from '../../../../components/molecules/GrayBox'
 
 const StyledForm = styled.div`
   display: flex;
@@ -116,9 +117,9 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
       <ShadowDiv ref={accordionRef} style={{ marginBottom: '20px' }}>
         <RaisedBox>
           <StyledForm>
-            <Flex>
-              <Flex column p={24} gap={30}>
-                <Flex col>
+            <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} p={24} gap={30}>
+              <Flex column gap={24}>
+                <Flex column gap={24}>
                   {tokensLoading ? (
                     <LoaderText text={'Loading Tokens'} />
                   ) : (
@@ -150,65 +151,83 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     </Button>
                   )}
                 </Flex>
-                <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
-                  <Flex column gap={24}>
-                    <div>
-                      <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-                        Deposit amount
-                      </Label>
-                      <InputSection
-                        placeholder={'Amount'}
-                        tab={Tab.DEPOSIT}
-                        value={stakeInputValue}
-                        onChange={(e) => stakeInputOnChange(e.target.value)}
-                        setMax={stakeSetMax}
-                      />
-                    </div>
-                    <StyledSlider
-                      value={stakeRangeValue}
-                      onChange={(e) => stakeRangeOnChange(e.target.value)}
-                      min={1}
-                      max={selectedCoinBalance.toString()}
+                <Flex column gap={24}>
+                  <div>
+                    <Label importance="quaternary" style={{ marginBottom: '8px' }}>
+                      Deposit amount
+                    </Label>
+                    <InputSection
+                      placeholder={'Amount'}
+                      tab={Tab.DEPOSIT}
+                      value={stakeInputValue}
+                      onChange={(e) => stakeInputOnChange(e.target.value)}
+                      setMax={stakeSetMax}
                     />
-                  </Flex>
+                  </div>
+                  <StyledSlider
+                    value={stakeRangeValue}
+                    onChange={(e) => stakeRangeOnChange(e.target.value)}
+                    min={1}
+                    max={selectedCoinBalance.toString()}
+                  />
                 </Flex>
-                <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
-                  <Flex column gap={24}>
-                    <div>
-                      <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-                        Lock time
-                      </Label>
-                      <InputSection
-                        tab={Tab.LOCK}
-                        value={lockInputValue}
-                        onChange={(e) => lockInputOnChange(e.target.value)}
-                        setMax={lockSetMax}
-                      />
-                    </div>
-                    <StyledSlider
+                <Flex column gap={24}>
+                  <div>
+                    <Label importance="quaternary" style={{ marginBottom: '8px' }}>
+                      Lock time
+                    </Label>
+                    <InputSection
+                      tab={Tab.LOCK}
                       value={lockInputValue}
-                      onChange={(e) => lockRangeOnChange(e.target.value)}
-                      min={0}
-                      max={DAYS_PER_YEAR * 4}
+                      onChange={(e) => lockInputOnChange(e.target.value)}
+                      setMax={lockSetMax}
                     />
-                    {lockInputValue && lockInputValue != '0' && (
-                      <Text
-                        style={{
-                          fontWeight: 500,
-                        }}
-                      >
-                        Lock End Date: {getExpiration(parseInt(lockInputValue))}
-                      </Text>
-                    )}
-                  </Flex>
+                  </div>
+                  <StyledSlider
+                    value={lockInputValue}
+                    onChange={(e) => lockRangeOnChange(e.target.value)}
+                    min={0}
+                    max={DAYS_PER_YEAR * 4}
+                  />
+                  {lockInputValue && lockInputValue != '0' && (
+                    <Text
+                      style={{
+                        fontWeight: 500,
+                      }}
+                    >
+                      Lock End Date: {getExpiration(parseInt(lockInputValue))}
+                    </Text>
+                  )}
                 </Flex>
               </Flex>
-              <GrayBgDiv>
-                <Flex col>
-                  <Text>Amount of UWE minted in exchange</Text>
-                  <Text>$$$</Text>
-                </Flex>
-              </GrayBgDiv>
+              <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
+                <Label importance="quaternary" style={{ marginBottom: '8px' }}>
+                  Projected benefits
+                </Label>
+                <GrayBox>
+                  <Flex stretch column>
+                    <Flex stretch gap={24}>
+                      <Flex column gap={2}>
+                        <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
+                          Amount of UWE to be minted in exchange
+                        </Text>
+                        <div
+                          style={
+                            (rightSidebar ? BKPT_7 : BKPT_5) > width
+                              ? { margin: '-4px 0', display: 'block' }
+                              : { display: 'none' }
+                          }
+                        >
+                          &nbsp;
+                        </div>
+                        <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                          <Flex>???</Flex>
+                        </Text>
+                      </Flex>
+                    </Flex>
+                  </Flex>
+                </GrayBox>
+              </Flex>
             </Flex>
             <Flex pb={24} pl={24} width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 333 : undefined}>
               <Button

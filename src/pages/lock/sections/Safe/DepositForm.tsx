@@ -3,7 +3,7 @@ import { BigNumber, Contract } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
-import { accurateMultiply, convertSciNotaToPrecise, filterAmount } from '../../../../utils/formatting'
+import { accurateMultiply, convertSciNotaToPrecise, filterAmount, truncateValue } from '../../../../utils/formatting'
 import InformationBox from '../../components/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
@@ -11,7 +11,7 @@ import { useInputAmount, useTransactionExecution } from '../../../../hooks/inter
 import { FunctionName } from '../../../../constants/enums'
 
 import { StyledForm } from '../../atoms/StyledForm'
-import { Flex, GrayBgDiv } from '../../../../components/atoms/Layout'
+import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { BKPT_5, BKPT_7 } from '../../../../constants'
 import { useWeb3React } from '@web3-react/core'
@@ -24,6 +24,8 @@ import { useProvider } from '../../../../context/ProviderManager'
 import { Text } from '../../../../components/atoms/Typography'
 import { StyledArrowDropDown } from '../../../../components/atoms/Icon'
 import { LoaderText } from '../../../../components/molecules/LoaderText'
+import { Label } from '../../molecules/InfoPair'
+import { GrayBox } from '../../../../components/molecules/GrayBox'
 
 export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
@@ -94,7 +96,7 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
     >
       <InformationBox type={InfoBoxType.info} text="Deposit into this safe for voting power." />
       <StyledForm>
-        <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
+        <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={30}>
           <Flex column gap={24}>
             <Flex col>
               {tokensLoading ? (
@@ -150,12 +152,34 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
               disabled={disabled}
             />
           </Flex>
-          <GrayBgDiv>
-            <Flex col>
-              <Text>Amount of UWE minted in exchange</Text>
-              <Text>$$$</Text>
-            </Flex>
-          </GrayBgDiv>
+          <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
+            <Label importance="quaternary" style={{ marginBottom: '8px' }}>
+              Projected benefits
+            </Label>
+            <GrayBox>
+              <Flex stretch column>
+                <Flex stretch gap={24}>
+                  <Flex column gap={2}>
+                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
+                      Amount of UWE to be minted in exchange
+                    </Text>
+                    <div
+                      style={
+                        (rightSidebar ? BKPT_7 : BKPT_5) > width
+                          ? { margin: '-4px 0', display: 'block' }
+                          : { display: 'none' }
+                      }
+                    >
+                      &nbsp;
+                    </div>
+                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                      <Flex>???</Flex>
+                    </Text>
+                  </Flex>
+                </Flex>
+              </Flex>
+            </GrayBox>
+          </Flex>
         </Flex>
         <Button secondary info noborder disabled={!isAcceptableDeposit} onClick={callIncreaseLockAmount}>
           Stake
