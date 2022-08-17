@@ -15,6 +15,7 @@ interface CardProps extends ClickProps, GeneralElementProps {
   error?: boolean
   info?: boolean
   glow?: boolean
+  matchBg?: boolean
   isHighlight?: boolean
 }
 
@@ -35,6 +36,7 @@ const CardCss = css<CardProps>`
   ${(props) => props.error && `background: ${props.theme.box.error};`}
   ${(props) => props.transparent && `background: rgba(255, 255, 255, 0);`}
   ${(props) => props.fade && `background: ${props.theme.card.fade};`}
+  ${(props) => props.matchBg && `background: ${props.theme.body.bg_color};`}
   ${(props) =>
     props.canHover &&
     `cursor: pointer; &:hover { background-color: ${props.theme.card.hover_color}; transition: background-color 200ms linear; }`}

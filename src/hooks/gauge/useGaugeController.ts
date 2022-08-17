@@ -1,7 +1,7 @@
 import { ZERO } from '@solace-fi/sdk-nightly'
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Vote } from '../../constants/types'
+import { GaugeData, Vote } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
@@ -188,14 +188,7 @@ export const useGaugeControllerHelper = () => {
   const { latestBlock } = useProvider()
   const [loading, setLoading] = useState(false)
   const running = useRef(false)
-  const [gaugesData, setGaugesData] = useState<
-    {
-      gaugeId: BigNumber
-      gaugeName: string
-      gaugeWeight: BigNumber
-      isActive: boolean
-    }[]
-  >([])
+  const [gaugesData, setGaugesData] = useState<GaugeData[]>([])
 
   const fetchGauges = useCallback(async () => {
     setLoading(true)

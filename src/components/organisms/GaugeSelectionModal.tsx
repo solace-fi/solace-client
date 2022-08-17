@@ -3,29 +3,37 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { DropdownOptionsUnique } from './Dropdown'
 import { SmallerInputSection } from '../molecules/InputSection'
 import { Modal } from '../molecules/Modal'
+import { BigNumber } from '@solace-fi/sdk-nightly'
+import { GaugeData, VoteAllocation } from '../../constants/types'
 
 export const GaugeSelectionModal = ({
   show,
   index,
-  votesData,
+  votesAllocationData,
+  gaugesData,
   handleCloseModal,
   assign,
 }: {
   show: boolean
   index: number
-  votesData: { gauge: string; votes: string }[]
+  votesAllocationData: VoteAllocation[]
+  gaugesData: GaugeData[]
   handleCloseModal: () => void
-  assign: (protocol: string, index: number) => void
+  assign: (gaugeName: string, gaugeId: BigNumber, index: number, isOwner: boolean) => void
 }): JSX.Element => {
   const { seriesKit } = useCachedData()
   const [searchTerm, setSearchTerm] = useState('')
 
-  const protocolOptions = useMemo(() => seriesKit.seriesLogos, [seriesKit.seriesLogos])
+  const gaugeNames = useMemo(() => gaugesData.map((g) => g.gaugeName), [gaugesData])
+  const gaugeIds = useMemo(() => gaugesData.map((g) => g.gaugeId), [gaugesData])
+  const gaugeOptions = useMemo(() => seriesKit.seriesLogos.filter((item) => gaugeNames.includes(item.label)), [
+    seriesKit.seriesLogos,
+    gaugeNames,
+  ])
 
   const activeList = useMemo(
-    () =>
-      searchTerm ? protocolOptions.filter((item) => item.label.includes(searchTerm.toLowerCase())) : protocolOptions,
-    [searchTerm, protocolOptions]
+    () => (searchTerm ? gaugeOptions.filter((item) => item.label.includes(searchTerm.toLowerCase())) : gaugeOptions),
+    [searchTerm, gaugeOptions]
   )
 
   return (
@@ -42,10 +50,12 @@ export const GaugeSelectionModal = ({
       <DropdownOptionsUnique
         isOpen={true}
         searchedList={activeList}
-        comparingList={votesData.map((voteData) => voteData.gauge)}
+        comparingList={votesAllocationData.map((voteData) => voteData.gauge)}
         noneText={'No matches found'}
         onClick={(value: string) => {
-          assign(value, index)
+          const foundIndexOfName = gaugeNames.findIndex((name) => name === value)
+          if (foundIndexOfName == -1) return
+          assign(value, gaugeIds[foundIndexOfName], index, true)
           handleCloseModal()
         }}
       />
