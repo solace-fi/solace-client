@@ -17,6 +17,7 @@ export const InputSection = ({
   setMax,
   disabled,
   readonly,
+  placeholder,
 }: {
   tab?: Tab.DEPOSIT | Tab.LOCK | Tab.WITHDRAW
   value: string | undefined
@@ -24,6 +25,7 @@ export const InputSection = ({
   setMax?: () => void
   disabled?: boolean
   readonly?: boolean
+  placeholder?: string
 }): JSX.Element => {
   return (
     <InputSectionWrapper>
@@ -32,7 +34,7 @@ export const InputSection = ({
         key="mainInput"
         type="text"
         className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
-        placeholder="0"
+        placeholder={placeholder ?? '0'}
         value={value ?? ''}
         onChange={onChange}
         style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: '100%' }}

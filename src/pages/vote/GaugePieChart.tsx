@@ -9,34 +9,44 @@ import { BKPT_NAVBAR } from '../../constants'
 import { Text } from '../../components/atoms/Typography'
 import { BigNumber } from '@solace-fi/sdk-nightly'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
+import { formatUnits } from 'ethers/lib/utils'
+import { useVoteContext } from './VoteContext'
 
 export const GaugePieChart = () => {
+  const { gauges } = useVoteContext()
+  const { gaugesData } = gauges
+
   const COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', 'rgb(95,93,249)', 'rgb(240,77,66)'], [])
   const DARK_COLORS = useMemo(() => ['rgb(166, 95, 168)', 'rgb(187, 136, 0)', '#4644b9', '#b83c33'], [])
 
   const TOP_GAUGES = COLORS.length
 
-  const data = useMemo(
-    () => [
-      { name: 'stake-dao', value: 18, gaugeId: BigNumber.from(1), isActive: true },
-      { name: 'aave', value: 16, gaugeId: BigNumber.from(2), isActive: true },
-      { name: 'compound', value: 15, gaugeId: BigNumber.from(3), isActive: true },
-      { name: 'solace', value: 13, gaugeId: BigNumber.from(4), isActive: true },
-      { name: 'sushiswap', value: 12, gaugeId: BigNumber.from(5), isActive: true },
-      { name: 'fox-bank', value: 10, gaugeId: BigNumber.from(6), isActive: true },
-      { name: 'monkey-barrel', value: 9, gaugeId: BigNumber.from(7), isActive: true },
-      { name: 'nexus-farm', value: 4, gaugeId: BigNumber.from(8), isActive: true },
-      { name: 'quickswap', value: 2, gaugeId: BigNumber.from(9), isActive: true },
-      { name: 'lemonade-stake', value: 1, gaugeId: BigNumber.from(10), isActive: true },
-    ],
-    []
-  )
+  // const data = useMemo(
+  //   () => [
+  //     { name: 'stake-dao', value: 18, gaugeId: BigNumber.from(1), isActive: true },
+  //     { name: 'aave', value: 16, gaugeId: BigNumber.from(2), isActive: true },
+  //     { name: 'compound', value: 15, gaugeId: BigNumber.from(3), isActive: true },
+  //     { name: 'solace', value: 13, gaugeId: BigNumber.from(4), isActive: true },
+  //     { name: 'sushiswap', value: 12, gaugeId: BigNumber.from(5), isActive: true },
+  //     { name: 'fox-bank', value: 10, gaugeId: BigNumber.from(6), isActive: true },
+  //     { name: 'monkey-barrel', value: 9, gaugeId: BigNumber.from(7), isActive: true },
+  //     { name: 'nexus-farm', value: 4, gaugeId: BigNumber.from(8), isActive: true },
+  //     { name: 'quickswap', value: 2, gaugeId: BigNumber.from(9), isActive: true },
+  //     { name: 'lemonade-stake', value: 1, gaugeId: BigNumber.from(10), isActive: true },
+  //   ],
+  //   []
+  // )
 
-  // const data = useMemo(() => {
-  //   return gaugesData.map((g) => {
-  //     return { name: g.gaugeName, value: parseFloat(formatUnits(g.gaugeWeight, 14).split('.')[0]) / 100, id: g.gaugeId, isActive: g.isActive }
-  //   })
-  // }, [])
+  const data = useMemo(() => {
+    return gaugesData.map((g) => {
+      return {
+        name: g.gaugeName,
+        value: parseFloat(formatUnits(g.gaugeWeight, 14).split('.')[0]) / 100,
+        id: g.gaugeId,
+        isActive: g.isActive,
+      }
+    })
+  }, [gaugesData])
 
   const summarizedData = useMemo(
     () => [

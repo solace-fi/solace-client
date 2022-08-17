@@ -1,10 +1,10 @@
-import { ERC20_ABI, rangeFrom0 } from '@solace-fi/sdk-nightly'
+import { ERC20_ABI } from '@solace-fi/sdk-nightly'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber, Contract } from 'ethers'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ReadToken } from '../../constants/types'
+import { TokenInfo } from '../../constants/types'
 import { useProvider } from '../../context/ProviderManager'
-import { queryBalance, queryDecimals, queryName, querySymbol } from '../../utils/contract'
+import fluxMegaOracleABI from '../../constants/abi/FluxMegaOracle.json'
 
 import { ZERO, ZERO_ADDRESS } from '@solace-fi/sdk-nightly'
 import { useMemo } from 'react'
@@ -193,44 +193,60 @@ export const useUwp = () => {
     valuePerShare,
     calculateIssue,
     calculateRedeem,
+    uwp,
   }
 }
 
 export const useTokenHelper = () => {
-  const { tokensLength, tokenList } = useUwp()
+  const { tokensLength, tokenList, uwp } = useUwp()
   const { provider } = useProvider()
-  const { account } = useWeb3React()
-  const [tokens, setTokens] = useState<(ReadToken & { balance: BigNumber })[]>([])
+  const [tokens, setTokens] = useState<TokenInfo[]>([])
   const running = useRef(false)
 
   const [loading, setLoading] = useState(false)
 
   const getTokenList = useCallback(async () => {
-    if (!account) return
+    if (!uwp) return
     setLoading(true)
     const _tokensLength = await tokensLength()
-    const indices = rangeFrom0(_tokensLength.toNumber())
-    const _tokenList = await Promise.all(
-      indices.map(async (i) => {
-        return await tokenList(BigNumber.from(i))
-      })
-    )
-    const addresses = _tokenList.map((token) => token.token)
-    const contracts = addresses.map((address) => new Contract(address, ERC20_ABI, provider))
-    const names = await Promise.all(addresses.map((addr, i) => queryName(contracts[i], provider)))
-    const symbols = await Promise.all(addresses.map((addr, i) => querySymbol(contracts[i], provider)))
-    const decimals = await Promise.all(addresses.map((addr, i) => queryDecimals(contracts[i])))
-    const balances = await Promise.all(addresses.map((addr, i) => queryBalance(contracts[i], account)))
-    const tokens = addresses.map((address, i) => ({
-      address,
-      name: names[i],
-      symbol: symbols[i],
-      decimals: decimals[i],
-      balance: balances[i],
-    }))
-    setTokens(tokens)
+    const len = _tokensLength.toNumber()
+    const tokenData = []
+    const tokenMetadata = []
+    const oracleData = []
+    for (let tokenID = 0; tokenID < len; ++tokenID) {
+      const data = await tokenList(BigNumber.from(tokenID))
+      tokenData.push(data)
+      const token = new Contract(data.token, ERC20_ABI, provider)
+      const metadata = await Promise.all([
+        token.name(),
+        token.symbol(),
+        token.decimals(),
+        // token.balanceOf(uwp.address)
+      ])
+      tokenMetadata.push(metadata)
+      const oracle2 = new Contract(data.oracle, fluxMegaOracleABI, provider)
+      oracleData.push(
+        await Promise.all([
+          oracle2.valueOfTokens(data.token, BigNumber.from(10).pow(metadata[2])), // one token
+          // oracle2.valueOfTokens(data.token, metadata[3]), // balance
+        ])
+      )
+    }
+    const res = []
+    for (let tokenId = 0; tokenId < len; ++tokenId) {
+      const tokenInfo: TokenInfo = {
+        name: tokenMetadata[tokenId][0],
+        symbol: tokenMetadata[tokenId][1],
+        decimals: tokenMetadata[tokenId][2],
+        address: tokenData[tokenId].token,
+        price: oracleData[tokenId][0],
+        balance: ZERO,
+      }
+      res.push(tokenInfo)
+    }
+    setTokens(res)
     setLoading(false)
-  }, [account, provider])
+  }, [uwp, provider])
 
   useEffect(() => {
     const callTokenList = async () => {

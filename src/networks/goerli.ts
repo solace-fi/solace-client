@@ -8,6 +8,14 @@ import { WETH9_TOKEN } from '../constants/mappings/token'
 import solaceABI from '../constants/abi/SOLACE.json'
 import { ALCHEMY_GOERLI_API_KEY, ETHERSCAN_API_KEY } from '../constants'
 
+import gaugeControllerABI from '../constants/abi/GaugeController.json'
+import underwritingPoolABI from '../constants/abi/UnderwritingPool.json'
+import underwritingLockerABI from '../constants/abi/UnderwritingLocker.json'
+import underwritingEquityABI from '../constants/abi/UnderwritingEquity.json'
+import depositHelperABI from '../constants/abi/DepositHelper.json'
+import fluxMegaOracleABI from '../constants/abi/FluxMegaOracle.json'
+import underwritingLockVotingABI from '../constants/abi/UnderwritingLockVoting.json'
+
 const chainId = 5
 
 export const GoerliNetwork: NetworkConfig = {
@@ -37,27 +45,27 @@ export const GoerliNetwork: NetworkConfig = {
       },
       gaugeController: {
         addr: KEY_ADDRS.GAUGE_CONTROLLER,
-        abi: null,
+        abi: gaugeControllerABI,
       },
       uwpLockVoting: {
         addr: KEY_ADDRS.UWP_LOCK_VOTING,
-        abi: null,
+        abi: underwritingLockVotingABI,
       },
       uwpLocker: {
         addr: KEY_ADDRS.UWP_LOCKER,
-        abi: null,
+        abi: underwritingLockerABI,
       },
       uwp: {
         addr: KEY_ADDRS.UWP,
-        abi: null,
+        abi: underwritingPoolABI,
       },
       uwe: {
         addr: KEY_ADDRS.UWE,
-        abi: null,
+        abi: underwritingEquityABI,
       },
       fluxMegaOracle: {
         addr: KEY_ADDRS.FLUX_MEGA_ORACLE,
-        abi: null,
+        abi: fluxMegaOracleABI,
       },
     },
     generalFeatures: { native: true },

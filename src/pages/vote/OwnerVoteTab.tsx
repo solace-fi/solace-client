@@ -7,11 +7,11 @@ import { Text } from '../../components/atoms/Typography'
 import { OwnerVoteGauge } from './organisms/OwnerVoteGauge'
 import { useUwpLockVoting } from '../../hooks/lock/useUwpLockVoting'
 import { useVoteContext } from './VoteContext'
-import { ZERO } from '../../constants'
 import { BigNumber } from '@solace-fi/sdk-nightly'
 import { FunctionName } from '../../constants/enums'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { isAddress } from '../../utils'
+import { formatAmount } from '../../utils/formatting'
 
 export const OwnerVoteTab = () => {
   const { voteGeneral, voteOwner } = useVoteContext()
@@ -27,47 +27,40 @@ export const OwnerVoteTab = () => {
   */
   const cannotCallVoteMultiple = useMemo(
     () =>
-      votesData.voteAllocation.filter((g) => {
+      votesData.localVoteAllocation.filter((g) => {
         return (
           !g.gaugeActive &&
-          !(votesData.votePower.isZero()
-            ? ZERO
-            : BigNumber.from(g.votes == '' ? '0' : g.votes).mul(BigNumber.from('10000').div(votesData.votePower))
-          ).isZero() &&
+          !BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)).isZero() &&
           (g.changed || g.added)
         )
       }).length > 0,
-    [votesData.voteAllocation, votesData.votePower]
+    [votesData.localVoteAllocation]
   )
 
   const callVoteMultiple = useCallback(async () => {
     if (cannotCallVoteMultiple) return
     if (!isVotingOpen) return
     if (!account || !isAddress(account)) return
-    const queuedVotes = votesData.voteAllocation.filter((g) => g.changed || g.added)
+    const queuedVotes = votesData.localVoteAllocation.filter((g) => g.changed || g.added)
     await voteMultiple(
       account,
       queuedVotes.map((g) => g.gaugeId),
-      queuedVotes.map((g) =>
-        votesData.votePower.isZero()
-          ? ZERO
-          : BigNumber.from(g.votes == '' ? '0' : g.votes).mul(BigNumber.from('10000').div(votesData.votePower))
-      )
+      queuedVotes.map((g) => BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)))
     )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callVoteMultiple', err, FunctionName.VOTE_MULTIPLE))
-  }, [account, cannotCallVoteMultiple, isVotingOpen, votesData.voteAllocation, votesData.votePower])
+  }, [account, cannotCallVoteMultiple, isVotingOpen, votesData.localVoteAllocation])
 
   const callRemoveVoteMultiple = useCallback(async () => {
     if (!isVotingOpen) return
     if (!account || !isAddress(account)) return
     await removeVoteMultiple(
       account,
-      votesData.voteAllocation.map((g) => g.gaugeId)
+      votesData.localVoteAllocation.map((g) => g.gaugeId)
     )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callRemoveVoteMultiple', err, FunctionName.REMOVE_VOTE_MULTIPLE))
-  }, [account, isVotingOpen, votesData.voteAllocation])
+  }, [account, isVotingOpen, votesData.localVoteAllocation])
 
   return (
     <>
@@ -84,18 +77,18 @@ export const OwnerVoteTab = () => {
                 My Total Points
               </Text>
               <Text techygradient big3>
-                239
+                {votesData.votePower.toString()}
               </Text>
             </Flex>
             <Flex col itemsCenter width={126}>
-              <Text t6s>My Used Points</Text>
-              <Text big3>239</Text>
+              <Text t6s>My Used Percentage</Text>
+              <Text big3>{(parseFloat(votesData.usedVotePowerBPS.toString()) / 100).toString()}%</Text>
             </Flex>
           </Flex>
         </ShadowDiv>
-        <Accordion isOpen={votesData.voteAllocation.length > 0} thinScrollbar>
+        <Accordion isOpen={votesData.localVoteAllocation.length > 0} thinScrollbar>
           <Flex col gap={10} p={10}>
-            {votesData.voteAllocation.map((voteData, i) => (
+            {votesData.localVoteAllocation.map((voteData, i) => (
               <OwnerVoteGauge key={i} index={i} />
             ))}
           </Flex>

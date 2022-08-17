@@ -9,6 +9,7 @@ import { StyledArrowDropDown } from '../../../components/atoms/Icon'
 import { Flex, GrayBgDiv } from '../../../components/atoms/Layout'
 import { Text } from '../../../components/atoms/Typography'
 import { SmallerInputSection } from '../../../components/molecules/InputSection'
+import { LoaderText } from '../../../components/molecules/LoaderText'
 import { Modal } from '../../../components/molecules/Modal'
 import { FunctionName } from '../../../constants/enums'
 import { VoteLockData } from '../../../constants/types'
@@ -41,8 +42,9 @@ export const MultiDepositModal = ({
   const { isAppropriateAmount } = useInputAmount()
   const { increaseAmountMultiple } = useUwpLocker()
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { paymentCoins, input } = useLockContext()
-  const { batchBalanceData, coinsOpen, setCoinsOpen, approveCPM } = paymentCoins
+  const { intrface, paymentCoins, input } = useLockContext()
+  const { tokensLoading } = intrface
+  const { batchBalanceData, coinsOpen, handleCoinsOpen, approveCPM } = paymentCoins
   const { selectedCoin } = input
 
   const selectedCoinContract = useMemo(() => new Contract(selectedCoin.address, ERC20_ABI, signer), [
@@ -154,29 +156,33 @@ export const MultiDepositModal = ({
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Deposit'}>
       <Flex col gap={10}>
         <Flex col>
-          <Button
-            nohover
-            noborder
-            p={8}
-            mt={12}
-            ml={12}
-            mb={12}
-            widthP={100}
-            style={{
-              justifyContent: 'center',
-              height: '32px',
-              backgroundColor: appTheme === 'light' ? '#FFFFFF' : '#2a2f3b',
-            }}
-            onClick={() => setCoinsOpen(!coinsOpen)}
-          >
-            <Flex center gap={4}>
-              <Text autoAlignVertical>
-                <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
-              </Text>
-              <Text t4>{selectedCoin.symbol}</Text>
-              <StyledArrowDropDown style={{ transform: coinsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} size={18} />
-            </Flex>
-          </Button>
+          {tokensLoading ? (
+            <LoaderText text={'Loading Tokens'} />
+          ) : (
+            <Button
+              nohover
+              noborder
+              p={8}
+              mt={12}
+              ml={12}
+              mb={12}
+              widthP={100}
+              style={{
+                justifyContent: 'center',
+                height: '32px',
+                backgroundColor: appTheme === 'light' ? '#FFFFFF' : '#2a2f3b',
+              }}
+              onClick={() => handleCoinsOpen(!coinsOpen)}
+            >
+              <Flex center gap={4}>
+                <Text autoAlignVertical>
+                  <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
+                </Text>
+                <Text t4>{selectedCoin.symbol}</Text>
+                <StyledArrowDropDown style={{ transform: coinsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} size={18} />
+              </Flex>
+            </Button>
+          )}
         </Flex>
         <Flex col>
           <Text>Set all to this amount</Text>

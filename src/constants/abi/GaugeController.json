@@ -1,0 +1,399 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "governance_", "type": "address" },
+      { "internalType": "address", "name": "token_", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  { "inputs": [], "name": "ArrayArgumentsLengthMismatch", "type": "error" },
+  { "inputs": [], "name": "CannotUnpauseGaugeID0", "type": "error" },
+  { "inputs": [], "name": "CannotVoteForGaugeID0", "type": "error" },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "gaugeID", "type": "uint256" }],
+    "name": "GaugeAlreadyPaused",
+    "type": "error"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "gaugeID", "type": "uint256" }],
+    "name": "GaugeAlreadyUnpaused",
+    "type": "error"
+  },
+  { "inputs": [], "name": "GaugeIDNotExist", "type": "error" },
+  { "inputs": [], "name": "GaugeIDPaused", "type": "error" },
+  { "inputs": [], "name": "GaugeWeightsAlreadyUpdated", "type": "error" },
+  { "inputs": [], "name": "GaugeWeightsNotYetUpdated", "type": "error" },
+  { "inputs": [], "name": "NoTokenholdersAdded", "type": "error" },
+  { "inputs": [], "name": "NotVotingContract", "type": "error" },
+  { "inputs": [], "name": "TokenholderNotPresent", "type": "error" },
+  { "inputs": [], "name": "VotingContractNotAdded", "type": "error" },
+  {
+    "inputs": [{ "internalType": "string", "name": "contractName", "type": "string" }],
+    "name": "ZeroAddressInput",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "gaugeID", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "rateOnLine", "type": "uint256" },
+      { "indexed": false, "internalType": "string", "name": "gaugeName", "type": "string" }
+    ],
+    "name": "GaugeAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "gaugeID", "type": "uint256" },
+      { "indexed": false, "internalType": "string", "name": "gaugeName", "type": "string" }
+    ],
+    "name": "GaugePaused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "gaugeID", "type": "uint256" },
+      { "indexed": false, "internalType": "string", "name": "gaugeName", "type": "string" }
+    ],
+    "name": "GaugeUnpaused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "uint256", "name": "updateTime", "type": "uint256" }],
+    "name": "GaugeWeightsUpdated",
+    "type": "event"
+  },
+  { "anonymous": false, "inputs": [], "name": "GovernanceLocked", "type": "event" },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": false, "internalType": "address", "name": "pendingGovernance", "type": "address" }],
+    "name": "GovernancePending",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "oldGovernance", "type": "address" },
+      { "indexed": false, "internalType": "address", "name": "newGovernance", "type": "address" }
+    ],
+    "name": "GovernanceTransferred",
+    "type": "event"
+  },
+  { "anonymous": false, "inputs": [], "name": "IncompleteGaugeUpdate", "type": "event" },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "uint256", "name": "leverageFactor", "type": "uint256" }],
+    "name": "LeverageFactorSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "gaugeID", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "rateOnLine", "type": "uint256" }
+    ],
+    "name": "RateOnLineSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "token", "type": "address" }],
+    "name": "TokenSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "tokenholder", "type": "address" }],
+    "name": "TokenholderAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "tokenholder", "type": "address" }],
+    "name": "TokenholderRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "votingContractAddress", "type": "address" }],
+    "name": "VotingContractAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "votingContractAddress", "type": "address" }],
+    "name": "VotingContractRemoved",
+    "type": "event"
+  },
+  { "inputs": [], "name": "acceptGovernance", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  {
+    "inputs": [
+      { "internalType": "string", "name": "gaugeName_", "type": "string" },
+      { "internalType": "uint256", "name": "rateOnLine_", "type": "uint256" }
+    ],
+    "name": "addGauge",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "tokenholder_", "type": "address" }],
+    "name": "addTokenholder",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "votingContract_", "type": "address" }],
+    "name": "addVotingContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAllGaugeWeights",
+    "outputs": [{ "internalType": "uint256[]", "name": "weights", "type": "uint256[]" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getEpochEndTimestamp",
+    "outputs": [{ "internalType": "uint256", "name": "timestamp", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getEpochStartTimestamp",
+    "outputs": [{ "internalType": "uint256", "name": "timestamp", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "gaugeID_", "type": "uint256" }],
+    "name": "getGaugeName",
+    "outputs": [{ "internalType": "string", "name": "gaugeName", "type": "string" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "gaugeID_", "type": "uint256" }],
+    "name": "getGaugeWeight",
+    "outputs": [{ "internalType": "uint256", "name": "weight", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getInsuranceCapacity",
+    "outputs": [{ "internalType": "uint256", "name": "insuranceCapacity", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getNumActiveGauges",
+    "outputs": [{ "internalType": "uint256", "name": "numActiveGauges", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getNumPausedGauges",
+    "outputs": [{ "internalType": "uint256", "name": "numPausedGauges", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "gaugeID_", "type": "uint256" }],
+    "name": "getRateOnLineOfGauge",
+    "outputs": [{ "internalType": "uint256", "name": "rateOnLine_", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "votingContract_", "type": "address" },
+      { "internalType": "address", "name": "voter_", "type": "address" }
+    ],
+    "name": "getVoteCount",
+    "outputs": [{ "internalType": "uint256", "name": "voteCount", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getVotePowerSum",
+    "outputs": [{ "internalType": "uint256", "name": "votePowerSum", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "votingContract_", "type": "address" }],
+    "name": "getVoters",
+    "outputs": [{ "internalType": "address[]", "name": "voters", "type": "address[]" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "votingContract_", "type": "address" }],
+    "name": "getVotersCount",
+    "outputs": [{ "internalType": "uint256", "name": "votersCount", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "votingContract_", "type": "address" },
+      { "internalType": "address", "name": "voter_", "type": "address" }
+    ],
+    "name": "getVotes",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "gaugeID", "type": "uint256" },
+          { "internalType": "uint256", "name": "votePowerBPS", "type": "uint256" }
+        ],
+        "internalType": "struct GaugeStructs.Vote[]",
+        "name": "votes",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "governance",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "governanceIsLocked",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "gaugeID_", "type": "uint256" }],
+    "name": "isGaugeActive",
+    "outputs": [{ "internalType": "bool", "name": "gaugeActive", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lastTimeGaugeWeightsUpdated",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "leverageFactor",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  { "inputs": [], "name": "lockGovernance", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "gaugeID_", "type": "uint256" }],
+    "name": "pauseGauge",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pendingGovernance",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "tokenholder_", "type": "address" }],
+    "name": "removeTokenholder",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "votingContract_", "type": "address" }],
+    "name": "removeVotingContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "leverageFactor_", "type": "uint256" }],
+    "name": "setLeverageFactor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "pendingGovernance_", "type": "address" }],
+    "name": "setPendingGovernance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256[]", "name": "gaugeIDs_", "type": "uint256[]" },
+      { "internalType": "uint256[]", "name": "rateOnLines_", "type": "uint256[]" }
+    ],
+    "name": "setRateOnLine",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "token_", "type": "address" }],
+    "name": "setToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "token",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalGauges",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "gaugeID_", "type": "uint256" }],
+    "name": "unpauseGauge",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  { "inputs": [], "name": "updateGaugeWeights", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "voter_", "type": "address" },
+      { "internalType": "uint256", "name": "gaugeID_", "type": "uint256" },
+      { "internalType": "uint256", "name": "newVotePowerBPS_", "type": "uint256" }
+    ],
+    "name": "vote",
+    "outputs": [{ "internalType": "uint256", "name": "oldVotePowerBPS", "type": "uint256" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

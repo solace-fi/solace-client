@@ -174,10 +174,6 @@ export const filterAmount = (input: string, amount: string): string => {
   return filtered
 }
 
-export const wholeNumberOnly = (input: string): string => {
-  return input.replace(/[^0-9]/g, '')
-}
-
 export const formatAmount = (amount: string): string =>
   amount == '0.' || amount == '.' || amount == '' ? '0.0' : amount
 

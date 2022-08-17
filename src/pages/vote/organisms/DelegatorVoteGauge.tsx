@@ -13,44 +13,52 @@ import { SmallerInputSection } from '../../../components/molecules/InputSection'
 import { processProtocolName } from '../../../components/organisms/Dropdown'
 import { Card } from '../../../components/atoms/Card'
 import { isAddress } from '../../../utils'
+import { formatAmount } from '../../../utils/formatting'
 
 export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element => {
   const { gauges, voteGeneral, voteDelegator } = useVoteContext()
   const { isVotingOpen, onVoteInput, deleteVote } = voteGeneral
   const { handleGaugeSelectionModal } = gauges
   const { delegatorVotesData: votesData, delegator } = voteDelegator
-  const appId = useMemo(() => votesData.voteAllocation[index].gauge, [votesData, index])
+  const appId = useMemo(() => votesData.localVoteAllocation[index].gauge, [votesData, index])
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { vote, removeVote } = useUwpLockVoting()
-
-  const votes = useMemo(
-    () => (votesData.voteAllocation[index].votes == '' ? '0' : votesData.voteAllocation[index].votes),
-    [votesData.voteAllocation, index]
-  )
-
-  const convertedVoteBPS = useMemo(
-    () =>
-      votesData.votePower.isZero() ? ZERO : BigNumber.from(votes).mul(BigNumber.from('10000').div(votesData.votePower)),
-    [votes, votesData.votePower]
-  )
 
   const callVote = useCallback(async () => {
     if (!delegator || !isAddress(delegator)) return
     if (!isVotingOpen) return
-    if (!votesData.voteAllocation[index].changed) return
-    if (!votesData.voteAllocation[index].gaugeActive && !convertedVoteBPS.isZero()) return
-    await vote(delegator, votesData.voteAllocation[index].gaugeId, convertedVoteBPS)
+    if (!votesData.localVoteAllocation[index].changed) return
+    if (
+      !votesData.localVoteAllocation[index].gaugeActive &&
+      !BigNumber.from(
+        Math.floor(parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) * 100)
+      ).isZero()
+    )
+      return
+    await vote(
+      delegator,
+      votesData.localVoteAllocation[index].gaugeId,
+      BigNumber.from(
+        Math.floor(parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) * 100)
+      )
+    )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callVote', err, FunctionName.VOTE))
-  }, [delegator, convertedVoteBPS, votesData.voteAllocation[index], isVotingOpen])
+  }, [
+    delegator,
+    votesData.localVoteAllocation[index].votePowerPercentage,
+    votesData.localVoteAllocation,
+    index,
+    isVotingOpen,
+  ])
 
   const callRemoveVote = useCallback(async () => {
     if (!delegator || !isAddress(delegator)) return
     if (!isVotingOpen) return
-    await removeVote(delegator, votesData.voteAllocation[index].gaugeId)
+    await removeVote(delegator, votesData.localVoteAllocation[index].gaugeId)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callRemoveVote', err, FunctionName.REMOVE_VOTE))
-  }, [delegator, votesData.voteAllocation[index], isVotingOpen])
+  }, [delegator, votesData.localVoteAllocation[index], isVotingOpen])
 
   return (
     <Card matchBg p={10}>
@@ -65,7 +73,7 @@ export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element =>
                 <Text t5s style={{ width: '100%' }}>
                   <Flex between>
                     <Text t5s techygradient mont>
-                      {appId != '' ? processProtocolName(appId) : 'Choose Protocol'}
+                      {appId != '' ? processProtocolName(appId) : 'Choose Gauge'}
                     </Text>
                     <StyledArrowDropDown size={16} />
                   </Flex>
@@ -75,12 +83,14 @@ export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element =>
           </div>
           <div style={{ width: '100px' }}>
             <SmallerInputSection
-              placeholder={'Number of Votes'}
-              value={votesData.voteAllocation[index].votes}
+              placeholder={'%'}
+              value={votesData.localVoteAllocation[index].votePowerPercentage}
               onChange={(e) => onVoteInput(e.target.value, index, false)}
             />
           </div>
-          {votesData.voteAllocation[index].added && <Button onClick={() => deleteVote(index, false)}>Close</Button>}
+          {votesData.localVoteAllocation[index].added && (
+            <Button onClick={() => deleteVote(index, false)}>Close</Button>
+          )}
         </Flex>
         <Flex justifyCenter gap={10}>
           <Button error onClick={callRemoveVote} widthP={100}>

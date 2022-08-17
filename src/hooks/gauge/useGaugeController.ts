@@ -188,6 +188,9 @@ export const useGaugeControllerHelper = () => {
   const { latestBlock } = useProvider()
   const [loading, setLoading] = useState(false)
   const running = useRef(false)
+  const { keyContracts } = useContracts()
+  const { gaugeController } = useMemo(() => keyContracts, [keyContracts])
+
   const [gaugesData, setGaugesData] = useState<GaugeData[]>([])
 
   const fetchGauges = useCallback(async () => {
@@ -219,7 +222,7 @@ export const useGaugeControllerHelper = () => {
 
     setGaugesData(_gaugesData)
     setLoading(false)
-  }, [])
+  }, [gaugeController, activeNetwork, latestBlock])
 
   useEffect(() => {
     const callFetchGauges = async () => {
@@ -229,7 +232,7 @@ export const useGaugeControllerHelper = () => {
       running.current = false
     }
     callFetchGauges()
-  }, [activeNetwork, latestBlock, fetchGauges])
+  }, [fetchGauges])
 
   return { loading, gaugesData }
 }

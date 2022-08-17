@@ -4,7 +4,6 @@ import React, { useMemo, useRef } from 'react'
 import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
-import { useSolaceBalance } from '../../../../hooks/balance/useBalance'
 import { accurateMultiply, convertSciNotaToPrecise, filterAmount } from '../../../../utils/formatting'
 import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
@@ -25,6 +24,7 @@ import { useUwpLocker } from '../../../../hooks/lock/useUwpLocker'
 import { useLockContext } from '../../LockContext'
 import { ERC20_ABI, ZERO } from '@solace-fi/sdk-nightly'
 import { StyledArrowDropDown } from '../../../../components/atoms/Icon'
+import { LoaderText } from '../../../../components/molecules/LoaderText'
 
 const StyledForm = styled.div`
   display: flex;
@@ -42,8 +42,9 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const { width } = useWindowDimensions()
   const { account } = useWeb3React()
   const { latestBlock, signer } = useProvider()
-  const { paymentCoins, input } = useLockContext()
-  const { batchBalanceData, coinsOpen, setCoinsOpen } = paymentCoins
+  const { intrface, paymentCoins, input } = useLockContext()
+  const { tokensLoading } = intrface
+  const { batchBalanceData, coinsOpen, handleCoinsOpen } = paymentCoins
   const { selectedCoin } = input
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -118,32 +119,36 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
             <Flex>
               <Flex column p={24} gap={30}>
                 <Flex col>
-                  <Button
-                    nohover
-                    noborder
-                    p={8}
-                    mt={12}
-                    ml={12}
-                    mb={12}
-                    widthP={100}
-                    style={{
-                      justifyContent: 'center',
-                      height: '32px',
-                      backgroundColor: appTheme === 'light' ? '#FFFFFF' : '#2a2f3b',
-                    }}
-                    onClick={() => setCoinsOpen(!coinsOpen)}
-                  >
-                    <Flex center gap={4}>
-                      <Text autoAlignVertical>
-                        <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
-                      </Text>
-                      <Text t4>{selectedCoin.symbol}</Text>
-                      <StyledArrowDropDown
-                        style={{ transform: coinsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                        size={18}
-                      />
-                    </Flex>
-                  </Button>
+                  {tokensLoading ? (
+                    <LoaderText text={'Loading Tokens'} />
+                  ) : (
+                    <Button
+                      nohover
+                      noborder
+                      p={8}
+                      mt={12}
+                      ml={12}
+                      mb={12}
+                      widthP={100}
+                      style={{
+                        justifyContent: 'center',
+                        height: '32px',
+                        backgroundColor: appTheme === 'light' ? '#FFFFFF' : '#2a2f3b',
+                      }}
+                      onClick={() => handleCoinsOpen(!coinsOpen)}
+                    >
+                      <Flex center gap={4}>
+                        <Text autoAlignVertical>
+                          <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
+                        </Text>
+                        <Text t4>{selectedCoin.symbol}</Text>
+                        <StyledArrowDropDown
+                          style={{ transform: coinsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                          size={18}
+                        />
+                      </Flex>
+                    </Button>
+                  )}
                 </Flex>
                 <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
                   <Flex column gap={24}>
@@ -152,6 +157,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                         Deposit amount
                       </Label>
                       <InputSection
+                        placeholder={'Amount'}
                         tab={Tab.DEPOSIT}
                         value={stakeInputValue}
                         onChange={(e) => stakeInputOnChange(e.target.value)}

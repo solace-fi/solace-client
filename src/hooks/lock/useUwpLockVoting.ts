@@ -184,8 +184,7 @@ export const useUwpLockVotingHelper = () => {
       getVotes(voter),
       delegateOf(voter),
     ])
-    const usedVotePower = votePower.mul(usedVotePowerBPS).div(BigNumber.from('10000'))
-    return { votePower, usedVotePower, votes, delegate }
+    return { votePower, usedVotePowerBPS, votes, delegate }
   }, [])
 
   return { getVoteInformation }

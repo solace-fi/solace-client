@@ -1,0 +1,288 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "governance_", "type": "address" },
+      { "internalType": "address", "name": "registry_", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  { "inputs": [], "name": "ArrayArgumentsLengthMismatch", "type": "error" },
+  { "inputs": [], "name": "GaugeWeightsNotYetUpdated", "type": "error" },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "epochTime", "type": "uint256" }],
+    "name": "LastEpochPremiumsAlreadyProcessed",
+    "type": "error"
+  },
+  { "inputs": [], "name": "LastEpochPremiumsNotCharged", "type": "error" },
+  { "inputs": [], "name": "NotGaugeController", "type": "error" },
+  { "inputs": [], "name": "NotOwner", "type": "error" },
+  { "inputs": [], "name": "NotOwnerNorDelegate", "type": "error" },
+  { "inputs": [], "name": "SingleVotePowerBPSOver10000", "type": "error" },
+  { "inputs": [], "name": "TotalVotePowerBPSOver10000", "type": "error" },
+  { "inputs": [], "name": "VoterHasNoLocks", "type": "error" },
+  {
+    "inputs": [{ "internalType": "string", "name": "contractName", "type": "string" }],
+    "name": "ZeroAddressInput",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "uint256", "name": "epochTimestamp", "type": "uint256" }],
+    "name": "AllPremiumsCharged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "voter", "type": "address" },
+      { "indexed": true, "internalType": "address", "name": "delegate", "type": "address" }
+    ],
+    "name": "DelegateSet",
+    "type": "event"
+  },
+  { "anonymous": false, "inputs": [], "name": "GovernanceLocked", "type": "event" },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": false, "internalType": "address", "name": "pendingGovernance", "type": "address" }],
+    "name": "GovernancePending",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "oldGovernance", "type": "address" },
+      { "indexed": false, "internalType": "address", "name": "newGovernance", "type": "address" }
+    ],
+    "name": "GovernanceTransferred",
+    "type": "event"
+  },
+  { "anonymous": false, "inputs": [], "name": "IncompletePremiumsCharge", "type": "event" },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "registry", "type": "address" }],
+    "name": "RegistrySet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "voter", "type": "address" },
+      { "indexed": true, "internalType": "uint256", "name": "gaugeID", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "votePowerBPS", "type": "uint256" }
+    ],
+    "name": "VoteAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "voter", "type": "address" },
+      { "indexed": true, "internalType": "uint256", "name": "gaugeID", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "newVotePowerBPS", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "oldVotePowerBPS", "type": "uint256" }
+    ],
+    "name": "VoteChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "voter", "type": "address" },
+      { "indexed": true, "internalType": "uint256", "name": "gaugeID", "type": "uint256" }
+    ],
+    "name": "VoteRemoved",
+    "type": "event"
+  },
+  { "inputs": [], "name": "acceptGovernance", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "voter_", "type": "address" },
+      { "internalType": "uint256", "name": "votePower_", "type": "uint256" }
+    ],
+    "name": "cacheLastProcessedVotePower",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  { "inputs": [], "name": "chargePremiums", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "delegateOf",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "gaugeController",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getEpochEndTimestamp",
+    "outputs": [{ "internalType": "uint256", "name": "timestamp", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getEpochStartTimestamp",
+    "outputs": [{ "internalType": "uint256", "name": "timestamp", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "voter_", "type": "address" }],
+    "name": "getVotePower",
+    "outputs": [{ "internalType": "uint256", "name": "votePower", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "voter_", "type": "address" }],
+    "name": "getVotes",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "gaugeID", "type": "uint256" },
+          { "internalType": "uint256", "name": "votePowerBPS", "type": "uint256" }
+        ],
+        "internalType": "struct GaugeStructs.Vote[]",
+        "name": "votes",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "governance",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "governanceIsLocked",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "isVotingOpen",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lastTimePremiumsCharged",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  { "inputs": [], "name": "lockGovernance", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  {
+    "inputs": [],
+    "name": "pendingGovernance",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "registry",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "voter_", "type": "address" },
+      { "internalType": "uint256", "name": "gaugeID_", "type": "uint256" }
+    ],
+    "name": "removeVote",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "voter_", "type": "address" },
+      { "internalType": "uint256[]", "name": "gaugeIDs_", "type": "uint256[]" }
+    ],
+    "name": "removeVoteMultiple",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "revenueRouter",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "delegate_", "type": "address" }],
+    "name": "setDelegate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "pendingGovernance_", "type": "address" }],
+    "name": "setPendingGovernance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "registry_", "type": "address" }],
+    "name": "setRegistry",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "underwritingLocker",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "usedVotePowerBPSOf",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "voter_", "type": "address" },
+      { "internalType": "uint256", "name": "gaugeID_", "type": "uint256" },
+      { "internalType": "uint256", "name": "votePowerBPS_", "type": "uint256" }
+    ],
+    "name": "vote",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "voter_", "type": "address" },
+      { "internalType": "uint256[]", "name": "gaugeIDs_", "type": "uint256[]" },
+      { "internalType": "uint256[]", "name": "votePowerBPSs_", "type": "uint256[]" }
+    ],
+    "name": "voteMultiple",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

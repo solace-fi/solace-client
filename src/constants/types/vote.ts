@@ -7,14 +7,15 @@ export type Vote = {
 
 export type VotesData = {
   votePower: BigNumber
-  usedVotePower: BigNumber
-  voteAllocation: VoteAllocation[]
+  usedVotePowerBPS: BigNumber
+  localVoteAllocation: VoteAllocation[]
+  localVoteAllocationTotal: number
 }
 
 export type VoteAllocation = {
   gauge: string
   gaugeId: BigNumber
-  votes: string
+  votePowerPercentage: string
   added: boolean
   changed: boolean
   gaugeActive: boolean

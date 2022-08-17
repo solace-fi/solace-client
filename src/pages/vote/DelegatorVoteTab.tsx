@@ -8,9 +8,10 @@ import { DelegatorVoteGauge } from './organisms/DelegatorVoteGauge'
 import { useUwpLockVoting } from '../../hooks/lock/useUwpLockVoting'
 import { useVoteContext } from './VoteContext'
 import { Text } from '../../components/atoms/Typography'
-import { BigNumber, ZERO } from '@solace-fi/sdk-nightly'
+import { BigNumber } from '@solace-fi/sdk-nightly'
 import { FunctionName } from '../../constants/enums'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
+import { formatAmount } from '../../utils/formatting'
 
 export const DelegatorVoteTab = () => {
   const { voteGeneral, voteDelegator } = useVoteContext()
@@ -25,49 +26,40 @@ export const DelegatorVoteTab = () => {
   */
   const cannotCallVoteMultiple = useMemo(
     () =>
-      delegatorVotesData.voteAllocation.filter((g) => {
+      delegatorVotesData.localVoteAllocation.filter((g) => {
         return (
           !g.gaugeActive &&
-          !(delegatorVotesData.votePower.isZero()
-            ? ZERO
-            : BigNumber.from(g.votes == '' ? '0' : g.votes).mul(
-                BigNumber.from('10000').div(delegatorVotesData.votePower)
-              )
-          ).isZero() &&
+          !BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)).isZero() &&
           (g.changed || g.added)
         )
       }).length > 0,
-    [delegatorVotesData.voteAllocation, delegatorVotesData.votePower]
+    [delegatorVotesData.localVoteAllocation]
   )
 
   const callVoteMultiple = useCallback(async () => {
     if (cannotCallVoteMultiple) return
     if (!isVotingOpen) return
     if (!delegator || !isAddress(delegator)) return
-    const queuedVotes = delegatorVotesData.voteAllocation.filter((g) => g.changed || g.added)
+    const queuedVotes = delegatorVotesData.localVoteAllocation.filter((g) => g.changed || g.added)
     await voteMultiple(
       delegator,
       queuedVotes.map((g) => g.gaugeId),
-      queuedVotes.map((g) =>
-        delegatorVotesData.votePower.isZero()
-          ? ZERO
-          : BigNumber.from(g.votes == '' ? '0' : g.votes).mul(BigNumber.from('10000').div(delegatorVotesData.votePower))
-      )
+      queuedVotes.map((g) => BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)))
     )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callVoteMultiple', err, FunctionName.VOTE_MULTIPLE))
-  }, [delegator, cannotCallVoteMultiple, isVotingOpen, delegatorVotesData.voteAllocation, delegatorVotesData.votePower])
+  }, [delegator, cannotCallVoteMultiple, isVotingOpen, delegatorVotesData.localVoteAllocation])
 
   const callRemoveVoteMultiple = useCallback(async () => {
     if (!isVotingOpen) return
     if (!delegator || !isAddress(delegator)) return
     await removeVoteMultiple(
       delegator,
-      delegatorVotesData.voteAllocation.map((g) => g.gaugeId)
+      delegatorVotesData.localVoteAllocation.map((g) => g.gaugeId)
     )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callRemoveVoteMultiple', err, FunctionName.REMOVE_VOTE_MULTIPLE))
-  }, [delegator, isVotingOpen, delegatorVotesData.voteAllocation])
+  }, [delegator, isVotingOpen, delegatorVotesData.localVoteAllocation])
 
   return (
     <>
@@ -91,19 +83,19 @@ export const DelegatorVoteTab = () => {
                 Delegator&apos;s Total Points
               </Text>
               <Text techygradient big3>
-                239
+                {delegatorVotesData.votePower.toString()}
               </Text>
             </Flex>
             <VerticalSeparator />
             <Flex col itemsCenter width={126}>
               <Text t6s>Delegator&apos;s Used Points</Text>
-              <Text big3>239</Text>
+              <Text big3>{(parseFloat(delegatorVotesData.usedVotePowerBPS.toString()) / 100).toString()}%</Text>
             </Flex>
           </Flex>
         </ShadowDiv>
-        <Accordion isOpen={delegatorVotesData.voteAllocation.length > 0} thinScrollbar>
+        <Accordion isOpen={delegatorVotesData.localVoteAllocation.length > 0} thinScrollbar>
           <Flex col gap={10} p={10}>
-            {delegatorVotesData.voteAllocation.map((voteData, i) => (
+            {delegatorVotesData.localVoteAllocation.map((voteData, i) => (
               <DelegatorVoteGauge key={i} index={i} />
             ))}
           </Flex>
