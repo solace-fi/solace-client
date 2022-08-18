@@ -151,8 +151,18 @@ const LockContent = () => {
         },
         {
           lockID: BigNumber.from(1),
+          amount: BigNumber.from('1659999999'),
+          end: BigNumber.from('1668888888'),
+        },
+        {
+          lockID: BigNumber.from(3),
           amount: BigNumber.from('553333335330444444444'),
           end: BigNumber.from(0),
+        },
+        {
+          lockID: BigNumber.from(4),
+          amount: BigNumber.from('16599996454545645999'),
+          end: BigNumber.from('1768888888'),
         },
       ]
       const sortedLocks = locks.sort((a, b) => {

@@ -64,11 +64,8 @@ export const MultiWithdrawModal = ({
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
 
   const callWithdraw = async () => {
-    if (!account || !latestBlock) return
-    const chosenlocks = amountTracker.filter(
-      (lock, i) =>
-        !parseUnits(formatAmount(lock.amount), 18).isZero() && selectedLocks[i].end.toNumber() <= latestBlock.timestamp
-    )
+    if (!account) return
+    const chosenlocks = amountTracker.filter((lock) => !parseUnits(formatAmount(lock.amount), 18).isZero())
     if (chosenlocks.length === 0) return
     if (chosenlocks.length == 1) {
       let type = FunctionName.WITHDRAW_LOCK_IN_PART
@@ -123,7 +120,6 @@ export const MultiWithdrawModal = ({
 
   const handleAmountInput = useCallback(
     (input: string, index: number) => {
-      if (latestBlock ? selectedLocks[index].end.toNumber() > latestBlock.timestamp : false) return
       const filtered = filterAmount(input, amountTracker[index].amount.toString())
       setMaxSelected(false)
       setAmountTracker((prevState) => {
@@ -137,7 +133,7 @@ export const MultiWithdrawModal = ({
         ]
       })
     },
-    [amountTracker, selectedLocks, latestBlock]
+    [amountTracker]
   )
 
   const handleCommonAmountInput = useCallback(
@@ -153,19 +149,17 @@ export const MultiWithdrawModal = ({
     setMaxSelected(true)
     setAmountTracker((prevState) => {
       return prevState.map((item, i) => {
-        if (latestBlock ? selectedLocks[i].end.toNumber() > latestBlock.timestamp : false) return item
         return {
           ...item,
           amount: formatUnits(selectedLocks[i].amount, 18),
         }
       })
     })
-  }, [selectedLocks, latestBlock])
+  }, [selectedLocks])
 
   const changeAlltoCommonAmount = useDebounce((commonAmount: string) => {
     setAmountTracker(
       amountTracker.map((item, i) => {
-        if (latestBlock ? selectedLocks[i].end.toNumber() > latestBlock.timestamp : false) return item
         return {
           ...item,
           amount: commonAmount,
@@ -208,10 +202,8 @@ export const MultiWithdrawModal = ({
   const getConversion = useDebounce(async () => {
     const totalUweToWithdraw = totalAmountToWithdraw
     const burnAmountArray = await Promise.all(
-      amountTracker.map((item, i) =>
-        (latestBlock ? selectedLocks[i].end.toNumber() > latestBlock.timestamp : true)
-          ? ZERO
-          : maxSelected
+      amountTracker.map((item) =>
+        maxSelected
           ? getBurnOnWithdrawAmount(item.lockID)
           : getBurnOnWithdrawInPartAmount(item.lockID, parseUnits(formatAmount(item.amount), 18))
       )
@@ -246,17 +238,11 @@ export const MultiWithdrawModal = ({
                   <Text error={parseUnits(formatAmount(lock.amount), 18).gt(selectedLocks[i].amount)} autoAlignVertical>
                     Lock
                   </Text>
-                  {(latestBlock ? selectedLocks[i].end.toNumber() > latestBlock.timestamp : false) ? (
-                    <Text autoAlign fade>
-                      Cannot Withdraw
-                    </Text>
-                  ) : (
-                    <SmallerInputSection
-                      placeholder={'Amount'}
-                      value={lock.amount}
-                      onChange={(e) => handleAmountInput(e.target.value, i)}
-                    />
-                  )}
+                  <SmallerInputSection
+                    placeholder={'Amount'}
+                    value={lock.amount}
+                    onChange={(e) => handleAmountInput(e.target.value, i)}
+                  />
                 </Flex>
               ))}
             </Flex>
@@ -304,7 +290,7 @@ export const MultiWithdrawModal = ({
             </GrayBox>
           </Flex>
         </Flex>
-        <Flex col={isMobile}>
+        <Flex col={isMobile} gap={10}>
           <Button
             widthP={100}
             secondary
