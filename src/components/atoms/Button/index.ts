@@ -264,6 +264,7 @@ export const GraySquareButton = styled(Button)<{
   darkText?: boolean
   actuallyWhite?: boolean
 }>`
+  width: 36px;
   border-radius: 10px;
   background-color: ${({ theme, actuallyWhite }: { theme: Theme; actuallyWhite?: boolean }) =>
     actuallyWhite ? theme.v2.raised : theme.body.bg_color};

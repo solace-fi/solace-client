@@ -25,8 +25,12 @@ export const StatsBox = () => {
   return (
     <TileCard gap={10}>
       <Flex between>
-        <Text>Underwriting Pool Size</Text>
-        <Text>${truncateValue(formatUnits(uwpValueUSD, 18), 2)}</Text>
+        <Text bold t5s>
+          Underwriting Pool Size
+        </Text>
+        <Text bold t5s secondary>
+          ${truncateValue(formatUnits(uwpValueUSD, 18), 2)}
+        </Text>
       </Flex>
     </TileCard>
   )

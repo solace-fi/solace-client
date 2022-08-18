@@ -56,7 +56,7 @@ const NavItemText = styled.li`
 `
 
 const LeftAppNav = styled.div<{ shouldShow: boolean }>`
-  background: ${({ theme }) => theme.body.bg_color};
+  background: ${({ theme }) => theme.body.layout_bg_color};
   display: flex;
   position: fixed;
   overflow: auto;

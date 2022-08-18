@@ -117,7 +117,7 @@ export const MultiWithdrawModal = ({
   const getConversion = useDebounce(async () => {
     const res = await uweToTokens(parseUnits(formatAmount(totalAmountToWithdraw), 18))
     setEquivalentTokenAmounts(res.depositTokens)
-    setEquivalentUSDValue(res.usdValue)
+    setEquivalentUSDValue(res.usdValueOfUwpAmount)
   }, 400)
 
   useEffect(() => {

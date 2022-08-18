@@ -32,37 +32,56 @@ export const VoteContent = () => {
           <StatsBox />
         </Flex>
         <Flex col widthP={!isMobile ? 40 : undefined} p={10}>
-          <TileCard gap={15}>
-            <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
-              <ModalCell
-                pt={5}
-                pb={10}
-                pl={0}
-                pr={0}
+          <TileCard gap={15} bgSecondary noPadding>
+            <Flex
+              stretch
+              bgTertiary
+              pt={1}
+              style={{
+                // rounded at the top only with 12px
+                borderTopLeftRadius: '12px',
+                borderTopRightRadius: '12px',
+              }}
+            >
+              <Flex
+                justifyCenter
+                py={8}
+                bgSecondary={ownerTab}
+                flex1
                 onClick={() => setOwnerTab(true)}
-                jc={'center'}
-                style={{ cursor: 'pointer', backgroundColor: ownerTab ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+                style={{
+                  userSelect: 'none',
+                  cursor: 'pointer',
+                  borderTopLeftRadius: ownerTab ? 12 : 0,
+                  borderTopRightRadius: ownerTab ? 12 : 0,
+                }}
               >
-                <Text t3 bold info={ownerTab}>
-                  Vote as Myself
+                <Text semibold opposite={!ownerTab}>
+                  Vote as myself
                 </Text>
-              </ModalCell>
-              <VerticalSeparator />
-              <ModalCell
-                pt={5}
-                pb={10}
-                pl={0}
-                pr={0}
+              </Flex>
+              <Flex
+                justifyCenter
+                py={8}
+                flex1
+                bgSecondary={!ownerTab}
                 onClick={() => setOwnerTab(false)}
-                jc={'center'}
-                style={{ cursor: 'pointer', backgroundColor: !ownerTab ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+                style={{
+                  userSelect: 'none',
+                  cursor: 'pointer',
+                  // rounded only top right corner
+                  borderTopRightRadius: !ownerTab ? 12 : 0,
+                  borderTopLeftRadius: !ownerTab ? 12 : 0,
+                }}
               >
-                <Text t3 bold info={!ownerTab}>
-                  Vote as a Delegate
+                <Text semibold opposite={ownerTab}>
+                  Vote as a delegate
                 </Text>
-              </ModalCell>
-            </div>
-            {ownerTab ? <OwnerVoteTab /> : <DelegatorVoteTab />}
+              </Flex>
+            </Flex>
+            <Flex col px={24} pb={24} gap={15}>
+              {ownerTab ? <OwnerVoteTab /> : <DelegatorVoteTab />}
+            </Flex>
           </TileCard>
         </Flex>
       </Flex>

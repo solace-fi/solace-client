@@ -58,18 +58,7 @@ const LockManager: React.FC = (props) => {
 
   const { loading: tokensLoading, tokens } = useTokenHelper()
 
-  const coinOptions = useMemo(
-    () => [
-      {
-        address: SOLACE_TOKEN.address[activeNetwork.chainId],
-        ...SOLACE_TOKEN.constants,
-        price: undefined,
-        balance: ZERO,
-      },
-      ...tokens,
-    ],
-    [activeNetwork, tokens]
-  )
+  const coinOptions = useMemo(() => [...tokens], [tokens])
   const { loading: balancesLoading, batchBalances } = useBatchBalances(coinOptions)
   const { tokenPriceMapping } = useCachedData()
 

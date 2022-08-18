@@ -6,7 +6,7 @@ import { useUwLockVoting } from '../../../hooks/lock/useUwLockVoting'
 import { useVoteContext } from '../VoteContext'
 import { Button, GraySquareButton, ThinButton } from '../../../components/atoms/Button'
 import { StyledArrowDropDown, StyledClose } from '../../../components/atoms/Icon'
-import { Flex } from '../../../components/atoms/Layout'
+import { Flex, ShadowDiv } from '../../../components/atoms/Layout'
 import { Text } from '../../../components/atoms/Typography'
 import { SmallerInputSection } from '../../../components/molecules/InputSection'
 import { processProtocolName } from '../../../components/organisms/Dropdown'
@@ -57,7 +57,7 @@ export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element =>
     <Card matchBg p={10}>
       <Flex col gap={10}>
         <Flex gap={10}>
-          <div style={{ width: '150px' }}>
+          <div style={{ width: '180px' }}>
             <ThinButton onClick={() => handleGaugeSelectionModal(index)}>
               <Flex style={{ width: '100%' }} itemsCenter>
                 <Text autoAlignVertical p={5}>
@@ -74,7 +74,7 @@ export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element =>
               </Flex>
             </ThinButton>
           </div>
-          <div style={{ width: '100px' }}>
+          <div style={{ width: '70px' }}>
             <SmallerInputSection
               placeholder={'%'}
               value={votesData.localVoteAllocation[index].votePowerPercentage}
@@ -82,11 +82,13 @@ export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element =>
             />
           </div>
           {votesData.localVoteAllocation[index].added ? (
-            <GraySquareButton width={32} height={32} noborder onClick={() => deleteVote(index, false)} darkText>
-              <StyledClose size={16} />
-            </GraySquareButton>
+            <ShadowDiv>
+              <GraySquareButton width={36} actuallyWhite noborder onClick={() => deleteVote(index, false)}>
+                X
+              </GraySquareButton>
+            </ShadowDiv>
           ) : (
-            <div style={{ width: '32px' }}></div>
+            <div style={{ width: '36px' }}></div>
           )}
         </Flex>
         <Flex justifyCenter gap={10}>

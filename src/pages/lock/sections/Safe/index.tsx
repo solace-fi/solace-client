@@ -77,7 +77,7 @@ export default function Safe({
               label="Amount"
               desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
             >
-              <CardSectionValue highlight={true} annotation="SOLACE">
+              <CardSectionValue highlight={true} annotation="UWE">
                 {truncateValue(amount, 4)}
               </CardSectionValue>
             </InfoPair>

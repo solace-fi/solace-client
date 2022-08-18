@@ -3,7 +3,13 @@ import { BigNumber, Contract } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
-import { accurateMultiply, convertSciNotaToPrecise, filterAmount, formatAmount } from '../../../../utils/formatting'
+import {
+  accurateMultiply,
+  convertSciNotaToPrecise,
+  filterAmount,
+  fixed,
+  formatAmount,
+} from '../../../../utils/formatting'
 import InformationBox from '../../components/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
@@ -49,10 +55,10 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
   const [rangeValue, setRangeValue] = React.useState('0')
   const [equivalentUwe, setEquivalentUwe] = useState<BigNumber>(ZERO)
 
-  const selectedCoinContract = useMemo(() => new Contract(selectedCoin?.address ?? '', ERC20_ABI, signer), [
-    selectedCoin,
-    signer,
-  ])
+  const selectedCoinContract = useMemo(
+    () => (selectedCoin ? new Contract(selectedCoin.address, ERC20_ABI, signer) : undefined),
+    [selectedCoin, signer]
+  )
 
   const selectedCoinBalance = useMemo(() => {
     return (
@@ -68,7 +74,7 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
   }, [batchBalanceData, inputValue, selectedCoin])
 
   const callIncreaseLockAmount = async () => {
-    if (!account) return
+    if (!account || !selectedCoinContract) return
     await increaseAmount(
       account,
       lock.lockID,
@@ -99,16 +105,26 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
   const setMax = () => rangeOnChange(selectedCoinBalance.toString())
 
   const getConversion = useDebounce(async () => {
-    const res = await tokensToUwe(
-      [selectedCoin?.address ?? ''],
-      [parseUnits(formatAmount(inputValue), selectedCoin?.decimals ?? 18)]
-    )
-    setEquivalentUwe(res)
+    if (selectedCoin) {
+      const res = await tokensToUwe(
+        [selectedCoin.address],
+        [parseUnits(formatAmount(inputValue), selectedCoin?.decimals ?? 18)]
+      )
+      setEquivalentUwe(res)
+    }
   }, 400)
 
   useEffect(() => {
     getConversion()
   }, [inputValue, selectedCoin])
+
+  useEffect(() => {
+    if (inputValue.includes('.') && inputValue.split('.')[1]?.length) {
+      if (selectedCoin && selectedCoin.decimals < inputValue.split('.')[1].length) {
+        setInputValue(fixed(formatAmount(inputValue), selectedCoin.decimals).toString())
+      }
+    }
+  }, [selectedCoin])
 
   return (
     <div

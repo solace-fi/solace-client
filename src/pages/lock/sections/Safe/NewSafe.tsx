@@ -54,10 +54,10 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const { tokensToUwe } = useBalanceConversion()
   const { createLock } = useUwLocker()
 
-  const selectedCoinContract = useMemo(() => new Contract(selectedCoin?.address ?? '', ERC20_ABI, signer), [
-    selectedCoin,
-    signer,
-  ])
+  const selectedCoinContract = useMemo(
+    () => (selectedCoin ? new Contract(selectedCoin.address, ERC20_ABI, signer) : undefined),
+    [selectedCoin, signer]
+  )
 
   const selectedCoinBalance = useMemo(() => {
     return (
@@ -74,7 +74,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const [equivalentUwe, setEquivalentUwe] = useState<BigNumber>(ZERO)
 
   const callCreateLock = async () => {
-    if (!latestBlock || !account) return
+    if (!latestBlock || !account || !selectedCoinContract) return
     const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
     await createLock(
       account,
@@ -116,11 +116,13 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   }
 
   const getConversion = useDebounce(async () => {
-    const res = await tokensToUwe(
-      [selectedCoin?.address ?? ''],
-      [parseUnits(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18)]
-    )
-    setEquivalentUwe(res)
+    if (selectedCoin) {
+      const res = await tokensToUwe(
+        [selectedCoin.address],
+        [parseUnits(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18)]
+      )
+      setEquivalentUwe(res)
+    }
   }, 400)
 
   useEffect(() => {

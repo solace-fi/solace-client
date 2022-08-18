@@ -148,21 +148,44 @@ export const useUwp = () => {
   }, [uwp])
 
   /**
-   * @notice Calculates the value of one `UWP` in `USD`.
-   * @return valueInUSD The value of one token in `USD` with 18 decimals.
+   * @notice Calculates the value of an amount of `UWP` shares in `USD`.
+   * @param shares The amount of shares to query.
+   * @return valueInUSD The value of the shares in `USD` with 18 decimals.
    */
 
-  // todo: function does not exist??
-  const valuePerShare = useCallback(async (): Promise<BigNumber> => {
-    if (!uwp) return ZERO
-    try {
-      const valuePerShare = await uwp.valuePerShare()
-      return valuePerShare
-    } catch (error) {
-      console.error(error)
-      return ZERO
-    }
-  }, [uwp])
+  const valueOfShares = useCallback(
+    async (shares: BigNumber): Promise<BigNumber> => {
+      if (!uwp) return ZERO
+      try {
+        const valuePerShare = await uwp.valueOfShares(shares)
+        return valuePerShare
+      } catch (error) {
+        console.error(error)
+        return ZERO
+      }
+    },
+    [uwp]
+  )
+
+  /**
+   * @notice Calculates the value of a holders `UWP` shares in `USD`.
+   * @param holder The holder to query.
+   * @return valueInUSD The value of the users shares in `USD` with 18 decimals.
+   */
+
+  const valueOfHolder = useCallback(
+    async (holder: string): Promise<BigNumber> => {
+      if (!uwp) return ZERO
+      try {
+        const valuePerShare = await uwp.valueOfShares(holder)
+        return valuePerShare
+      } catch (error) {
+        console.error(error)
+        return ZERO
+      }
+    },
+    [uwp]
+  )
 
   /**
    * @notice Determines the amount of tokens that would be minted for a given deposit.
@@ -209,7 +232,8 @@ export const useUwp = () => {
     tokenList,
     isPaused,
     valueOfPool,
-    valuePerShare,
+    valueOfShares,
+    valueOfHolder,
     calculateIssue,
     calculateRedeem,
     uwp,
@@ -281,7 +305,7 @@ export const useTokenHelper = () => {
 }
 
 export const useBalanceConversion = () => {
-  const { valuePerShare, calculateIssue, calculateRedeem } = useUwp()
+  const { valueOfShares, calculateIssue, calculateRedeem } = useUwp()
   const { calculateDeposit, calculateWithdraw } = useUwe()
 
   const tokensToUwe = useCallback(
@@ -295,13 +319,12 @@ export const useBalanceConversion = () => {
 
   const uweToTokens = useCallback(
     async (uwe: BigNumber) => {
-      const uwp = await calculateWithdraw(uwe)
-      const usdValueOfOneUwp = await valuePerShare()
-      const usdValue = uwp.mul(usdValueOfOneUwp)
-      const depositTokens = await calculateRedeem(uwp)
-      return { depositTokens, usdValue }
+      const uwpAmount = await calculateWithdraw(uwe)
+      const usdValueOfUwpAmount = await valueOfShares(uwpAmount)
+      const depositTokens = await calculateRedeem(uwpAmount)
+      return { depositTokens, usdValueOfUwpAmount }
     },
-    [calculateWithdraw, calculateRedeem, valuePerShare]
+    [calculateWithdraw, calculateRedeem, valueOfShares]
   )
 
   return { tokensToUwe, uweToTokens }

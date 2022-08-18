@@ -4,6 +4,7 @@ export const lightTheme = {
     analogicalText: 'rgb(250, 250, 250)', // text color that is relatively the same as the general theme
     lightText: 'rgb(250, 250, 250)',
     darkText: 'rgb(125, 125, 125)',
+    secondary: 'rgb(94, 94, 94)',
     infoText: 'rgb(95, 93, 249)',
     errorText: 'rgb(255, 12, 28)',
     warningText: 'rgb(187, 136, 0)',
@@ -15,9 +16,11 @@ export const lightTheme = {
     lightGray: 'rgb(244, 245, 247)',
     separator: '#E3E4E6',
     lightNeutral: '#F2CAD6',
+    opposite: 'rgb(250, 250, 250)',
   },
   body: {
     bg_color: '#fafafa',
+    layout_bg_color: '#f4f5f7',
   },
   accordion: {
     color: 'auto',
@@ -108,6 +111,7 @@ export const darkTheme = {
     analogicalText: 'rgb(125, 125, 125)', // text color that is relatively the same as the general theme
     lightText: 'rgb(250, 250, 250)',
     darkText: 'rgb(125, 125, 125)',
+    secondary: 'rgb(250, 250, 250)',
     infoText: '#6ec3ff',
     errorText: 'rgb(240, 77, 66)',
     warningText: 'rgb(245, 221, 83)',
@@ -119,9 +123,11 @@ export const darkTheme = {
     lightGray: 'rgba(255, 255, 255, 0.02)',
     separator: '#828282',
     lightNeutral: '#F2CAD6',
+    opposite: 'rgba(0,0,0,0.75)',
   },
   body: {
     bg_color: '#242933',
+    layout_bg_color: '#1f242b',
   },
   accordion: {
     color: 'auto',

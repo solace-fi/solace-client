@@ -23,7 +23,7 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserVote
             <Flex gap={91}>
               <div>
                 <InfoPair importance="primary" label="Staked Balance">
-                  <CardSectionValue annotation="SOLACE">
+                  <CardSectionValue annotation="UWE">
                     {truncateValue(formatUnits(stakeData.stakedBalance, 18), 2)}
                   </CardSectionValue>
                 </InfoPair>
@@ -38,7 +38,7 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserVote
               Staked Balance
             </Text>
             <Text t2 nowrap bold>
-              {truncateValue(formatUnits(stakeData.stakedBalance, 18), 2)} SOLACE
+              {truncateValue(formatUnits(stakeData.stakedBalance, 18), 2)} UWE
             </Text>
           </Flex>
         </Card>
