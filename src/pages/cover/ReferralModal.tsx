@@ -1,15 +1,16 @@
 import React from 'react'
-import { Flex, Grid } from '../../components/atoms/Layout'
+import { Flex } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useCoverageContext } from './CoverageContext'
 import { useGeneral } from '../../context/GeneralManager'
-import { BigNumber, utils } from 'ethers'
-import { CardTemplate, SmallCardTemplate, ThinCardTemplate2 } from '../../components/atoms/Card/CardTemplate'
-import { StyledExport, StyledClose, StyledCopy, StyledShare } from '../../components/atoms/Icon'
+import { BigNumber } from 'ethers'
+import { CardTemplate, ThinCardTemplate2 } from '../../components/atoms/Card/CardTemplate'
+import { StyledShare } from '../../components/atoms/Icon'
 import { truncateValue } from '../../utils/formatting'
 import { GenericInputSection } from '../../components/molecules/InputSection'
-import { Button, ButtonAppearance } from '../../components/atoms/Button'
+import { ButtonAppearance } from '../../components/atoms/Button'
+import { LoaderText } from '../../components/molecules/LoaderText'
 
 export default function ReferralModal(): JSX.Element {
   const { intrface, styles, policy, referral } = useCoverageContext()
@@ -22,7 +23,6 @@ export default function ReferralModal(): JSX.Element {
   const {
     appliedReferralCode,
     earnedAmount,
-    referredCount,
     userReferralCode,
     cookieReferralCode,
     cookieCodeUsable,
@@ -30,7 +30,7 @@ export default function ReferralModal(): JSX.Element {
   } = referral
 
   return (
-    <Flex col style={{ height: 'calc(100vh - 170px)', position: 'relative', overflow: 'hidden' }}>
+    <Flex col style={{ height: 'calc(100vh - 170px)' }}>
       <Flex py={18} itemsCenter between px={20} zIndex={3} bgSecondary>
         <Text t1s mont semibold>
           Referrals
@@ -115,7 +115,7 @@ export default function ReferralModal(): JSX.Element {
                   </Text>
                 </>
               )}
-              {cookieReferralCode && !appliedReferralCode && !cookieCodeUsable && (
+              {cookieReferralCode && !appliedReferralCode && cookieCodeUsable == false && (
                 <>
                   <Text t4 error textAlignCenter>
                     The current active referral code is invalid:{' '}
@@ -130,12 +130,13 @@ export default function ReferralModal(): JSX.Element {
                   </Text>
                 </>
               )}
+              {cookieCodeUsable == undefined && (
+                <LoaderText loaderWidth={100} loaderHeight={100} width={100} text={'Checking code'} />
+              )}
             </Flex>
             <ButtonAppearance
               secondary
-              // techy if `code` is not equal to cookieCode and if `code` is not empty
               techygradient={code !== cookieReferralCode && code !== ''}
-              // else disabled
               disabled={code === '' || code === cookieReferralCode}
               noborder
               onClick={async () => {

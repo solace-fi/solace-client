@@ -26,7 +26,6 @@ const StyledGrayBox = styled(GrayBgDiv)`
   border-color: ${({ theme }) => theme.separator.bg_color};
 `
 
-// hidden 1024px:flex rounded-l-xl border-r p-5 space-x-1 items-center
 const StyledGenericIconAndText = styled.div<{ disabled?: boolean; displayOnMobile?: boolean; width?: number }>`
   display: hidden;
   @media (min-width: ${({ displayOnMobile }) => (displayOnMobile ? 0 : BKPT_5)}px) {
@@ -83,7 +82,6 @@ export const IconAndText = ({
       }}
     >
       {
-        // switch object
         {
           [Tab.DEPOSIT]: (
             <StyledImage src="/images/solace-token-gradient.svg" css={disabled ? disabledClassName : className} />

@@ -26,13 +26,12 @@ export const useCoverageFunctions = () => {
   const { gasConfig } = useGetFunctionGas()
 
   const coverageObj = useMemo(
-    () =>
-      activeNetwork.config.restrictedFeatures.noCoverageV3 ? undefined : new CoverageV3(activeNetwork.chainId, signer),
+    () => (activeNetwork.config.generalFeatures.coverageV3 ? new CoverageV3(activeNetwork.chainId, signer) : undefined),
     [activeNetwork, signer]
   )
 
   const scpObj = useMemo(
-    () => (activeNetwork.config.restrictedFeatures.noCoverageV3 ? undefined : new SCP(activeNetwork.chainId, signer)),
+    () => (activeNetwork.config.generalFeatures.coverageV3 ? new SCP(activeNetwork.chainId, signer) : undefined),
     [activeNetwork, signer]
   )
 
@@ -517,7 +516,7 @@ export const useCheckIsCoverageActive = () => {
 
   useEffect(() => {
     const getStatus = async () => {
-      if (!account || !latestBlock || activeNetwork.config.restrictedFeatures.noCoverageV3) {
+      if (!account || !latestBlock || !activeNetwork.config.generalFeatures.coverageV3) {
         setPolicyId(undefined)
         setStatus(false)
         setCoverageLimit(ZERO)
@@ -555,7 +554,7 @@ export const useExistingPolicy = () => {
 
   useEffect(() => {
     const getExistingPolicy = async () => {
-      if (!account || activeNetwork.config.restrictedFeatures.noCoverageV3) {
+      if (!account || !activeNetwork.config.generalFeatures.coverageV3) {
         setPolicyId(ZERO)
         setLoading(true)
         return
@@ -572,7 +571,7 @@ export const useExistingPolicy = () => {
         {}
       )
 
-      const data = await policy.getExistingPolicy_V2(account, rpcUrlMapping, false)
+      const data = await policy.getExistingPolicy(account, rpcUrlMapping, false)
       if (data.length > 0) {
         const network = networks.find((n) => n.chainId === data[0].chainId)
         if (network) {

@@ -11,6 +11,7 @@ import { useNotifications } from '../../context/NotificationsManager'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useTransactionExecution } from '../internal/useInputAmount'
+import { BigNumber } from 'ethers'
 
 export const useTokenAllowance = (
   tokenContract: Contract | null,
@@ -40,10 +41,10 @@ export const useTokenAllowance = (
   return approval
 }
 
-export const useTokenInfiniteApprove = (
+export const useTokenApprove = (
   setLoading?: (loading: boolean) => void
 ): {
-  unlimitedApprove: (tokenAddr: string, tokenAbi: any, spender: string) => Promise<void>
+  approve: (tokenAddr: string, tokenAbi: any, spender: string, amount?: BigNumber) => Promise<void>
 } => {
   const { signer } = useProvider()
   const { activeNetwork } = useNetwork()
@@ -51,12 +52,12 @@ export const useTokenInfiniteApprove = (
   const { reload } = useCachedData()
   const { handleContractCallError } = useTransactionExecution()
 
-  const unlimitedApprove = useCallback(
-    async (tokenAddr: string, tokenAbi: any, spender: string) => {
+  const approve = useCallback(
+    async (tokenAddr: string, tokenAbi: any, spender: string, amount?: BigNumber) => {
       if (!signer || !tokenAbi) return
       const tokenContract = new Contract(tokenAddr, tokenAbi, signer)
       try {
-        const tx: TransactionResponse = await tokenContract.approve(spender, MAX_APPROVAL_AMOUNT)
+        const tx: TransactionResponse = await tokenContract.approve(spender, amount ?? MAX_APPROVAL_AMOUNT)
         const txHash = tx.hash
         if (setLoading) setLoading(true)
         makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
@@ -74,5 +75,5 @@ export const useTokenInfiniteApprove = (
     [activeNetwork.rpc.blockConfirms, handleContractCallError, makeTxToast, reload, signer]
   )
 
-  return { unlimitedApprove }
+  return { approve }
 }

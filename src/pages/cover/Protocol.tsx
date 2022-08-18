@@ -1,20 +1,27 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { Button, GraySquareButton, ThinButton } from '../../components/atoms/Button'
 import { capitalizeFirstLetter, filterAmount, truncateValue } from '../../utils/formatting'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { useCoverageContext } from './CoverageContext'
-import { Accordion } from '../../components/atoms/Accordion'
 import { TileCard } from '../../components/molecules/TileCard'
 import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
 import { StyledArrowDropDown, StyledClose, StyledHelpCircle } from '../../components/atoms/Icon'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { networks } from '../../context/NetworkManager'
 import commaNumber from '../../utils/commaNumber'
+import { Modal } from '../../components/molecules/Modal'
 
 function mapNumberToLetter(number: number): string {
-  return String.fromCharCode(97 + number - 1).toUpperCase()
+  const grade = {
+    1: 'A',
+    2: 'B',
+    3: 'C',
+    4: 'D',
+  }[number]
+  if (grade) return grade
+  return 'F'
 }
 
 export const ReadOnlyProtocol: React.FC<{
@@ -44,10 +51,6 @@ export const ReadOnlyProtocol: React.FC<{
                     <Text autoAlignVertical>
                       <img src={`https://assets.solace.fi/zapperLogos/${protocol.appId}`} height={36} />
                     </Text>
-                    {networkLogos.map((logo, i) => {
-                      if (logo) return <img key={i} src={logo} width={20} height={20} />
-                      return <StyledHelpCircle key={i} size={20} />
-                    })}
                   </Flex>
                   <Flex col gap={5}>
                     {/* protocol name */}
@@ -56,8 +59,12 @@ export const ReadOnlyProtocol: React.FC<{
                         protocol.appId.includes('Empty') ? 'Empty' : processProtocolName(protocol.appId)
                       )}
                     </Text>
-                    {/* protocol category */}
-                    <Text t5s>{capitalizeFirstLetter(protocol.category)}</Text>
+                    <Flex>
+                      {networkLogos.map((logo, i) => {
+                        if (logo) return <img key={i} src={logo} width={16} height={16} />
+                        return <StyledHelpCircle key={i} size={16} />
+                      })}
+                    </Flex>
                   </Flex>
                 </Flex>
                 <Flex col itemsEnd gap={2}>
@@ -73,8 +80,8 @@ export const ReadOnlyProtocol: React.FC<{
                   {/* risl level */}
                   <Flex itemsCenter gap={4}>
                     <Text t6s>Risk Level:</Text>
-                    <Text t6s extrabold warmgradient>
-                      {mapNumberToLetter(protocol.tier > 0 ? protocol.tier : 25)}
+                    <Text t6s extrabold style={{ color: riskColor }}>
+                      {mapNumberToLetter(protocol.tier)}
                     </Text>
                   </Flex>
                 </Flex>
@@ -102,7 +109,6 @@ export const Protocol: React.FC<{
   riskColor,
   simulating,
   editingItem,
-  // addItem,
   deleteItem,
   saveEditedItem,
   handleEditingItem,
@@ -112,7 +118,6 @@ export const Protocol: React.FC<{
 
   const [isEditing, setIsEditing] = useState(false)
   const [accordionOpen, setAccordionOpen] = useState(false)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
   const [enteredAppId, setEnteredAppId] = useState<string>(protocol.appId)
   const [enteredAmount, setEnteredAmount] = useState(
     protocol.balanceUSD.toString() == '0' ? '' : protocol.balanceUSD.toString()
@@ -141,28 +146,26 @@ export const Protocol: React.FC<{
     () => (
       <DropdownOptionsUnique
         comparingList={editableProtocolAppIds}
-        isOpen={dropdownOpen}
+        isOpen={true}
         searchedList={activeList}
         noneText={'No matching protocols found'}
         onClick={(value: string) => {
           setEnteredAppId(value)
-          setDropdownOpen(false)
           setAccordionOpen(false)
         }}
       />
     ),
-    [editableProtocolAppIds, dropdownOpen, activeList]
+    [editableProtocolAppIds, activeList]
   )
-
-  // useEffect(() => {
-  //   if (!simulatingPrev && simulating) close()
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [simulatingPrev, simulating])
 
   const handleSaveEditedItem = useCallback(() => {
     const status = saveEditedItem(protocol.appId, enteredAppId, enteredAmount)
     if (status) handleEditingItem(undefined)
   }, [enteredAmount, enteredAppId, protocol, saveEditedItem, handleEditingItem])
+
+  const handleCloseAccordion = useCallback(() => {
+    setAccordionOpen(false)
+  }, [])
 
   useEffect(() => {
     setEnteredAmount(protocol.balanceUSD.toString() == '0' ? '' : protocol.balanceUSD.toString())
@@ -173,22 +176,24 @@ export const Protocol: React.FC<{
   }, [protocol.appId, editingItem])
 
   useEffect(() => {
-    if (!accordionOpen) {
-      setTimeout(() => {
-        setDropdownOpen(false)
-      }, 100)
-    } else {
-      setDropdownOpen(true)
-    }
-  }, [accordionOpen])
-
-  useEffect(() => {
     if (!editingItem || editingItem.toString() !== protocol.appId.toString()) {
       setIsEditing(false)
-      setAccordionOpen(false)
-      setDropdownOpen(false)
+      handleCloseAccordion()
     }
-  }, [editingItem, protocol])
+  }, [editingItem, protocol, handleCloseAccordion])
+
+  useEffect(() => {
+    if (simulating) handleEditingItem(undefined)
+  }, [simulating, handleEditingItem])
+
+  // input ref to focus
+  const inputRef = useRef<HTMLInputElement>(null)
+  // when enteredAppId changes and is not undefined, focus input
+  React.useEffect(() => {
+    if (enteredAppId) {
+      inputRef.current?.focus()
+    }
+  }, [enteredAppId])
 
   return (
     <div>
@@ -204,7 +209,7 @@ export const Protocol: React.FC<{
                 }
               }
         }
-        style={{ position: 'relative', cursor: isEditing ? 'default' : 'pointer' }}
+        style={{ position: 'relative', cursor: isEditing ? 'default' : 'move' }}
       >
         <Flex col gap={8}>
           <Flex stretch between gap={10}>
@@ -246,6 +251,7 @@ export const Protocol: React.FC<{
                   </ThinButton>
                 </div>
                 <SmallerInputSection
+                  ref={inputRef}
                   placeholder={'Enter USD Amount'}
                   value={enteredAmount}
                   onChange={(e) => setEnteredAmount(filterAmount(e.target.value, enteredAmount))}
@@ -278,18 +284,18 @@ export const Protocol: React.FC<{
                           <StyledHelpCircle size={36} />
                         )}
                       </Text>
-                      {networkLogos.map((logo, i) => {
-                        if (logo) return <img key={i} src={logo} width={20} height={20} />
-                        return <StyledHelpCircle key={i} size={20} />
-                      })}
                     </Flex>
                     <Flex col gap={5}>
                       {/* protocol name */}
                       <Text t5s bold>
                         {capitalizeFirstLetter(processProtocolName(protocol.appId))}
                       </Text>
-                      {/* protocol category */}
-                      <Text t5s>{capitalizeFirstLetter(protocol.category)}</Text>
+                      <Flex>
+                        {networkLogos.map((logo, i) => {
+                          if (logo) return <img key={i} src={logo} width={16} height={16} />
+                          return <StyledHelpCircle key={i} size={16} />
+                        })}
+                      </Flex>
                     </Flex>
                   </Flex>
                   <Flex col itemsEnd gap={2}>
@@ -305,8 +311,8 @@ export const Protocol: React.FC<{
                     {/* risl level */}
                     <Flex itemsCenter gap={4}>
                       <Text t6s>Risk Level:</Text>
-                      <Text t6s extrabold warmgradient>
-                        {mapNumberToLetter(protocol.tier > 0 ? protocol.tier : 25)}
+                      <Text t6s extrabold style={{ color: riskColor }}>
+                        {mapNumberToLetter(protocol.tier)}
                       </Text>
                     </Flex>
                   </Flex>
@@ -350,26 +356,20 @@ export const Protocol: React.FC<{
             </Button>
           </Flex>
         )}
-        <Accordion noScroll isOpen={accordionOpen} style={{ backgroundColor: 'inherit' }}>
-          {/* <div style={{ padding: 8 }}> */}
-          <Flex col gap={8} mt={12}>
-            <div>
-              {accordionOpen && (
-                <SmallerInputSection
-                  placeholder={'Search Protocol'}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{
-                    width: '100%',
-                    border: 'none',
-                  }}
-                />
-              )}
-              {dropdownOpen && cachedDropdownOptions}
-            </div>
-          </Flex>
-          {/* </div> */}
-        </Accordion>
+        {accordionOpen && (
+          <Modal isOpen={accordionOpen} handleClose={handleCloseAccordion} modalTitle={'Select Protocol'}>
+            <SmallerInputSection
+              placeholder={'Search Protocol'}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                border: 'none',
+              }}
+            />
+            {cachedDropdownOptions}
+          </Modal>
+        )}
       </TileCard>
     </div>
   )

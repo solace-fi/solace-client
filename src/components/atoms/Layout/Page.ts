@@ -23,7 +23,7 @@ export interface FlexProps {
   col?: boolean
   row?: boolean
   stretch?: boolean
-  wrap?: boolean
+  wrapped?: boolean
   marginAuto?: boolean
   m?: number
   mb?: number
@@ -84,7 +84,7 @@ export const Flex = styled.div<FlexProps & ButtonProps>`
   ${({ button, row })   => button                ? row ? css`flex-direction: row;`
                                                        : css`flex-direction: column;`                        : ""}
   ${({ stretch })       => stretch                     ? css`align-items: stretch;`                          : ""}
-  ${({ wrap })          => wrap                        ? css`flex-wrap: wrap;`                               : ""}
+  ${({ wrapped })          => wrapped                  ? css`flex-wrap: wrap;`                               : ""}
   ${({ marginAuto })    => marginAuto                  ? css`margin: auto;`                                  : ""}
 
   ${({ m })             => m             !== undefined ? css`margin: ${m}px;`                                : ""}

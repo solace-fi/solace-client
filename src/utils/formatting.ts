@@ -182,43 +182,6 @@ export const formatAmount = (amount: string): string =>
 export const shortenAddress = (input: string): string =>
   `${input.substring(0, 6)}...${input.substring(input.length - 4, input.length)}`
 
-// get unit based on function name
-export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): Unit => {
-  switch (function_name) {
-    case FunctionName.DEPOSIT_ETH:
-    case FunctionName.WITHDRAW_ETH:
-    case FunctionName.APPROVE:
-      return activeNetwork ? activeNetwork.nativeCurrency.symbol : Unit._
-    case FunctionName.DEPOSIT_CP:
-    case FunctionName.WITHDRAW_CP:
-      return Unit.SCP
-    case FunctionName.WITHDRAW_REWARDS:
-    case FunctionName.STAKE_V1:
-      return Unit.SOLACE
-    case FunctionName.UNSTAKE_V1:
-      return Unit.X_SOLACE
-    case FunctionName.DEPOSIT_LP_SIGNED:
-    case FunctionName.WITHDRAW_LP:
-      return Unit.LP
-    case FunctionName.BOND_DEPOSIT_ERC20_V1:
-    case FunctionName.BOND_DEPOSIT_WETH_V1:
-    case FunctionName.BOND_DEPOSIT_ETH_V1:
-    case FunctionName.BOND_DEPOSIT_WMATIC:
-    case FunctionName.BOND_DEPOSIT_MATIC:
-    case FunctionName.BOND_DEPOSIT_WETH_V2:
-    case FunctionName.BOND_DEPOSIT_ETH_V2:
-    case FunctionName.BOND_DEPOSIT_ERC20_V2:
-    case FunctionName.BOND_CLAIM_PAYOUT_V2:
-    case FunctionName.BOND_REDEEM_V1:
-      return Unit.BOND
-    case FunctionName.START_COOLDOWN:
-    case FunctionName.STOP_COOLDOWN:
-    case FunctionName.REWARDS_REDEEM:
-    default:
-      return Unit._
-  }
-}
-
 export const capitalizeFirstLetter = (str: string): string => {
   if (str.length == 0) return str
   return str.charAt(0).toUpperCase().concat(str.slice(1))

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React from 'react'
 import { StyledCheckmark, StyledWarning } from '../../components/atoms/Icon'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
@@ -19,7 +19,7 @@ export const CodeNoticeModal = () => {
       handleClose={() => handleShowCodeNoticeModal(false)}
       disableCloseButton={codeApplicationStatus == ApiStatus.PENDING || codeApplicationStatus == 'handling referral'}
     >
-      <Flex col gap={15} w={300}>
+      <Flex col gap={15} w={300} marginAuto>
         {(codeApplicationStatus == ApiStatus.PENDING || codeApplicationStatus == 'handling referral') && (
           <>
             <Text textAlignCenter bold t2>

@@ -5,7 +5,7 @@ import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
 import { Text, TextSpan } from '../../components/atoms/Typography'
-import { ApiStatus, FunctionName, InterfaceState, TransactionCondition } from '../../constants/enums'
+import { ApiStatus, FunctionName, InterfaceState } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
@@ -13,6 +13,7 @@ import {
   accurateMultiply,
   convertSciNotaToPrecise,
   filterAmount,
+  fixed,
   floatUnits,
   formatAmount,
   truncateValue,
@@ -66,6 +67,7 @@ export const CldModal = () => {
     selectedCoin,
     handleSelectedCoin,
     selectedCoinPrice,
+    isAcceptableDeposit,
   } = input
   const { curHighestPosition, curPortfolio, curDailyCost } = portfolioKit
   const { importCounter } = simulator
@@ -78,7 +80,7 @@ export const CldModal = () => {
     applyReferralCode,
     handleCodeApplicationStatus,
   } = referral
-  const { signatureObj, depositApproval, scpBalance, status, availCovCap, unlimitedApproveCPM } = policy
+  const { signatureObj, depositApproval, scpBalance, status, availCovCap, approveCPM } = policy
 
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [localCoinsOpen, setLocalCoinsOpen] = useState<boolean>(false)
@@ -149,22 +151,11 @@ export const CldModal = () => {
   const handleInputChange = (input: string) => {
     // allow only numbers and decimals
     const filtered = filterAmount(input, customInputAmount)
-
-    // if filtered is only "0." or "." or '', filtered becomes '0.0'
-    // const formatted = formatAmount(filtered)
-
-    // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
 
-    // if number is greater than available cover capacity, do not update
-    // if (parseUnits(formatted, 18).gt(availableCoverCapacity)) return
-
-    const bnFiltered = BigNumber.from(accurateMultiply(filtered, 18))
     setLocalNewCoverageLimit(filtered)
     setCustomInputAmount(filtered)
-    if (!recommendedAmount.eq(bnFiltered) && !highestAmount.eq(bnFiltered)) {
-      setChosenLimit(ChosenLimit.Custom)
-    }
+    setChosenLimit(ChosenLimit.Custom)
   }
 
   const callPurchase = async () => {
@@ -173,8 +164,10 @@ export const CldModal = () => {
     await purchase(account, parseUnits(localNewCoverageLimit, 18))
       .then(async (res) => await _handleToast(res.tx, res.localTx, true))
       .then((res) => handleCodeApplication(res))
-
-      .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
+      .catch((err) => {
+        _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE)
+        handleCodeApplicationStatus('activation failed')
+      })
   }
 
   const callPurchaseWithStable = async () => {
@@ -188,8 +181,10 @@ export const CldModal = () => {
     )
       .then(async (res) => await _handleToast(res.tx, res.localTx, true))
       .then((res) => handleCodeApplication(res))
-
-      .catch((err) => _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
+      .catch((err) => {
+        _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE)
+        handleCodeApplicationStatus('activation failed')
+      })
   }
 
   const callPurchaseWithNonStable = async () => {
@@ -209,10 +204,10 @@ export const CldModal = () => {
     )
       .then(async (res) => await _handleToast(res.tx, res.localTx, true))
       .then((res) => handleCodeApplication(res))
-
-      .catch((err) =>
+      .catch((err) => {
         _handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
-      )
+        handleCodeApplicationStatus('activation failed')
+      })
   }
 
   const handlePurchase = async () => {
@@ -226,6 +221,7 @@ export const CldModal = () => {
   }
 
   const _handleToast = async (tx: any, localTx: any, codeApplication?: boolean) => {
+    console.log('purchase complete, awaiting tx')
     if (codeApplication && !appliedReferralCode && cookieReferralCode && newUserState) {
       handleCodeApplicationStatus(ApiStatus.PENDING)
       handleShowCodeNoticeModal(true)
@@ -241,16 +237,19 @@ export const CldModal = () => {
   }
 
   const handleCodeApplication = async (activationStatus: boolean) => {
+    console.log('tx confirmed')
     if (!activationStatus || !account || !cookieReferralCode || appliedReferralCode || !newUserState) {
       handleCodeApplicationStatus('activation failed')
       return
     }
+    console.log('confirming policy')
     const policyId: BigNumber = await policyOf(account)
     if (policyId?.isZero()) {
       handleCodeApplicationStatus('activation failed')
       return
     }
     handleCodeApplicationStatus('handling referral')
+    console.log('handling referral')
     await applyReferralCode(cookieReferralCode, policyId.toNumber(), activeNetwork.chainId).then((r) => {
       if (r) {
         handleCodeApplicationStatus(ApiStatus.OK)
@@ -264,7 +263,7 @@ export const CldModal = () => {
     const filtered = filterAmount(usd_value, enteredUSDDeposit)
     const formatted = formatAmount(filtered)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) return
-    if (floatUnits(selectedCoinBalance, 18) * selectedCoinPrice < parseFloat(formatted)) return
+    if (floatUnits(selectedCoinBalance, maxDecimals ?? 18) * selectedCoinPrice < parseFloat(formatted)) return
     setEnteredUSDDeposit(filtered)
     const token_amount_equivalent = parseFloat(formatAmount(filtered)) / selectedCoinPrice
     handleEnteredDeposit(formatAmount(token_amount_equivalent.toString()), maxDecimals)
@@ -341,6 +340,7 @@ export const CldModal = () => {
             if (isImportOrigin) handleShowSimulatorModal(true)
             handleShowCLDModal(false)
             setIsImportOrigin(false)
+            handleEnteredUSDDeposit('')
           }}
           lightColor={appTheme == 'dark'}
         />
@@ -426,16 +426,16 @@ export const CldModal = () => {
             />
           </Flex>
         </Flex>
-        {cookieReferralCode && !cookieCodeUsable && newUserState ? (
+        {cookieReferralCode && cookieCodeUsable == false && newUserState ? (
           <Text textAlignCenter pt={16} error>
             Cannot use invalid referral code
           </Text>
         ) : insufficientCovCap ? (
-          <Text textAlignCenter pt={16}>
-            Your desired cover limit is too high.
+          <Text textAlignCenter pt={16} error>
+            {`Please choose a lower cover limit. (Available: ~$${truncateValue(formatUnits(availCovCap, 18), 2)})`}
           </Text>
         ) : lackingScp == 'both zeroes' ? (
-          <Text textAlignCenter pt={16}>
+          <Text textAlignCenter pt={16} error>
             You cannot purchase a policy with a cover limit of 0.
           </Text>
         ) : null}
@@ -477,28 +477,40 @@ export const CldModal = () => {
                 disabled={
                   parseFloat(formatAmount(localNewCoverageLimit)) == 0 ||
                   insufficientCovCap ||
-                  (cookieReferralCode && !cookieCodeUsable && newUserState)
+                  (cookieReferralCode && cookieCodeUsable == false && newUserState)
                 }
               >
                 {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}
               </Button>
             )}
             {!depositApproval && (
-              <Button
-                {...gradientStyle}
-                {...bigButtonStyle}
-                secondary
-                noborder
-                onClick={() => unlimitedApproveCPM(selectedCoin.address)}
-              >
-                Approve Max {selectedCoin.symbol}
-              </Button>
+              <>
+                <Button
+                  {...gradientStyle}
+                  {...bigButtonStyle}
+                  secondary
+                  noborder
+                  onClick={() => approveCPM(selectedCoin.address, parseUnits(enteredDeposit, selectedCoin.decimals))}
+                  disabled={!isAcceptableDeposit}
+                >
+                  Approve Entered {selectedCoin.symbol}
+                </Button>
+                <Button
+                  {...gradientStyle}
+                  {...bigButtonStyle}
+                  secondary
+                  noborder
+                  onClick={() => approveCPM(selectedCoin.address)}
+                >
+                  Approve Max {selectedCoin.symbol}
+                </Button>
+              </>
             )}
           </ButtonWrapper>
         )}
         {lackingScp != 'meets requirement' && lackingScp != 'both zeroes' && (
           <Text textAlignCenter pt={16}>
-            You need at least ${lackingScp} for the desired cover limit. Lower the value or use the form below to
+            You need at least over ~${lackingScp} for the desired cover limit. Lower the value or use the form below to
             deposit the additional premium.
           </Text>
         )}
@@ -550,9 +562,10 @@ export const CldModal = () => {
                   secondary
                   noborder
                   onClick={() => {
-                    const selectedCoinBalance_USD = floatUnits(selectedCoinBalance, 18) * selectedCoinPrice
-                    handleEnteredDeposit(formatUnits(selectedCoinBalance, 18), selectedCoin.decimals)
-                    setEnteredUSDDeposit(truncateValue(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2, false))
+                    const selectedCoinBalance_USD =
+                      floatUnits(selectedCoinBalance, selectedCoin.decimals) * selectedCoinPrice
+                    handleEnteredDeposit(formatUnits(selectedCoinBalance, selectedCoin.decimals), selectedCoin.decimals)
+                    setEnteredUSDDeposit(fixed(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2).toString())
                   }}
                   widthP={100}
                   disabled={selectedCoinBalance.isZero()}
@@ -571,7 +584,7 @@ export const CldModal = () => {
                     parseFloat(formatAmount(localNewCoverageLimit)) == 0 ||
                     lackingScp != 'meets requirement' ||
                     insufficientCovCap ||
-                    (cookieReferralCode && !cookieCodeUsable && newUserState)
+                    (cookieReferralCode && cookieCodeUsable == false && newUserState)
                   }
                 >
                   <Text>
@@ -580,15 +593,27 @@ export const CldModal = () => {
                 </Button>
               )}
               {!depositApproval && (
-                <Button
-                  {...gradientStyle}
-                  {...bigButtonStyle}
-                  secondary
-                  noborder
-                  onClick={() => unlimitedApproveCPM(selectedCoin.address)}
-                >
-                  Approve Max {selectedCoin.symbol}
-                </Button>
+                <>
+                  <Button
+                    {...gradientStyle}
+                    {...bigButtonStyle}
+                    secondary
+                    noborder
+                    onClick={() => approveCPM(selectedCoin.address, parseUnits(enteredDeposit, selectedCoin.decimals))}
+                    disabled={!isAcceptableDeposit}
+                  >
+                    Approve Entered {selectedCoin.symbol}
+                  </Button>
+                  <Button
+                    {...gradientStyle}
+                    {...bigButtonStyle}
+                    secondary
+                    noborder
+                    onClick={() => approveCPM(selectedCoin.address)}
+                  >
+                    Approve Max {selectedCoin.symbol}
+                  </Button>
+                </>
               )}
             </ButtonWrapper>
           </Flex>

@@ -44,15 +44,3 @@ const fetchCoingeckoTokenPrice = (fetchFunction: any) => async (contract: string
 }
 
 export const getCoingeckoTokenPriceByAddr = fetchCoingeckoTokenPrice(typeof window !== 'undefined' && window.fetch)
-
-export const getZapperProtocolBalances = async (appId: string, addresses: string[], network: string) => {
-  const { data } = await axios.get(`https://api.zapper.fi/v1/protocols/${appId}/balances`, {
-    params: {
-      newBalances: true,
-      addresses: addresses,
-      network: network,
-      api_key: String(process.env.REACT_APP_ZAPPER_API_KEY),
-    },
-  })
-  return data
-}

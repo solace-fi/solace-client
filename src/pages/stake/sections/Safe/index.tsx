@@ -73,7 +73,6 @@ export default function Safe({
             {batchActionsIsEnabled && <Checkbox type="checkbox" checked={isChecked} onChange={() => onCheck(index)} />}
           </Flex>
           <GridOrRow preferredWidth={rightSidebar ? BKPT_7 : BKPT_6}>
-            {/* <Flex stretch gap={90}> */}
             <InfoPair
               isSafePreview
               batch={batchActionsIsEnabled}
@@ -186,7 +185,7 @@ export default function Safe({
                     clickable
                     onClick={() => setActiveTab(Tab.LOCK)}
                   >
-                    {lock.timeLeft.toNumber() > 0 ? 'Reset Lockup' : 'Lockup'}
+                    Extend
                   </Label>
                   <Label
                     importance={activeTab === Tab.WITHDRAW ? 'primary' : 'secondary'}

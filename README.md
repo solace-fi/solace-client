@@ -45,9 +45,10 @@ Run the following react command from the client directory to start the app
     |___networks/
     |___constants/
     |   |____mappings/
+    |   |____addresses/
     |   |____abi/
-    |   |____enums
-    |   |____types
+    |   |____enums/
+    |   |____types/
     |___context/
     |   |____GeneralManager
     |   |____ContractsManager
@@ -55,20 +56,22 @@ Run the following react command from the client directory to start the app
     |   |____ProviderManager
     |   |____CachedDataManager
     |   |____WalletManager
+    |   |____NetworkManager
     |___wallet/
     |   |____wallet-connectors/
     |___hooks/
     |___pages/
-    |   |____dashboard/
+    |   |____about/
+    |   |____bond/
+    |   |____cover/
     |   |____govern/
     |   |____invest/
     |   |____quote/
+    |   |____soteria/
     |   |____stake/
-    |   |____bond/
-    |   |____about/
+    |   |____terms/
     |   |____App
     |___resources/
-    |___products/
     |___styles/
     |___utils/
 

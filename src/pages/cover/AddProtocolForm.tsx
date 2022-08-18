@@ -1,5 +1,5 @@
 import { ProtocolMap } from '@solace-fi/sdk-nightly'
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { ThinButton, GraySquareButton } from '../../components/atoms/Button'
 import { StyledArrowDropDown, StyledClose } from '../../components/atoms/Icon'
 import { Flex } from '../../components/atoms/Layout'
@@ -11,13 +11,16 @@ import { useCoverageContext } from './CoverageContext'
 import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
 import { formatAmount } from '../../utils/formatting'
 import { Button } from '../../components/atoms/Button'
+import { Modal } from '../../components/molecules/Modal'
 
 export default function AddProtocolForm({
   editableProtocols,
+  isAddingProtocol,
   onAddProtocol,
   setIsAddingProtocol,
 }: {
   editableProtocols: LocalSolaceRiskProtocol[]
+  isAddingProtocol: boolean
   onAddProtocol: (protocolMap: ProtocolMap, balance: string) => void
   setIsAddingProtocol: (bool: boolean) => void
 }): React.ReactElement {
@@ -71,13 +74,21 @@ export default function AddProtocolForm({
     [editableProtocols, dropdownOpen, activeList]
   )
 
+  const handleClose = useCallback(() => {
+    setEnteredBalance('')
+    setEnteredProtocolMap(undefined)
+    setIsAddingProtocol(false)
+    setDropdownOpen(true)
+  }, [setIsAddingProtocol])
+
   return (
-    <>
+    <Modal handleClose={handleClose} isOpen={isAddingProtocol} modalTitle={'New Position'}>
       <Flex
         gap={8}
         style={{
           width: '100%',
         }}
+        mb={5}
       >
         <ThinButton
           onClick={() => {
@@ -122,17 +133,6 @@ export default function AddProtocolForm({
             asideBg
           />
         </div>
-        <GraySquareButton
-          width={32}
-          height={32}
-          noborder
-          onClick={() => {
-            setIsAddingProtocol(false)
-          }}
-          darkText
-        >
-          <StyledClose size={16} />
-        </GraySquareButton>
       </Flex>
       {dropdownOpen && (
         <SmallerInputSection
@@ -153,14 +153,15 @@ export default function AddProtocolForm({
         secondary
         noborder
         mt={12}
+        widthP={100}
         onClick={() => {
           if (enteredProtocolMap) onAddProtocol(enteredProtocolMap, formatAmount(enteredBalance))
-          setIsAddingProtocol(false)
+          handleClose()
         }}
         disabled={!enteredProtocolMap}
       >
         Save
       </Button>
-    </>
+    </Modal>
   )
 }

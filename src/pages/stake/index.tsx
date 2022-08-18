@@ -47,7 +47,7 @@ import {
   StyledArrowIosBackOutline,
   StyledArrowIosForwardOutline,
 } from '../../components/atoms/Icon'
-import DifferenceNotification from './organisms/DifferenceNotification'
+import { DifferenceNotification, CoverageNotification } from './organisms/NotificationBox'
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
@@ -114,8 +114,8 @@ function Stake1(): any {
 
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
   const [lockInputValue, setLockInputValue] = React.useState('0')
-  const canStakeV1 = useMemo(() => !activeNetwork.config.restrictedFeatures.noStakingV1, [
-    activeNetwork.config.restrictedFeatures.noStakingV1,
+  const canStakeV1 = useMemo(() => activeNetwork.config.generalFeatures.stakingV1, [
+    activeNetwork.config.generalFeatures.stakingV1,
   ])
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     accurateMultiply(formatAmount(amount), 18),
@@ -377,7 +377,7 @@ export default function Stake(): JSX.Element {
   const { account } = useWeb3React()
   const { latestBlock } = useProvider()
   const { activeNetwork } = useNetwork()
-  const { version } = useCachedData()
+  const { version, coverage } = useCachedData()
   const [stakingVersion, setStakingVersion] = useState<StakingVersion>(StakingVersion.v2 as StakingVersion)
   const [locks, setLocks] = useState<LockData[]>([])
   const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
@@ -388,8 +388,8 @@ export default function Stake(): JSX.Element {
     yearlyReturns: ZERO,
     apr: ZERO,
   })
-  const canStakeV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noStakingV2, [
-    activeNetwork.config.restrictedFeatures.noStakingV2,
+  const canStakeV2 = useMemo(() => activeNetwork.config.generalFeatures.stakingV2, [
+    activeNetwork.config.generalFeatures.stakingV2,
   ])
   const { xSolaceV1Balance } = useXSolaceV1Balance()
   const { getUserLocks } = useUserLockData()
@@ -548,6 +548,7 @@ export default function Stake(): JSX.Element {
           {parseUnits(xSolaceV1Balance, XSOLACE_V1_TOKEN.constants.decimals).gt(ZERO) && (
             <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
           )}
+          {locks.length > 0 && coverage.policyId?.isZero() && <CoverageNotification />}
           {StakingVersion.v2 === stakingVersion &&
             (canStakeV2 ? (
               <>
@@ -804,7 +805,7 @@ export default function Stake(): JSX.Element {
                         >
                           Withdraw
                         </Button>
-                        {!activeNetwork.config.restrictedFeatures.noStakingRewardsV2 && policyId?.gt(ZERO) && (
+                        {activeNetwork.config.generalFeatures.stakingRewardsV2 && policyId?.gt(ZERO) && (
                           <Button
                             warmgradient
                             secondary

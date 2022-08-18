@@ -20,7 +20,6 @@ export const WalletList = () => {
     [connect]
   )
 
-  // const isMetamask = (window as any)?.ethereum?.isMetaMask
   return (
     <>
       <CardContainer cardsPerRow={1} style={{ margin: 'auto' }}>
