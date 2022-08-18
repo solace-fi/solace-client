@@ -1,18 +1,3 @@
-/*
-
-    Table of Contents:
-
-    import packages
-    import managers
-    import components
-    import hooks
-
-    Stake 
-      custom hooks
-      useEffect hooks
-
-*/
-
 /* import packages */
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { BigNumber } from 'ethers'
@@ -33,7 +18,12 @@ import { Button, GraySquareButton } from '../../components/atoms/Button'
 import { Checkbox } from '../../components/atoms/Input'
 import { Content, Flex, HeroContainer } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
-import { StyledMultiselect, StyledArrowIosBackOutline, StyledArrowIosForwardOutline } from '../../components/atoms/Icon'
+import {
+  StyledMultiselect,
+  StyledArrowIosBackOutline,
+  StyledArrowIosForwardOutline,
+  StyledVoteYea,
+} from '../../components/atoms/Icon'
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
@@ -61,7 +51,7 @@ import { useWeb3React } from '@web3-react/core'
 import { MultiDepositModal } from './organisms/MultiDepositModal'
 import { MultiWithdrawModal } from './organisms/MultiWithdrawModal'
 import { MultiExtendModal } from './organisms/MultiExtendModal'
-import LockManager from './LockContext'
+import LockManager, { useLockContext } from './LockContext'
 
 /*
  Components
@@ -77,7 +67,10 @@ export default function Lock(): JSX.Element {
 
 const LockContent = () => {
   const { rightSidebar } = useGeneral()
-  const { width } = useWindowDimensions()
+  const { isMobile, width } = useWindowDimensions()
+  const { delegateData } = useLockContext()
+  const { handleDelegateModalOpen } = delegateData
+
   // account usewallet
   const [newSafeIsOpen, setNewSafeIsOpen] = useState(false)
   const [batchActionsIsEnabled, setBatchActionsIsEnabled] = useState(false)
@@ -153,12 +146,12 @@ const LockContent = () => {
       const locks = [
         {
           lockID: BigNumber.from(0),
-          amount: BigNumber.from(0),
-          end: BigNumber.from(0),
+          amount: BigNumber.from('134533333334534444444'),
+          end: BigNumber.from('1999999999'),
         },
         {
           lockID: BigNumber.from(1),
-          amount: BigNumber.from(0),
+          amount: BigNumber.from('553333335330444444444'),
           end: BigNumber.from(0),
         },
       ]
@@ -252,8 +245,8 @@ const LockContent = () => {
           >
             {!batchActionsIsEnabled ? (
               !newSafeIsOpen ? (
-                <Button secondary info noborder pl={23} pr={23} onClick={openSafe}>
-                  Create New Safe
+                <Button secondary info noborder pl={10} pr={10} onClick={openSafe}>
+                  New Safe
                 </Button>
               ) : (
                 <Button secondary info noborder pl={23} pr={23} onClick={closeSafe}>
@@ -307,14 +300,14 @@ const LockContent = () => {
             )}
             <Flex center gap={15} column={navbarThreshold}>
               {batchActionsIsEnabled && (
-                <Flex gap={15} col={navbarThreshold}>
+                <Flex gap={15} justifyCenter wrapped>
                   <Button
                     secondary
                     info
                     noborder
-                    pl={10}
-                    pr={10}
-                    py={navbarThreshold ? 20 : 0}
+                    pl={5}
+                    pr={5}
+                    py={navbarThreshold ? 10 : 0}
                     onClick={() => setOpenDepositModal(true)}
                   >
                     Deposit
@@ -323,9 +316,9 @@ const LockContent = () => {
                     secondary
                     info
                     noborder
-                    pl={10}
-                    pr={10}
-                    py={navbarThreshold ? 20 : 0}
+                    pl={5}
+                    pr={5}
+                    py={navbarThreshold ? 10 : 0}
                     onClick={() => setOpenExtendModal(true)}
                   >
                     Extend
@@ -334,15 +327,20 @@ const LockContent = () => {
                     secondary
                     info
                     noborder
-                    pl={10}
-                    pr={10}
-                    py={navbarThreshold ? 20 : 0}
+                    pl={5}
+                    pr={5}
+                    py={navbarThreshold ? 10 : 0}
                     onClick={() => setOpenWithdrawModal(true)}
-                    // disabled={withdrawalsAreZero}
+                    disabled={withdrawalsAreZero}
                   >
                     Withdraw
                   </Button>
                 </Flex>
+              )}
+              {!batchActionsIsEnabled && (
+                <Button secondary info noborder onClick={() => handleDelegateModalOpen(true)}>
+                  <StyledVoteYea size={20} style={{ marginRight: '5px' }} /> Delegate
+                </Button>
               )}
               <Button pl={10} pr={10} onClick={toggleBatchActions} secondary={batchActionsIsEnabled}>
                 <StyledMultiselect size={20} style={{ marginRight: '5px' }} />{' '}

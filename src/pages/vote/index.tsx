@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
 
-import { Flex, VerticalSeparator } from '../../components/atoms/Layout'
+import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { TileCard } from '../../components/molecules/TileCard'
-import { ModalCell } from '../../components/atoms/Modal'
 import { GaugePieChart } from './GaugePieChart'
 import { StatsBox } from './StatsBox'
 import { OwnerVoteTab } from './OwnerVoteTab'

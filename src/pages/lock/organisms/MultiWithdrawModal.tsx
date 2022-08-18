@@ -1,8 +1,9 @@
 import useDebounce from '@rooks/use-debounce'
 import { ZERO } from '@solace-fi/sdk-nightly'
+import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Accordion } from '../../../components/atoms/Accordion'
 import { Button } from '../../../components/atoms/Button'
 import { Flex } from '../../../components/atoms/Layout'
@@ -10,13 +11,16 @@ import { Text } from '../../../components/atoms/Typography'
 import { GrayBox } from '../../../components/molecules/GrayBox'
 import { SmallerInputSection } from '../../../components/molecules/InputSection'
 import { Modal } from '../../../components/molecules/Modal'
-import { BKPT_7, BKPT_5 } from '../../../constants'
+import { FunctionName } from '../../../constants/enums'
 import { VoteLockData } from '../../../constants/types'
 import { useGeneral } from '../../../context/GeneralManager'
+import { useProvider } from '../../../context/ProviderManager'
+import { useTransactionExecution } from '../../../hooks/internal/useInputAmount'
 import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 import { useBalanceConversion } from '../../../hooks/lock/useUnderwritingHelper'
-import { filterAmount, formatAmount, truncateValue } from '../../../utils/formatting'
-import { Label } from '../molecules/InfoPair'
+import { useUwLocker } from '../../../hooks/lock/useUwLocker'
+import { filterAmount, floatUnits, formatAmount, truncateValue } from '../../../utils/formatting'
+import { useLockContext } from '../LockContext'
 
 export const MultiWithdrawModal = ({
   isOpen,
@@ -27,9 +31,23 @@ export const MultiWithdrawModal = ({
   handleClose: () => void
   selectedLocks: VoteLockData[]
 }): JSX.Element => {
-  const { appTheme, rightSidebar } = useGeneral()
-  const { width } = useWindowDimensions()
+  const { account } = useWeb3React()
+  const { appTheme } = useGeneral()
+  const { isMobile } = useWindowDimensions()
   const { uweToTokens } = useBalanceConversion()
+  const { paymentCoins, locker } = useLockContext()
+  const { latestBlock } = useProvider()
+  const { stakedBalance } = locker
+  const {
+    withdraw,
+    withdrawInPart,
+    withdrawMultiple,
+    withdrawInPartMultiple,
+    getBurnOnWithdrawAmount,
+    getBurnOnWithdrawInPartAmount,
+  } = useUwLocker()
+  const { batchBalanceData } = paymentCoins
+  const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const [amountTracker, setAmountTracker] = useState<
     {
@@ -42,10 +60,72 @@ export const MultiWithdrawModal = ({
   const [totalAmountToWithdraw, setTotalAmountToWithdraw] = useState<string>('')
   const [equivalentTokenAmounts, setEquivalentTokenAmounts] = useState<BigNumber[]>([])
   const [equivalentUSDValue, setEquivalentUSDValue] = useState<BigNumber>(ZERO)
+  const [amountOverTotalSupply, setAmountOverTotalSupply] = useState<boolean>(false)
+  const [maxSelected, setMaxSelected] = useState<boolean>(false)
+
+  const callWithdraw = async () => {
+    if (!account || !latestBlock) return
+    const chosenlocks = amountTracker.filter(
+      (lock, i) =>
+        !parseUnits(formatAmount(lock.amount), 18).isZero() && selectedLocks[i].end.toNumber() <= latestBlock.timestamp
+    )
+    if (chosenlocks.length === 0) return
+    if (chosenlocks.length == 1) {
+      let type = FunctionName.WITHDRAW_LOCK_IN_PART
+      const isMax = parseUnits(formatAmount(totalAmountToWithdraw), 18).eq(
+        parseUnits(formatAmount(chosenlocks[0].amount), 18)
+      )
+      if (isMax) {
+        type = FunctionName.WITHDRAW_LOCK
+      }
+      if (!isMax) {
+        await withdrawInPart(chosenlocks[0].lockID, parseUnits(formatAmount(totalAmountToWithdraw), 18), account)
+          .then((res) => handleToast(res.tx, res.localTx))
+          .catch((err) => handleContractCallError('callWithdrawInPart', err, type))
+      } else {
+        await withdraw(chosenlocks[0].lockID, account)
+          .then((res) => handleToast(res.tx, res.localTx))
+          .catch((err) => handleContractCallError('callWithdraw', err, type))
+      }
+    } else {
+      let type = FunctionName.WITHDRAW_LOCK_IN_PART_MULTIPLE
+      if (maxSelected) type = FunctionName.WITHDRAW_LOCK_MULTIPLE
+      if (!maxSelected) {
+        await withdrawInPartMultiple(
+          chosenlocks.map((item) => item.lockID),
+          chosenlocks.map((item) => parseUnits(formatAmount(item.amount), 18)),
+          account
+        )
+          .then((res) => handleToast(res.tx, res.localTx))
+          .catch((err) => handleContractCallError('callWithdrawInPartMultiple', err, type))
+      } else {
+        await withdrawMultiple(
+          chosenlocks.map((item) => item.lockID),
+          account
+        )
+          .then((res) => handleToast(res.tx, res.localTx))
+          .catch((err) => handleContractCallError('callWithdrawMultiple', err, type))
+      }
+    }
+  }
+
+  const areWithdrawAmountsValid = useMemo(() => {
+    const invalidAmounts = amountTracker.filter((item, i) =>
+      parseUnits(formatAmount(item.amount), 18).gt(selectedLocks[i].amount)
+    )
+    return invalidAmounts.length === 0
+  }, [amountTracker, selectedLocks])
+
+  const isTotalWithdrawalValid = useMemo(() => {
+    const BN_totalAmountToWithdraw = parseUnits(formatAmount(totalAmountToWithdraw), 18)
+    return BN_totalAmountToWithdraw.lte(stakedBalance) && !BN_totalAmountToWithdraw.isZero()
+  }, [totalAmountToWithdraw, stakedBalance])
 
   const handleAmountInput = useCallback(
     (input: string, index: number) => {
+      if (latestBlock ? selectedLocks[index].end.toNumber() > latestBlock.timestamp : false) return
       const filtered = filterAmount(input, amountTracker[index].amount.toString())
+      setMaxSelected(false)
       setAmountTracker((prevState) => {
         return [
           ...prevState.slice(0, index),
@@ -57,20 +137,35 @@ export const MultiWithdrawModal = ({
         ]
       })
     },
-    [amountTracker]
+    [amountTracker, selectedLocks, latestBlock]
   )
 
   const handleCommonAmountInput = useCallback(
     (input: string) => {
       const filtered = filterAmount(input, commonAmount)
+      setMaxSelected(false)
       setCommonAmount(filtered)
     },
     [commonAmount]
   )
 
+  const handleMax = useCallback(() => {
+    setMaxSelected(true)
+    setAmountTracker((prevState) => {
+      return prevState.map((item, i) => {
+        if (latestBlock ? selectedLocks[i].end.toNumber() > latestBlock.timestamp : false) return item
+        return {
+          ...item,
+          amount: formatUnits(selectedLocks[i].amount, 18),
+        }
+      })
+    })
+  }, [selectedLocks, latestBlock])
+
   const changeAlltoCommonAmount = useDebounce((commonAmount: string) => {
     setAmountTracker(
-      amountTracker.map((item) => {
+      amountTracker.map((item, i) => {
+        if (latestBlock ? selectedLocks[i].end.toNumber() > latestBlock.timestamp : false) return item
         return {
           ...item,
           amount: commonAmount,
@@ -94,10 +189,6 @@ export const MultiWithdrawModal = ({
   }, [handleTotalAmount, amountTracker])
 
   useEffect(() => {
-    changeAlltoCommonAmount(commonAmount)
-  }, [changeAlltoCommonAmount, commonAmount])
-
-  useEffect(() => {
     if (isOpen)
       setAmountTracker(
         selectedLocks.map((lock) => {
@@ -115,14 +206,26 @@ export const MultiWithdrawModal = ({
   }, [isOpen])
 
   const getConversion = useDebounce(async () => {
-    const res = await uweToTokens(parseUnits(formatAmount(totalAmountToWithdraw), 18))
+    const totalUweToWithdraw = totalAmountToWithdraw
+    const burnAmountArray = await Promise.all(
+      amountTracker.map((item, i) =>
+        (latestBlock ? selectedLocks[i].end.toNumber() > latestBlock.timestamp : true)
+          ? ZERO
+          : maxSelected
+          ? getBurnOnWithdrawAmount(item.lockID)
+          : getBurnOnWithdrawInPartAmount(item.lockID, parseUnits(formatAmount(item.amount), 18))
+      )
+    )
+    const totalBurnAmount = burnAmountArray.reduce((acc, curr) => acc.add(curr), ZERO)
+    const res = await uweToTokens(parseUnits(formatAmount(totalUweToWithdraw), 18).sub(totalBurnAmount))
     setEquivalentTokenAmounts(res.depositTokens)
     setEquivalentUSDValue(res.usdValueOfUwpAmount)
+    setAmountOverTotalSupply(!res.successful)
   }, 400)
 
   useEffect(() => {
     getConversion()
-  }, [totalAmountToWithdraw])
+  }, [totalAmountToWithdraw, latestBlock])
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Withdraw'}>
@@ -135,48 +238,87 @@ export const MultiWithdrawModal = ({
             onChange={(e) => handleCommonAmountInput(e.target.value)}
           />
         </Flex>
-        <Accordion isOpen={true} thinScrollbar customHeight={'50vh'}>
-          <Flex col gap={10} p={10}>
-            {amountTracker.map((lock, i) => (
-              <Flex gap={10} key={i}>
-                <Text autoAlign>Lock</Text>
-                <SmallerInputSection
-                  placeholder={'Amount'}
-                  value={lock.amount}
-                  onChange={(e) => handleAmountInput(e.target.value, i)}
-                />
-              </Flex>
-            ))}
-          </Flex>
-        </Accordion>
-        <Flex column stretch width={500}>
-          <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-            Projected benefits
-          </Label>
-          <GrayBox>
-            <Flex stretch column>
-              <Flex stretch gap={24}>
-                <Flex column gap={2}>
-                  <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                    Tokens to be given on withdrawal
+        <Flex col={isMobile} gap={10}>
+          <Accordion isOpen={true} thinScrollbar customHeight={'50vh'}>
+            <Flex col gap={10} p={10}>
+              {amountTracker.map((lock, i) => (
+                <Flex gap={10} key={i}>
+                  <Text error={parseUnits(formatAmount(lock.amount), 18).gt(selectedLocks[i].amount)} autoAlignVertical>
+                    Lock
                   </Text>
-                  <div style={(rightSidebar ? BKPT_7 : BKPT_5) > width ? { display: 'block' } : { display: 'none' }}>
-                    &nbsp;
-                  </div>
-                  <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                    <Flex>${truncateValue(formatUnits(equivalentUSDValue, 18), 2)}</Flex>
-                  </Text>
+                  {(latestBlock ? selectedLocks[i].end.toNumber() > latestBlock.timestamp : false) ? (
+                    <Text autoAlign fade>
+                      Cannot Withdraw
+                    </Text>
+                  ) : (
+                    <SmallerInputSection
+                      placeholder={'Amount'}
+                      value={lock.amount}
+                      onChange={(e) => handleAmountInput(e.target.value, i)}
+                    />
+                  )}
+                </Flex>
+              ))}
+            </Flex>
+          </Accordion>
+          <Flex column stretch>
+            <GrayBox>
+              <Flex stretch column>
+                <Flex stretch gap={24}>
+                  {!amountOverTotalSupply ? (
+                    <Flex column gap={15}>
+                      <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                        Tokens to be given on withdrawal
+                      </Text>
+                      <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                        ${truncateValue(formatUnits(equivalentUSDValue, 18), 2)}
+                      </Text>
+                      <Flex col gap={2}>
+                        {batchBalanceData.length > 0 &&
+                          equivalentTokenAmounts.length > 0 &&
+                          equivalentTokenAmounts.map((item, i) => (
+                            <Flex key={i} between>
+                              <Text>
+                                <img
+                                  src={`https://assets.solace.fi/${batchBalanceData[i].name.toLowerCase()}`}
+                                  height={20}
+                                />
+                              </Text>
+                              <Text>{truncateValue(formatUnits(item, batchBalanceData[i].decimals), 3)}</Text>
+                              <Text>
+                                ~$
+                                {truncateValue(
+                                  floatUnits(item, batchBalanceData[i].decimals) * batchBalanceData[i].price,
+                                  2
+                                )}
+                              </Text>
+                            </Flex>
+                          ))}
+                      </Flex>
+                    </Flex>
+                  ) : (
+                    <Text warning>Withdrawal amount is over total supply</Text>
+                  )}
                 </Flex>
               </Flex>
-            </Flex>
-          </GrayBox>
+            </GrayBox>
+          </Flex>
         </Flex>
-        <Button secondary warmgradient noborder>
-          Make Withdrawals
-        </Button>
-        <Button noborder matchBg>
-          <Text warmgradient>Withdraw everything</Text>
-        </Button>
+        <Flex col={isMobile}>
+          <Button
+            widthP={100}
+            secondary
+            warmgradient
+            noborder
+            disabled={(!maxSelected && (!areWithdrawAmountsValid || !isTotalWithdrawalValid)) || !amountOverTotalSupply}
+            onClick={callWithdraw}
+          >
+            Make Withdrawals
+          </Button>
+          <Button widthP={100} noborder matchBg onClick={handleMax}>
+            <Text warmgradient>MAX</Text>
+          </Button>
+        </Flex>
       </Flex>
     </Modal>
   )

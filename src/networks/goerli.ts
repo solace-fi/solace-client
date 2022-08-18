@@ -43,6 +43,10 @@ export const GoerliNetwork: NetworkConfig = {
         addr: KEY_ADDRS.SOLACE,
         abi: solaceABI,
       },
+      depositHelper: {
+        addr: KEY_ADDRS.DEPOSIT_HELPER,
+        abi: depositHelperABI,
+      },
       gaugeController: {
         addr: KEY_ADDRS.GAUGE_CONTROLLER,
         abi: gaugeControllerABI,

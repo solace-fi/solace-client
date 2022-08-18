@@ -3,7 +3,6 @@ import { ERC20_ABI, ZERO } from '@solace-fi/sdk-nightly'
 import { BigNumber, Contract } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Label } from '../molecules/InfoPair'
 import { Accordion } from '../../../components/atoms/Accordion'
 import { Button } from '../../../components/atoms/Button'
 import { StyledArrowDropDown } from '../../../components/atoms/Icon'
@@ -25,6 +24,7 @@ import { useUwLocker } from '../../../hooks/lock/useUwLocker'
 import { filterAmount, formatAmount } from '../../../utils/formatting'
 import { useLockContext } from '../LockContext'
 import { useBalanceConversion } from '../../../hooks/lock/useUnderwritingHelper'
+import { useContracts } from '../../../context/ContractsManager'
 
 export const MultiDepositModal = ({
   isOpen,
@@ -45,6 +45,9 @@ export const MultiDepositModal = ({
   const { appTheme, rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
   const { signer } = useProvider()
+  const { keyContracts } = useContracts()
+  const { uwLocker } = keyContracts
+
   const { isAppropriateAmount } = useInputAmount()
   const { increaseAmountMultiple } = useUwLocker()
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -71,7 +74,7 @@ export const MultiDepositModal = ({
 
   const depositApproval = useTokenAllowance(
     selectedCoinContract ?? null,
-    null,
+    uwLocker?.address ?? null,
     totalAmountToDeposit && totalAmountToDeposit != '.'
       ? parseUnits(totalAmountToDeposit, selectedCoin?.decimals ?? 18).toString()
       : '0'
@@ -231,23 +234,18 @@ export const MultiDepositModal = ({
           </Flex>
         </Accordion>
         <Flex column stretch width={500}>
-          <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-            Projected benefits
-          </Label>
           <GrayBox>
             <Flex stretch column>
-              <Flex stretch gap={24}>
-                <Flex column gap={2}>
-                  <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                    Amount of UWE to be minted on deposit
-                  </Text>
-                  <div style={(rightSidebar ? BKPT_7 : BKPT_5) > width ? { display: 'block' } : { display: 'none' }}>
-                    &nbsp;
-                  </div>
-                  <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                    <Flex>{formatUnits(equivalentUwe, 18)} UWE</Flex>
-                  </Text>
-                </Flex>
+              <Flex column gap={10}>
+                <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                  Amount of UWE to be minted on deposit
+                </Text>
+                <div style={(rightSidebar ? BKPT_7 : BKPT_5) > width ? { display: 'block' } : { display: 'none' }}>
+                  &nbsp;
+                </div>
+                <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                  <Flex>{formatUnits(equivalentUwe, 18)} UWE</Flex>
+                </Text>
               </Flex>
             </Flex>
           </GrayBox>
@@ -257,39 +255,45 @@ export const MultiDepositModal = ({
             secondary
             warmgradient
             noborder
-            disabled={!isAcceptableDeposit}
+            disabled={!isAcceptableDeposit || !selectedCoin}
             onClick={callIncreaseLockAmountMultiple}
           >
             Make Deposits
           </Button>
         )}
         {!depositApproval && (
-          <Button
-            secondary
-            warmgradient
-            noborder
-            disabled={!isAcceptableDeposit || !selectedCoinContract}
-            onClick={() =>
-              approveCPM(
-                '',
-                selectedCoinContract?.address ?? '',
-                parseUnits(totalAmountToDeposit, selectedCoin?.decimals ?? 18)
-              )
-            }
-          >
-            {`Approve Entered ${selectedCoin?.symbol}`}
-          </Button>
-        )}
-        {!depositApproval && (
-          <Button
-            secondary
-            warmgradient
-            noborder
-            onClick={() => approveCPM('', selectedCoinContract?.address ?? '')}
-            disabled={!selectedCoinContract}
-          >
-            {`Approve MAX ${selectedCoin?.symbol}`}
-          </Button>
+          <>
+            <Button
+              secondary
+              warmgradient
+              noborder
+              disabled={
+                !totalAmountToDeposit ||
+                totalAmountToDeposit == '.' ||
+                parseUnits(totalAmountToDeposit, selectedCoin?.decimals ?? 18).isZero() ||
+                !selectedCoinContract ||
+                !uwLocker
+              }
+              onClick={() =>
+                approveCPM(
+                  uwLocker?.address ?? '',
+                  selectedCoinContract?.address ?? '',
+                  parseUnits(totalAmountToDeposit, selectedCoin?.decimals ?? 18)
+                )
+              }
+            >
+              {`Approve Entered ${selectedCoin?.symbol}`}
+            </Button>
+            <Button
+              secondary
+              warmgradient
+              noborder
+              onClick={() => approveCPM(uwLocker?.address ?? '', selectedCoinContract?.address ?? '')}
+              disabled={!selectedCoinContract || !uwLocker}
+            >
+              {`Approve MAX ${selectedCoin?.symbol}`}
+            </Button>
+          </>
         )}
       </Flex>
     </Modal>

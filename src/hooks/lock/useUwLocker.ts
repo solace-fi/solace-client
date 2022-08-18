@@ -1,19 +1,17 @@
 import { ZERO } from '@solace-fi/sdk-nightly'
-import { BigNumber, Contract } from 'ethers'
+import { BigNumber } from 'ethers'
 import { useCallback, useMemo } from 'react'
-import { DEADLINE } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx, VoteLock } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
-import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
-import { getPermitErc20Signature } from '../../utils/signature'
 import { useGetFunctionGas } from '../provider/useGas'
+import { useWeb3React } from '@web3-react/core'
 
 export const useUwLocker = () => {
   const { keyContracts } = useContracts()
+  const { account } = useWeb3React()
   const { signer } = useProvider()
-  const { activeNetwork } = useNetwork()
   const { uwLocker } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
 
@@ -88,10 +86,10 @@ export const useUwLocker = () => {
   )
 
   const getWithdrawInPartAmount = useCallback(
-    async (lockId: BigNumber): Promise<BigNumber> => {
+    async (lockId: BigNumber, amount: BigNumber): Promise<BigNumber> => {
       if (!uwLocker) return ZERO
       try {
-        const withdrawInPartAmount = await uwLocker.getWithdrawInPartAmount(lockId)
+        const withdrawInPartAmount = await uwLocker.getWithdrawInPartAmount(lockId, amount)
         return withdrawInPartAmount
       } catch (error) {
         console.error(error)
@@ -116,10 +114,10 @@ export const useUwLocker = () => {
   )
 
   const getBurnOnWithdrawInPartAmount = useCallback(
-    async (lockId: BigNumber): Promise<BigNumber> => {
+    async (lockId: BigNumber, amount: BigNumber): Promise<BigNumber> => {
       if (!uwLocker) return ZERO
       try {
-        const burnOnWithdrawInPartAmount = await uwLocker.getBurnOnWithdrawInPartAmount(lockId)
+        const burnOnWithdrawInPartAmount = await uwLocker.getBurnOnWithdrawInPartAmount(lockId, amount)
         return burnOnWithdrawInPartAmount
       } catch (error) {
         console.error(error)
@@ -144,17 +142,9 @@ export const useUwLocker = () => {
   )
 
   const createLock = useCallback(
-    async (recipient: string, amount: BigNumber, end: BigNumber, tokenContract: Contract) => {
-      if (!uwLocker || !signer) return { tx: null, localTx: null }
-      const { v, r, s } = await getPermitErc20Signature(
-        recipient,
-        activeNetwork.chainId,
-        signer,
-        uwLocker.address,
-        tokenContract,
-        amount
-      )
-      const tx = await uwLocker.createLockSigned(amount, end, DEADLINE, v, r, s, {
+    async (amount: BigNumber, end: BigNumber) => {
+      if (!uwLocker || !signer || !account) return { tx: null, localTx: null }
+      const tx = await uwLocker.createLock(account, amount, end, {
         ...gasConfig,
         gasLimit: 800000,
       })
@@ -165,21 +155,13 @@ export const useUwLocker = () => {
       }
       return { tx, localTx }
     },
-    [activeNetwork.chainId, uwLocker, signer, gasConfig]
+    [account, uwLocker, signer, gasConfig]
   )
 
   const increaseAmount = useCallback(
-    async (recipient: string, lockId: BigNumber, amount: BigNumber, tokenContract: Contract) => {
+    async (lockId: BigNumber, amount: BigNumber) => {
       if (!uwLocker || !signer) return { tx: null, localTx: null }
-      const { v, r, s } = await getPermitErc20Signature(
-        recipient,
-        activeNetwork.chainId,
-        signer,
-        uwLocker.address,
-        tokenContract,
-        amount
-      )
-      const tx = await uwLocker.increaseAmountSigned(lockId, amount, DEADLINE, v, r, s, {
+      const tx = await uwLocker.increaseAmountSigned(lockId, amount, {
         ...gasConfig,
         gasLimit: 800000,
       })
@@ -190,7 +172,7 @@ export const useUwLocker = () => {
       }
       return { tx, localTx }
     },
-    [activeNetwork.chainId, uwLocker, signer, gasConfig]
+    [uwLocker, signer, gasConfig]
   )
 
   const increaseAmountMultiple = useCallback(

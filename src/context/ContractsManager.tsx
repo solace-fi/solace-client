@@ -15,6 +15,7 @@ the web application mainly reads the contracts.
 type Contracts = {
   keyContracts: {
     solace?: Contract | null
+    depositHelper?: Contract | null
     gaugeController?: Contract | null
     uwLockVoting?: Contract | null
     uwLocker?: Contract | null
@@ -28,6 +29,7 @@ type Contracts = {
 const ContractsContext = createContext<Contracts>({
   keyContracts: {
     solace: undefined,
+    depositHelper: undefined,
     gaugeController: undefined,
     uwLockVoting: undefined,
     uwLocker: undefined,
@@ -44,6 +46,7 @@ const ContractsProvider: React.FC = (props) => {
   const keyContracts = useMemo(() => activeNetwork.config.keyContracts, [activeNetwork])
 
   const solace = useGetContract(keyContracts.solace)
+  const depositHelper = useGetContract(keyContracts.depositHelper)
   const gaugeController = useGetContract(keyContracts.gaugeController)
   const uwLockVoting = useGetContract(keyContracts.uwLockVoting)
   const uwLocker = useGetContract(keyContracts.uwLocker)
@@ -55,6 +58,7 @@ const ContractsProvider: React.FC = (props) => {
     () => ({
       keyContracts: {
         solace,
+        depositHelper,
         gaugeController,
         uwLockVoting,
         uwLocker,
@@ -64,7 +68,7 @@ const ContractsProvider: React.FC = (props) => {
       },
       contractSources,
     }),
-    [solace, gaugeController, uwLockVoting, uwLocker, uwp, uwe, fluxMegaOracle, contractSources]
+    [solace, depositHelper, gaugeController, uwLockVoting, uwLocker, uwp, uwe, fluxMegaOracle, contractSources]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>

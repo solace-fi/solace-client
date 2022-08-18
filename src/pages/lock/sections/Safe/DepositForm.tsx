@@ -34,6 +34,8 @@ import { Label } from '../../molecules/InfoPair'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { useBalanceConversion } from '../../../../hooks/lock/useUnderwritingHelper'
 import useDebounce from '@rooks/use-debounce'
+import { useContracts } from '../../../../context/ContractsManager'
+import { useTokenAllowance } from '../../../../hooks/contract/useToken'
 
 export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
@@ -41,12 +43,15 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { account } = useWeb3React()
   const { signer } = useProvider()
+  const { keyContracts } = useContracts()
+  const { uwLocker } = keyContracts
+
   const { width } = useWindowDimensions()
   const { increaseAmount } = useUwLocker()
   const { tokensToUwe } = useBalanceConversion()
   const { intrface, paymentCoins, input } = useLockContext()
   const { tokensLoading } = intrface
-  const { batchBalanceData, coinsOpen, handleCoinsOpen } = paymentCoins
+  const { batchBalanceData, coinsOpen, handleCoinsOpen, approveCPM } = paymentCoins
   const { selectedCoin } = input
 
   const disabled = false
@@ -58,6 +63,12 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
   const selectedCoinContract = useMemo(
     () => (selectedCoin ? new Contract(selectedCoin.address, ERC20_ABI, signer) : undefined),
     [selectedCoin, signer]
+  )
+
+  const depositApproval = useTokenAllowance(
+    selectedCoinContract ?? null,
+    uwLocker?.address ?? null,
+    inputValue && inputValue != '.' ? parseUnits(inputValue, selectedCoin?.decimals ?? 18).toString() : '0'
   )
 
   const selectedCoinBalance = useMemo(() => {
@@ -75,12 +86,7 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
 
   const callIncreaseLockAmount = async () => {
     if (!account || !selectedCoinContract) return
-    await increaseAmount(
-      account,
-      lock.lockID,
-      parseUnits(formatAmount(inputValue), selectedCoin?.decimals ?? 18),
-      selectedCoinContract
-    )
+    await increaseAmount(lock.lockID, parseUnits(formatAmount(inputValue), selectedCoin?.decimals ?? 18))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callIncreaseAmount', err, FunctionName.INCREASE_AMOUNT))
   }
@@ -191,31 +197,68 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
             />
           </Flex>
           <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
-            <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-              Projected benefits
-            </Label>
             <GrayBox>
               <Flex stretch column>
-                <Flex stretch gap={24}>
-                  <Flex column gap={2}>
-                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                      Amount of UWE to be minted on deposit
-                    </Text>
-                    <div style={(rightSidebar ? BKPT_7 : BKPT_5) > width ? { display: 'block' } : { display: 'none' }}>
-                      &nbsp;
-                    </div>
-                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                      <Flex>{formatUnits(equivalentUwe, 18)} UWE</Flex>
-                    </Text>
-                  </Flex>
+                <Flex column gap={10}>
+                  <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                    Amount of UWE to be minted on deposit
+                  </Text>
+                  <div style={(rightSidebar ? BKPT_7 : BKPT_5) > width ? { display: 'block' } : { display: 'none' }}>
+                    &nbsp;
+                  </div>
+                  <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                    <Flex>{formatUnits(equivalentUwe, 18)} UWE</Flex>
+                  </Text>
                 </Flex>
               </Flex>
             </GrayBox>
           </Flex>
         </Flex>
-        <Button secondary info noborder disabled={!isAcceptableDeposit} onClick={callIncreaseLockAmount}>
-          Stake
-        </Button>
+        {depositApproval && selectedCoin && (
+          <Button
+            secondary
+            info
+            noborder
+            disabled={!isAcceptableDeposit || !selectedCoin}
+            onClick={callIncreaseLockAmount}
+          >
+            Stake
+          </Button>
+        )}
+        {!depositApproval && selectedCoin && (
+          <Flex gap={10}>
+            <Button
+              secondary
+              warmgradient
+              noborder
+              disabled={
+                !inputValue ||
+                inputValue == '.' ||
+                parseUnits(inputValue, selectedCoin?.decimals ?? 18).isZero() ||
+                !selectedCoinContract ||
+                !uwLocker
+              }
+              onClick={() =>
+                approveCPM(
+                  uwLocker?.address ?? '',
+                  selectedCoinContract?.address ?? '',
+                  parseUnits(inputValue, selectedCoin?.decimals ?? 18)
+                )
+              }
+            >
+              {`Approve Entered ${selectedCoin?.symbol}`}
+            </Button>
+            <Button
+              secondary
+              warmgradient
+              noborder
+              onClick={() => approveCPM(uwLocker?.address ?? '', selectedCoinContract?.address ?? '')}
+              disabled={!selectedCoinContract || !uwLocker}
+            >
+              {`Approve MAX ${selectedCoin?.symbol}`}
+            </Button>
+          </Flex>
+        )}
       </StyledForm>
     </div>
   )

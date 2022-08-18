@@ -28,6 +28,8 @@ import { LoaderText } from '../../../../components/molecules/LoaderText'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { useBalanceConversion } from '../../../../hooks/lock/useUnderwritingHelper'
 import useDebounce from '@rooks/use-debounce'
+import { useContracts } from '../../../../context/ContractsManager'
+import { useTokenAllowance } from '../../../../hooks/contract/useToken'
 
 const StyledForm = styled.div`
   display: flex;
@@ -47,12 +49,14 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const { latestBlock, signer } = useProvider()
   const { intrface, paymentCoins, input } = useLockContext()
   const { tokensLoading } = intrface
-  const { batchBalanceData, coinsOpen, handleCoinsOpen } = paymentCoins
+  const { batchBalanceData, coinsOpen, handleCoinsOpen, approveCPM } = paymentCoins
   const { selectedCoin } = input
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { tokensToUwe } = useBalanceConversion()
   const { createLock } = useUwLocker()
+  const { keyContracts } = useContracts()
+  const { uwLocker } = keyContracts
 
   const selectedCoinContract = useMemo(
     () => (selectedCoin ? new Contract(selectedCoin.address, ERC20_ABI, signer) : undefined),
@@ -73,15 +77,24 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const [lockInputValue, setLockInputValue] = useState('0')
   const [equivalentUwe, setEquivalentUwe] = useState<BigNumber>(ZERO)
 
+  const depositApproval = useTokenAllowance(
+    selectedCoinContract ?? null,
+    uwLocker?.address ?? null,
+    stakeInputValue && stakeInputValue != '.'
+      ? parseUnits(stakeInputValue, selectedCoin?.decimals ?? 18).toString()
+      : '0'
+  )
+
+  const isAcceptableDeposit = useMemo(() => {
+    if (!selectedCoinBalance) return false
+    return isAppropriateAmount(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18, selectedCoinBalance)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchBalanceData, stakeInputValue, selectedCoin])
+
   const callCreateLock = async () => {
     if (!latestBlock || !account || !selectedCoinContract) return
     const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
-    await createLock(
-      account,
-      parseUnits(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18),
-      BigNumber.from(seconds),
-      selectedCoinContract
-    )
+    await createLock(parseUnits(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18), BigNumber.from(seconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callCreateLock', err, FunctionName.CREATE_LOCK))
   }
@@ -225,42 +238,71 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 </Flex>
               </Flex>
               <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
-                <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-                  Projected benefits
-                </Label>
                 <GrayBox>
                   <Flex stretch column>
-                    <Flex stretch gap={24}>
-                      <Flex column gap={2}>
-                        <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                          Amount of UWE to be minted on deposit
-                        </Text>
-                        <div
-                          style={(rightSidebar ? BKPT_7 : BKPT_5) > width ? { display: 'block' } : { display: 'none' }}
-                        >
-                          &nbsp;
-                        </div>
-                        <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                          <Flex>{formatUnits(equivalentUwe, 18)} UWE</Flex>
-                        </Text>
-                      </Flex>
+                    <Flex column gap={10}>
+                      <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                        Amount of UWE to be minted on deposit
+                      </Text>
+                      <div
+                        style={(rightSidebar ? BKPT_7 : BKPT_5) > width ? { display: 'block' } : { display: 'none' }}
+                      >
+                        &nbsp;
+                      </div>
+                      <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                        <Flex>{formatUnits(equivalentUwe, 18)} UWE</Flex>
+                      </Text>
                     </Flex>
                   </Flex>
                 </GrayBox>
               </Flex>
             </Flex>
             <Flex pb={24} pl={24} width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 333 : undefined}>
-              <Button
-                secondary
-                info
-                noborder
-                disabled={
-                  !isAppropriateAmount(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18, selectedCoinBalance)
-                }
-                onClick={callCreateLock}
-              >
-                Stake
-              </Button>
+              {depositApproval && selectedCoin && (
+                <Button
+                  secondary
+                  info
+                  noborder
+                  disabled={!isAcceptableDeposit || !selectedCoin}
+                  onClick={callCreateLock}
+                >
+                  Stake
+                </Button>
+              )}
+              {!depositApproval && selectedCoin && (
+                <Flex gap={10}>
+                  <Button
+                    secondary
+                    warmgradient
+                    noborder
+                    disabled={
+                      !stakeInputValue ||
+                      stakeInputValue == '.' ||
+                      parseUnits(stakeInputValue, selectedCoin?.decimals ?? 18).isZero() ||
+                      !selectedCoinContract ||
+                      !uwLocker
+                    }
+                    onClick={() =>
+                      approveCPM(
+                        uwLocker?.address ?? '',
+                        selectedCoinContract?.address ?? '',
+                        parseUnits(stakeInputValue, selectedCoin?.decimals ?? 18)
+                      )
+                    }
+                  >
+                    {`Approve Entered ${selectedCoin?.symbol}`}
+                  </Button>
+                  <Button
+                    secondary
+                    warmgradient
+                    noborder
+                    onClick={() => approveCPM(uwLocker?.address ?? '', selectedCoinContract?.address ?? '')}
+                    disabled={!selectedCoinContract || !uwLocker}
+                  >
+                    {`Approve MAX ${selectedCoin?.symbol}`}
+                  </Button>
+                </Flex>
+              )}
             </Flex>
           </StyledForm>
         </RaisedBox>

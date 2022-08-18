@@ -99,7 +99,14 @@ export const OwnerVoteGauge = ({ index }: { index: number }): JSX.Element => {
               Remove vote
             </Button>
           )}
-          <Button secondary noborder techygradient onClick={callVote} widthP={100}>
+          <Button
+            secondary
+            noborder
+            techygradient
+            onClick={callVote}
+            widthP={100}
+            disabled={!votesData.localVoteAllocation[index].gaugeActive}
+          >
             Save Vote
           </Button>
         </Flex>

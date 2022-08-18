@@ -1,7 +1,7 @@
 import { ERC20_ABI } from '@solace-fi/sdk-nightly'
 import { BigNumber, Contract } from 'ethers'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { TokenInfo } from '../../constants/types'
+import { PoolTokenInfo } from '../../constants/types'
 import { useProvider } from '../../context/ProviderManager'
 import fluxMegaOracleABI from '../../constants/abi/FluxMegaOracle.json'
 
@@ -9,6 +9,7 @@ import { ZERO, ZERO_ADDRESS } from '@solace-fi/sdk-nightly'
 import { useMemo } from 'react'
 import { TokenData } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
+import { floatUnits } from '../../utils/formatting'
 
 export const useUwe = () => {
   const { keyContracts } = useContracts()
@@ -63,10 +64,22 @@ export const useUwe = () => {
     [uwe]
   )
 
+  const totalSupply = useCallback(async (): Promise<BigNumber> => {
+    if (!uwe) return ZERO
+    try {
+      const totalSupply = await uwe.totalSupply()
+      return totalSupply
+    } catch (error) {
+      console.error(error)
+      return ZERO
+    }
+  }, [uwe])
+
   return {
     isPaused,
     calculateDeposit,
     calculateWithdraw,
+    totalSupply,
   }
 }
 
@@ -243,7 +256,7 @@ export const useUwp = () => {
 export const useTokenHelper = () => {
   const { tokensLength, tokenList, uwp } = useUwp()
   const { provider } = useProvider()
-  const [tokens, setTokens] = useState<TokenInfo[]>([])
+  const [tokens, setTokens] = useState<PoolTokenInfo[]>([])
   const running = useRef(false)
 
   const [loading, setLoading] = useState(false)
@@ -260,32 +273,28 @@ export const useTokenHelper = () => {
       const data = await tokenList(BigNumber.from(tokenID))
       tokenData.push(data)
       const token = new Contract(data.token, ERC20_ABI, provider)
-      const metadata = await Promise.all([
-        token.name(),
-        token.symbol(),
-        token.decimals(),
-        // token.balanceOf(uwp.address)
-      ])
+      const metadata = await Promise.all([token.name(), token.symbol(), token.decimals(), token.balanceOf(uwp.address)])
       tokenMetadata.push(metadata)
       const oracle2 = new Contract(data.oracle, fluxMegaOracleABI, provider)
       oracleData.push(
         await Promise.all([
           oracle2.valueOfTokens(data.token, BigNumber.from(10).pow(metadata[2])), // one token
-          // oracle2.valueOfTokens(data.token, metadata[3]), // balance
+          oracle2.valueOfTokens(data.token, metadata[3]), // balance
         ])
       )
     }
     const res = []
     for (let tokenId = 0; tokenId < len; ++tokenId) {
-      const tokenInfo: TokenInfo = {
+      const poolTokenInfo: PoolTokenInfo = {
         name: tokenMetadata[tokenId][0],
         symbol: tokenMetadata[tokenId][1],
         decimals: tokenMetadata[tokenId][2],
         address: tokenData[tokenId].token,
-        price: oracleData[tokenId][0],
+        price: floatUnits(oracleData[tokenId][0], 18),
         balance: ZERO,
+        poolBalance: oracleData[tokenId][1],
       }
-      res.push(tokenInfo)
+      res.push(poolTokenInfo)
     }
     setTokens(res)
     setLoading(false)
@@ -306,7 +315,7 @@ export const useTokenHelper = () => {
 
 export const useBalanceConversion = () => {
   const { valueOfShares, calculateIssue, calculateRedeem } = useUwp()
-  const { calculateDeposit, calculateWithdraw } = useUwe()
+  const { calculateDeposit, calculateWithdraw, totalSupply } = useUwe()
 
   const tokensToUwe = useCallback(
     async (depositTokens: string[], depositAmounts: BigNumber[]) => {
@@ -319,12 +328,19 @@ export const useBalanceConversion = () => {
 
   const uweToTokens = useCallback(
     async (uwe: BigNumber) => {
+      const _totalUweSupply = await totalSupply()
+      if (uwe.gt(_totalUweSupply))
+        return {
+          depositTokens: [],
+          usdValueOfUwpAmount: ZERO,
+          successful: false,
+        }
       const uwpAmount = await calculateWithdraw(uwe)
       const usdValueOfUwpAmount = await valueOfShares(uwpAmount)
       const depositTokens = await calculateRedeem(uwpAmount)
-      return { depositTokens, usdValueOfUwpAmount }
+      return { depositTokens, usdValueOfUwpAmount, successful: true }
     },
-    [calculateWithdraw, calculateRedeem, valueOfShares]
+    [calculateWithdraw, calculateRedeem, valueOfShares, totalSupply]
   )
 
   return { tokensToUwe, uweToTokens }

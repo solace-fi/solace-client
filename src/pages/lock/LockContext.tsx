@@ -1,8 +1,6 @@
 import { BigNumber } from 'ethers'
 import React, { createContext, useMemo, useState, useContext, useEffect, useCallback } from 'react'
-import { SOLACE_TOKEN } from '../../constants/mappings/token'
-import { ReadToken, TokenInfo } from '../../constants/types'
-import { useNetwork } from '../../context/NetworkManager'
+import { PoolTokenInfo, ReadToken, TokenInfo } from '../../constants/types'
 import { useBatchBalances } from '../../hooks/balance/useBalance'
 import { ERC20_ABI } from '../../constants/abi'
 import { useTokenApprove } from '../../hooks/contract/useToken'
@@ -10,7 +8,11 @@ import { isAddress } from '../../utils'
 import { TokenSelectionModal } from '../../components/organisms/TokenSelectionModal'
 import { useTokenHelper } from '../../hooks/lock/useUnderwritingHelper'
 import { useCachedData } from '../../context/CachedDataManager'
-import { ZERO } from '@solace-fi/sdk-nightly'
+import { ZERO, ZERO_ADDRESS } from '@solace-fi/sdk-nightly'
+import { useWeb3React } from '@web3-react/core'
+import { useUwLockVoting } from '../../hooks/lock/useUwLockVoting'
+import { DelegateModal } from './organisms/DelegateModal'
+import { useUwLocker } from '../../hooks/lock/useUwLocker'
 
 type LockContextType = {
   intrface: {
@@ -20,7 +22,7 @@ type LockContextType = {
     handleTransactionLoading: (setLoading: boolean) => void
   }
   paymentCoins: {
-    batchBalanceData: TokenInfo[]
+    batchBalanceData: PoolTokenInfo[]
     coinsOpen: boolean
     handleCoinsOpen: (value: boolean) => void
     approveCPM: (spenderAddress: string, tokenAddr: string, amount?: BigNumber) => void
@@ -28,6 +30,14 @@ type LockContextType = {
   input: {
     selectedCoin?: ReadToken
     handleSelectedCoin: (coin: string) => void
+  }
+  delegateData: {
+    delegate: string
+    delegateModalOpen: boolean
+    handleDelegateModalOpen: (value: boolean) => void
+  }
+  locker: {
+    stakedBalance: BigNumber
   }
 }
 
@@ -48,16 +58,27 @@ const LockContext = createContext<LockContextType>({
     selectedCoin: undefined,
     handleSelectedCoin: () => undefined,
   },
+  delegateData: {
+    delegate: ZERO_ADDRESS,
+    delegateModalOpen: false,
+    handleDelegateModalOpen: () => undefined,
+  },
+  locker: {
+    stakedBalance: ZERO,
+  },
 })
 
 const LockManager: React.FC = (props) => {
-  const { activeNetwork } = useNetwork()
-
+  const { account } = useWeb3React()
   const [coinsOpen, setCoinsOpen] = useState(false)
   const [transactionLoading, setTransactionLoading] = useState<boolean>(false)
+  const [currentDelegate, setCurrentDelegate] = useState(ZERO_ADDRESS)
+  const [delegateModalOpen, setDelegateModalOpen] = useState(false)
+  const [stakedBalance, setStakedBalance] = useState<BigNumber>(ZERO)
 
   const { loading: tokensLoading, tokens } = useTokenHelper()
-
+  const { delegateOf } = useUwLockVoting()
+  const { totalStakedBalance } = useUwLocker()
   const coinOptions = useMemo(() => [...tokens], [tokens])
   const { loading: balancesLoading, batchBalances } = useBatchBalances(coinOptions)
   const { tokenPriceMapping } = useCachedData()
@@ -75,7 +96,8 @@ const LockManager: React.FC = (props) => {
       if (price) tokenprice = price
       return { ...coinOptions[i], balance: b.balance, price: tokenprice }
     })
-  }, [batchBalances, coinOptions])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchBalances, tokenPriceMapping])
 
   const handleSelectedCoin = useCallback(
     (addr: string) => {
@@ -91,6 +113,10 @@ const LockManager: React.FC = (props) => {
     setCoinsOpen(value)
   }, [])
 
+  const handleDelegateModalOpen = useCallback((value: boolean) => {
+    setDelegateModalOpen(value)
+  }, [])
+
   const handleTransactionLoading = useCallback((setLoading: boolean) => {
     setTransactionLoading(setLoading)
   }, [])
@@ -104,8 +130,32 @@ const LockManager: React.FC = (props) => {
   )
 
   useEffect(() => {
+    const getMyDelegate = async () => {
+      if (!account) {
+        setCurrentDelegate(ZERO_ADDRESS)
+        return
+      }
+      const delegate = await delegateOf(account)
+      setCurrentDelegate(delegate)
+    }
+    getMyDelegate()
+  }, [delegateOf, account])
+
+  useEffect(() => {
     if (coinOptions.length > 0) setSelectedCoin(coinOptions[0])
   }, [coinOptions])
+
+  useEffect(() => {
+    const getStakedBalance = async () => {
+      if (!account) {
+        setStakedBalance(ZERO)
+        return
+      }
+      const staked = await totalStakedBalance(account)
+      setStakedBalance(staked)
+    }
+    getStakedBalance()
+  }, [totalStakedBalance, account])
 
   const value = useMemo<LockContextType>(
     () => ({
@@ -125,6 +175,12 @@ const LockManager: React.FC = (props) => {
         selectedCoin,
         handleSelectedCoin,
       },
+      delegateData: {
+        delegate: currentDelegate,
+        delegateModalOpen,
+        handleDelegateModalOpen,
+      },
+      locker: { stakedBalance },
     }),
     [
       handleTransactionLoading,
@@ -137,6 +193,10 @@ const LockManager: React.FC = (props) => {
       handleSelectedCoin,
       transactionLoading,
       balancesLoading,
+      currentDelegate,
+      delegateModalOpen,
+      handleDelegateModalOpen,
+      stakedBalance,
     ]
   )
   return (
@@ -149,6 +209,7 @@ const LockManager: React.FC = (props) => {
         handleSelectedCoin={handleSelectedCoin}
         handleCloseModal={() => handleCoinsOpen(false)}
       />
+      <DelegateModal show={delegateModalOpen} handleCloseModal={() => handleDelegateModalOpen(false)} />
       {props.children}
     </LockContext.Provider>
   )

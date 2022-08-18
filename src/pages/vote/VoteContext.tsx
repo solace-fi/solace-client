@@ -27,7 +27,9 @@ type VoteContextType = {
     assign: (gaugeName: string, gaugeId: BigNumber, index: number, isOwner: boolean) => void
   }
   voteOwner: {
+    delegate: string
     votesData: VotesData
+    handleDelegateAddress: (address: string) => void
     handleVotesData: (votesData: VotesData) => void
   }
   voteDelegator: {
@@ -54,12 +56,14 @@ const VoteContext = createContext<VoteContextType>({
     assign: () => undefined,
   },
   voteOwner: {
+    delegate: '',
     votesData: {
       localVoteAllocation: [],
       votePower: ZERO,
       usedVotePowerBPS: ZERO,
       localVoteAllocationTotal: 0,
     },
+    handleDelegateAddress: () => undefined,
     handleVotesData: () => undefined,
   },
   voteDelegator: {
@@ -88,6 +92,7 @@ const VoteManager: React.FC = (props) => {
   const [openGaugeSelectionModal, setOpenGaugeSelectionModal] = useState(false)
   const [editingIndex, setEditingIndex] = useState<number | undefined>(undefined)
   const [delegatorAddr, setDelegatorAddr] = useState('')
+  const [delegateAddr, setDelegateAddr] = useState('')
 
   const [votesData, setVotesData] = useState<VotesData>({
     votePower: ZERO,
@@ -104,6 +109,10 @@ const VoteManager: React.FC = (props) => {
 
   const handleVotesData = useCallback((votesData: VotesData) => {
     setVotesData(votesData)
+  }, [])
+
+  const handleDelegateAddress = useCallback((address: string) => {
+    setDelegateAddr(address)
   }, [])
 
   const handleDelegatorAddress = useCallback((address: string) => {
@@ -362,6 +371,7 @@ const VoteManager: React.FC = (props) => {
         }, 0),
       }
 
+      handleDelegateAddress(userVoteInfo.delegate)
       handleVotesData(newVotesData)
     }
     getUserVotesData()
@@ -396,7 +406,9 @@ const VoteManager: React.FC = (props) => {
         deleteVote,
       },
       voteOwner: {
+        delegate: delegateAddr,
         votesData,
+        handleDelegateAddress,
         handleVotesData,
       },
       voteDelegator: {
@@ -421,6 +433,8 @@ const VoteManager: React.FC = (props) => {
       handleGaugeSelectionModal,
       delegatorAddr,
       handleDelegatorAddress,
+      delegateAddr,
+      handleDelegateAddress,
     ]
   )
 
