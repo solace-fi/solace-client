@@ -10,8 +10,14 @@ import { useFetchGasData } from '../hooks/provider/useGas'
 import { useNetwork } from './NetworkManager'
 import { useGetCrossTokenPricesFromCoingecko } from '../hooks/api/usePrice'
 import { useWeb3React } from '@web3-react/core'
-import { BigNumber, SolaceRiskProtocol, SolaceRiskScore, TokenToPriceMapping } from '@solace-fi/sdk-nightly'
-import { useCheckIsCoverageActive, usePortfolio } from '../hooks/policy/useSolaceCoverProductV3'
+import {
+  BigNumber,
+  SolaceRiskProtocol,
+  SolaceRiskScore,
+  SolaceRiskSeries,
+  TokenToPriceMapping,
+} from '@solace-fi/sdk-nightly'
+import { useCheckIsCoverageActive, usePortfolio, useRiskSeries } from '../hooks/policy/useSolaceCoverProductV3'
 import { useScpBalance } from '../hooks/balance/useBalance'
 import { usePortfolioAnalysis } from '../hooks/policy/usePortfolioAnalysis'
 import { ZERO } from '../constants'
@@ -49,6 +55,11 @@ type CachedData = {
     portfolioLoading: boolean
     coverageLoading: boolean
   }
+  seriesKit: {
+    series?: SolaceRiskSeries
+    seriesLogos: { label: string; value: string; icon: JSX.Element }[]
+    seriesLoading: boolean
+  }
 }
 
 const CachedDataContext = createContext<CachedData>({
@@ -74,6 +85,11 @@ const CachedDataContext = createContext<CachedData>({
     portfolioLoading: true,
     coverageLoading: true,
   },
+  seriesKit: {
+    series: undefined,
+    seriesLogos: [],
+    seriesLoading: true,
+  },
 })
 
 const CachedDataProvider: React.FC = (props) => {
@@ -88,6 +104,19 @@ const CachedDataProvider: React.FC = (props) => {
   const { portfolio, loading: portfolioLoading, fetchStatus } = usePortfolio()
   const { policyId, status, coverageLimit, mounting: coverageLoading } = useCheckIsCoverageActive()
   const scpBalance = useScpBalance()
+  const { series, loading: seriesLoading } = useRiskSeries()
+
+  const seriesLogos = useMemo(() => {
+    return series
+      ? series.data.protocolMap.map((s) => {
+          return {
+            label: s.appId,
+            value: s.appId,
+            icon: <img src={`https://assets.solace.fi/zapperLogos/${s.appId}`} height={24} />,
+          }
+        })
+      : []
+  }, [series])
 
   const {
     highestPosition: curHighestPosition,
@@ -153,6 +182,11 @@ const CachedDataProvider: React.FC = (props) => {
         portfolioLoading,
         coverageLoading,
       },
+      seriesKit: {
+        series,
+        seriesLogos,
+        seriesLoading,
+      },
     }),
     [
       minute,
@@ -175,6 +209,9 @@ const CachedDataProvider: React.FC = (props) => {
       scpBalance,
       portfolioLoading,
       coverageLoading,
+      series,
+      seriesLogos,
+      seriesLoading,
     ]
   )
 

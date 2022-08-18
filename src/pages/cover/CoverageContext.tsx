@@ -129,7 +129,7 @@ type CoverageContextType = {
     referredCount?: number
     userReferralCode?: string
     cookieReferralCode?: string
-    cookieCodeUsable: boolean
+    cookieCodeUsable?: boolean
     handleCookieReferralCode: (code: string | undefined) => void
     applyReferralCode: (referral_code: string, policy_id: number, chain_id: number) => Promise<boolean>
     codeApplicationStatus: string
@@ -248,7 +248,7 @@ const CoverageContext = createContext<CoverageContextType>({
 const CoverageManager: React.FC = (props) => {
   const { appTheme, rightSidebar } = useGeneral()
   const { activeNetwork } = useNetwork()
-  const { tokenPriceMapping, minute, coverage } = useCachedData()
+  const { tokenPriceMapping, minute, coverage, seriesKit } = useCachedData()
   const {
     portfolio: curPortfolio,
     portfolioLoading,
@@ -268,7 +268,7 @@ const CoverageManager: React.FC = (props) => {
   const { width } = useWindowDimensions()
   const { riskScores } = usePortfolio()
   const [simPortfolio, setSimPortfolio] = useState<SolaceRiskScore | undefined>(undefined)
-  const { series, loading: seriesLoading } = useRiskSeries()
+  const { series, seriesLoading } = seriesKit
   const [transactionLoading, setTransactionLoading] = useState<boolean>(false)
   const {
     amount: enteredDeposit,
@@ -400,10 +400,10 @@ const CoverageManager: React.FC = (props) => {
 
   const approveCPM = useCallback(
     async (tokenAddr: string, amount?: BigNumber) => {
-      if (!scpObj || !isAddress(tokenAddr) || !isAddress(scpObj.coverPaymentManager.address)) return
-      await approve(tokenAddr, ERC20_ABI, scpObj.coverPaymentManager.address, amount)
+      if (!spenderAddress || !isAddress(tokenAddr) || !isAddress(spenderAddress)) return
+      await approve(tokenAddr, ERC20_ABI, spenderAddress, amount)
     },
-    [scpObj, approve]
+    [spenderAddress, approve]
   )
 
   const handleSimCoverLimit = useCallback((coverageLimit: BigNumber) => {
@@ -541,6 +541,7 @@ const CoverageManager: React.FC = (props) => {
   useEffect(() => {
     if (!signer || !activeNetwork.config.generalFeatures.coverageV3) {
       setScpObj(undefined)
+      setSpenderAddress(null)
       return
     }
     const scpObj = new SCP(activeNetwork.chainId, signer)

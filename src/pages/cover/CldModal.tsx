@@ -153,12 +153,9 @@ export const CldModal = () => {
     const filtered = filterAmount(input, customInputAmount)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
 
-    const bnFiltered = BigNumber.from(accurateMultiply(filtered, 18))
     setLocalNewCoverageLimit(filtered)
     setCustomInputAmount(filtered)
-    if (!recommendedAmount.eq(bnFiltered) && !highestAmount.eq(bnFiltered)) {
-      setChosenLimit(ChosenLimit.Custom)
-    }
+    setChosenLimit(ChosenLimit.Custom)
   }
 
   const callPurchase = async () => {
@@ -167,8 +164,10 @@ export const CldModal = () => {
     await purchase(account, parseUnits(localNewCoverageLimit, 18))
       .then(async (res) => await _handleToast(res.tx, res.localTx, true))
       .then((res) => handleCodeApplication(res))
-
-      .catch((err) => _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE))
+      .catch((err) => {
+        _handleContractCallError('callPurchase', err, FunctionName.COVER_PURCHASE)
+        handleCodeApplicationStatus('activation failed')
+      })
   }
 
   const callPurchaseWithStable = async () => {
@@ -182,8 +181,10 @@ export const CldModal = () => {
     )
       .then(async (res) => await _handleToast(res.tx, res.localTx, true))
       .then((res) => handleCodeApplication(res))
-
-      .catch((err) => _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE))
+      .catch((err) => {
+        _handleContractCallError('callPurchaseWithStable', err, FunctionName.COVER_PURCHASE_WITH_STABLE)
+        handleCodeApplicationStatus('activation failed')
+      })
   }
 
   const callPurchaseWithNonStable = async () => {
@@ -203,10 +204,10 @@ export const CldModal = () => {
     )
       .then(async (res) => await _handleToast(res.tx, res.localTx, true))
       .then((res) => handleCodeApplication(res))
-
-      .catch((err) =>
+      .catch((err) => {
         _handleContractCallError('callPurchaseWithNonStable', err, FunctionName.COVER_PURCHASE_WITH_NON_STABLE)
-      )
+        handleCodeApplicationStatus('activation failed')
+      })
   }
 
   const handlePurchase = async () => {
@@ -220,6 +221,7 @@ export const CldModal = () => {
   }
 
   const _handleToast = async (tx: any, localTx: any, codeApplication?: boolean) => {
+    console.log('purchase complete, awaiting tx')
     if (codeApplication && !appliedReferralCode && cookieReferralCode && newUserState) {
       handleCodeApplicationStatus(ApiStatus.PENDING)
       handleShowCodeNoticeModal(true)
@@ -235,16 +237,19 @@ export const CldModal = () => {
   }
 
   const handleCodeApplication = async (activationStatus: boolean) => {
+    console.log('tx confirmed')
     if (!activationStatus || !account || !cookieReferralCode || appliedReferralCode || !newUserState) {
       handleCodeApplicationStatus('activation failed')
       return
     }
+    console.log('confirming policy')
     const policyId: BigNumber = await policyOf(account)
     if (policyId?.isZero()) {
       handleCodeApplicationStatus('activation failed')
       return
     }
     handleCodeApplicationStatus('handling referral')
+    console.log('handling referral')
     await applyReferralCode(cookieReferralCode, policyId.toNumber(), activeNetwork.chainId).then((r) => {
       if (r) {
         handleCodeApplicationStatus(ApiStatus.OK)
@@ -421,16 +426,16 @@ export const CldModal = () => {
             />
           </Flex>
         </Flex>
-        {cookieReferralCode && !cookieCodeUsable && newUserState ? (
+        {cookieReferralCode && cookieCodeUsable == false && newUserState ? (
           <Text textAlignCenter pt={16} error>
             Cannot use invalid referral code
           </Text>
         ) : insufficientCovCap ? (
-          <Text textAlignCenter pt={16}>
-            Your desired cover limit is too high.
+          <Text textAlignCenter pt={16} error>
+            {`Please choose a lower cover limit. (Available: ~$${truncateValue(formatUnits(availCovCap, 18), 2)})`}
           </Text>
         ) : lackingScp == 'both zeroes' ? (
-          <Text textAlignCenter pt={16}>
+          <Text textAlignCenter pt={16} error>
             You cannot purchase a policy with a cover limit of 0.
           </Text>
         ) : null}
@@ -472,7 +477,7 @@ export const CldModal = () => {
                 disabled={
                   parseFloat(formatAmount(localNewCoverageLimit)) == 0 ||
                   insufficientCovCap ||
-                  (cookieReferralCode && !cookieCodeUsable && newUserState)
+                  (cookieReferralCode && cookieCodeUsable == false && newUserState)
                 }
               >
                 {curUserState ? `Save` : newUserState || returningUserState ? `Activate` : ``}
@@ -560,7 +565,7 @@ export const CldModal = () => {
                     const selectedCoinBalance_USD =
                       floatUnits(selectedCoinBalance, selectedCoin.decimals) * selectedCoinPrice
                     handleEnteredDeposit(formatUnits(selectedCoinBalance, selectedCoin.decimals), selectedCoin.decimals)
-                    setEnteredUSDDeposit(fixed(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`)).toString())
+                    setEnteredUSDDeposit(fixed(convertSciNotaToPrecise(`${selectedCoinBalance_USD}`), 2).toString())
                   }}
                   widthP={100}
                   disabled={selectedCoinBalance.isZero()}
@@ -579,7 +584,7 @@ export const CldModal = () => {
                     parseFloat(formatAmount(localNewCoverageLimit)) == 0 ||
                     lackingScp != 'meets requirement' ||
                     insufficientCovCap ||
-                    (cookieReferralCode && !cookieCodeUsable && newUserState)
+                    (cookieReferralCode && cookieCodeUsable == false && newUserState)
                   }
                 >
                   <Text>

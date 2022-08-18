@@ -15,6 +15,7 @@ import { ModalCloseButton } from '../../components/molecules/Modal'
 import { useGeneral } from '../../context/GeneralManager'
 import AddProtocolForm from './AddProtocolForm'
 import { mapEditableProtocols, mapUniqueRiskProtocols } from '../../utils/mapProtocols'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 
 export const PortfolioSimulator = (): JSX.Element => {
   const { appTheme } = useGeneral()
@@ -146,8 +147,63 @@ export const PortfolioSimulator = (): JSX.Element => {
     handleSimCounter()
   }, [editableProtocols, portfolioLoading, active, riskScores, handleSimPortfolio, handleSimCounter])
 
+  const reorderEditableProtocols = useCallback(
+    (startIndex: number, endIndex: number) => {
+      const result = Array.from(editableProtocols)
+      const [removed] = result.splice(startIndex, 1)
+      result.splice(endIndex, 0, removed)
+
+      return result
+    },
+    [editableProtocols]
+  )
+
+  const onDragStart = useCallback((initial: any) => {
+    if (!initial.source) return
+  }, [])
+
+  const onDragEnd = useCallback(
+    (result: any) => {
+      // dropped outside the list
+      if (!result.destination) return
+
+      const items = reorderEditableProtocols(result.source.index, result.destination.index)
+      setEditableProtocols(items)
+    },
+    [reorderEditableProtocols]
+  )
+
+  const getItemStyle = useCallback(
+    (isDragging: any, draggableStyle: any) => ({
+      // some basic styles to make the items look a bit nicer
+      userSelect: 'none',
+      padding: 6,
+      margin: `0 0 ${3}px 0`,
+
+      // change background colour if dragging
+      background: isDragging ? 'lightgreen' : 'transparent',
+      borderRadius: '10px',
+
+      // styles we need to apply on draggables
+      ...draggableStyle,
+    }),
+    []
+  )
+
+  const getListStyle = useCallback(
+    (isDraggingOver: boolean) => ({
+      background: isDraggingOver ? 'grey' : 'transparent',
+      padding: 4,
+    }),
+    []
+  )
+
   const handleEditingItem = useCallback((appId?: string) => {
     setEditingItem(appId)
+  }, [])
+
+  const handleAddingProtocol = useCallback((toggle: boolean) => {
+    setAddingProtocol(toggle)
   }, [])
 
   useEffect(() => {
@@ -184,6 +240,12 @@ export const PortfolioSimulator = (): JSX.Element => {
 
   return (
     <Flex col style={{ height: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
+      <AddProtocolForm
+        editableProtocols={editableProtocols}
+        isAddingProtocol={addingProtocol}
+        setIsAddingProtocol={handleAddingProtocol}
+        onAddProtocol={onAddProtocol}
+      />
       <Flex py={18} itemsCenter between px={20} zIndex={3} bgSecondary>
         <Text t1s mont semibold>
           Quote Simulator
@@ -197,7 +259,6 @@ export const PortfolioSimulator = (): JSX.Element => {
         col
         gap={12}
         px={20}
-        pb={18}
         style={{
           zIndex: 2,
         }}
@@ -219,37 +280,25 @@ export const PortfolioSimulator = (): JSX.Element => {
         bgSecondary
         shadow
       >
-        {!addingProtocol ? (
-          <Button
-            secondary
-            raised
-            {...bigButtonStyle}
-            onClick={() => setAddingProtocol(true)}
-            disabled={portfolioLoading && active}
-            height={51}
-          >
-            <Text techygradient t4s>
-              + Add Position
-            </Text>
-          </Button>
-        ) : (
-          <>
-            <Flex p={16} col bgRaised rounded style={{ width: '100%' }}>
-              <AddProtocolForm
-                editableProtocols={editableProtocols}
-                setIsAddingProtocol={setAddingProtocol}
-                onAddProtocol={onAddProtocol}
-              />
-            </Flex>
-          </>
-        )}
+        <Button
+          secondary
+          raised
+          {...bigButtonStyle}
+          onClick={() => setAddingProtocol(true)}
+          disabled={portfolioLoading && active}
+          height={51}
+        >
+          <Text techygradient t4s>
+            + Add Position
+          </Text>
+        </Button>
       </Flex>
       <Flex
         thinScrollbar
         col
         gap={12}
         pt={20}
-        px={20}
+        px={14}
         pb={10}
         style={{
           overflowY: 'auto',
@@ -257,22 +306,45 @@ export const PortfolioSimulator = (): JSX.Element => {
         }}
         bgLightGray
       >
-        {editableProtocols.map((protocol: LocalSolaceRiskProtocol) => {
-          const riskColor = getColorByTier(protocol.tier)
-          return (
-            <Protocol
-              key={protocol.appId.concat(protocol.network)}
-              protocol={protocol}
-              editableProtocolAppIds={editableProtocolAppIds}
-              riskColor={riskColor}
-              editingItem={editingItem}
-              saveEditedItem={saveEditedItem}
-              deleteItem={deleteItem}
-              handleEditingItem={handleEditingItem}
-              simulating={simulating}
-            />
-          )
-        })}
+        <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+          <Droppable droppableId="droppable">
+            {(provided, snapshot) => (
+              <div {...provided.droppableProps} ref={provided.innerRef} style={getListStyle(snapshot.isDraggingOver)}>
+                {editableProtocols.map((protocol: LocalSolaceRiskProtocol, i) => {
+                  const riskColor = getColorByTier(protocol.tier)
+                  return (
+                    <Draggable
+                      key={protocol.appId.concat(protocol.network)}
+                      draggableId={protocol.appId.concat(protocol.network)}
+                      index={i}
+                    >
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+                        >
+                          <Protocol
+                            protocol={protocol}
+                            editableProtocolAppIds={editableProtocolAppIds}
+                            riskColor={riskColor}
+                            editingItem={editingItem}
+                            saveEditedItem={saveEditedItem}
+                            deleteItem={deleteItem}
+                            handleEditingItem={handleEditingItem}
+                            simulating={simulating}
+                          />
+                        </div>
+                      )}
+                    </Draggable>
+                  )
+                })}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       </Flex>
       {editableProtocols.length > 8 && (
         <Button

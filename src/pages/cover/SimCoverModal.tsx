@@ -55,12 +55,9 @@ export const SimCoverModal = () => {
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
 
-    const bnFiltered = BigNumber.from(accurateMultiply(filtered, 18))
     setLocalNewCoverageLimit(filtered)
     setCustomInputAmount(filtered)
-    if (!recommendedAmount.eq(bnFiltered) && !highestAmount.eq(bnFiltered)) {
-      setChosenLimit(ChosenLimit.Custom)
-    }
+    setChosenLimit(ChosenLimit.Custom)
   }
 
   // startup flag reset on account change
