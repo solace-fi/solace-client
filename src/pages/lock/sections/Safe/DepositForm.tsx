@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { BigNumber, Contract } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
-import { accurateMultiply, convertSciNotaToPrecise, filterAmount, truncateValue } from '../../../../utils/formatting'
+import { accurateMultiply, convertSciNotaToPrecise, filterAmount, formatAmount } from '../../../../utils/formatting'
 import InformationBox from '../../components/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
@@ -11,13 +11,13 @@ import { useInputAmount, useTransactionExecution } from '../../../../hooks/inter
 import { FunctionName } from '../../../../constants/enums'
 
 import { StyledForm } from '../../atoms/StyledForm'
-import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
+import { Flex } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { BKPT_5, BKPT_7 } from '../../../../constants'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
 import { VoteLockData } from '../../../../constants/types'
-import { useUwpLocker } from '../../../../hooks/lock/useUwpLocker'
+import { useUwLocker } from '../../../../hooks/lock/useUwLocker'
 import { useLockContext } from '../../LockContext'
 import { ERC20_ABI, ZERO } from '@solace-fi/sdk-nightly'
 import { useProvider } from '../../../../context/ProviderManager'
@@ -26,6 +26,8 @@ import { StyledArrowDropDown } from '../../../../components/atoms/Icon'
 import { LoaderText } from '../../../../components/molecules/LoaderText'
 import { Label } from '../../molecules/InfoPair'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
+import { useBalanceConversion } from '../../../../hooks/lock/useUnderwritingHelper'
+import useDebounce from '@rooks/use-debounce'
 
 export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
@@ -34,7 +36,8 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
   const { account } = useWeb3React()
   const { signer } = useProvider()
   const { width } = useWindowDimensions()
-  const { increaseAmount } = useUwpLocker()
+  const { increaseAmount } = useUwLocker()
+  const { tokensToUwe } = useBalanceConversion()
   const { intrface, paymentCoins, input } = useLockContext()
   const { tokensLoading } = intrface
   const { batchBalanceData, coinsOpen, handleCoinsOpen } = paymentCoins
@@ -42,35 +45,44 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
 
   const disabled = false
 
-  const [inputValue, setInputValue] = React.useState('0')
+  const [inputValue, setInputValue] = React.useState('')
   const [rangeValue, setRangeValue] = React.useState('0')
+  const [equivalentUwe, setEquivalentUwe] = useState<BigNumber>(ZERO)
 
-  const selectedCoinContract = useMemo(() => new Contract(selectedCoin.address, ERC20_ABI, signer), [
-    selectedCoin.address,
+  const selectedCoinContract = useMemo(() => new Contract(selectedCoin?.address ?? '', ERC20_ABI, signer), [
+    selectedCoin,
     signer,
   ])
 
   const selectedCoinBalance = useMemo(() => {
-    return batchBalanceData.find((d) => d.address.toLowerCase() == selectedCoin.address.toLowerCase())?.balance ?? ZERO
+    return (
+      batchBalanceData.find((d) => d.address.toLowerCase() == (selectedCoin?.address ?? '').toLowerCase())?.balance ??
+      ZERO
+    )
   }, [batchBalanceData, selectedCoin])
 
   const isAcceptableDeposit = useMemo(() => {
     if (!selectedCoinBalance) return false
-    return isAppropriateAmount(inputValue, selectedCoin.decimals, selectedCoinBalance)
+    return isAppropriateAmount(formatAmount(inputValue), selectedCoin?.decimals ?? 18, selectedCoinBalance)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [batchBalanceData, inputValue, selectedCoin.address, selectedCoin.decimals])
+  }, [batchBalanceData, inputValue, selectedCoin])
 
   const callIncreaseLockAmount = async () => {
     if (!account) return
-    await increaseAmount(account, lock.lockID, parseUnits(inputValue, selectedCoin.decimals), selectedCoinContract)
+    await increaseAmount(
+      account,
+      lock.lockID,
+      parseUnits(formatAmount(inputValue), selectedCoin?.decimals ?? 18),
+      selectedCoinContract
+    )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callIncreaseAmount', err, FunctionName.INCREASE_AMOUNT))
   }
 
   const inputOnChange = (value: string) => {
-    const filtered = filterAmount(value, inputValue)
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > selectedCoin.decimals) return
-    setRangeValue(accurateMultiply(filtered, selectedCoin.decimals))
+    const filtered = filterAmount(value, formatAmount(inputValue))
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > (selectedCoin?.decimals ?? 18)) return
+    setRangeValue(accurateMultiply(filtered, selectedCoin?.decimals ?? 18))
     setInputValue(filtered)
   }
 
@@ -78,13 +90,25 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
     setInputValue(
       formatUnits(
         BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`),
-        selectedCoin.decimals
+        selectedCoin?.decimals ?? 18
       )
     )
     setRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`)
   }
 
   const setMax = () => rangeOnChange(selectedCoinBalance.toString())
+
+  const getConversion = useDebounce(async () => {
+    const res = await tokensToUwe(
+      [selectedCoin?.address ?? ''],
+      [parseUnits(formatAmount(inputValue), selectedCoin?.decimals ?? 18)]
+    )
+    setEquivalentUwe(res)
+  }, 400)
+
+  useEffect(() => {
+    getConversion()
+  }, [inputValue, selectedCoin])
 
   return (
     <div
@@ -106,10 +130,6 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
                   nohover
                   noborder
                   p={8}
-                  mt={12}
-                  ml={12}
-                  mb={12}
-                  widthP={100}
                   style={{
                     justifyContent: 'center',
                     height: '32px',
@@ -119,9 +139,11 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
                 >
                   <Flex center gap={4}>
                     <Text autoAlignVertical>
-                      <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
+                      {selectedCoin && (
+                        <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
+                      )}
                     </Text>
-                    <Text t4>{selectedCoin.symbol}</Text>
+                    <Text t4>{selectedCoin?.symbol}</Text>
                     <StyledArrowDropDown
                       style={{ transform: coinsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
                       size={18}
@@ -160,20 +182,14 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
               <Flex stretch column>
                 <Flex stretch gap={24}>
                   <Flex column gap={2}>
-                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                      Amount of UWE to be minted in exchange
+                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                      Amount of UWE to be minted on deposit
                     </Text>
-                    <div
-                      style={
-                        (rightSidebar ? BKPT_7 : BKPT_5) > width
-                          ? { margin: '-4px 0', display: 'block' }
-                          : { display: 'none' }
-                      }
-                    >
+                    <div style={(rightSidebar ? BKPT_7 : BKPT_5) > width ? { display: 'block' } : { display: 'none' }}>
                       &nbsp;
                     </div>
                     <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                      <Flex>???</Flex>
+                      <Flex>{formatUnits(equivalentUwe, 18)} UWE</Flex>
                     </Text>
                   </Flex>
                 </Flex>

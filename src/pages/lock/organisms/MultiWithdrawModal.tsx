@@ -7,10 +7,16 @@ import { Accordion } from '../../../components/atoms/Accordion'
 import { Button } from '../../../components/atoms/Button'
 import { Flex } from '../../../components/atoms/Layout'
 import { Text } from '../../../components/atoms/Typography'
+import { GrayBox } from '../../../components/molecules/GrayBox'
 import { SmallerInputSection } from '../../../components/molecules/InputSection'
 import { Modal } from '../../../components/molecules/Modal'
+import { BKPT_7, BKPT_5 } from '../../../constants'
 import { VoteLockData } from '../../../constants/types'
-import { filterAmount } from '../../../utils/formatting'
+import { useGeneral } from '../../../context/GeneralManager'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
+import { useBalanceConversion } from '../../../hooks/lock/useUnderwritingHelper'
+import { filterAmount, formatAmount, truncateValue } from '../../../utils/formatting'
+import { Label } from '../molecules/InfoPair'
 
 export const MultiWithdrawModal = ({
   isOpen,
@@ -21,6 +27,10 @@ export const MultiWithdrawModal = ({
   handleClose: () => void
   selectedLocks: VoteLockData[]
 }): JSX.Element => {
+  const { appTheme, rightSidebar } = useGeneral()
+  const { width } = useWindowDimensions()
+  const { uweToTokens } = useBalanceConversion()
+
   const [amountTracker, setAmountTracker] = useState<
     {
       lockID: BigNumber
@@ -30,6 +40,8 @@ export const MultiWithdrawModal = ({
 
   const [commonAmount, setCommonAmount] = useState<string>('')
   const [totalAmountToWithdraw, setTotalAmountToWithdraw] = useState<string>('')
+  const [equivalentTokenAmounts, setEquivalentTokenAmounts] = useState<BigNumber[]>([])
+  const [equivalentUSDValue, setEquivalentUSDValue] = useState<BigNumber>(ZERO)
 
   const handleAmountInput = useCallback(
     (input: string, index: number) => {
@@ -102,6 +114,16 @@ export const MultiWithdrawModal = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
+  const getConversion = useDebounce(async () => {
+    const res = await uweToTokens(parseUnits(formatAmount(totalAmountToWithdraw), 18))
+    setEquivalentTokenAmounts(res.depositTokens)
+    setEquivalentUSDValue(res.usdValue)
+  }, 400)
+
+  useEffect(() => {
+    getConversion()
+  }, [totalAmountToWithdraw])
+
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Withdraw'}>
       <Flex col gap={10}>
@@ -127,6 +149,28 @@ export const MultiWithdrawModal = ({
             ))}
           </Flex>
         </Accordion>
+        <Flex column stretch width={500}>
+          <Label importance="quaternary" style={{ marginBottom: '8px' }}>
+            Projected benefits
+          </Label>
+          <GrayBox>
+            <Flex stretch column>
+              <Flex stretch gap={24}>
+                <Flex column gap={2}>
+                  <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                    Tokens to be given on withdrawal
+                  </Text>
+                  <div style={(rightSidebar ? BKPT_7 : BKPT_5) > width ? { display: 'block' } : { display: 'none' }}>
+                    &nbsp;
+                  </div>
+                  <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                    <Flex>${truncateValue(formatUnits(equivalentUSDValue, 18), 2)}</Flex>
+                  </Text>
+                </Flex>
+              </Flex>
+            </Flex>
+          </GrayBox>
+        </Flex>
         <Button secondary warmgradient noborder>
           Make Withdrawals
         </Button>

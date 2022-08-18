@@ -5,7 +5,7 @@ import { Button } from '../../components/atoms/Button'
 import { Flex, ShadowDiv, VerticalSeparator } from '../../components/atoms/Layout'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { DelegatorVoteGauge } from './organisms/DelegatorVoteGauge'
-import { useUwpLockVoting } from '../../hooks/lock/useUwpLockVoting'
+import { useUwLockVoting } from '../../hooks/lock/useUwLockVoting'
 import { useVoteContext } from './VoteContext'
 import { Text } from '../../components/atoms/Typography'
 import { BigNumber } from '@solace-fi/sdk-nightly'
@@ -18,7 +18,7 @@ export const DelegatorVoteTab = () => {
   const { isVotingOpen, addEmptyVote } = voteGeneral
   const { delegatorVotesData, delegator, handleDelegatorAddress } = voteDelegator
 
-  const { voteMultiple, removeVoteMultiple } = useUwpLockVoting()
+  const { voteMultiple, removeVoteMultiple } = useUwLockVoting()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   /** cannot call vote multiple if any gauges of changed or added votes 
@@ -66,7 +66,7 @@ export const DelegatorVoteTab = () => {
       <Flex>
         <Flex col widthP={100} gap={5}>
           <Text t4s textAlignCenter>
-            If a user has chosen you as their delegate, you may vote for them with their vote points.
+            If a user has chosen you as their delegate, you may vote for them.
           </Text>
           <SmallerInputSection
             placeholder={`Query a Delegator's Address`}
@@ -80,15 +80,14 @@ export const DelegatorVoteTab = () => {
           <Flex gap={12} p={10}>
             <Flex col itemsCenter width={126}>
               <Text techygradient t6s>
-                Delegator&apos;s Total Points
+                Total Points
               </Text>
               <Text techygradient big3>
                 {delegatorVotesData.votePower.toString()}
               </Text>
             </Flex>
-            <VerticalSeparator />
             <Flex col itemsCenter width={126}>
-              <Text t6s>Delegator&apos;s Used Points</Text>
+              <Text t6s>Used Percentage</Text>
               <Text big3>{(parseFloat(delegatorVotesData.usedVotePowerBPS.toString()) / 100).toString()}%</Text>
             </Flex>
           </Flex>

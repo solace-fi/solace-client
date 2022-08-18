@@ -26,7 +26,7 @@ import { useWeb3React } from '@web3-react/core'
 import { useENS } from '../../hooks/wallet/useENS'
 import { ThinScrollbarCss } from '../atoms/Scrollbar/ThinScrollbar'
 import { ZERO } from '@solace-fi/sdk-nightly'
-import { useUwpLocker } from '../../hooks/lock/useUwpLocker'
+import { useUwLocker } from '../../hooks/lock/useUwLocker'
 import { formatUnits } from 'ethers/lib/utils'
 
 const RightAppNav = styled.div<{ shouldShow: boolean }>`
@@ -64,7 +64,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
   const [isCopied, setCopied] = useCopyClipboard()
 
   const solaceBalance = useSolaceBalance()
-  const { totalStakedBalance } = useUwpLocker()
+  const { totalStakedBalance } = useUwLocker()
   const [stakedBalance, setStakedBalance] = useState(ZERO)
 
   const _getUserStake = useCallback(async () => {

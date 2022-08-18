@@ -3,7 +3,7 @@ import { BigNumber } from 'ethers'
 import React, { useCallback, useMemo } from 'react'
 import { FunctionName } from '../../../constants/enums'
 import { useTransactionExecution } from '../../../hooks/internal/useInputAmount'
-import { useUwpLockVoting } from '../../../hooks/lock/useUwpLockVoting'
+import { useUwLockVoting } from '../../../hooks/lock/useUwLockVoting'
 import { useVoteContext } from '../VoteContext'
 import { Button, GraySquareButton, ThinButton } from '../../../components/atoms/Button'
 import { StyledArrowDropDown, StyledClose } from '../../../components/atoms/Icon'
@@ -23,7 +23,7 @@ export const OwnerVoteGauge = ({ index }: { index: number }): JSX.Element => {
   const { votesData } = voteOwner
   const appId = useMemo(() => votesData.localVoteAllocation[index].gauge, [votesData, index])
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { vote, removeVote } = useUwpLockVoting()
+  const { vote, removeVote } = useUwLockVoting()
 
   const callVote = useCallback(async () => {
     if (!account || !isAddress(account)) return
@@ -63,7 +63,7 @@ export const OwnerVoteGauge = ({ index }: { index: number }): JSX.Element => {
             <ThinButton onClick={() => handleGaugeSelectionModal(index)}>
               <Flex style={{ width: '100%' }} itemsCenter>
                 <Text autoAlignVertical p={5}>
-                  <img src={`https://assets.solace.fi/zapperLogos/${appId}`} height={16} />
+                  {appId != '' && <img src={`https://assets.solace.fi/zapperLogos/${appId}`} height={16} />}
                 </Text>
                 <Text t5s style={{ width: '100%' }}>
                   <Flex between>
@@ -92,9 +92,11 @@ export const OwnerVoteGauge = ({ index }: { index: number }): JSX.Element => {
           )}
         </Flex>
         <Flex justifyCenter gap={10}>
-          <Button error onClick={callRemoveVote} widthP={100}>
-            Remove vote
-          </Button>
+          {!votesData.localVoteAllocation[index].added && (
+            <Button error onClick={callRemoveVote} widthP={100}>
+              Remove vote
+            </Button>
+          )}
           <Button secondary noborder techygradient onClick={callVote} widthP={100}>
             Save Vote
           </Button>

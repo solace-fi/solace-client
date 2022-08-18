@@ -41,7 +41,7 @@ import CardSectionValue from './components/CardSectionValue'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
-import { useUwpLocker } from '../../hooks/lock/useUwpLocker'
+import { useUwLocker } from '../../hooks/lock/useUwLocker'
 
 /* import utils */
 import { floatUnits, truncateValue } from '../../utils/formatting'
@@ -99,7 +99,7 @@ const LockContent = () => {
   const { version } = useCachedData()
   const [locks, setLocks] = useState<VoteLockData[]>([])
   const [staked, setStaked] = useState<BigNumber>(ZERO)
-  const { totalStakedBalance, getAllLockIDsOf, locks: getLock } = useUwpLocker()
+  const { totalStakedBalance, getAllLockIDsOf, locks: getLock } = useUwLocker()
   const selectedLocks = useMemo(
     () =>
       locks.filter((lock) =>

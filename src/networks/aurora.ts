@@ -39,7 +39,7 @@ export const AuroraNetwork: NetworkConfig = {
         addr: KEY_ADDRS.GAUGE_CONTROLLER,
         abi: null,
       },
-      uwpLockVoting: {
+      uwLockVoting: {
         addr: KEY_ADDRS.UWP_LOCK_VOTING,
         abi: null,
       },

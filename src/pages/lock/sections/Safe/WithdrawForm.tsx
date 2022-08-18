@@ -17,7 +17,7 @@ import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
 import { VoteLockData } from '../../../../constants/types'
 import { useProvider } from '../../../../context/ProviderManager'
-import { useUwpLocker } from '../../../../hooks/lock/useUwpLocker'
+import { useUwLocker } from '../../../../hooks/lock/useUwLocker'
 import { Text } from '../../../../components/atoms/Typography'
 
 export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Element {
@@ -25,22 +25,22 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
   const { latestBlock } = useProvider()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { withdraw, withdrawInPart } = useUwpLocker()
+  const { withdraw, withdrawInPart } = useUwLocker()
   const { account } = useWeb3React()
   const { width } = useWindowDimensions()
 
-  const [inputValue, setInputValue] = React.useState('0')
+  const [inputValue, setInputValue] = React.useState('')
   const [rangeValue, setRangeValue] = React.useState('0')
 
   const callWithdrawFromLock = async () => {
     if (!account) return
     let type = FunctionName.WITHDRAW_LOCK_IN_PART
-    const isMax = parseUnits(inputValue, 18).eq(lock.amount)
+    const isMax = parseUnits(formatAmount(inputValue), 18).eq(lock.amount)
     if (isMax) {
       type = FunctionName.WITHDRAW_LOCK
     }
     if (!isMax) {
-      await withdrawInPart(lock.lockID, parseUnits(inputValue, 18), account)
+      await withdrawInPart(lock.lockID, parseUnits(formatAmount(inputValue), 18), account)
         .then((res) => handleToast(res.tx, res.localTx))
         .catch((err) => handleContractCallError('callWithdrawInPart', err, type))
     } else {
@@ -51,7 +51,7 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
   }
 
   const inputOnChange = (value: string) => {
-    const filtered = filterAmount(value, inputValue)
+    const filtered = filterAmount(value, formatAmount(inputValue))
     const formatted = formatAmount(filtered)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
 
@@ -109,7 +109,7 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
           info
           noborder
           disabled={
-            !isAppropriateAmount(inputValue, 18, lock.amount) ||
+            !isAppropriateAmount(formatAmount(inputValue), 18, lock.amount) ||
             (latestBlock ? lock.end.toNumber() > latestBlock.timestamp : true)
           }
           onClick={callWithdrawFromLock}

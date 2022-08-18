@@ -25,7 +25,7 @@ export const TokenSelectionModal = ({
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         style={{
-          width: '100%',
+          width: '250px',
           border: 'none',
         }}
       />

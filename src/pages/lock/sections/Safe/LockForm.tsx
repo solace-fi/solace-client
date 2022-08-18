@@ -16,12 +16,12 @@ import { Flex } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { useGeneral } from '../../../../context/GeneralManager'
 import { VoteLockData } from '../../../../constants/types'
-import { useUwpLocker } from '../../../../hooks/lock/useUwpLocker'
+import { useUwLocker } from '../../../../hooks/lock/useUwLocker'
 
 export default function LockForm({ lock }: { lock: VoteLockData }): JSX.Element {
   const { rightSidebar } = useGeneral()
   const { latestBlock } = useProvider()
-  const { extendLock } = useUwpLocker()
+  const { extendLock } = useUwLocker()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { width } = useWindowDimensions()
   const [maxSelected, setMaxSelected] = useState(false)

@@ -26,7 +26,7 @@ type LockContextType = {
     approveCPM: (spenderAddress: string, tokenAddr: string, amount?: BigNumber) => void
   }
   input: {
-    selectedCoin: ReadToken
+    selectedCoin?: ReadToken
     handleSelectedCoin: (coin: string) => void
   }
 }
@@ -45,10 +45,7 @@ const LockContext = createContext<LockContextType>({
     approveCPM: () => undefined,
   },
   input: {
-    selectedCoin: {
-      address: SOLACE_TOKEN.address[1],
-      ...SOLACE_TOKEN.constants,
-    },
+    selectedCoin: undefined,
     handleSelectedCoin: () => undefined,
   },
 })
@@ -76,7 +73,7 @@ const LockManager: React.FC = (props) => {
   const { loading: balancesLoading, batchBalances } = useBatchBalances(coinOptions)
   const { tokenPriceMapping } = useCachedData()
 
-  const [selectedCoin, setSelectedCoin] = useState<ReadToken>(coinOptions[0])
+  const [selectedCoin, setSelectedCoin] = useState<ReadToken | undefined>(undefined)
 
   const { approve } = useTokenApprove(setTransactionLoading)
 
@@ -118,7 +115,7 @@ const LockManager: React.FC = (props) => {
   )
 
   useEffect(() => {
-    setSelectedCoin(coinOptions[0])
+    if (coinOptions.length > 0) setSelectedCoin(coinOptions[0])
   }, [coinOptions])
 
   const value = useMemo<LockContextType>(

@@ -8,7 +8,7 @@ import { GaugeData, VoteAllocation, VotesData } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useGaugeControllerHelper } from '../../hooks/gauge/useGaugeController'
-import { useUwpLockVoting, useUwpLockVotingHelper } from '../../hooks/lock/useUwpLockVoting'
+import { useUwLockVoting, useUwLockVotingHelper } from '../../hooks/lock/useUwLockVoting'
 import { filterAmount, formatAmount } from '../../utils/formatting'
 
 type VoteContextType = {
@@ -77,8 +77,8 @@ const VoteContext = createContext<VoteContextType>({
 
 const VoteManager: React.FC = (props) => {
   const { loading: gaugesLoading, gaugesData } = useGaugeControllerHelper()
-  const { isVotingOpen: checkIfVotingIsOpen } = useUwpLockVoting()
-  const { getVoteInformation } = useUwpLockVotingHelper()
+  const { isVotingOpen: checkIfVotingIsOpen } = useUwLockVoting()
+  const { getVoteInformation } = useUwLockVotingHelper()
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()

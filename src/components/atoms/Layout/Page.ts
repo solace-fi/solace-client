@@ -102,9 +102,9 @@ export const GridOrRow = styled(Flex)<{ preferredWidth?: number }>`
     margin-right: auto;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
+    grid-template-rows: repeat(1, 1fr);
     grid-column-gap: 20px;
-    grid-row-gap: 22px;
+    grid-row-gap: 15px;
     .items-6 {
       grid-area: 1 / 1 / 3 / 4;
     }

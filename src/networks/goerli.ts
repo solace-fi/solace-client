@@ -47,12 +47,12 @@ export const GoerliNetwork: NetworkConfig = {
         addr: KEY_ADDRS.GAUGE_CONTROLLER,
         abi: gaugeControllerABI,
       },
-      uwpLockVoting: {
-        addr: KEY_ADDRS.UWP_LOCK_VOTING,
+      uwLockVoting: {
+        addr: KEY_ADDRS.UW_LOCK_VOTING,
         abi: underwritingLockVotingABI,
       },
-      uwpLocker: {
-        addr: KEY_ADDRS.UWP_LOCKER,
+      uwLocker: {
+        addr: KEY_ADDRS.UW_LOCKER,
         abi: underwritingLockerABI,
       },
       uwp: {

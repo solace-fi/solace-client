@@ -5,7 +5,7 @@ import { Button } from '../../components/atoms/Button'
 import { Flex, ShadowDiv } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { OwnerVoteGauge } from './organisms/OwnerVoteGauge'
-import { useUwpLockVoting } from '../../hooks/lock/useUwpLockVoting'
+import { useUwLockVoting } from '../../hooks/lock/useUwLockVoting'
 import { useVoteContext } from './VoteContext'
 import { BigNumber } from '@solace-fi/sdk-nightly'
 import { FunctionName } from '../../constants/enums'
@@ -18,7 +18,7 @@ export const OwnerVoteTab = () => {
   const { isVotingOpen, addEmptyVote } = voteGeneral
   const { votesData } = voteOwner
 
-  const { voteMultiple, removeVoteMultiple } = useUwpLockVoting()
+  const { voteMultiple, removeVoteMultiple } = useUwLockVoting()
   const { account } = useWeb3React()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
@@ -74,14 +74,14 @@ export const OwnerVoteTab = () => {
           <Flex gap={12} p={10}>
             <Flex col itemsCenter width={126}>
               <Text techygradient t6s>
-                My Total Points
+                Total Points
               </Text>
               <Text techygradient big3>
                 {votesData.votePower.toString()}
               </Text>
             </Flex>
             <Flex col itemsCenter width={126}>
-              <Text t6s>My Used Percentage</Text>
+              <Text t6s>Used Percentage</Text>
               <Text big3>{(parseFloat(votesData.usedVotePowerBPS.toString()) / 100).toString()}%</Text>
             </Flex>
           </Flex>

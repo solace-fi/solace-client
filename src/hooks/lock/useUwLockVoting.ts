@@ -6,104 +6,104 @@ import { LocalTx, Vote } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { useGetFunctionGas } from '../provider/useGas'
 
-export const useUwpLockVoting = () => {
+export const useUwLockVoting = () => {
   const { keyContracts } = useContracts()
-  const { uwpLockVoting } = useMemo(() => keyContracts, [keyContracts])
+  const { uwLockVoting } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
 
   const getVotePower = useCallback(
     async (voter: string): Promise<BigNumber> => {
-      if (!uwpLockVoting) return ZERO
+      if (!uwLockVoting) return ZERO
       try {
-        const votePower = await uwpLockVoting.getVotePower(voter)
+        const votePower = await uwLockVoting.getVotePower(voter)
         return votePower
       } catch (error) {
         console.error(error)
         return ZERO
       }
     },
-    [uwpLockVoting]
+    [uwLockVoting]
   )
 
   const getVotes = useCallback(
     async (voter: string): Promise<Vote[]> => {
-      if (!uwpLockVoting) return []
+      if (!uwLockVoting) return []
       try {
-        const votes = await uwpLockVoting.getVotes(voter)
+        const votes = await uwLockVoting.getVotes(voter)
         return votes
       } catch (error) {
         console.error(error)
         return []
       }
     },
-    [uwpLockVoting]
+    [uwLockVoting]
   )
 
   const getEpochStartTimestamp = useCallback(async (): Promise<BigNumber> => {
-    if (!uwpLockVoting) return ZERO
+    if (!uwLockVoting) return ZERO
     try {
-      const epochStartTimestamp = await uwpLockVoting.getEpochStartTimestamp()
+      const epochStartTimestamp = await uwLockVoting.getEpochStartTimestamp()
       return epochStartTimestamp
     } catch (error) {
       console.error(error)
       return ZERO
     }
-  }, [uwpLockVoting])
+  }, [uwLockVoting])
 
   const getEpochEndTimestamp = useCallback(async (): Promise<BigNumber> => {
-    if (!uwpLockVoting) return ZERO
+    if (!uwLockVoting) return ZERO
     try {
-      const epochEndTimestamp = await uwpLockVoting.getEpochEndTimestamp()
+      const epochEndTimestamp = await uwLockVoting.getEpochEndTimestamp()
       return epochEndTimestamp
     } catch (error) {
       console.error(error)
       return ZERO
     }
-  }, [uwpLockVoting])
+  }, [uwLockVoting])
 
   const isVotingOpen = useCallback(async (): Promise<boolean> => {
-    if (!uwpLockVoting) return false
+    if (!uwLockVoting) return false
     try {
-      const isVotingOpen = await uwpLockVoting.isVotingOpen()
+      const isVotingOpen = await uwLockVoting.isVotingOpen()
       return isVotingOpen
     } catch (error) {
       console.error(error)
       return false
     }
-  }, [uwpLockVoting])
+  }, [uwLockVoting])
 
   const delegateOf = useCallback(
     async (voter: string): Promise<string> => {
-      if (!uwpLockVoting) return ZERO_ADDRESS
+      if (!uwLockVoting) return ZERO_ADDRESS
       try {
-        const delegate = await uwpLockVoting.delegateOf(voter)
+        const delegate = await uwLockVoting.delegateOf(voter)
         return delegate
       } catch (error) {
         console.error(error)
         return ZERO_ADDRESS
       }
     },
-    [uwpLockVoting]
+    [uwLockVoting]
   )
 
   const usedVotePowerBPSOf = useCallback(
     async (voter: string): Promise<BigNumber> => {
-      if (!uwpLockVoting) return ZERO
+      if (!uwLockVoting) return ZERO
       try {
-        const usedVotePowerBPS = await uwpLockVoting.usedVotePowerBPSOf(voter)
+        const usedVotePowerBPS = await uwLockVoting.usedVotePowerBPSOf(voter)
         return usedVotePowerBPS
       } catch (error) {
         console.error(error)
         return ZERO
       }
     },
-    [uwpLockVoting]
+    [uwLockVoting]
   )
 
   const vote = useCallback(
     async (voter: string, gaugeId: BigNumber, votePowerBPS: BigNumber) => {
-      if (!uwpLockVoting) return { tx: null, localTx: null }
-      const tx = await uwpLockVoting.vote(voter, gaugeId, votePowerBPS, {
+      if (!uwLockVoting) return { tx: null, localTx: null }
+      const tx = await uwLockVoting.vote(voter, gaugeId, votePowerBPS, {
         ...gasConfig,
         gasLimit: 800000,
       })
@@ -114,13 +114,13 @@ export const useUwpLockVoting = () => {
       }
       return { tx, localTx }
     },
-    [gasConfig, uwpLockVoting]
+    [gasConfig, uwLockVoting]
   )
 
   const voteMultiple = useCallback(
     async (voter: string, gaugeIds: BigNumber[], votePowerBPSs: BigNumber[]) => {
-      if (!uwpLockVoting) return { tx: null, localTx: null }
-      const tx = await uwpLockVoting.voteMultiple(voter, gaugeIds, votePowerBPSs, {
+      if (!uwLockVoting) return { tx: null, localTx: null }
+      const tx = await uwLockVoting.voteMultiple(voter, gaugeIds, votePowerBPSs, {
         ...gasConfig,
         gasLimit: 800000,
       })
@@ -131,13 +131,13 @@ export const useUwpLockVoting = () => {
       }
       return { tx, localTx }
     },
-    [gasConfig, uwpLockVoting]
+    [gasConfig, uwLockVoting]
   )
 
   const removeVote = useCallback(
     async (voter: string, gaugeId: BigNumber) => {
-      if (!uwpLockVoting) return { tx: null, localTx: null }
-      const tx = await uwpLockVoting.removeVote(voter, gaugeId, {
+      if (!uwLockVoting) return { tx: null, localTx: null }
+      const tx = await uwLockVoting.removeVote(voter, gaugeId, {
         ...gasConfig,
         gasLimit: 800000,
       })
@@ -148,13 +148,13 @@ export const useUwpLockVoting = () => {
       }
       return { tx, localTx }
     },
-    [gasConfig, uwpLockVoting]
+    [gasConfig, uwLockVoting]
   )
 
   const removeVoteMultiple = useCallback(
     async (voter: string, gaugeIds: BigNumber[]) => {
-      if (!uwpLockVoting) return { tx: null, localTx: null }
-      const tx = await uwpLockVoting.removeVoteMultiple(voter, gaugeIds, {
+      if (!uwLockVoting) return { tx: null, localTx: null }
+      const tx = await uwLockVoting.removeVoteMultiple(voter, gaugeIds, {
         ...gasConfig,
         gasLimit: 800000,
       })
@@ -165,13 +165,13 @@ export const useUwpLockVoting = () => {
       }
       return { tx, localTx }
     },
-    [gasConfig, uwpLockVoting]
+    [gasConfig, uwLockVoting]
   )
 
   const setDelegate = useCallback(
     async (delegate: string) => {
-      if (!uwpLockVoting) return { tx: null, localTx: null }
-      const tx = await uwpLockVoting.setDelegate(delegate, {
+      if (!uwLockVoting) return { tx: null, localTx: null }
+      const tx = await uwLockVoting.setDelegate(delegate, {
         ...gasConfig,
         gasLimit: 800000,
       })
@@ -182,7 +182,7 @@ export const useUwpLockVoting = () => {
       }
       return { tx, localTx }
     },
-    [gasConfig, uwpLockVoting]
+    [gasConfig, uwLockVoting]
   )
 
   return {
@@ -201,8 +201,8 @@ export const useUwpLockVoting = () => {
   }
 }
 
-export const useUwpLockVotingHelper = () => {
-  const { getVotePower, usedVotePowerBPSOf, getVotes, delegateOf } = useUwpLockVoting()
+export const useUwLockVotingHelper = () => {
+  const { getVotePower, usedVotePowerBPSOf, getVotes, delegateOf } = useUwLockVoting()
 
   const getVoteInformation = useCallback(
     async (voter: string) => {

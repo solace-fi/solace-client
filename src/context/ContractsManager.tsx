@@ -16,8 +16,8 @@ type Contracts = {
   keyContracts: {
     solace?: Contract | null
     gaugeController?: Contract | null
-    uwpLockVoting?: Contract | null
-    uwpLocker?: Contract | null
+    uwLockVoting?: Contract | null
+    uwLocker?: Contract | null
     uwp?: Contract | null
     uwe?: Contract | null
     fluxMegaOracle?: Contract | null
@@ -29,8 +29,8 @@ const ContractsContext = createContext<Contracts>({
   keyContracts: {
     solace: undefined,
     gaugeController: undefined,
-    uwpLockVoting: undefined,
-    uwpLocker: undefined,
+    uwLockVoting: undefined,
+    uwLocker: undefined,
     uwp: undefined,
     uwe: undefined,
     fluxMegaOracle: undefined,
@@ -45,8 +45,8 @@ const ContractsProvider: React.FC = (props) => {
 
   const solace = useGetContract(keyContracts.solace)
   const gaugeController = useGetContract(keyContracts.gaugeController)
-  const uwpLockVoting = useGetContract(keyContracts.uwpLockVoting)
-  const uwpLocker = useGetContract(keyContracts.uwpLocker)
+  const uwLockVoting = useGetContract(keyContracts.uwLockVoting)
+  const uwLocker = useGetContract(keyContracts.uwLocker)
   const uwp = useGetContract(keyContracts.uwp)
   const uwe = useGetContract(keyContracts.uwe)
   const fluxMegaOracle = useGetContract(keyContracts.fluxMegaOracle)
@@ -56,15 +56,15 @@ const ContractsProvider: React.FC = (props) => {
       keyContracts: {
         solace,
         gaugeController,
-        uwpLockVoting,
-        uwpLocker,
+        uwLockVoting,
+        uwLocker,
         uwp,
         uwe,
         fluxMegaOracle,
       },
       contractSources,
     }),
-    [solace, gaugeController, uwpLockVoting, uwpLocker, uwp, uwe, fluxMegaOracle, contractSources]
+    [solace, gaugeController, uwLockVoting, uwLocker, uwp, uwe, fluxMegaOracle, contractSources]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>
