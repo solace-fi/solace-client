@@ -53,9 +53,19 @@ export const DelegateModal = ({
   }
 
   useEffect(() => {
-    if (stagingDelegate.length == 0) setIsValid(false)
-    if (stagingDelegate == ZERO_ADDRESS) setIsValid(false)
-    if (!isAddress(stagingDelegate)) setIsValid(false)
+    if (stagingDelegate.length == 0) {
+      setIsValid(false)
+      return
+    }
+    if (stagingDelegate == ZERO_ADDRESS) {
+      setIsValid(false)
+      return
+    }
+    if (!isAddress(stagingDelegate)) {
+      setIsValid(false)
+      return
+    }
+    setIsValid(true)
   }, [stagingDelegate])
 
   useEffect(() => {
@@ -73,17 +83,23 @@ export const DelegateModal = ({
   return (
     <Modal isOpen={show} handleClose={handleCloseModal} modalTitle={'Set Delegate'}>
       <Flex col gap={10}>
-        {isAddress(currentDelegate) && currentDelegate != ZERO_ADDRESS && (
-          <Flex col gap={5}>
-            <Text t5s>Current Delegate</Text>
-            <Flex gap={10} between stretch>
+        <Flex col gap={5}>
+          <Text t5s>Current Delegate</Text>
+          <Flex gap={10} between stretch>
+            {currentDelegate !== ZERO_ADDRESS ? (
+              <>
+                <Text t2 autoAlignVertical>
+                  {shortenAddress(currentDelegate)}
+                </Text>
+                <CopyButton toCopy={currentDelegate} objectName={''} />
+              </>
+            ) : (
               <Text t2 autoAlignVertical>
-                {shortenAddress(currentDelegate)}
+                None
               </Text>
-              <CopyButton toCopy={currentDelegate} objectName={''} />
-            </Flex>
+            )}
           </Flex>
-        )}
+        </Flex>
         <Flex col gap={10}>
           <SmallerInputSection
             placeholder={'New Address'}

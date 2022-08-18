@@ -299,7 +299,7 @@ const LockContent = () => {
                     >
                       <Flex center gap={5}>
                         <Text t4>Withdrawable selected:</Text>
-                        <CardSectionValue annotation="SOLACE" smol info>
+                        <CardSectionValue annotation="UWE" smol info>
                           {formattedWithdrawal}
                         </CardSectionValue>
                       </Flex>

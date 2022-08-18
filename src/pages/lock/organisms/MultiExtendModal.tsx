@@ -103,7 +103,7 @@ export const MultiExtendModal = ({
             ...prevState[index],
             extraDays: filtered,
             validInput:
-              parseFloat(formatted) > 0 && parseInt(formatted) + parseInt(prevState[index].currDays) <= MAX_DAYS,
+              parseFloat(formatted) > 0 ? parseInt(formatted) + parseInt(prevState[index].currDays) <= MAX_DAYS : true,
           },
           ...prevState.slice(index + 1),
         ]
@@ -127,7 +127,7 @@ export const MultiExtendModal = ({
         return {
           ...item,
           extraDays: commonDays,
-          validInput: parseFloat(commonDays) > 0 && parseInt(commonDays) + parseInt(item.currDays) <= MAX_DAYS,
+          validInput: parseFloat(commonDays) > 0 ? parseInt(commonDays) + parseInt(item.currDays) <= MAX_DAYS : true,
         }
       })
     })
