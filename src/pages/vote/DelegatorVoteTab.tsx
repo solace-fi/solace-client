@@ -28,9 +28,9 @@ export const DelegatorVoteTab = () => {
     () =>
       delegatorVotesData.localVoteAllocation.filter((g) => {
         return (
-          !g.gaugeActive &&
-          !BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)).isZero() &&
-          (g.changed || g.added)
+          !g.gaugeActive ||
+          (BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)).isZero() && g.added) ||
+          !g.changed
         )
       }).length > 0,
     [delegatorVotesData.localVoteAllocation]
@@ -110,20 +110,18 @@ export const DelegatorVoteTab = () => {
                 widthP={100}
                 disabled={
                   cannotCallVoteMultiple ||
-                  delegatorVotesData.localVoteAllocation.filter((item) => item.changed).length == 0
+                  delegatorVotesData.localVoteAllocation.filter((item) => item.changed).length == 0 ||
+                  delegatorVotesData.localVoteAllocationTotal > 100
                 }
                 onClick={callVoteMultiple}
               >
                 Set Votes
               </Button>
-              <Button
-                error
-                widthP={100}
-                onClick={callRemoveVoteMultiple}
-                disabled={delegatorVotesData.localVoteAllocation.filter((item) => !item.added).length == 0}
-              >
-                Remove all votes
-              </Button>
+              {delegatorVotesData.localVoteAllocation.filter((item) => !item.added).length > 0 && (
+                <Button error widthP={100} onClick={callRemoveVoteMultiple}>
+                  Remove all votes
+                </Button>
+              )}
             </>
           ) : (
             <Text>Voting is closed</Text>

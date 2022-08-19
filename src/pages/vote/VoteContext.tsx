@@ -88,7 +88,6 @@ const VoteManager: React.FC = (props) => {
   const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
   const mounting = useRef(true)
-
   const [isVotingOpen, setIsVotingOpen] = useState(true)
   const [openGaugeSelectionModal, setOpenGaugeSelectionModal] = useState(false)
   const [editingIndex, setEditingIndex] = useState<number | undefined>(undefined)
@@ -217,45 +216,50 @@ const VoteManager: React.FC = (props) => {
     [votesData, delegatorVotesData]
   )
 
-  const assign = useCallback((gaugeName: string, gaugeId: BigNumber, index: number, isOwner: boolean) => {
-    if (isOwner) {
-      setVotesData((prevState) => {
-        return {
-          ...prevState,
-          localVoteAllocation: prevState.localVoteAllocation.map((vote, i) => {
-            if (i == index) {
-              if (vote.gauge === gaugeName && vote.gaugeId.eq(gaugeId)) return vote
-              return {
-                ...vote,
-                gauge: gaugeName,
-                gaugeId: gaugeId,
-                changed: true,
+  const assign = useCallback(
+    (gaugeName: string, gaugeId: BigNumber, index: number, isOwner: boolean) => {
+      if (isOwner) {
+        setVotesData((prevState) => {
+          return {
+            ...prevState,
+            localVoteAllocation: prevState.localVoteAllocation.map((vote, i) => {
+              if (i == index) {
+                if (vote.gauge === gaugeName && vote.gaugeId.eq(gaugeId)) return vote
+                return {
+                  ...vote,
+                  gauge: gaugeName,
+                  gaugeId: gaugeId,
+                  changed: true,
+                  gaugeActive: gaugesData.find((item) => item.gaugeId.eq(gaugeId))?.isActive ?? false,
+                }
               }
-            }
-            return vote
-          }),
-        }
-      })
-    } else {
-      setDelegatorVotesData((prevState) => {
-        return {
-          ...prevState,
-          localVoteAllocation: prevState.localVoteAllocation.map((vote, i) => {
-            if (i == index) {
-              if (vote.gauge === gaugeName && vote.gaugeId.eq(gaugeId)) return vote
-              return {
-                ...vote,
-                gauge: gaugeName,
-                gaugeId: gaugeId,
-                changed: true,
+              return vote
+            }),
+          }
+        })
+      } else {
+        setDelegatorVotesData((prevState) => {
+          return {
+            ...prevState,
+            localVoteAllocation: prevState.localVoteAllocation.map((vote, i) => {
+              if (i == index) {
+                if (vote.gauge === gaugeName && vote.gaugeId.eq(gaugeId)) return vote
+                return {
+                  ...vote,
+                  gauge: gaugeName,
+                  gaugeId: gaugeId,
+                  changed: true,
+                  gaugeActive: gaugesData.find((item) => item.gaugeId.eq(gaugeId))?.isActive ?? false,
+                }
               }
-            }
-            return vote
-          }),
-        }
-      })
-    }
-  }, [])
+              return vote
+            }),
+          }
+        })
+      }
+    },
+    [gaugesData]
+  )
 
   const handleGaugeSelectionModal = useCallback(
     (index: number) => {
@@ -295,7 +299,7 @@ const VoteManager: React.FC = (props) => {
       return
     }
     const formattedDelegatorVotesData = delegatorVoteInfo.votes.map((item) => {
-      const foundGauge = gaugesData.find((g) => g.gaugeId === item.gaugeID)
+      const foundGauge = gaugesData.find((g) => g.gaugeId.eq(item.gaugeID))
       const name = foundGauge?.gaugeName ?? ''
       const active = foundGauge?.isActive ?? false
       return {
@@ -334,7 +338,7 @@ const VoteManager: React.FC = (props) => {
       // fetch this current user's vote information and organize state
       const userVoteInfo = await getVoteInformation(account)
       const formattedUserVotesData = userVoteInfo.votes.map((item) => {
-        const foundGauge = gaugesData.find((g) => g.gaugeId === item.gaugeID)
+        const foundGauge = gaugesData.find((g) => g.gaugeId.eq(item.gaugeID))
         const name = foundGauge?.gaugeName ?? ''
         const active = foundGauge?.isActive ?? false
         const alloc: VoteAllocation = {
@@ -357,10 +361,11 @@ const VoteManager: React.FC = (props) => {
       } else {
         // only update the activeness of current gauges
         for (let i = 0; i < newAllocation.length; i++) {
-          const matchingGauge = gaugesData.find((g) => g.gaugeId === newAllocation[i].gaugeId)
+          const matchingGauge = gaugesData.find((g) => g.gaugeId.eq(newAllocation[i].gaugeId))
           if (matchingGauge) {
             newAllocation[i] = {
               ...newAllocation[i],
+              gauge: matchingGauge.gaugeName,
               gaugeActive: matchingGauge.isActive,
             }
           }
@@ -381,7 +386,7 @@ const VoteManager: React.FC = (props) => {
       handleVotesData(newVotesData)
     }
     getUserVotesData()
-  }, [account, gaugesData, activeNetwork, version])
+  }, [account, gaugesData, activeNetwork, version, votesData.localVoteAllocation])
 
   useEffect(() => {
     const callVotingOpen = async () => {

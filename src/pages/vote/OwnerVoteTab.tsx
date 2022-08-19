@@ -30,9 +30,9 @@ export const OwnerVoteTab = () => {
     () =>
       votesData.localVoteAllocation.filter((g) => {
         return (
-          !g.gaugeActive &&
-          !BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)).isZero() &&
-          (g.changed || g.added)
+          !g.gaugeActive ||
+          (BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)).isZero() && g.added) ||
+          !g.changed
         )
       }).length > 0,
     [votesData.localVoteAllocation]
@@ -103,20 +103,19 @@ export const OwnerVoteTab = () => {
               noborder
               widthP={100}
               disabled={
-                cannotCallVoteMultiple || votesData.localVoteAllocation.filter((item) => item.changed).length == 0
+                cannotCallVoteMultiple ||
+                votesData.localVoteAllocation.filter((item) => item.changed).length == 0 ||
+                votesData.localVoteAllocationTotal > 100
               }
               onClick={callVoteMultiple}
             >
               Set Votes
             </Button>
-            <Button
-              error
-              widthP={100}
-              onClick={callRemoveVoteMultiple}
-              disabled={votesData.localVoteAllocation.filter((item) => !item.added).length == 0}
-            >
-              Remove all votes
-            </Button>
+            {votesData.localVoteAllocation.filter((item) => !item.added).length > 0 && (
+              <Button error widthP={100} onClick={callRemoveVoteMultiple}>
+                Remove all votes
+              </Button>
+            )}
           </>
         ) : (
           <Text>Voting is closed</Text>

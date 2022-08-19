@@ -103,7 +103,12 @@ export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element =>
             techygradient
             onClick={callVote}
             widthP={100}
-            disabled={!votesData.localVoteAllocation[index].gaugeActive}
+            disabled={
+              !votesData.localVoteAllocation[index].gaugeActive ||
+              !votesData.localVoteAllocation[index].changed ||
+              parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) === 0 ||
+              votesData.localVoteAllocationTotal > 100
+            }
           >
             Save Vote
           </Button>
