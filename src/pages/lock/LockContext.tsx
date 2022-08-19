@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
-import React, { createContext, useMemo, useState, useContext, useEffect, useCallback } from 'react'
-import { PoolTokenInfo, ReadToken, TokenInfo } from '../../constants/types'
+import React, { createContext, useMemo, useState, useContext, useEffect, useCallback, useRef } from 'react'
+import { PoolTokenInfo, ReadToken } from '../../constants/types'
 import { useBatchBalances } from '../../hooks/balance/useBalance'
 import { ERC20_ABI } from '../../constants/abi'
 import { useTokenApprove } from '../../hooks/contract/useToken'
@@ -13,12 +13,16 @@ import { useWeb3React } from '@web3-react/core'
 import { useUwLockVoting } from '../../hooks/lock/useUwLockVoting'
 import { DelegateModal } from './organisms/DelegateModal'
 import { useUwLocker } from '../../hooks/lock/useUwLocker'
+import { floatUnits } from '../../utils/formatting'
+import { useNetwork } from '../../context/NetworkManager'
+import { useProvider } from '../../context/ProviderManager'
 
 type LockContextType = {
   intrface: {
     tokensLoading: boolean
     transactionLoading: boolean
     balancesLoading: boolean
+    locksLoading: boolean
     handleTransactionLoading: (setLoading: boolean) => void
   }
   paymentCoins: {
@@ -38,6 +42,14 @@ type LockContextType = {
   }
   locker: {
     stakedBalance: BigNumber
+    userLocks: {
+      lockID: BigNumber
+      amount: BigNumber
+      end: BigNumber
+    }[]
+    minLockDuration: BigNumber
+    maxLockDuration: BigNumber
+    maxNumLocks: BigNumber
   }
 }
 
@@ -46,6 +58,7 @@ const LockContext = createContext<LockContextType>({
     tokensLoading: false,
     transactionLoading: false,
     balancesLoading: false,
+    locksLoading: false,
     handleTransactionLoading: () => undefined,
   },
   paymentCoins: {
@@ -65,11 +78,18 @@ const LockContext = createContext<LockContextType>({
   },
   locker: {
     stakedBalance: ZERO,
+    userLocks: [],
+    minLockDuration: ZERO,
+    maxLockDuration: ZERO,
+    maxNumLocks: ZERO,
   },
 })
 
 const LockManager: React.FC = (props) => {
   const { account } = useWeb3React()
+  const { activeNetwork } = useNetwork()
+  const { latestBlock } = useProvider()
+  const { version } = useCachedData()
   const [coinsOpen, setCoinsOpen] = useState(false)
   const [transactionLoading, setTransactionLoading] = useState<boolean>(false)
   const [currentDelegate, setCurrentDelegate] = useState(ZERO_ADDRESS)
@@ -78,12 +98,31 @@ const LockManager: React.FC = (props) => {
 
   const { loading: tokensLoading, tokens } = useTokenHelper()
   const { delegateOf } = useUwLockVoting()
-  const { totalStakedBalance } = useUwLocker()
+  const {
+    totalStakedBalance,
+    minLockDuration: getMinLockDuration,
+    maxLockDuration: getMaxLockDuration,
+    maxNumLocks: getMaxNumLocks,
+    getAllLockIDsOf,
+    locks: getLock,
+  } = useUwLocker()
   const coinOptions = useMemo(() => [...tokens], [tokens])
   const { loading: balancesLoading, batchBalances } = useBatchBalances(coinOptions)
   const { tokenPriceMapping } = useCachedData()
+  const fetchingLocks = useRef(false)
 
   const [selectedCoin, setSelectedCoin] = useState<ReadToken | undefined>(undefined)
+  const [minLockDuration, setMinLockDuration] = useState<BigNumber>(ZERO)
+  const [maxLockDuration, setMaxLockDuration] = useState<BigNumber>(ZERO)
+  const [maxNumLocks, setMaxNumLocks] = useState<BigNumber>(ZERO)
+  const [userLocks, setUserLocks] = useState<
+    {
+      lockID: BigNumber
+      amount: BigNumber
+      end: BigNumber
+    }[]
+  >([])
+  const [locksLoading, setLocksLoading] = useState(true)
 
   const { approve } = useTokenApprove(setTransactionLoading)
 
@@ -146,16 +185,68 @@ const LockManager: React.FC = (props) => {
   }, [coinOptions])
 
   useEffect(() => {
-    const getStakedBalance = async () => {
+    const getUserLockData = async () => {
+      if (fetchingLocks.current) return
       if (!account) {
         setStakedBalance(ZERO)
+        setUserLocks([])
         return
       }
-      const staked = await totalStakedBalance(account)
+      fetchingLocks.current = true
+      const [staked, lockIDs] = await Promise.all([totalStakedBalance(account), getAllLockIDsOf(account)])
+      const voteLocks = await Promise.all(lockIDs.map((lockID) => getLock(lockID)))
+
+      const locks = lockIDs.map((lockID, index) => ({ ...voteLocks[index], lockID }))
+
+      // const locks = [
+      //   {
+      //     lockID: BigNumber.from(0),
+      //     amount: BigNumber.from('134533333334534444444'),
+      //     end: BigNumber.from('1999999999'),
+      //   },
+      //   {
+      //     lockID: BigNumber.from(1),
+      //     amount: BigNumber.from('1659999999'),
+      //     end: BigNumber.from('1668888888'),
+      //   },
+      //   {
+      //     lockID: BigNumber.from(3),
+      //     amount: BigNumber.from('553333335330444444444'),
+      //     end: BigNumber.from(0),
+      //   },
+      //   {
+      //     lockID: BigNumber.from(4),
+      //     amount: BigNumber.from('16599996454545645999'),
+      //     end: BigNumber.from('1768888888'),
+      //   },
+      // ]
+      const sortedLocks = locks.sort((a, b) => {
+        return floatUnits(b.amount.sub(a.amount), 18)
+      })
       setStakedBalance(staked)
+      setUserLocks(sortedLocks)
+      setLocksLoading(false)
+      fetchingLocks.current = false
     }
-    getStakedBalance()
-  }, [totalStakedBalance, account])
+    getUserLockData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeNetwork, account, latestBlock, version])
+
+  useEffect(() => {
+    const getLockerConstants = async () => {
+      const _minLockDuration = await getMinLockDuration()
+      const _maxLockDuration = await getMaxLockDuration()
+      const _maxNumLocks = await getMaxNumLocks()
+      setMinLockDuration(_minLockDuration)
+      setMaxLockDuration(_maxLockDuration)
+      setMaxNumLocks(_maxNumLocks)
+    }
+    getLockerConstants()
+  }, [activeNetwork, latestBlock, getMinLockDuration, getMaxLockDuration, getMaxNumLocks])
+
+  useEffect(() => {
+    setLocksLoading(true)
+  }, [account, activeNetwork])
 
   const value = useMemo<LockContextType>(
     () => ({
@@ -163,6 +254,7 @@ const LockManager: React.FC = (props) => {
         transactionLoading,
         balancesLoading,
         tokensLoading,
+        locksLoading,
         handleTransactionLoading,
       },
       paymentCoins: {
@@ -180,7 +272,13 @@ const LockManager: React.FC = (props) => {
         delegateModalOpen,
         handleDelegateModalOpen,
       },
-      locker: { stakedBalance },
+      locker: {
+        stakedBalance,
+        userLocks,
+        minLockDuration,
+        maxLockDuration,
+        maxNumLocks,
+      },
     }),
     [
       handleTransactionLoading,
@@ -197,6 +295,11 @@ const LockManager: React.FC = (props) => {
       delegateModalOpen,
       handleDelegateModalOpen,
       stakedBalance,
+      minLockDuration,
+      maxLockDuration,
+      maxNumLocks,
+      userLocks,
+      locksLoading,
     ]
   )
   return (

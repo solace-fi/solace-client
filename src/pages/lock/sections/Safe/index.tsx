@@ -21,6 +21,7 @@ import { StyledTooltip } from '../../../../components/molecules/Tooltip'
 import { useGeneral } from '../../../../context/GeneralManager'
 import { VoteLockData } from '../../../../constants/types'
 import { useProvider } from '../../../../context/ProviderManager'
+import { ZERO } from '@solace-fi/sdk-nightly'
 
 export default function Safe({
   lock,
@@ -46,7 +47,7 @@ export default function Safe({
   const openSafe = () => handleOpenLock(lock.lockID.toNumber())
   const closeSafe = () => handleOpenLock(undefined)
 
-  const amount = useMemo(() => formatUnits(lock.amount, 18), [lock.amount])
+  const amount = useMemo(() => formatUnits(lock.amount ?? ZERO, 18), [lock.amount])
 
   const lockTimeLeft = useMemo(
     () => getTimeFromMillis((latestBlock ? Math.max(lock.end.toNumber() - latestBlock.timestamp, 0) : 0) * 1000),

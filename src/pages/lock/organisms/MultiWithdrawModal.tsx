@@ -62,6 +62,7 @@ export const MultiWithdrawModal = ({
   const [equivalentUSDValue, setEquivalentUSDValue] = useState<BigNumber>(ZERO)
   const [amountOverTotalSupply, setAmountOverTotalSupply] = useState<boolean>(false)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
+  const [actualUweWithdrawal, setActualUweWithdrawal] = useState<BigNumber>(ZERO)
 
   const callWithdraw = async () => {
     if (!account) return
@@ -107,9 +108,9 @@ export const MultiWithdrawModal = ({
   }
 
   const areWithdrawAmountsValid = useMemo(() => {
-    const invalidAmounts = amountTracker.filter((item, i) =>
-      parseUnits(formatAmount(item.amount), 18).gt(selectedLocks[i].amount)
-    )
+    const invalidAmounts = amountTracker.filter((item, i) => {
+      return parseUnits(formatAmount(item.amount ?? ZERO), 18).gt(selectedLocks[i].amount)
+    })
     return invalidAmounts.length === 0
   }, [amountTracker, selectedLocks])
 
@@ -139,7 +140,6 @@ export const MultiWithdrawModal = ({
   const handleCommonAmountInput = useCallback(
     (input: string) => {
       const filtered = filterAmount(input, commonAmount)
-      setMaxSelected(false)
       setCommonAmount(filtered)
     },
     [commonAmount]
@@ -158,8 +158,9 @@ export const MultiWithdrawModal = ({
   }, [selectedLocks])
 
   const changeAlltoCommonAmount = useDebounce((commonAmount: string) => {
+    setMaxSelected(false)
     setAmountTracker(
-      amountTracker.map((item, i) => {
+      amountTracker.map((item) => {
         return {
           ...item,
           amount: commonAmount,
@@ -183,7 +184,8 @@ export const MultiWithdrawModal = ({
   }, [handleTotalAmount, amountTracker])
 
   useEffect(() => {
-    if (isOpen)
+    if (isOpen) {
+      setMaxSelected(false)
       setAmountTracker(
         selectedLocks.map((lock) => {
           return {
@@ -192,7 +194,7 @@ export const MultiWithdrawModal = ({
           }
         })
       )
-    else {
+    } else {
       setAmountTracker([])
       setCommonAmount('')
     }
@@ -209,10 +211,12 @@ export const MultiWithdrawModal = ({
       )
     )
     const totalBurnAmount = burnAmountArray.reduce((acc, curr) => acc.add(curr), ZERO)
-    const res = await uweToTokens(parseUnits(formatAmount(totalUweToWithdraw), 18).sub(totalBurnAmount))
-    setEquivalentTokenAmounts(res.depositTokens)
-    setEquivalentUSDValue(res.usdValueOfUwpAmount)
-    setAmountOverTotalSupply(!res.successful)
+    const _actualUweWithdrawal = parseUnits(formatAmount(totalUweToWithdraw), 18).sub(totalBurnAmount)
+    setActualUweWithdrawal(_actualUweWithdrawal.gt(ZERO) ? _actualUweWithdrawal : ZERO)
+    // const res = await uweToTokens(_actualUweWithdrawal)
+    // setEquivalentTokenAmounts(res.depositTokens)
+    // setEquivalentUSDValue(res.usdValueOfUwpAmount)
+    // setAmountOverTotalSupply(!res.successful)
   }, 400)
 
   useEffect(() => {
@@ -256,7 +260,7 @@ export const MultiWithdrawModal = ({
                       <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                         Tokens to be given on withdrawal
                       </Text>
-                      <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                      {/* <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                         ${truncateValue(formatUnits(equivalentUSDValue, 18), 2)}
                       </Text>
                       <Flex col gap={2}>
@@ -280,7 +284,10 @@ export const MultiWithdrawModal = ({
                               </Text>
                             </Flex>
                           ))}
-                      </Flex>
+                      </Flex> */}
+                      <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                        <Flex>{formatUnits(actualUweWithdrawal, 18)} UWE</Flex>
+                      </Text>
                     </Flex>
                   ) : (
                     <Text warning>Withdrawal amount is over total supply</Text>
@@ -296,7 +303,7 @@ export const MultiWithdrawModal = ({
             secondary
             warmgradient
             noborder
-            disabled={(!maxSelected && (!areWithdrawAmountsValid || !isTotalWithdrawalValid)) || !amountOverTotalSupply}
+            disabled={(!maxSelected && (!areWithdrawAmountsValid || !isTotalWithdrawalValid)) || amountOverTotalSupply}
             onClick={callWithdraw}
           >
             Make Withdrawals

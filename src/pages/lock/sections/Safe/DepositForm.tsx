@@ -23,19 +23,17 @@ import { BKPT_5, BKPT_7 } from '../../../../constants'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
 import { VoteLockData } from '../../../../constants/types'
-import { useUwLocker } from '../../../../hooks/lock/useUwLocker'
 import { useLockContext } from '../../LockContext'
 import { ERC20_ABI, ZERO } from '@solace-fi/sdk-nightly'
 import { useProvider } from '../../../../context/ProviderManager'
 import { Text } from '../../../../components/atoms/Typography'
 import { StyledArrowDropDown } from '../../../../components/atoms/Icon'
 import { LoaderText } from '../../../../components/molecules/LoaderText'
-import { Label } from '../../molecules/InfoPair'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
-import { useBalanceConversion } from '../../../../hooks/lock/useUnderwritingHelper'
 import useDebounce from '@rooks/use-debounce'
 import { useContracts } from '../../../../context/ContractsManager'
 import { useTokenAllowance } from '../../../../hooks/contract/useToken'
+import { useDepositHelper } from '../../../../hooks/lock/useDepositHelper'
 
 export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
@@ -44,11 +42,10 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
   const { account } = useWeb3React()
   const { signer } = useProvider()
   const { keyContracts } = useContracts()
-  const { uwLocker } = keyContracts
+  const { depositHelper } = keyContracts
 
   const { width } = useWindowDimensions()
-  const { increaseAmount } = useUwLocker()
-  const { tokensToUwe } = useBalanceConversion()
+  const { depositIntoLock, calculateDeposit } = useDepositHelper()
   const { intrface, paymentCoins, input } = useLockContext()
   const { tokensLoading } = intrface
   const { batchBalanceData, coinsOpen, handleCoinsOpen, approveCPM } = paymentCoins
@@ -67,7 +64,7 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
 
   const depositApproval = useTokenAllowance(
     selectedCoinContract ?? null,
-    uwLocker?.address ?? null,
+    depositHelper?.address ?? null,
     inputValue && inputValue != '.' ? parseUnits(inputValue, selectedCoin?.decimals ?? 18).toString() : '0'
   )
 
@@ -84,11 +81,15 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchBalanceData, inputValue, selectedCoin])
 
-  const callIncreaseLockAmount = async () => {
+  const callDepositIntoLock = async () => {
     if (!account || !selectedCoinContract) return
-    await increaseAmount(lock.lockID, parseUnits(formatAmount(inputValue), selectedCoin?.decimals ?? 18))
+    await depositIntoLock(
+      selectedCoinContract.address,
+      parseUnits(formatAmount(inputValue), selectedCoin?.decimals ?? 18),
+      lock.lockID
+    )
       .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callIncreaseAmount', err, FunctionName.INCREASE_AMOUNT))
+      .catch((err) => handleContractCallError('callDepositIntoLock', err, FunctionName.DEPOSIT_INTO_LOCK))
   }
 
   const inputOnChange = (value: string) => {
@@ -112,9 +113,9 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
 
   const getConversion = useDebounce(async () => {
     if (selectedCoin) {
-      const res = await tokensToUwe(
-        [selectedCoin.address],
-        [parseUnits(formatAmount(inputValue), selectedCoin?.decimals ?? 18)]
+      const res = await calculateDeposit(
+        selectedCoin.address,
+        parseUnits(formatAmount(inputValue), selectedCoin?.decimals ?? 18)
       )
       setEquivalentUwe(res)
     }
@@ -220,7 +221,7 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
             info
             noborder
             disabled={!isAcceptableDeposit || !selectedCoin}
-            onClick={callIncreaseLockAmount}
+            onClick={callDepositIntoLock}
           >
             Stake
           </Button>
@@ -236,11 +237,11 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
                 inputValue == '.' ||
                 parseUnits(inputValue, selectedCoin?.decimals ?? 18).isZero() ||
                 !selectedCoinContract ||
-                !uwLocker
+                !depositHelper
               }
               onClick={() =>
                 approveCPM(
-                  uwLocker?.address ?? '',
+                  depositHelper?.address ?? '',
                   selectedCoinContract?.address ?? '',
                   parseUnits(inputValue, selectedCoin?.decimals ?? 18)
                 )
@@ -252,8 +253,8 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
               secondary
               warmgradient
               noborder
-              onClick={() => approveCPM(uwLocker?.address ?? '', selectedCoinContract?.address ?? '')}
-              disabled={!selectedCoinContract || !uwLocker}
+              onClick={() => approveCPM(depositHelper?.address ?? '', selectedCoinContract?.address ?? '')}
+              disabled={!selectedCoinContract || !depositHelper}
             >
               {`Approve MAX ${selectedCoin?.symbol}`}
             </Button>

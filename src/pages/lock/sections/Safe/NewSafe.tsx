@@ -10,7 +10,7 @@ import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
 import { Text } from '../../../../components/atoms/Typography'
-import { BKPT_7, BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
+import { BKPT_7, BKPT_5 } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
 import { RaisedBox } from '../../../../components/atoms/Box'
 import { Label } from '../../molecules/InfoPair'
@@ -20,16 +20,15 @@ import { useProvider } from '../../../../context/ProviderManager'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
-import { useUwLocker } from '../../../../hooks/lock/useUwLocker'
 import { useLockContext } from '../../LockContext'
 import { ERC20_ABI, ZERO } from '@solace-fi/sdk-nightly'
 import { StyledArrowDropDown } from '../../../../components/atoms/Icon'
 import { LoaderText } from '../../../../components/molecules/LoaderText'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
-import { useBalanceConversion } from '../../../../hooks/lock/useUnderwritingHelper'
 import useDebounce from '@rooks/use-debounce'
 import { useContracts } from '../../../../context/ContractsManager'
 import { useTokenAllowance } from '../../../../hooks/contract/useToken'
+import { useDepositHelper } from '../../../../hooks/lock/useDepositHelper'
 
 const StyledForm = styled.div`
   display: flex;
@@ -47,16 +46,20 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const { width } = useWindowDimensions()
   const { account } = useWeb3React()
   const { latestBlock, signer } = useProvider()
-  const { intrface, paymentCoins, input } = useLockContext()
+  const { intrface, paymentCoins, input, locker } = useLockContext()
   const { tokensLoading } = intrface
   const { batchBalanceData, coinsOpen, handleCoinsOpen, approveCPM } = paymentCoins
   const { selectedCoin } = input
+  const { minLockDuration, maxLockDuration, maxNumLocks, userLocks } = locker
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { tokensToUwe } = useBalanceConversion()
-  const { createLock } = useUwLocker()
+  const { depositAndLock, calculateDeposit } = useDepositHelper()
   const { keyContracts } = useContracts()
-  const { uwLocker } = keyContracts
+  const { depositHelper } = keyContracts
+
+  const minDays = useMemo(() => Math.ceil(minLockDuration.toNumber() / 86400), [minLockDuration])
+  const maxDays = useMemo(() => Math.ceil(maxLockDuration.toNumber() / 86400), [maxLockDuration])
+  const mounting = useRef(true)
 
   const selectedCoinContract = useMemo(
     () => (selectedCoin ? new Contract(selectedCoin.address, ERC20_ABI, signer) : undefined),
@@ -71,15 +74,14 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   }, [batchBalanceData, selectedCoin])
 
   const accordionRef = useRef<HTMLDivElement>(null)
-
   const [stakeInputValue, setStakeInputValue] = useState('')
   const [stakeRangeValue, setStakeRangeValue] = useState('0')
-  const [lockInputValue, setLockInputValue] = useState('0')
+  const [lockInputValue, setLockInputValue] = useState(`${minDays}`)
   const [equivalentUwe, setEquivalentUwe] = useState<BigNumber>(ZERO)
 
   const depositApproval = useTokenAllowance(
     selectedCoinContract ?? null,
-    uwLocker?.address ?? null,
+    depositHelper?.address ?? null,
     stakeInputValue && stakeInputValue != '.'
       ? parseUnits(stakeInputValue, selectedCoin?.decimals ?? 18).toString()
       : '0'
@@ -91,12 +93,16 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchBalanceData, stakeInputValue, selectedCoin])
 
-  const callCreateLock = async () => {
+  const callDepositAndLock = async () => {
     if (!latestBlock || !account || !selectedCoinContract) return
-    const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
-    await createLock(parseUnits(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18), BigNumber.from(seconds))
+    const endInSeconds = latestBlock.timestamp + parseInt(formatAmount(lockInputValue)) * 86400
+    await depositAndLock(
+      selectedCoinContract.address,
+      parseUnits(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18),
+      BigNumber.from(endInSeconds)
+    )
       .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callCreateLock', err, FunctionName.CREATE_LOCK))
+      .catch((err) => handleContractCallError('callDepositAndLock', err, FunctionName.DEPOSIT_AND_LOCK))
   }
 
   /*            STAKE INPUT & RANGE HANDLERS             */
@@ -120,7 +126,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   /*            LOCK INPUT & RANGE HANDLERS             */
   const lockInputOnChange = (value: string) => {
     const filtered = value.replace(/[^0-9]*/g, '')
-    if (parseFloat(filtered) <= DAYS_PER_YEAR * 4 || filtered == '') {
+    if (parseFloat(filtered) <= maxDays || filtered == '') {
       setLockInputValue(filtered)
     }
   }
@@ -130,9 +136,9 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
 
   const getConversion = useDebounce(async () => {
     if (selectedCoin) {
-      const res = await tokensToUwe(
-        [selectedCoin.address],
-        [parseUnits(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18)]
+      const res = await calculateDeposit(
+        selectedCoin.address,
+        parseUnits(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18)
       )
       setEquivalentUwe(res)
     }
@@ -142,9 +148,17 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
     getConversion()
   }, [stakeInputValue, selectedCoin])
 
+  useEffect(() => {
+    if (minDays == 0) return
+    if (mounting.current) {
+      mounting.current = false
+      setLockInputValue(`${minDays}`)
+    }
+  }, [minDays])
+
   /*            MAX HANDLERS             */
   const stakeSetMax = () => stakeRangeOnChange(selectedCoinBalance.toString())
-  const lockSetMax = () => setLockInputValue(`${DAYS_PER_YEAR * 4}`)
+  const lockSetMax = () => setLockInputValue(`${maxDays}`)
 
   return (
     <Accordion
@@ -223,16 +237,16 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                   <StyledSlider
                     value={lockInputValue}
                     onChange={(e) => lockRangeOnChange(e.target.value)}
-                    min={0}
-                    max={DAYS_PER_YEAR * 4}
+                    min={183}
+                    max={maxDays}
                   />
-                  {lockInputValue && lockInputValue != '0' && (
+                  {parseInt(formatAmount(lockInputValue)) > 0 && (
                     <Text
                       style={{
                         fontWeight: 500,
                       }}
                     >
-                      Lock End Date: {getExpiration(parseInt(lockInputValue))}
+                      Lock End Date: {getExpiration(parseInt(formatAmount(lockInputValue)))}
                     </Text>
                   )}
                 </Flex>
@@ -263,8 +277,13 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                   secondary
                   info
                   noborder
-                  disabled={!isAcceptableDeposit || !selectedCoin}
-                  onClick={callCreateLock}
+                  disabled={
+                    !isAcceptableDeposit ||
+                    !selectedCoin ||
+                    userLocks.length >= maxNumLocks.toNumber() ||
+                    parseFloat(formatAmount(lockInputValue)) < minDays
+                  }
+                  onClick={callDepositAndLock}
                 >
                   Stake
                 </Button>
@@ -280,11 +299,11 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                       stakeInputValue == '.' ||
                       parseUnits(stakeInputValue, selectedCoin?.decimals ?? 18).isZero() ||
                       !selectedCoinContract ||
-                      !uwLocker
+                      !depositHelper
                     }
                     onClick={() =>
                       approveCPM(
-                        uwLocker?.address ?? '',
+                        depositHelper?.address ?? '',
                         selectedCoinContract?.address ?? '',
                         parseUnits(stakeInputValue, selectedCoin?.decimals ?? 18)
                       )
@@ -296,8 +315,8 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     secondary
                     warmgradient
                     noborder
-                    onClick={() => approveCPM(uwLocker?.address ?? '', selectedCoinContract?.address ?? '')}
-                    disabled={!selectedCoinContract || !uwLocker}
+                    onClick={() => approveCPM(depositHelper?.address ?? '', selectedCoinContract?.address ?? '')}
+                    disabled={!selectedCoinContract || !depositHelper}
                   >
                     {`Approve MAX ${selectedCoin?.symbol}`}
                   </Button>

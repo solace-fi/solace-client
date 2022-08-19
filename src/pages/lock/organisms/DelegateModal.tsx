@@ -1,19 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { formatUnits } from 'ethers/lib/utils'
 import { Button } from '../../../components/atoms/Button'
-import { StyledArrowDropDown } from '../../../components/atoms/Icon'
-import { StyledSlider } from '../../../components/atoms/Input'
 import { Flex } from '../../../components/atoms/Layout'
-import { GrayBox } from '../../../components/molecules/GrayBox'
-import { InputSection, SmallerInputSection } from '../../../components/molecules/InputSection'
-import { LoaderText } from '../../../components/molecules/LoaderText'
-import { BKPT_7, BKPT_5 } from '../../../constants'
-import { FunctionName, InfoBoxType, Tab } from '../../../constants/enums'
-import { VoteLockData } from '../../../constants/types'
-import { StyledForm } from '../atoms/StyledForm'
-import InformationBox from '../components/InformationBox'
-import { useGeneral } from '../../../context/GeneralManager'
-import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
+import { SmallerInputSection } from '../../../components/molecules/InputSection'
+import { FunctionName } from '../../../constants/enums'
 import { ZERO_ADDRESS } from '@solace-fi/sdk-nightly'
 import { isAddress } from '../../../utils'
 import { useUwLockVoting } from '../../../hooks/lock/useUwLockVoting'
@@ -32,8 +21,6 @@ export const DelegateModal = ({
   handleCloseModal: () => void
 }): JSX.Element => {
   const { account } = useWeb3React()
-  const { rightSidebar } = useGeneral()
-  const { width } = useWindowDimensions()
   const { delegateOf, setDelegate } = useUwLockVoting()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 

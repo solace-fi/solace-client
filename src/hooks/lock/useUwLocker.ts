@@ -141,6 +141,39 @@ export const useUwLocker = () => {
     [uwLocker]
   )
 
+  const minLockDuration = useCallback(async (): Promise<BigNumber> => {
+    if (!uwLocker) return ZERO
+    try {
+      const minLockDuration = await uwLocker.MIN_LOCK_DURATION()
+      return minLockDuration
+    } catch (error) {
+      console.error(error)
+      return ZERO
+    }
+  }, [uwLocker])
+
+  const maxLockDuration = useCallback(async (): Promise<BigNumber> => {
+    if (!uwLocker) return ZERO
+    try {
+      const maxLockDuration = await uwLocker.MAX_LOCK_DURATION()
+      return maxLockDuration
+    } catch (error) {
+      console.error(error)
+      return ZERO
+    }
+  }, [uwLocker])
+
+  const maxNumLocks = useCallback(async (): Promise<BigNumber> => {
+    if (!uwLocker) return ZERO
+    try {
+      const maxNumLocks = await uwLocker.MAX_NUM_LOCKS()
+      return maxNumLocks
+    } catch (error) {
+      console.error(error)
+      return ZERO
+    }
+  }, [uwLocker])
+
   const createLock = useCallback(
     async (amount: BigNumber, end: BigNumber) => {
       if (!uwLocker || !signer || !account) return { tx: null, localTx: null }
@@ -296,6 +329,9 @@ export const useUwLocker = () => {
 
   return {
     getAllLockIDsOf,
+    minLockDuration,
+    maxLockDuration,
+    maxNumLocks,
     createLock,
     increaseAmount,
     increaseAmountMultiple,

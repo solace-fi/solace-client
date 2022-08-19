@@ -23,8 +23,9 @@ import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions
 import { useUwLocker } from '../../../hooks/lock/useUwLocker'
 import { filterAmount, formatAmount } from '../../../utils/formatting'
 import { useLockContext } from '../LockContext'
-import { useBalanceConversion } from '../../../hooks/lock/useUnderwritingHelper'
 import { useContracts } from '../../../context/ContractsManager'
+import { useDepositHelper } from '../../../hooks/lock/useDepositHelper'
+import { useWeb3React } from '@web3-react/core'
 
 export const MultiDepositModal = ({
   isOpen,
@@ -47,11 +48,12 @@ export const MultiDepositModal = ({
   const { signer } = useProvider()
   const { keyContracts } = useContracts()
   const { uwLocker } = keyContracts
+  const { account } = useWeb3React()
 
   const { isAppropriateAmount } = useInputAmount()
   const { increaseAmountMultiple } = useUwLocker()
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { tokensToUwe } = useBalanceConversion()
+  const { depositIntoLock, calculateDeposit } = useDepositHelper()
   const { intrface, paymentCoins, input } = useLockContext()
   const { tokensLoading } = intrface
   const { batchBalanceData, coinsOpen, handleCoinsOpen, approveCPM } = paymentCoins
@@ -87,12 +89,25 @@ export const MultiDepositModal = ({
   }, [batchBalanceData, totalAmountToDeposit, selectedCoin])
 
   const callIncreaseLockAmountMultiple = async () => {
-    await increaseAmountMultiple(
-      amountTracker.map((d) => d.lockID),
-      amountTracker.map((d) => parseUnits(d.amount, selectedCoin?.decimals ?? 18))
-    )
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callIncreaseAmountMultiple', err, FunctionName.INCREASE_AMOUNT_MULTIPLE))
+    if (!account || !selectedCoinContract) return
+    const chosenlocks = amountTracker.filter((lock) => !parseUnits(formatAmount(lock.amount), 18).isZero())
+    if (chosenlocks.length === 0) return
+    if (chosenlocks.length === 1) {
+      await depositIntoLock(
+        selectedCoinContract.address,
+        parseUnits(formatAmount(chosenlocks[0].amount), selectedCoin?.decimals ?? 18),
+        chosenlocks[0].lockID
+      )
+        .then((res) => handleToast(res.tx, res.localTx))
+        .catch((err) => handleContractCallError('callDepositIntoLock', err, FunctionName.DEPOSIT_INTO_LOCK))
+    } else {
+      // await increaseAmountMultiple(
+      //   amountTracker.map((d) => d.lockID),
+      //   amountTracker.map((d) => parseUnits(d.amount, selectedCoin?.decimals ?? 18))
+      // )
+      //   .then((res) => handleToast(res.tx, res.localTx))
+      //   .catch((err) => handleContractCallError('callIncreaseAmountMultiple', err, FunctionName.INCREASE_AMOUNT_MULTIPLE))
+    }
   }
 
   const handleAmountInput = useCallback(
@@ -167,9 +182,9 @@ export const MultiDepositModal = ({
 
   const getConversion = useDebounce(async () => {
     if (!selectedCoin) return
-    const res = await tokensToUwe(
-      [selectedCoin.address],
-      [parseUnits(formatAmount(totalAmountToDeposit), selectedCoin?.decimals ?? 18)]
+    const res = await calculateDeposit(
+      selectedCoin.address,
+      parseUnits(formatAmount(totalAmountToDeposit), selectedCoin?.decimals ?? 18)
     )
     setEquivalentUwe(res)
   }, 400)

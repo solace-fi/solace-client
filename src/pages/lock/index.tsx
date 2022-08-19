@@ -6,8 +6,6 @@ import { formatUnits } from 'ethers/lib/utils'
 /* import managers */
 import { useGeneral } from '../../context/GeneralManager'
 import { useProvider } from '../../context/ProviderManager'
-import { useCachedData } from '../../context/CachedDataManager'
-import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { BKPT_5, BKPT_6, ZERO } from '../../constants'
@@ -31,10 +29,9 @@ import CardSectionValue from './components/CardSectionValue'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
-import { useUwLocker } from '../../hooks/lock/useUwLocker'
 
 /* import utils */
-import { floatUnits, truncateValue } from '../../utils/formatting'
+import { truncateValue } from '../../utils/formatting'
 
 import updateLocksChecked from './utils/updateLocksChecked'
 import getCheckedLocks from './utils/getCheckedLocks'
@@ -68,19 +65,18 @@ export default function Lock(): JSX.Element {
 const LockContent = () => {
   const { rightSidebar } = useGeneral()
   const { isMobile, width } = useWindowDimensions()
-  const { delegateData } = useLockContext()
+  const { intrface, delegateData, locker } = useLockContext()
+  const { locksLoading } = intrface
   const { handleDelegateModalOpen } = delegateData
+  const { maxNumLocks, userLocks: locks, stakedBalance: staked } = locker
 
   // account usewallet
   const [newSafeIsOpen, setNewSafeIsOpen] = useState(false)
   const [batchActionsIsEnabled, setBatchActionsIsEnabled] = useState(false)
-  const [loading, setLoading] = useState<boolean>(true)
 
   const [openDepositModal, setOpenDepositModal] = useState(false)
   const [openExtendModal, setOpenExtendModal] = useState(false)
   const [openWithdrawModal, setOpenWithdrawModal] = useState(false)
-
-  const fetchingLocks = useRef(false)
 
   const [locksChecked, setLocksChecked] = useState<CheckboxData[]>([])
   const locksCheckedRef = useRef(locksChecked)
@@ -88,11 +84,6 @@ const LockContent = () => {
 
   const { account } = useWeb3React()
   const { latestBlock } = useProvider()
-  const { activeNetwork } = useNetwork()
-  const { version } = useCachedData()
-  const [locks, setLocks] = useState<VoteLockData[]>([])
-  const [staked, setStaked] = useState<BigNumber>(ZERO)
-  const { totalStakedBalance, getAllLockIDsOf, locks: getLock } = useUwLocker()
   const selectedLocks = useMemo(
     () =>
       locks.filter((lock) =>
@@ -112,12 +103,6 @@ const LockContent = () => {
     [latestBlock]
   )
 
-  const withdrawalsAreZero = useMemo(() => calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked)).isZero(), [
-    locks,
-    locksChecked,
-    calculateTotalWithdrawable,
-  ])
-
   const formattedWithdrawal = useMemo(
     () => truncateValue(formatUnits(calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked)), 18), 4),
     [locks, locksChecked, calculateTotalWithdrawable]
@@ -136,52 +121,9 @@ const LockContent = () => {
   const [openedLockId, setOpenedLockId] = useState<number | undefined>(undefined)
 
   useEffect(() => {
-    const _getUserLocks = async () => {
-      if (!account || fetchingLocks.current) return
-      fetchingLocks.current = true
-      const [staked, lockIDs] = await Promise.all([totalStakedBalance(account), getAllLockIDsOf(account)])
-      // const voteLocks = await Promise.all(lockIDs.map((lockID) => getLock(lockID)))
-
-      // const locks = lockIDs.map((lockID, index) => ({ ...voteLocks[index], lockID }))
-      const locks = [
-        {
-          lockID: BigNumber.from(0),
-          amount: BigNumber.from('134533333334534444444'),
-          end: BigNumber.from('1999999999'),
-        },
-        {
-          lockID: BigNumber.from(1),
-          amount: BigNumber.from('1659999999'),
-          end: BigNumber.from('1668888888'),
-        },
-        {
-          lockID: BigNumber.from(3),
-          amount: BigNumber.from('553333335330444444444'),
-          end: BigNumber.from(0),
-        },
-        {
-          lockID: BigNumber.from(4),
-          amount: BigNumber.from('16599996454545645999'),
-          end: BigNumber.from('1768888888'),
-        },
-      ]
-      const sortedLocks = locks.sort((a, b) => {
-        return floatUnits(b.amount.sub(a.amount), 18)
-      })
-
-      setLocksChecked(updateLocksChecked(sortedLocks, locksCheckedRef.current))
-      setLocks(sortedLocks)
-      setStaked(staked)
-      setLoading(false)
-      fetchingLocks.current = false
-    }
-    _getUserLocks()
+    setLocksChecked(updateLocksChecked(locks, locksCheckedRef.current))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, activeNetwork, latestBlock, version])
-
-  useEffect(() => {
-    setLoading(true)
-  }, [account, activeNetwork])
+  }, [locks])
 
   const openSafe = () => setNewSafeIsOpen(true)
   const closeSafe = () => setNewSafeIsOpen(false)
@@ -223,11 +165,11 @@ const LockContent = () => {
         <PleaseConnectWallet />
       ) : (
         <Content>
-          <MultiDepositModal
+          {/* <MultiDepositModal
             isOpen={openDepositModal}
             handleClose={() => setOpenDepositModal(false)}
             selectedLocks={selectedLocks}
-          />
+          /> */}
           <MultiExtendModal
             isOpen={openExtendModal}
             handleClose={() => setOpenExtendModal(false)}
@@ -255,7 +197,15 @@ const LockContent = () => {
           >
             {!batchActionsIsEnabled ? (
               !newSafeIsOpen ? (
-                <Button secondary info noborder pl={10} pr={10} onClick={openSafe}>
+                <Button
+                  secondary
+                  info
+                  noborder
+                  pl={10}
+                  pr={10}
+                  onClick={openSafe}
+                  disabled={locks.length >= maxNumLocks.toNumber()}
+                >
                   New Safe
                 </Button>
               ) : (
@@ -311,7 +261,7 @@ const LockContent = () => {
             <Flex center gap={15} column={navbarThreshold}>
               {batchActionsIsEnabled && (
                 <Flex gap={15} justifyCenter wrapped>
-                  <Button
+                  {/* <Button
                     secondary
                     info
                     noborder
@@ -321,7 +271,7 @@ const LockContent = () => {
                     onClick={() => setOpenDepositModal(true)}
                   >
                     Deposit
-                  </Button>
+                  </Button> */}
                   <Button
                     secondary
                     info
@@ -341,7 +291,6 @@ const LockContent = () => {
                     pr={5}
                     py={navbarThreshold ? 10 : 0}
                     onClick={() => setOpenWithdrawModal(true)}
-                    disabled={withdrawalsAreZero}
                   >
                     Withdraw
                   </Button>
@@ -359,12 +308,12 @@ const LockContent = () => {
             </Flex>
           </Flex>
           <NewSafe isOpen={newSafeIsOpen} />
-          {loading && (
+          {locksLoading && (
             <Content>
               <Loader />
             </Content>
           )}
-          {!loading &&
+          {!locksLoading &&
             locks.length > 0 &&
             locksPaginated.map((lock, i) => (
               <Safe
@@ -378,7 +327,7 @@ const LockContent = () => {
                 handleOpenLock={handleOpenLock}
               />
             ))}
-          {!loading && numPages > 1 && (
+          {!locksLoading && numPages > 1 && (
             <Flex pb={20} justifyCenter>
               <Flex itemsCenter gap={5}>
                 <GraySquareButton onClick={() => handleCurrentPageChange('prev')}>
@@ -395,10 +344,10 @@ const LockContent = () => {
               </Flex>
             </Flex>
           )}
-          {!loading && locks.length == 0 && (
+          {!locksLoading && locks.length == 0 && (
             <HeroContainer>
               <Text t1 textAlignCenter>
-                You do not have any safes.
+                You do not have any locks.
               </Text>
             </HeroContainer>
           )}

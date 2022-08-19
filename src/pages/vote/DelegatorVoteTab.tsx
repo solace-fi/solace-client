@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react'
-import { isAddress } from 'ethers/lib/utils'
+import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { Accordion } from '../../components/atoms/Accordion'
 import { Button } from '../../components/atoms/Button'
-import { Flex, ShadowDiv, VerticalSeparator } from '../../components/atoms/Layout'
+import { Flex, ShadowDiv } from '../../components/atoms/Layout'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { DelegatorVoteGauge } from './organisms/DelegatorVoteGauge'
 import { useUwLockVoting } from '../../hooks/lock/useUwLockVoting'
@@ -11,7 +11,7 @@ import { Text } from '../../components/atoms/Typography'
 import { BigNumber } from '@solace-fi/sdk-nightly'
 import { FunctionName } from '../../constants/enums'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
-import { formatAmount } from '../../utils/formatting'
+import { formatAmount, truncateValue } from '../../utils/formatting'
 
 export const DelegatorVoteTab = () => {
   const { voteGeneral, voteDelegator } = useVoteContext()
@@ -75,51 +75,61 @@ export const DelegatorVoteTab = () => {
           />
         </Flex>
       </Flex>
-      <Flex col itemsCenter gap={15}>
-        <ShadowDiv>
-          <Flex gap={12} p={10}>
-            <Flex col itemsCenter width={126}>
-              <Text techygradient t6s>
-                Total Points
-              </Text>
-              <Text techygradient big3>
-                {delegatorVotesData.votePower.toString()}
-              </Text>
+      {delegatorVotesData.matching && (
+        <Flex col itemsCenter gap={15}>
+          <ShadowDiv>
+            <Flex gap={12} p={10}>
+              <Flex col itemsCenter width={126}>
+                <Text techygradient t6s>
+                  Total Points
+                </Text>
+                <Text techygradient big3>
+                  {truncateValue(formatUnits(delegatorVotesData.votePower, 18), 2)}
+                </Text>
+              </Flex>
+              <Flex col itemsCenter width={126}>
+                <Text t6s>Used Percentage</Text>
+                <Text big3>{(parseFloat(delegatorVotesData.usedVotePowerBPS.toString()) / 100).toString()}%</Text>
+              </Flex>
             </Flex>
-            <Flex col itemsCenter width={126}>
-              <Text t6s>Used Percentage</Text>
-              <Text big3>{(parseFloat(delegatorVotesData.usedVotePowerBPS.toString()) / 100).toString()}%</Text>
+          </ShadowDiv>
+          <Accordion isOpen={delegatorVotesData.localVoteAllocation.length > 0} thinScrollbar>
+            <Flex col gap={10} p={10}>
+              {delegatorVotesData.localVoteAllocation.map((voteData, i) => (
+                <DelegatorVoteGauge key={i} index={i} />
+              ))}
             </Flex>
-          </Flex>
-        </ShadowDiv>
-        <Accordion isOpen={delegatorVotesData.localVoteAllocation.length > 0} thinScrollbar>
-          <Flex col gap={10} p={10}>
-            {delegatorVotesData.localVoteAllocation.map((voteData, i) => (
-              <DelegatorVoteGauge key={i} index={i} />
-            ))}
-          </Flex>
-        </Accordion>
-        {isVotingOpen ? (
-          <>
-            <Button onClick={() => addEmptyVote(false)}>+ Add Gauge Vote</Button>
-            <Button
-              techygradient
-              secondary
-              noborder
-              widthP={100}
-              disabled={!cannotCallVoteMultiple}
-              onClick={callVoteMultiple}
-            >
-              Set Votes
-            </Button>
-            <Button error widthP={100} onClick={callRemoveVoteMultiple}>
-              Remove all votes
-            </Button>
-          </>
-        ) : (
-          <Text>Voting is closed</Text>
-        )}
-      </Flex>
+          </Accordion>
+          {isVotingOpen ? (
+            <>
+              <Button onClick={() => addEmptyVote(false)}>+ Add Gauge Vote</Button>
+              <Button
+                techygradient
+                secondary
+                noborder
+                widthP={100}
+                disabled={
+                  cannotCallVoteMultiple ||
+                  delegatorVotesData.localVoteAllocation.filter((item) => item.changed).length == 0
+                }
+                onClick={callVoteMultiple}
+              >
+                Set Votes
+              </Button>
+              <Button
+                error
+                widthP={100}
+                onClick={callRemoveVoteMultiple}
+                disabled={delegatorVotesData.localVoteAllocation.filter((item) => !item.added).length == 0}
+              >
+                Remove all votes
+              </Button>
+            </>
+          ) : (
+            <Text>Voting is closed</Text>
+          )}
+        </Flex>
+      )}
     </>
   )
 }

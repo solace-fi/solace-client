@@ -314,17 +314,8 @@ export const useTokenHelper = () => {
 }
 
 export const useBalanceConversion = () => {
-  const { valueOfShares, calculateIssue, calculateRedeem } = useUwp()
-  const { calculateDeposit, calculateWithdraw, totalSupply } = useUwe()
-
-  const tokensToUwe = useCallback(
-    async (depositTokens: string[], depositAmounts: BigNumber[]) => {
-      const uwp = await calculateIssue(depositTokens, depositAmounts)
-      const uwe = await calculateDeposit(uwp)
-      return uwe
-    },
-    [calculateDeposit, calculateIssue]
-  )
+  const { valueOfShares, calculateRedeem } = useUwp()
+  const { calculateWithdraw, totalSupply } = useUwe()
 
   const uweToTokens = useCallback(
     async (uwe: BigNumber) => {
@@ -343,5 +334,5 @@ export const useBalanceConversion = () => {
     [calculateWithdraw, calculateRedeem, valueOfShares, totalSupply]
   )
 
-  return { tokensToUwe, uweToTokens }
+  return { uweToTokens }
 }

@@ -35,7 +35,7 @@
       { "internalType": "uint256", "name": "depositAmount", "type": "uint256" },
       { "internalType": "uint256", "name": "lockID", "type": "uint256" }
     ],
-    "name": "depositToLock",
+    "name": "depositIntoLock",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

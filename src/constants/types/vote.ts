@@ -12,6 +12,10 @@ export type VotesData = {
   localVoteAllocationTotal: number
 }
 
+export type DelegateVotesData = VotesData & {
+  matching: boolean
+}
+
 export type VoteAllocation = {
   gauge: string
   gaugeId: BigNumber

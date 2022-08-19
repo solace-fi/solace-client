@@ -39,7 +39,8 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
   const { account } = useWeb3React()
   const { width } = useWindowDimensions()
   const { uweToTokens } = useBalanceConversion()
-  const { paymentCoins } = useLockContext()
+  const { paymentCoins, input } = useLockContext()
+  const { selectedCoin } = input
   const { batchBalanceData } = paymentCoins
 
   const [inputValue, setInputValue] = React.useState('')
@@ -47,6 +48,7 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
   const [equivalentTokenAmounts, setEquivalentTokenAmounts] = useState<BigNumber[]>([])
   const [equivalentUSDValue, setEquivalentUSDValue] = useState<BigNumber>(ZERO)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
+  const [actualUweWithdrawal, setActualUweWithdrawal] = useState<BigNumber>(ZERO)
 
   const callWithdrawFromLock = async () => {
     if (!account) return
@@ -72,13 +74,13 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
 
     if (parseUnits(formatted, 18).gt(lock.amount)) return
-    setMaxSelected(true)
+    setMaxSelected(false)
     setRangeValue(accurateMultiply(filtered, 18))
     setInputValue(filtered)
   }
 
   const rangeOnChange = (value: string, convertFromSciNota = true) => {
-    setMaxSelected(true)
+    setMaxSelected(false)
     setInputValue(formatUnits(BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`), 18))
     setRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`)
   }
@@ -93,14 +95,16 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
     const burnAmount = maxSelected
       ? await getBurnOnWithdrawAmount(lock.lockID)
       : await getBurnOnWithdrawInPartAmount(lock.lockID, lock.amount)
-    const res = await uweToTokens(parseUnits(formatAmount(totalUweToWithdraw), 18).sub(burnAmount))
-    setEquivalentTokenAmounts(res.depositTokens)
-    setEquivalentUSDValue(res.usdValueOfUwpAmount)
+    const _actualUweWithdrawal = parseUnits(formatAmount(totalUweToWithdraw), 18).sub(burnAmount)
+    setActualUweWithdrawal(_actualUweWithdrawal.gt(ZERO) ? _actualUweWithdrawal : ZERO)
+    // const res = await uweToTokens(actualUweWithdrawal)
+    // setEquivalentTokenAmounts(res.depositTokens)
+    // setEquivalentUSDValue(res.usdValueOfUwpAmount)
   }, 400)
 
   useEffect(() => {
     getConversion()
-  }, [inputValue])
+  }, [inputValue, latestBlock, selectedCoin])
 
   return (
     <div
@@ -128,7 +132,7 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
                 <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                   Tokens to be given on withdrawal
                 </Text>
-                <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                {/* <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                   ${truncateValue(formatUnits(equivalentUSDValue, 18), 2)}
                 </Text>
                 <Flex col gap={2}>
@@ -146,7 +150,10 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
                         </Text>
                       </Flex>
                     ))}
-                </Flex>
+                </Flex> */}
+                <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                  <Flex>{formatUnits(actualUweWithdrawal, 18)} UWE</Flex>
+                </Text>
               </Flex>
             </GrayBox>
           </Flex>
@@ -155,10 +162,7 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
           secondary
           info
           noborder
-          disabled={
-            !isAppropriateAmount(formatAmount(inputValue), 18, lock.amount) ||
-            (latestBlock ? lock.end.toNumber() > latestBlock.timestamp : true)
-          }
+          disabled={!isAppropriateAmount(formatAmount(inputValue), 18, lock.amount)}
           onClick={callWithdrawFromLock}
         >
           Withdraw

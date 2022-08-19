@@ -18,4 +18,8 @@ export enum FunctionName {
   WITHDRAW_LOCK_IN_PART = 'WithdrawInPart',
   WITHDRAW_LOCK_MULTIPLE = 'WithdrawMultiple',
   WITHDRAW_LOCK_IN_PART_MULTIPLE = 'WithdrawInPartMultiple',
+
+  // DepositHelper
+  DEPOSIT_AND_LOCK = 'DepositAndLock',
+  DEPOSIT_INTO_LOCK = 'DepositIntoLock',
 }

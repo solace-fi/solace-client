@@ -11,7 +11,8 @@ import { BigNumber } from '@solace-fi/sdk-nightly'
 import { FunctionName } from '../../constants/enums'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { isAddress } from '../../utils'
-import { formatAmount } from '../../utils/formatting'
+import { formatAmount, truncateValue } from '../../utils/formatting'
+import { formatUnits } from 'ethers/lib/utils'
 
 export const OwnerVoteTab = () => {
   const { voteGeneral, voteOwner } = useVoteContext()
@@ -77,7 +78,7 @@ export const OwnerVoteTab = () => {
                 Total Points
               </Text>
               <Text techygradient big3>
-                {votesData.votePower.toString()}
+                {truncateValue(formatUnits(votesData.votePower, 18), 2)}
               </Text>
             </Flex>
             <Flex col itemsCenter width={126}>
@@ -101,12 +102,19 @@ export const OwnerVoteTab = () => {
               secondary
               noborder
               widthP={100}
-              disabled={cannotCallVoteMultiple}
+              disabled={
+                cannotCallVoteMultiple || votesData.localVoteAllocation.filter((item) => item.changed).length == 0
+              }
               onClick={callVoteMultiple}
             >
               Set Votes
             </Button>
-            <Button error widthP={100} onClick={callRemoveVoteMultiple}>
+            <Button
+              error
+              widthP={100}
+              onClick={callRemoveVoteMultiple}
+              disabled={votesData.localVoteAllocation.filter((item) => !item.added).length == 0}
+            >
               Remove all votes
             </Button>
           </>

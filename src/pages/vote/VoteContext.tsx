@@ -4,7 +4,7 @@ import { useWeb3React } from '@web3-react/core'
 import { isAddress } from 'ethers/lib/utils'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, version } from 'react'
 import { GaugeSelectionModal } from '../../components/organisms/GaugeSelectionModal'
-import { GaugeData, VoteAllocation, VotesData } from '../../constants/types'
+import { DelegateVotesData, GaugeData, VoteAllocation, VotesData } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useGaugeControllerHelper } from '../../hooks/gauge/useGaugeController'
@@ -34,9 +34,9 @@ type VoteContextType = {
   }
   voteDelegator: {
     delegator: string
-    delegatorVotesData: VotesData
+    delegatorVotesData: DelegateVotesData
     handleDelegatorAddress: (address: string) => void
-    handleDelegatorVotesData: (votesData: VotesData) => void
+    handleDelegatorVotesData: (votesData: DelegateVotesData) => void
   }
 }
 
@@ -73,6 +73,7 @@ const VoteContext = createContext<VoteContextType>({
       votePower: ZERO,
       usedVotePowerBPS: ZERO,
       localVoteAllocationTotal: 0,
+      matching: false,
     },
     handleDelegatorAddress: () => undefined,
     handleDelegatorVotesData: () => undefined,
@@ -100,11 +101,12 @@ const VoteManager: React.FC = (props) => {
     localVoteAllocation: [],
     localVoteAllocationTotal: 0,
   })
-  const [delegatorVotesData, setDelegatorVotesData] = useState<VotesData>({
+  const [delegatorVotesData, setDelegatorVotesData] = useState<DelegateVotesData>({
     votePower: ZERO,
     usedVotePowerBPS: ZERO,
     localVoteAllocation: [],
     localVoteAllocationTotal: 0,
+    matching: false,
   })
 
   const handleVotesData = useCallback((votesData: VotesData) => {
@@ -119,7 +121,7 @@ const VoteManager: React.FC = (props) => {
     setDelegatorAddr(address)
   }, [])
 
-  const handleDelegatorVotesData = useCallback((votesData: VotesData) => {
+  const handleDelegatorVotesData = useCallback((votesData: DelegateVotesData) => {
     setDelegatorVotesData(votesData)
   }, [])
 
@@ -215,46 +217,45 @@ const VoteManager: React.FC = (props) => {
     [votesData, delegatorVotesData]
   )
 
-  const assign = useCallback(
-    (gaugeName: string, gaugeId: BigNumber, index: number, isOwner: boolean) => {
-      if (isOwner) {
-        setVotesData((prevState) => {
-          return {
-            ...prevState,
-            localVoteAllocation: votesData.localVoteAllocation.map((vote, i) => {
-              if (i == index) {
-                return {
-                  ...votesData.localVoteAllocation[i],
-                  gauge: gaugeName,
-                  gaugeId: gaugeId,
-                  changed: true,
-                }
+  const assign = useCallback((gaugeName: string, gaugeId: BigNumber, index: number, isOwner: boolean) => {
+    if (isOwner) {
+      setVotesData((prevState) => {
+        return {
+          ...prevState,
+          localVoteAllocation: prevState.localVoteAllocation.map((vote, i) => {
+            if (i == index) {
+              if (vote.gauge === gaugeName && vote.gaugeId.eq(gaugeId)) return vote
+              return {
+                ...vote,
+                gauge: gaugeName,
+                gaugeId: gaugeId,
+                changed: true,
               }
-              return vote
-            }),
-          }
-        })
-      } else {
-        setDelegatorVotesData((prevState) => {
-          return {
-            ...prevState,
-            localVoteAllocation: delegatorVotesData.localVoteAllocation.map((vote, i) => {
-              if (i == index) {
-                return {
-                  ...delegatorVotesData.localVoteAllocation[i],
-                  gauge: gaugeName,
-                  gaugeId: gaugeId,
-                  changed: true,
-                }
+            }
+            return vote
+          }),
+        }
+      })
+    } else {
+      setDelegatorVotesData((prevState) => {
+        return {
+          ...prevState,
+          localVoteAllocation: prevState.localVoteAllocation.map((vote, i) => {
+            if (i == index) {
+              if (vote.gauge === gaugeName && vote.gaugeId.eq(gaugeId)) return vote
+              return {
+                ...vote,
+                gauge: gaugeName,
+                gaugeId: gaugeId,
+                changed: true,
               }
-              return vote
-            }),
-          }
-        })
-      }
-    },
-    [votesData, delegatorVotesData]
-  )
+            }
+            return vote
+          }),
+        }
+      })
+    }
+  }, [])
 
   const handleGaugeSelectionModal = useCallback(
     (index: number) => {
@@ -276,16 +277,20 @@ const VoteManager: React.FC = (props) => {
         usedVotePowerBPS: ZERO,
         localVoteAllocation: [],
         localVoteAllocationTotal: 0,
+        matching: false,
       })
       return
     }
     const delegatorVoteInfo = await getVoteInformation(delegatorAddr)
+
+    // unaccepted if this person's delegate is not the current account
     if (delegatorVoteInfo.delegate.toLowerCase() != account.toLowerCase()) {
       handleDelegatorVotesData({
         votePower: ZERO,
         usedVotePowerBPS: ZERO,
         localVoteAllocation: [],
         localVoteAllocationTotal: 0,
+        matching: false,
       })
       return
     }
@@ -295,7 +300,7 @@ const VoteManager: React.FC = (props) => {
       const active = foundGauge?.isActive ?? false
       return {
         gauge: name,
-        votePowerPercentage: (parseFloat(item.votePowerBPS.toString()) / 100).toString(),
+        votePowerPercentage: (parseFloat(item.votePowerBPS.toString()) / 100).toString(), // e.g. 9988 => '99.88'
         gaugeId: item.gaugeID,
         added: false,
         changed: false,
@@ -310,6 +315,7 @@ const VoteManager: React.FC = (props) => {
       localVoteAllocationTotal: formattedDelegatorVotesData.reduce((acc, curr) => {
         return acc + parseFloat(curr.votePowerPercentage)
       }, 0),
+      matching: true,
     })
   }, 300)
 
@@ -382,7 +388,7 @@ const VoteManager: React.FC = (props) => {
       const res = await checkIfVotingIsOpen()
       setIsVotingOpen(res)
     }
-    // callVotingOpen()
+    callVotingOpen()
   }, [activeNetwork, latestBlock])
 
   useEffect(() => {
