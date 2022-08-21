@@ -99,21 +99,23 @@ export const OwnerVoteGauge = ({ index }: { index: number }): JSX.Element => {
               Remove vote
             </Button>
           )}
-          <Button
-            secondary
-            noborder
-            techygradient
-            onClick={callVote}
-            widthP={100}
-            disabled={
-              !votesData.localVoteAllocation[index].gaugeActive ||
-              !votesData.localVoteAllocation[index].changed ||
-              parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) === 0 ||
-              votesData.localVoteAllocationTotal > 100
-            }
-          >
-            Save Vote
-          </Button>
+          {isVotingOpen && (
+            <Button
+              secondary
+              noborder
+              techygradient
+              onClick={callVote}
+              widthP={100}
+              disabled={
+                !votesData.localVoteAllocation[index].gaugeActive ||
+                !votesData.localVoteAllocation[index].changed ||
+                parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) === 0 ||
+                votesData.localVoteAllocationTotal > 100
+              }
+            >
+              Save Vote
+            </Button>
+          )}
         </Flex>
       </Flex>
     </Card>

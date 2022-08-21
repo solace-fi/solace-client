@@ -5,7 +5,7 @@ import { useTransactionExecution } from '../../../hooks/internal/useInputAmount'
 import { useUwLockVoting } from '../../../hooks/lock/useUwLockVoting'
 import { useVoteContext } from '../VoteContext'
 import { Button, GraySquareButton, ThinButton } from '../../../components/atoms/Button'
-import { StyledArrowDropDown, StyledClose } from '../../../components/atoms/Icon'
+import { StyledArrowDropDown } from '../../../components/atoms/Icon'
 import { Flex, ShadowDiv } from '../../../components/atoms/Layout'
 import { Text } from '../../../components/atoms/Typography'
 import { SmallerInputSection } from '../../../components/molecules/InputSection'
@@ -97,21 +97,23 @@ export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element =>
               Remove vote
             </Button>
           )}
-          <Button
-            secondary
-            noborder
-            techygradient
-            onClick={callVote}
-            widthP={100}
-            disabled={
-              !votesData.localVoteAllocation[index].gaugeActive ||
-              !votesData.localVoteAllocation[index].changed ||
-              parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) === 0 ||
-              votesData.localVoteAllocationTotal > 100
-            }
-          >
-            Save Vote
-          </Button>
+          {isVotingOpen && (
+            <Button
+              secondary
+              noborder
+              techygradient
+              onClick={callVote}
+              widthP={100}
+              disabled={
+                !votesData.localVoteAllocation[index].gaugeActive ||
+                !votesData.localVoteAllocation[index].changed ||
+                parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) === 0 ||
+                votesData.localVoteAllocationTotal > 100
+              }
+            >
+              Save Vote
+            </Button>
+          )}
         </Flex>
       </Flex>
     </Card>

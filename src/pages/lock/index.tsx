@@ -95,12 +95,8 @@ const LockContent = () => {
   const navbarThreshold = useMemo(() => width < (rightSidebar ? BKPT_6 : BKPT_5), [rightSidebar, width])
 
   const calculateTotalWithdrawable = useCallback(
-    (locks: VoteLockData[]): BigNumber =>
-      locks.reduce(
-        (acc, lock) => (latestBlock && lock.end.toNumber() <= latestBlock.timestamp ? acc.add(lock.amount) : acc),
-        ZERO
-      ),
-    [latestBlock]
+    (locks: VoteLockData[]): BigNumber => locks.reduce((acc, lock) => acc.add(lock.amount), ZERO),
+    []
   )
 
   const formattedWithdrawal = useMemo(
