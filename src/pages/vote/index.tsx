@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
-import { Flex } from '../../components/atoms/Layout'
-import { Text } from '../../components/atoms/Typography'
+import { Content, Flex } from '../../components/atoms/Layout'
+import { Text, TextSpan } from '../../components/atoms/Typography'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { TileCard } from '../../components/molecules/TileCard'
 import { GaugePieChart } from './GaugePieChart'
@@ -9,12 +9,36 @@ import { StatsBox } from './StatsBox'
 import { OwnerVoteTab } from './OwnerVoteTab'
 import { DelegatorVoteTab } from './DelegatorVoteTab'
 import VoteManager from './VoteContext'
+import { useNetwork } from '../../context/NetworkManager'
+import { StyledInfo } from '../../components/atoms/Icon'
+import { Card } from '../../components/atoms/Card'
 
 function Vote(): JSX.Element {
+  const { activeNetwork } = useNetwork()
+  const canVote = useMemo(() => activeNetwork.config.generalFeatures.native, [
+    activeNetwork.config.generalFeatures.native,
+  ])
   return (
-    <VoteManager>
-      <VoteContent />
-    </VoteManager>
+    <>
+      {canVote ? (
+        <VoteManager>
+          <VoteContent />
+        </VoteManager>
+      ) : (
+        <Content>
+          <Card error pt={10} pb={10} pl={15} pr={15}>
+            <Flex>
+              <TextSpan light textAlignLeft>
+                <StyledInfo size={30} />
+              </TextSpan>
+              <Text light bold autoAlign>
+                Voting is not available on this network.
+              </Text>
+            </Flex>
+          </Card>
+        </Content>
+      )}
+    </>
   )
 }
 

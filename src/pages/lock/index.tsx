@@ -15,12 +15,13 @@ import { CheckboxData, VoteLockData } from '../../constants/types'
 import { Button, GraySquareButton } from '../../components/atoms/Button'
 import { Checkbox } from '../../components/atoms/Input'
 import { Content, Flex, HeroContainer } from '../../components/atoms/Layout'
-import { Text } from '../../components/atoms/Typography'
+import { Text, TextSpan } from '../../components/atoms/Typography'
 import {
   StyledMultiselect,
   StyledArrowIosBackOutline,
   StyledArrowIosForwardOutline,
   StyledVoteYea,
+  StyledInfo,
 } from '../../components/atoms/Icon'
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
@@ -49,16 +50,39 @@ import { MultiDepositModal } from './organisms/MultiDepositModal'
 import { MultiWithdrawModal } from './organisms/MultiWithdrawModal'
 import { MultiExtendModal } from './organisms/MultiExtendModal'
 import LockManager, { useLockContext } from './LockContext'
+import { useNetwork } from '../../context/NetworkManager'
+import { Card } from '../../components/atoms/Card'
 
 /*
  Components
  */
 
 export default function Lock(): JSX.Element {
+  const { activeNetwork } = useNetwork()
+  const canLock = useMemo(() => activeNetwork.config.generalFeatures.native, [
+    activeNetwork.config.generalFeatures.native,
+  ])
   return (
-    <LockManager>
-      <LockContent />
-    </LockManager>
+    <>
+      {canLock ? (
+        <LockManager>
+          <LockContent />
+        </LockManager>
+      ) : (
+        <Content>
+          <Card error pt={10} pb={10} pl={15} pr={15}>
+            <Flex>
+              <TextSpan light textAlignLeft>
+                <StyledInfo size={30} />
+              </TextSpan>
+              <Text light bold autoAlign>
+                Locking is not available on this network.
+              </Text>
+            </Flex>
+          </Card>
+        </Content>
+      )}
+    </>
   )
 }
 
