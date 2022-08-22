@@ -21,22 +21,6 @@ export const GaugePieChart = () => {
 
   const TOP_GAUGES = COLORS.length
 
-  // const data = useMemo(
-  //   () => [
-  //     { name: 'stake-dao', value: 18, gaugeId: BigNumber.from(1), isActive: true },
-  //     { name: 'aave', value: 16, gaugeId: BigNumber.from(2), isActive: true },
-  //     { name: 'compound', value: 15, gaugeId: BigNumber.from(3), isActive: true },
-  //     { name: 'solace', value: 13, gaugeId: BigNumber.from(4), isActive: true },
-  //     { name: 'sushiswap', value: 12, gaugeId: BigNumber.from(5), isActive: true },
-  //     { name: 'fox-bank', value: 10, gaugeId: BigNumber.from(6), isActive: true },
-  //     { name: 'monkey-barrel', value: 9, gaugeId: BigNumber.from(7), isActive: true },
-  //     { name: 'nexus-farm', value: 4, gaugeId: BigNumber.from(8), isActive: true },
-  //     { name: 'quickswap', value: 2, gaugeId: BigNumber.from(9), isActive: true },
-  //     { name: 'lemonade-stake', value: 1, gaugeId: BigNumber.from(10), isActive: true },
-  //   ],
-  //   []
-  // )
-
   const data = useMemo(() => {
     return gaugesData.map((g) => {
       return {
