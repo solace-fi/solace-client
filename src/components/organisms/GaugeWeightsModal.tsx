@@ -95,7 +95,7 @@ export const GaugeWeightsModal = ({
             }}
           />
           <Accordion isOpen thinScrollbar customHeight={'200px'}>
-            <Flex col>
+            <Flex col py={4}>
               {searchedList.map((entry, index) => (
                 <Flex key={`${entry.name}-${index}`} between px={10} py={4} gap={5}>
                   <Text
