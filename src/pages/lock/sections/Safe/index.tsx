@@ -54,10 +54,10 @@ export default function Safe({
     [lock.end, latestBlock]
   )
   const safeStatus = useMemo(() => {
-    if (latestBlock ? lock.end.toNumber() > latestBlock.timestamp : 0) return 'Locked'
+    if (latestBlock ? lock.end.toNumber() > latestBlock.timestamp : 0) return lockTimeLeft
     if (parseFloat(amount) > 0) return 'Unlocked'
     return 'Empty'
-  }, [latestBlock, amount, lock.end])
+  }, [latestBlock, amount, lock.end, lockTimeLeft])
 
   const [activeTab, setActiveTab] = useState(Tab.DEPOSIT)
   return (
@@ -86,10 +86,10 @@ export default function Safe({
               isSafePreview
               batch={batchActionsIsEnabled}
               importance="tertiary"
-              label="Status"
+              label="Lock ID"
               desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
             >
-              <CardSectionValue>{safeStatus}</CardSectionValue>
+              <CardSectionValue>#{lock.lockID.toNumber()}</CardSectionValue>
             </InfoPair>
             <StyledTooltip
               id={`lock-time-left#${lock.lockID.toNumber()}`}
@@ -103,7 +103,7 @@ export default function Safe({
                 label="Lock time left"
                 desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
               >
-                <CardSectionValue>{lockTimeLeft}</CardSectionValue>
+                <CardSectionValue>{safeStatus}</CardSectionValue>
               </InfoPair>
             </StyledTooltip>
             <Flex center className="items-1">

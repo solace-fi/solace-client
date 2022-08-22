@@ -243,7 +243,7 @@ export const MultiWithdrawModal = ({
               {amountTracker.map((lock, i) => (
                 <Flex gap={10} key={i}>
                   <Text error={parseUnits(formatAmount(lock.amount), 18).gt(selectedLocks[i].amount)} autoAlignVertical>
-                    Lock
+                    #{lock.lockID.toNumber()}
                   </Text>
                   <SmallerInputSection
                     placeholder={'Amount'}

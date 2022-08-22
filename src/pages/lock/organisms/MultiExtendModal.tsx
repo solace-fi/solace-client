@@ -211,7 +211,7 @@ export const MultiExtendModal = ({
                     parseInt(lock.currDays) + parseInt(formatAmount(lock.extraDays)) > MAX_DAYS
                   }
                 >
-                  Lock
+                  #{lock.lockID.toNumber()}
                 </Text>
                 <div style={{ width: '70px' }}>
                   <SmallerInputSection
