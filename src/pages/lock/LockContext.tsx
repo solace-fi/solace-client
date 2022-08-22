@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import React, { createContext, useMemo, useState, useContext, useEffect, useCallback, useRef } from 'react'
-import { PoolTokenInfo, ReadToken } from '../../constants/types'
+import { PoolTokenInfo, ReadToken, VoteLockData } from '../../constants/types'
 import { useBatchBalances } from '../../hooks/balance/useBalance'
 import { ERC20_ABI } from '../../constants/abi'
 import { useTokenApprove } from '../../hooks/contract/useToken'
@@ -42,11 +42,7 @@ type LockContextType = {
   }
   locker: {
     stakedBalance: BigNumber
-    userLocks: {
-      lockID: BigNumber
-      amount: BigNumber
-      end: BigNumber
-    }[]
+    userLocks: VoteLockData[]
     minLockDuration: BigNumber
     maxLockDuration: BigNumber
     maxNumLocks: BigNumber
@@ -178,7 +174,7 @@ const LockManager: React.FC = (props) => {
       setCurrentDelegate(delegate)
     }
     getMyDelegate()
-  }, [delegateOf, account])
+  }, [delegateOf, account, version])
 
   useEffect(() => {
     if (coinOptions.length > 0) setSelectedCoin(coinOptions[0])
@@ -224,7 +220,7 @@ const LockManager: React.FC = (props) => {
         return floatUnits(b.amount.sub(a.amount), 18)
       })
       setStakedBalance(staked)
-      setUserLocks(sortedLocks)
+      setUserLocks(sortedLocks ?? [])
       setLocksLoading(false)
       fetchingLocks.current = false
     }

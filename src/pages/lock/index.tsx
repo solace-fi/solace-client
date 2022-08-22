@@ -202,7 +202,7 @@ const LockContent = () => {
                   onClick={openSafe}
                   disabled={locks.length >= maxNumLocks.toNumber()}
                 >
-                  New Safe
+                  New Lock
                 </Button>
               ) : (
                 <Button secondary info noborder pl={23} pr={23} onClick={closeSafe}>

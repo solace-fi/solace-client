@@ -25,19 +25,20 @@ export default function LockForm({ lock }: { lock: VoteLockData }): JSX.Element 
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { width } = useWindowDimensions()
   const [maxSelected, setMaxSelected] = useState(false)
+  const MAX_DAYS = DAYS_PER_YEAR * 4
 
   const lockEnd = useMemo(() => Math.max(lock.end.toNumber(), latestBlock?.timestamp ?? 0), [lock.end, latestBlock])
 
   const lockTimeInSeconds = useMemo(() => (latestBlock ? lockEnd - latestBlock.timestamp : 0), [latestBlock, lockEnd])
 
-  const extendableDays = useMemo(() => Math.floor(DAYS_PER_YEAR * 4 - lockTimeInSeconds / 86400), [lockTimeInSeconds])
+  const extendableDays = useMemo(() => Math.floor(MAX_DAYS - lockTimeInSeconds / 86400), [lockTimeInSeconds, MAX_DAYS])
 
   const [inputValue, setInputValue] = React.useState('0')
 
   const callExtendLock = async () => {
     if (!latestBlock || !inputValue || inputValue == '0') return
     const newEndDateInSeconds =
-      lockEnd + (maxSelected ? DAYS_PER_YEAR * 4 * 86400 - lockTimeInSeconds : parseInt(inputValue) * 86400)
+      lockEnd + (maxSelected ? MAX_DAYS * 86400 - lockTimeInSeconds : parseInt(inputValue) * 86400)
     await extendLock(lock.lockID, BigNumber.from(newEndDateInSeconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callExtendLock', err, FunctionName.EXTEND_LOCK))

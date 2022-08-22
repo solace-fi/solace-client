@@ -17,13 +17,20 @@ export const useUwLocker = () => {
 
   const locks = useCallback(
     async (lockId: BigNumber): Promise<VoteLock> => {
-      if (!uwLocker) return {} as VoteLock
+      if (!uwLocker)
+        return {
+          amount: ZERO,
+          end: ZERO,
+        }
       try {
         const lock = await uwLocker.locks(lockId)
         return lock
       } catch (error) {
         console.error(error)
-        return {} as VoteLock
+        return {
+          amount: ZERO,
+          end: ZERO,
+        }
       }
     },
     [uwLocker]

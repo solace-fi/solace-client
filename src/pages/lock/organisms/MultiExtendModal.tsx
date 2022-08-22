@@ -142,9 +142,10 @@ export const MultiExtendModal = ({
       console.log('opened modal')
       setDurationTracker(
         selectedLocks.map((lock) => {
-          const updatedCurrDays = Math.floor(
-            Math.max(lock.end.toNumber() - (latestBlock?.timestamp ?? 0), 0) / 86400
-          ).toString()
+          const lockEnd = Math.max(lock.end.toNumber(), latestBlock?.timestamp ?? 0)
+          const lockTimeInSeconds = latestBlock ? lockEnd - latestBlock.timestamp : 0
+          const extendableDays = Math.floor(MAX_DAYS - lockTimeInSeconds / 86400)
+          const updatedCurrDays = (MAX_DAYS - extendableDays).toString()
           return {
             lockID: lock.lockID,
             currDays: updatedCurrDays,
@@ -167,9 +168,10 @@ export const MultiExtendModal = ({
       console.log('updated curr days')
       setDurationTracker((prevState) =>
         selectedLocks.map((lock, i) => {
-          const updatedCurrDays = Math.floor(
-            Math.max(lock.end.toNumber() - (latestBlock?.timestamp ?? 0), 0) / 86400
-          ).toString()
+          const lockEnd = Math.max(lock.end.toNumber(), latestBlock?.timestamp ?? 0)
+          const lockTimeInSeconds = latestBlock ? lockEnd - latestBlock.timestamp : 0
+          const extendableDays = Math.floor(MAX_DAYS - lockTimeInSeconds / 86400)
+          const updatedCurrDays = (MAX_DAYS - extendableDays).toString()
           return {
             lockID: lock.lockID,
             currDays: updatedCurrDays,

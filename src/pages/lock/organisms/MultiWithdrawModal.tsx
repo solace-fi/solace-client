@@ -6,6 +6,7 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Accordion } from '../../../components/atoms/Accordion'
 import { Button } from '../../../components/atoms/Button'
+import { StyledFire } from '../../../components/atoms/Icon'
 import { Flex } from '../../../components/atoms/Layout'
 import { Text } from '../../../components/atoms/Typography'
 import { GrayBox } from '../../../components/molecules/GrayBox'
@@ -63,6 +64,7 @@ export const MultiWithdrawModal = ({
   const [amountOverTotalSupply, setAmountOverTotalSupply] = useState<boolean>(false)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
   const [actualUweWithdrawal, setActualUweWithdrawal] = useState<BigNumber>(ZERO)
+  const [burnAmount, setBurnAmount] = useState<BigNumber>(ZERO)
 
   const callWithdraw = async () => {
     if (!account) return
@@ -109,7 +111,7 @@ export const MultiWithdrawModal = ({
 
   const areWithdrawAmountsValid = useMemo(() => {
     const invalidAmounts = amountTracker.filter((item, i) => {
-      return parseUnits(formatAmount(item.amount ?? ZERO), 18).gt(selectedLocks[i].amount)
+      return parseUnits(formatAmount(item.amount), 18).gt(selectedLocks[i].amount)
     })
     return invalidAmounts.length === 0
   }, [amountTracker, selectedLocks])
@@ -212,6 +214,7 @@ export const MultiWithdrawModal = ({
     )
     const totalBurnAmount = burnAmountArray.reduce((acc, curr) => acc.add(curr), ZERO)
     const _actualUweWithdrawal = parseUnits(formatAmount(totalUweToWithdraw), 18).sub(totalBurnAmount)
+    setBurnAmount(totalBurnAmount)
     setActualUweWithdrawal(_actualUweWithdrawal.gt(ZERO) ? _actualUweWithdrawal : ZERO)
     // const res = await uweToTokens(_actualUweWithdrawal)
     // setEquivalentTokenAmounts(res.depositTokens)
@@ -288,6 +291,14 @@ export const MultiWithdrawModal = ({
                       <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                         <Flex>{formatUnits(actualUweWithdrawal, 18)} UWE</Flex>
                       </Text>
+                      <Flex>
+                        <Text error>
+                          <StyledFire size={18} />
+                        </Text>
+                        <Text t4s error>
+                          {burnAmount.gt(ZERO) ? formatUnits(burnAmount, 18) : '0'} UWE
+                        </Text>
+                      </Flex>
                     </Flex>
                   ) : (
                     <Text warning>Withdrawal amount is over total supply</Text>

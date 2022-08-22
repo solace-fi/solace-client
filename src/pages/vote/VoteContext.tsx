@@ -2,9 +2,10 @@ import useDebounce from '@rooks/use-debounce'
 import { BigNumber, ZERO } from '@solace-fi/sdk-nightly'
 import { useWeb3React } from '@web3-react/core'
 import { isAddress } from 'ethers/lib/utils'
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, version } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { GaugeSelectionModal } from '../../components/organisms/GaugeSelectionModal'
 import { DelegateVotesData, GaugeData, VoteAllocation, VotesData } from '../../constants/types'
+import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useGaugeControllerHelper } from '../../hooks/gauge/useGaugeController'
@@ -82,12 +83,13 @@ const VoteContext = createContext<VoteContextType>({
 
 const VoteManager: React.FC = (props) => {
   const { loading: gaugesLoading, gaugesData } = useGaugeControllerHelper()
+
   const { isVotingOpen: checkIfVotingIsOpen } = useUwLockVoting()
   const { getVoteInformation } = useUwLockVotingHelper()
+  const { version } = useCachedData()
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
-  const mounting = useRef(true)
   const [isVotingOpen, setIsVotingOpen] = useState(true)
   const [openGaugeSelectionModal, setOpenGaugeSelectionModal] = useState(false)
   const [editingIndex, setEditingIndex] = useState<number | undefined>(undefined)
@@ -133,17 +135,19 @@ const VoteManager: React.FC = (props) => {
         if (parseFloat(formatted) > 100) return
 
         setVotesData((prevState) => {
+          const _new = [
+            ...prevState.localVoteAllocation.slice(0, index),
+            {
+              ...prevState.localVoteAllocation[index],
+              votePowerPercentage: filtered,
+              changed: true,
+            },
+            ...prevState.localVoteAllocation.slice(index + 1),
+          ]
           return {
             ...prevState,
-            localVoteAllocation: [
-              ...prevState.localVoteAllocation.slice(0, index),
-              {
-                ...prevState.localVoteAllocation[index],
-                votePowerPercentage: filtered,
-                changed: true,
-              },
-              ...prevState.localVoteAllocation.slice(index + 1),
-            ],
+            localVoteAllocation: _new,
+            localVoteAllocationTotal: _new.reduce((acc, curr) => acc + parseFloat(curr.votePowerPercentage), 0),
           }
         })
       } else {
@@ -152,17 +156,19 @@ const VoteManager: React.FC = (props) => {
         const formatted: string = formatAmount(filtered)
         if (parseFloat(formatted) > 100) return
         setDelegatorVotesData((prevState) => {
+          const _new = [
+            ...prevState.localVoteAllocation.slice(0, index),
+            {
+              ...prevState.localVoteAllocation[index],
+              votePowerPercentage: filtered,
+              changed: true,
+            },
+            ...prevState.localVoteAllocation.slice(index + 1),
+          ]
           return {
             ...prevState,
-            localVoteAllocation: [
-              ...prevState.localVoteAllocation.slice(0, index),
-              {
-                ...prevState.localVoteAllocation[index],
-                votePowerPercentage: filtered,
-                changed: true,
-              },
-              ...prevState.localVoteAllocation.slice(index + 1),
-            ],
+            localVoteAllocation: _new,
+            localVoteAllocationTotal: _new.reduce((acc, curr) => acc + parseFloat(curr.votePowerPercentage), 0),
           }
         })
       }
@@ -174,16 +180,24 @@ const VoteManager: React.FC = (props) => {
     (index: number, isOwner: boolean) => {
       if (isOwner) {
         setVotesData((prevState) => {
+          const filtered = votesData.localVoteAllocation.filter((voteData, i) => i !== index)
           return {
             ...prevState,
-            localVoteAllocation: votesData.localVoteAllocation.filter((voteData, i) => i !== index),
+            localVoteAllocation: filtered,
+            localVoteAllocationTotal: filtered.reduce((acc, curr) => {
+              return acc + parseFloat(curr.votePowerPercentage)
+            }, 0),
           }
         })
       } else {
         setDelegatorVotesData((prevState) => {
+          const filtered = delegatorVotesData.localVoteAllocation.filter((voteData, i) => i !== index)
           return {
             ...prevState,
-            localVoteAllocation: delegatorVotesData.localVoteAllocation.filter((voteData, i) => i !== index),
+            localVoteAllocation: filtered,
+            localVoteAllocationTotal: filtered.reduce((acc, curr) => {
+              return acc + parseFloat(curr.votePowerPercentage)
+            }, 0),
           }
         })
       }
@@ -201,7 +215,12 @@ const VoteManager: React.FC = (props) => {
             { gauge: '', gaugeId: ZERO, votePowerPercentage: '', added: true, changed: false, gaugeActive: false },
           ],
         }
-        setVotesData(newVotesData)
+        setVotesData({
+          ...newVotesData,
+          localVoteAllocationTotal: newVotesData.localVoteAllocation.reduce((acc, curr) => {
+            return acc + parseFloat(curr.votePowerPercentage)
+          }, 0),
+        })
       } else {
         const newVotesData = {
           ...delegatorVotesData,
@@ -210,7 +229,12 @@ const VoteManager: React.FC = (props) => {
             { gauge: '', gaugeId: ZERO, votePowerPercentage: '', added: true, changed: false, gaugeActive: false },
           ],
         }
-        setDelegatorVotesData(newVotesData)
+        setDelegatorVotesData({
+          ...newVotesData,
+          localVoteAllocationTotal: newVotesData.localVoteAllocation.reduce((acc, curr) => {
+            return acc + parseFloat(curr.votePowerPercentage)
+          }, 0),
+        })
       }
     },
     [votesData, delegatorVotesData]
@@ -323,9 +347,10 @@ const VoteManager: React.FC = (props) => {
     })
   }, 300)
 
+  // mounting fetch (account switch or activenetwork switch) and version
   useEffect(() => {
     const getUserVotesData = async () => {
-      if (!account) {
+      if (!account || gaugesData.length == 0) {
         handleVotesData({
           votePower: ZERO,
           usedVotePowerBPS: ZERO,
@@ -334,50 +359,31 @@ const VoteManager: React.FC = (props) => {
         })
         return
       }
+      console.log('fetching user votes data')
 
       // fetch this current user's vote information and organize state
       const userVoteInfo = await getVoteInformation(account)
       const formattedUserVotesData = userVoteInfo.votes.map((item) => {
         const foundGauge = gaugesData.find((g) => g.gaugeId.eq(item.gaugeID))
         const name = foundGauge?.gaugeName ?? ''
-        const active = foundGauge?.isActive ?? false
+        const isActive = foundGauge?.isActive ?? false
         const alloc: VoteAllocation = {
           gauge: name,
           votePowerPercentage: (parseFloat(item.votePowerBPS.toString()) / 100).toString(), // e.g. 9988 => '99.88'
           gaugeId: item.gaugeID,
           added: false,
           changed: false,
-          gaugeActive: active,
+          gaugeActive: isActive,
         }
         return alloc
       })
-
-      // create temp var based on current local allocations
-      let newAllocation = votesData.localVoteAllocation
-      if (mounting.current) {
-        // if component is mounting, copy the entire fetched state over
-        newAllocation = formattedUserVotesData
-        mounting.current = false
-      } else {
-        // only update the activeness of current gauges
-        for (let i = 0; i < newAllocation.length; i++) {
-          const matchingGauge = gaugesData.find((g) => g.gaugeId.eq(newAllocation[i].gaugeId))
-          if (matchingGauge) {
-            newAllocation[i] = {
-              ...newAllocation[i],
-              gauge: matchingGauge.gaugeName,
-              gaugeActive: matchingGauge.isActive,
-            }
-          }
-        }
-      }
 
       // add allocation into votesData and calculate allocation total
       const newVotesData = {
         votePower: userVoteInfo.votePower,
         usedVotePowerBPS: userVoteInfo.usedVotePowerBPS,
-        localVoteAllocation: newAllocation,
-        localVoteAllocationTotal: newAllocation.reduce((acc, curr) => {
+        localVoteAllocation: formattedUserVotesData,
+        localVoteAllocationTotal: formattedUserVotesData.reduce((acc, curr) => {
           return acc + parseFloat(curr.votePowerPercentage)
         }, 0),
       }
@@ -386,7 +392,30 @@ const VoteManager: React.FC = (props) => {
       handleVotesData(newVotesData)
     }
     getUserVotesData()
-  }, [account, gaugesData, activeNetwork, version, votesData.localVoteAllocation])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, gaugesData.length, activeNetwork, version])
+
+  // latestBlock fetch
+  useEffect(() => {
+    const updateActiveness = async () => {
+      const s = votesData.localVoteAllocation.map((item) => {
+        const foundGauge = gaugesData.find((g) => g.gaugeId.eq(item.gaugeId))
+        const isActive = foundGauge?.isActive ?? false
+        return {
+          ...item,
+          gaugeActive: isActive,
+        }
+      })
+
+      const newVotesData = {
+        ...votesData,
+        localVoteAllocation: s,
+      }
+      handleVotesData(newVotesData)
+    }
+    if (gaugesData.length == 0) return
+    updateActiveness()
+  }, [latestBlock])
 
   useEffect(() => {
     const callVotingOpen = async () => {

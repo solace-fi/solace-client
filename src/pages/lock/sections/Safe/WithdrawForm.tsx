@@ -29,6 +29,7 @@ import useDebounce from '@rooks/use-debounce'
 import { useBalanceConversion } from '../../../../hooks/lock/useUnderwritingHelper'
 import { useLockContext } from '../../LockContext'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
+import { StyledFire } from '../../../../components/atoms/Icon'
 
 export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
@@ -49,6 +50,7 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
   const [equivalentUSDValue, setEquivalentUSDValue] = useState<BigNumber>(ZERO)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
   const [actualUweWithdrawal, setActualUweWithdrawal] = useState<BigNumber>(ZERO)
+  const [burnAmount, setBurnAmount] = useState<BigNumber>(ZERO)
 
   const callWithdrawFromLock = async () => {
     if (!account) return
@@ -92,10 +94,11 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
 
   const getConversion = useDebounce(async () => {
     const totalUweToWithdraw = inputValue
-    const burnAmount = maxSelected
+    const _burnAmount = maxSelected
       ? await getBurnOnWithdrawAmount(lock.lockID)
       : await getBurnOnWithdrawInPartAmount(lock.lockID, lock.amount)
-    const _actualUweWithdrawal = parseUnits(formatAmount(totalUweToWithdraw), 18).sub(burnAmount)
+    const _actualUweWithdrawal = parseUnits(formatAmount(totalUweToWithdraw), 18).sub(_burnAmount)
+    setBurnAmount(_burnAmount)
     setActualUweWithdrawal(_actualUweWithdrawal.gt(ZERO) ? _actualUweWithdrawal : ZERO)
     // const res = await uweToTokens(actualUweWithdrawal)
     // setEquivalentTokenAmounts(res.depositTokens)
@@ -104,7 +107,7 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
 
   useEffect(() => {
     getConversion()
-  }, [inputValue, latestBlock, selectedCoin])
+  }, [inputValue, latestBlock])
 
   return (
     <div
@@ -152,8 +155,16 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
                     ))}
                 </Flex> */}
                 <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                  <Flex>{formatUnits(actualUweWithdrawal, 18)} UWE</Flex>
+                  {formatUnits(actualUweWithdrawal, 18)} UWE
                 </Text>
+                <Flex>
+                  <Text error>
+                    <StyledFire size={18} />
+                  </Text>
+                  <Text t4s error>
+                    {burnAmount.gt(ZERO) ? formatUnits(burnAmount, 18) : '0'} UWE
+                  </Text>
+                </Flex>
               </Flex>
             </GrayBox>
           </Flex>

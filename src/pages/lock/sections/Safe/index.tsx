@@ -47,7 +47,7 @@ export default function Safe({
   const openSafe = () => handleOpenLock(lock.lockID.toNumber())
   const closeSafe = () => handleOpenLock(undefined)
 
-  const amount = useMemo(() => formatUnits(lock.amount ?? ZERO, 18), [lock.amount])
+  const amount = useMemo(() => formatUnits(lock.amount, 18), [lock.amount])
 
   const lockTimeLeft = useMemo(
     () => getTimeFromMillis((latestBlock ? Math.max(lock.end.toNumber() - latestBlock.timestamp, 0) : 0) * 1000),
@@ -151,7 +151,7 @@ export default function Safe({
                     clickable
                     onClick={() => setActiveTab(Tab.LOCK)}
                   >
-                    {(latestBlock ? lock.end.toNumber() > latestBlock.timestamp : 0) ? 'Reset Lockup' : 'Lockup'}
+                    Extend
                   </Label>
                   <Label
                     importance={activeTab === Tab.WITHDRAW ? 'primary' : 'secondary'}

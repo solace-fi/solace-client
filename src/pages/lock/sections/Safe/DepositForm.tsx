@@ -141,7 +141,7 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
         gap: '30px',
       }}
     >
-      <InformationBox type={InfoBoxType.info} text="Deposit into this safe for voting power." />
+      <InformationBox type={InfoBoxType.info} text="Deposit into this lock for voting power." />
       <StyledForm>
         <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={30}>
           <Flex column gap={24}>

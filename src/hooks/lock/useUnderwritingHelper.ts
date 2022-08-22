@@ -298,7 +298,7 @@ export const useTokenHelper = () => {
     }
     setTokens(res)
     setLoading(false)
-  }, [uwp, provider])
+  }, [uwp, provider, tokensLength, tokenList])
 
   useEffect(() => {
     const callTokenList = async () => {

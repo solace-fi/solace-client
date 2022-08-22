@@ -39,6 +39,7 @@ import { Twitter } from '@styled-icons/boxicons-logos/Twitter'
 import { Wallet } from '@styled-icons/boxicons-solid/Wallet'
 import { Warning } from '@styled-icons/fluentui-system-regular/Warning'
 import { Work } from '@styled-icons/material/Work'
+import { LocalFireDepartment } from '@styled-icons/material/LocalFireDepartment'
 import { Multiselect } from '@styled-icons/fluentui-system-regular/Multiselect'
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosForwardOutline'
 import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline'
@@ -170,3 +171,7 @@ export const StyledExpand = styled(Expand)``
 export const StyledExport = styled(Export)``
 
 export const StyledVoteYea = styled(VoteYea)``
+
+export const StyledFire = styled(LocalFireDepartment)`
+  ${StyledIconCss}
+`
