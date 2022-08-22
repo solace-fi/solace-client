@@ -166,11 +166,15 @@ export const InfoSideNavbar = ({ show }: { show: boolean }): JSX.Element => {
             </HyperLink>
           </StyledNavTooltip>
           <StyledNavTooltip id={'terms-nav'} tip={'Terms & Conditions'}>
-            <NavLink to={'/terms'}>
+            <HyperLink
+              href={'https://www.solace.fi/solace-terms-and-conditions'}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <TextSpan t3s light={lightText}>
                 {widthThreshold ? 'Terms & Conditions' : <StyledLockFile size={30} />}
               </TextSpan>
-            </NavLink>
+            </HyperLink>
           </StyledNavTooltip>
         </Flex>
         <Flex col marginAuto gap={10}>
@@ -439,11 +443,15 @@ export const MobileInfoSideNavbar: React.FC<{ show: boolean; setShow: (show: boo
                   </HyperLink>
                 </ItemText>
                 <ItemText style={{ height: '25px', justifyContent: 'center' }}>
-                  <NavLink to={'/terms'} onClick={() => setShow(false)}>
-                    <TextSpan t3s light>
+                  <HyperLink
+                    href={'https://www.solace.fi/solace-terms-and-conditions'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <TextSpan t3s light bold>
                       {'Terms & Conditions'}
                     </TextSpan>
-                  </NavLink>
+                  </HyperLink>
                 </ItemText>
                 <ItemText jc={'space-between'} style={{ padding: '4px 0' }}>
                   <HyperLink

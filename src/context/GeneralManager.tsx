@@ -4,6 +4,7 @@ import { ThemeProvider } from 'styled-components'
 import { lightTheme, darkTheme } from '../styles/themes'
 import { Error, SystemNotice } from '../constants/enums'
 import { ErrorData, SystemNoticeData } from '../constants/types'
+import { TermsModal } from '../components/organisms/TermsModal'
 
 /*
 
@@ -14,6 +15,7 @@ not just to all parts of the app, but for all the other Managers as well.
 
 type GeneralContextType = {
   appTheme: 'light' | 'dark'
+  termsAccepted: boolean
   toggleTheme: () => void
   notices: string[]
   errors: string[]
@@ -27,10 +29,12 @@ type GeneralContextType = {
   removeErrors: (errorsToRemove: Error[]) => void
   setLeftSidebar: (leftSidebar: boolean) => void
   setRightSidebar: (rightSidebar: boolean) => void
+  acceptTerms: () => void
 }
 
 const GeneralContext = createContext<GeneralContextType>({
   appTheme: 'light',
+  termsAccepted: true,
   toggleTheme: () => undefined,
   notices: [],
   errors: [],
@@ -44,6 +48,7 @@ const GeneralContext = createContext<GeneralContextType>({
   removeErrors: () => undefined,
   setLeftSidebar: () => undefined,
   setRightSidebar: () => undefined,
+  acceptTerms: () => undefined,
 })
 
 export function useGeneral(): GeneralContextType {
@@ -54,20 +59,13 @@ const GeneralProvider: React.FC = (props) => {
   const [selectedTheme, setSelectedTheme, removeSelectedTheme] = useLocalStorage<'light' | 'dark' | undefined>(
     'sol_data_theme'
   )
+  const [spiTermsAccepted, setSpiTermsAccepted] = useLocalStorage<boolean | undefined>('sol_spi_terms_accepted')
   const appTheme: 'light' | 'dark' = selectedTheme ?? 'light'
   const theme = appTheme == 'light' ? lightTheme : darkTheme
+  const termsAccepted = spiTermsAccepted ?? false
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [referralCode, setReferralCode] = useSessionStorage<string | undefined>('sol_data_referral_code_v3')
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const referralCodeFromUrl = params.get('rc')
-    if (referralCodeFromUrl) {
-      history.pushState(null, '', location.href.split('?')[0])
-      setReferralCode(referralCodeFromUrl)
-      console.log('referralCodeFromUrl', referralCodeFromUrl)
-    }
-  }, [setReferralCode])
 
   const [notices, setNotices] = useState<string[]>([])
   const [errors, setErrors] = useState<string[]>([])
@@ -75,6 +73,7 @@ const GeneralProvider: React.FC = (props) => {
 
   const [rightSidebar, setRightSidebar] = useState(false)
   const [leftSidebar, setLeftSidebar] = useState(false)
+  const [termsModalOpen, setTermsModalOpen] = useState(true)
 
   const addNotices = useCallback((noticesToAdd: SystemNoticeData[]) => {
     if (noticesToAdd.length == 0) return
@@ -128,9 +127,23 @@ const GeneralProvider: React.FC = (props) => {
     }
   }
 
+  function acceptTerms() {
+    setSpiTermsAccepted(true)
+  }
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const referralCodeFromUrl = params.get('rc')
+    if (referralCodeFromUrl) {
+      history.pushState(null, '', location.href.split('?')[0])
+      setReferralCode(referralCodeFromUrl)
+      console.log('referralCodeFromUrl', referralCodeFromUrl)
+    }
+  }, [setReferralCode])
+
   const value: GeneralContextType = {
     appTheme,
-    toggleTheme,
+    termsAccepted,
     notices,
     errors,
     haveErrors: haveErrors.current,
@@ -143,11 +156,16 @@ const GeneralProvider: React.FC = (props) => {
     removeErrors,
     setLeftSidebar,
     setRightSidebar,
+    acceptTerms,
+    toggleTheme,
   }
 
   return (
     <GeneralContext.Provider value={value}>
-      <ThemeProvider theme={theme}>{props.children}</ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <TermsModal show={!termsAccepted && termsModalOpen} handleClose={() => setTermsModalOpen(false)} />
+        {props.children}
+      </ThemeProvider>
     </GeneralContext.Provider>
   )
 }
