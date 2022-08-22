@@ -8,7 +8,7 @@ import { Text } from '../atoms/Typography'
 import { Modal } from '../molecules/Modal'
 
 export const TermsModal = ({ show, handleClose }: { show: boolean; handleClose: () => void }) => {
-  const { acceptTerms } = useGeneral()
+  const { appTheme, acceptTerms } = useGeneral()
   const [read, setRead] = useState(false)
   const [nextStep, setNextStep] = useState(false)
 
@@ -38,7 +38,15 @@ export const TermsModal = ({ show, handleClose }: { show: boolean; handleClose: 
           rel="noopener noreferrer"
           widthP={100}
         >
-          <Button py={20} widthP={100} success secondary onClick={() => setRead(true)}>
+          <Button
+            py={20}
+            widthP={100}
+            warmgradient={appTheme == 'dark'}
+            techygradient={appTheme == 'light'}
+            secondary
+            noborder
+            onClick={() => setRead(true)}
+          >
             <Text t1>
               Read <StyledLinkExternal size={26} />
             </Text>
