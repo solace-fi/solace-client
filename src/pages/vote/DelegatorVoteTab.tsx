@@ -64,8 +64,8 @@ export const DelegatorVoteTab = () => {
   return (
     <>
       <Flex>
-        <Flex col widthP={100} gap={5}>
-          <Text t4s textAlignCenter>
+        <Flex col itemsCenter widthP={100} gap={5}>
+          <Text t4s textAlignCenter width={250} mb={10} mt={10}>
             If a user has chosen you as their delegate, you may vote for them.
           </Text>
           <SmallerInputSection
@@ -124,7 +124,7 @@ export const DelegatorVoteTab = () => {
               )}
             </>
           ) : (
-            <Text>Voting is closed</Text>
+            <Text italics>Voting is closed</Text>
           )}
         </Flex>
       )}

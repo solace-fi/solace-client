@@ -130,7 +130,11 @@ export const GaugePieChart = () => {
                     textAlignLeft
                     style={{ color: index < COLORS.length ? COLORS[index] : 'inherit' }}
                   >{`${entry.name}`}</Text>
-                  <Text bold textAlignRight>{`${entry.value}%`}</Text>
+                  <Text
+                    bold
+                    textAlignRight
+                    style={{ color: index < COLORS.length ? COLORS[index] : 'inherit' }}
+                  >{`${entry.value}%`}</Text>
                 </Flex>
               ))}
             </Flex>
