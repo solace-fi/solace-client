@@ -124,9 +124,7 @@ export const DelegatorVoteTab = () => {
               )}
             </>
           ) : (
-            <Text italics t4s>
-              Voting is closed
-            </Text>
+            <Text t4s>Voting is closed</Text>
           )}
         </Flex>
       )}
