@@ -1,4 +1,5 @@
 import { ZERO, ZERO_ADDRESS } from '@solace-fi/sdk-nightly'
+import axios, { AxiosResponse } from 'axios'
 import { BigNumber } from 'ethers'
 import { useCallback, useMemo } from 'react'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
@@ -204,6 +205,20 @@ export const useUwLockVoting = () => {
 export const useUwLockVotingHelper = () => {
   const { getVotePower, usedVotePowerBPSOf, getVotes, delegateOf } = useUwLockVoting()
 
+  const getDelegators = useCallback(async (user: string): Promise<string[]> => {
+    const baseApiUrl = 'http://35.87.172.151:18123/getDelegators'
+    const response = await axios
+      .get(baseApiUrl, { params: { address: user } })
+      .then((response: AxiosResponse) => {
+        return response.data
+      })
+      .catch((error: any) => {
+        console.log('getDelegators: ', error)
+        return []
+      })
+    return response
+  }, [])
+
   const getVoteInformation = useCallback(
     async (voter: string) => {
       const [votePower, usedVotePowerBPS, votes, delegate] = await Promise.all([
@@ -217,5 +232,5 @@ export const useUwLockVotingHelper = () => {
     [delegateOf, getVotePower, getVotes, usedVotePowerBPSOf]
   )
 
-  return { getVoteInformation }
+  return { getDelegators, getVoteInformation }
 }

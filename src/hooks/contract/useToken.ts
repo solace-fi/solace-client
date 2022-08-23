@@ -20,7 +20,7 @@ export const useTokenAllowance = (
 ): boolean => {
   const { account } = useWeb3React()
   const { latestBlock } = useProvider()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const [allowance, setAllowance] = useState<string>('0')
   const approval = useMemo(() => hasApproval(allowance, parsedAmount), [parsedAmount, allowance])
 
@@ -36,7 +36,7 @@ export const useTokenAllowance = (
 
   useEffect(() => {
     checkAllowance()
-  }, [tokenContract, spender, parsedAmount, account, version, latestBlock])
+  }, [tokenContract, spender, parsedAmount, account, positiveVersion, latestBlock])
 
   return approval
 }
@@ -49,7 +49,7 @@ export const useTokenApprove = (
   const { signer } = useProvider()
   const { activeNetwork } = useNetwork()
   const { makeTxToast } = useNotifications()
-  const { reload } = useCachedData()
+  const { positiveReload } = useCachedData()
   const { handleContractCallError } = useTransactionExecution()
 
   const approve = useCallback(
@@ -64,7 +64,7 @@ export const useTokenApprove = (
         await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
           const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
           makeTxToast(FunctionName.APPROVE, status, txHash)
-          reload()
+          positiveReload()
         })
         if (setLoading) setLoading(false)
       } catch (e) {
@@ -72,7 +72,7 @@ export const useTokenApprove = (
       }
     },
     //eslint-disable-next-line react-hooks/exhaustive-deps
-    [activeNetwork.rpc.blockConfirms, handleContractCallError, makeTxToast, reload, signer]
+    [activeNetwork.rpc.blockConfirms, handleContractCallError, makeTxToast, positiveReload, signer]
   )
 
   return { approve }

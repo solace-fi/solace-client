@@ -6,6 +6,10 @@ import { Flex } from '../atoms/Layout'
 import { Text } from '../atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
 import { capitalizeFirstLetter } from '../../utils/formatting'
+import { TokenInfo } from '../../constants/types'
+import { formatUnits } from 'ethers/lib/utils'
+import { truncateValue } from '../../utils/formatting'
+import { StyledArrowDropDown } from '../atoms/Icon'
 
 export function processProtocolName(str: string): string {
   // remove hyphen & capitalize first letter of each word
@@ -52,11 +56,6 @@ export function processProtocolName(str: string): string {
     })
     .join(' ')
 }
-
-import { TokenInfo } from '../../constants/types'
-import { formatUnits } from 'ethers/lib/utils'
-import { truncateValue } from '../../utils/formatting'
-import { StyledArrowDropDown } from '../atoms/Icon'
 
 export const DropdownInputSection = ({
   hasArrow,

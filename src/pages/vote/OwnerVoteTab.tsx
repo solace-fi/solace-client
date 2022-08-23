@@ -96,7 +96,7 @@ export const OwnerVoteTab = () => {
         </Accordion>
         {isVotingOpen ? (
           <>
-            <Button onClick={() => addEmptyVote(true)}>+ Add Gauge Vote</Button>
+            <Button onClick={() => addEmptyVote(undefined)}>+ Add Gauge Vote</Button>
             <Button
               techygradient
               secondary

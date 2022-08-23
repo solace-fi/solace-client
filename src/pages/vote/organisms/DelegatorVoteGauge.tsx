@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 import { FunctionName } from '../../../constants/enums'
 import { useTransactionExecution } from '../../../hooks/internal/useInputAmount'
 import { useUwLockVoting } from '../../../hooks/lock/useUwLockVoting'
@@ -14,59 +14,69 @@ import { Card } from '../../../components/atoms/Card'
 import { isAddress } from '../../../utils'
 import { formatAmount } from '../../../utils/formatting'
 
-export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element => {
-  const { gauges, voteGeneral, voteDelegator } = useVoteContext()
+export const DelegatorVoteGauge = ({
+  voteAllocData,
+}: {
+  voteAllocData: {
+    delegator: string
+    subIndex: number
+    gauge: string
+    gaugeId: BigNumber
+    votePowerPercentage: string
+    added: boolean
+    changed: boolean
+    gaugeActive: boolean
+  }
+}): JSX.Element => {
+  const { gauges, voteGeneral, voteDelegators } = useVoteContext()
   const { isVotingOpen, onVoteInput, deleteVote } = voteGeneral
   const { handleGaugeSelectionModal } = gauges
-  const { delegatorVotesData: votesData, delegator } = voteDelegator
-  const appId = useMemo(() => votesData.localVoteAllocation[index].gauge, [votesData, index])
+  const { delegatorVotesData } = voteDelegators
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { vote, removeVote } = useUwLockVoting()
 
   const callVote = useCallback(async () => {
-    if (!delegator || !isAddress(delegator)) return
+    if (!voteAllocData.delegator || !isAddress(voteAllocData.delegator)) return
     if (!isVotingOpen) return
-    if (!votesData.localVoteAllocation[index].changed) return
+    if (!voteAllocData.changed) return
     if (
-      !votesData.localVoteAllocation[index].gaugeActive &&
-      !BigNumber.from(
-        Math.floor(parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) * 100)
-      ).isZero()
+      !voteAllocData.gaugeActive &&
+      !BigNumber.from(Math.floor(parseFloat(formatAmount(voteAllocData.votePowerPercentage)) * 100)).isZero()
     )
       return
     await vote(
-      delegator,
-      votesData.localVoteAllocation[index].gaugeId,
-      BigNumber.from(
-        Math.floor(parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) * 100)
-      )
+      voteAllocData.delegator,
+      voteAllocData.gaugeId,
+      BigNumber.from(Math.floor(parseFloat(formatAmount(voteAllocData.votePowerPercentage)) * 100))
     )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callVote', err, FunctionName.VOTE))
-  }, [delegator, votesData.localVoteAllocation[index].votePowerPercentage, index, isVotingOpen])
+  }, [voteAllocData, isVotingOpen])
 
   const callRemoveVote = useCallback(async () => {
-    if (!delegator || !isAddress(delegator)) return
+    if (!voteAllocData.delegator || !isAddress(voteAllocData.delegator)) return
     if (!isVotingOpen) return
-    await removeVote(delegator, votesData.localVoteAllocation[index].gaugeId)
+    await removeVote(voteAllocData.delegator, voteAllocData.gaugeId)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callRemoveVote', err, FunctionName.REMOVE_VOTE))
-  }, [delegator, votesData.localVoteAllocation, index, isVotingOpen])
+  }, [voteAllocData, isVotingOpen])
 
   return (
     <Card matchBg p={10}>
       <Flex col gap={10}>
         <Flex gap={10}>
           <div style={{ width: '180px' }}>
-            <ThinButton onClick={() => handleGaugeSelectionModal(index)}>
+            <ThinButton onClick={() => handleGaugeSelectionModal(voteAllocData.subIndex, voteAllocData.delegator)}>
               <Flex style={{ width: '100%' }} itemsCenter>
                 <Text autoAlignVertical p={5}>
-                  {appId != '' && <img src={`https://assets.solace.fi/zapperLogos/${appId}`} height={16} />}
+                  {voteAllocData.gauge != '' && (
+                    <img src={`https://assets.solace.fi/zapperLogos/${voteAllocData.gauge}`} height={16} />
+                  )}
                 </Text>
                 <Text t5s style={{ width: '100%' }}>
                   <Flex between>
                     <Text t5s techygradient mont>
-                      {appId != '' ? processProtocolName(appId) : 'Choose Gauge'}
+                      {voteAllocData.gauge != '' ? processProtocolName(voteAllocData.gauge) : 'Choose Gauge'}
                     </Text>
                     <StyledArrowDropDown size={16} />
                   </Flex>
@@ -77,13 +87,18 @@ export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element =>
           <div style={{ width: '70px' }}>
             <SmallerInputSection
               placeholder={'%'}
-              value={votesData.localVoteAllocation[index].votePowerPercentage}
-              onChange={(e) => onVoteInput(e.target.value, index, false)}
+              value={voteAllocData.votePowerPercentage}
+              onChange={(e) => onVoteInput(e.target.value, voteAllocData.subIndex, voteAllocData.delegator)}
             />
           </div>
-          {votesData.localVoteAllocation[index].added ? (
+          {voteAllocData.added ? (
             <ShadowDiv>
-              <GraySquareButton width={36} actuallyWhite noborder onClick={() => deleteVote(index, false)}>
+              <GraySquareButton
+                width={36}
+                actuallyWhite
+                noborder
+                onClick={() => deleteVote(voteAllocData.subIndex, voteAllocData.delegator)}
+              >
                 X
               </GraySquareButton>
             </ShadowDiv>
@@ -92,7 +107,7 @@ export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element =>
           )}
         </Flex>
         <Flex justifyCenter gap={10}>
-          {!votesData.localVoteAllocation[index].added && (
+          {!voteAllocData.added && (
             <Button error onClick={callRemoveVote} widthP={100}>
               Remove vote
             </Button>
@@ -105,10 +120,11 @@ export const DelegatorVoteGauge = ({ index }: { index: number }): JSX.Element =>
               onClick={callVote}
               widthP={100}
               disabled={
-                !votesData.localVoteAllocation[index].gaugeActive ||
-                !votesData.localVoteAllocation[index].changed ||
-                parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) === 0 ||
-                votesData.localVoteAllocationTotal > 100
+                !voteAllocData.gaugeActive ||
+                !voteAllocData.changed ||
+                (parseFloat(formatAmount(voteAllocData.votePowerPercentage)) === 0 && voteAllocData.added) ||
+                (delegatorVotesData.find((item) => item.delegator == voteAllocData.delegator)
+                  ?.localVoteAllocationTotal ?? 0) > 100
               }
             >
               Save Vote

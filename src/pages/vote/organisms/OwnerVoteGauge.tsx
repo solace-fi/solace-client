@@ -45,7 +45,7 @@ export const OwnerVoteGauge = ({ index }: { index: number }): JSX.Element => {
     )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callVote', err, FunctionName.VOTE))
-  }, [account, votesData.localVoteAllocation[index].votePowerPercentage, index, isVotingOpen])
+  }, [account, votesData.localVoteAllocation, index, isVotingOpen])
 
   const callRemoveVote = useCallback(async () => {
     if (!account || !isAddress(account)) return
@@ -80,12 +80,12 @@ export const OwnerVoteGauge = ({ index }: { index: number }): JSX.Element => {
             <SmallerInputSection
               placeholder={'%'}
               value={votesData.localVoteAllocation[index].votePowerPercentage}
-              onChange={(e) => onVoteInput(e.target.value, index, true)}
+              onChange={(e) => onVoteInput(e.target.value, index, undefined)}
             />
           </div>
           {votesData.localVoteAllocation[index].added ? (
             <ShadowDiv>
-              <GraySquareButton width={36} actuallyWhite noborder onClick={() => deleteVote(index, true)}>
+              <GraySquareButton width={36} actuallyWhite noborder onClick={() => deleteVote(index, undefined)}>
                 X
               </GraySquareButton>
             </ShadowDiv>
@@ -109,7 +109,8 @@ export const OwnerVoteGauge = ({ index }: { index: number }): JSX.Element => {
               disabled={
                 !votesData.localVoteAllocation[index].gaugeActive ||
                 !votesData.localVoteAllocation[index].changed ||
-                parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) === 0 ||
+                (parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) === 0 &&
+                  votesData.localVoteAllocation[index].added) ||
                 votesData.localVoteAllocationTotal > 100
               }
             >

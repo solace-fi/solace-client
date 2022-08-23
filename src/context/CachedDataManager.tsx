@@ -26,12 +26,14 @@ should be called manually, such as when the user sends a transaction.
 type CachedData = {
   localTransactions: LocalTx[]
   tokenPriceMapping: TokenToPriceMapping
-  version: number
+  positiveVersion: number // primary timekeeper, triggers updates in components that read this
+  negativeVersion: number // secondary timekeeper, triggers updates in components that read this
   minute: number
   gasData: GasData | undefined
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
-  reload: () => void
+  positiveReload: () => void // primary timekeeper intended for reloading UI and data
+  negativeReload: () => void // secondary timekeeper intended for reloading UI but not data
   seriesKit: {
     series?: SolaceRiskSeries
     seriesLogos: { label: string; value: string; icon: JSX.Element }[]
@@ -42,12 +44,14 @@ type CachedData = {
 const CachedDataContext = createContext<CachedData>({
   localTransactions: [],
   tokenPriceMapping: {},
-  version: 0,
+  positiveVersion: 0,
+  negativeVersion: 0,
   minute: 0,
   gasData: undefined,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
-  reload: () => undefined,
+  positiveReload: () => undefined,
+  negativeReload: () => undefined,
   seriesKit: {
     series: undefined,
     seriesLogos: [],
@@ -60,7 +64,8 @@ const CachedDataProvider: React.FC = (props) => {
   const { disconnect } = useWallet()
   const { activeNetwork } = useNetwork()
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
-  const [reload, version] = useReload()
+  const [positiveReload, positiveVersion] = useReload()
+  const [negativeReload, negativeVersion] = useReload()
   const [minReload, minute] = useReload()
   const { tokenPriceMapping } = useGetCrossTokenPricesFromCoingecko(minute)
   const gasData = useFetchGasData()
@@ -115,12 +120,14 @@ const CachedDataProvider: React.FC = (props) => {
     () => ({
       localTransactions: localTxs,
       tokenPriceMapping,
-      version,
       minute,
       gasData,
       addLocalTransactions,
       deleteLocalTransactions,
-      reload,
+      positiveReload,
+      negativeReload,
+      positiveVersion,
+      negativeVersion,
       seriesKit: {
         series,
         seriesLogos,
@@ -133,12 +140,14 @@ const CachedDataProvider: React.FC = (props) => {
       tokenPriceMapping,
       addLocalTransactions,
       deleteLocalTransactions,
-      reload,
-      version,
       gasData,
       series,
       seriesLogos,
       seriesLoading,
+      positiveVersion,
+      negativeVersion,
+      positiveReload,
+      negativeReload,
     ]
   )
 

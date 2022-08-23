@@ -8,18 +8,21 @@ import { GaugeData, VoteAllocation } from '../../constants/types'
 
 export const GaugeSelectionModal = ({
   show,
-  index,
+  target,
   votesAllocationData,
   gaugesData,
   handleCloseModal,
   assign,
 }: {
   show: boolean
-  index: number
+  target: {
+    index?: number
+    delegator?: string
+  }
   votesAllocationData: VoteAllocation[]
   gaugesData: GaugeData[]
   handleCloseModal: () => void
-  assign: (gaugeName: string, gaugeId: BigNumber, index: number, isOwner: boolean) => void
+  assign: (gaugeName: string, gaugeId: BigNumber, index: number, delegator?: string) => void
 }): JSX.Element => {
   const { seriesKit } = useCachedData()
   const [searchTerm, setSearchTerm] = useState('')
@@ -55,7 +58,7 @@ export const GaugeSelectionModal = ({
         onClick={(value: string) => {
           const foundIndexOfName = gaugeNames.findIndex((name) => name === value)
           if (foundIndexOfName == -1) return
-          assign(value, gaugeIds[foundIndexOfName], index, true)
+          assign(value, gaugeIds[foundIndexOfName], target.index ?? 0, target.delegator)
           handleCloseModal()
         }}
       />

@@ -14,19 +14,19 @@ import { LocalTx } from '../../constants/types'
 import { fixed, filterAmount, formatAmount } from '../../utils/formatting'
 
 export const useTransactionExecution = () => {
-  const { addLocalTransactions, reload } = useCachedData()
+  const { addLocalTransactions, positiveReload, negativeReload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const { activeNetwork } = useNetwork()
 
   const handleToast = async (tx: TransactionResponse | null, localTx: LocalTx | null) => {
     if (!tx || !localTx) return false
     addLocalTransactions(localTx)
-    reload()
+    negativeReload()
     makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
     return await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
       makeTxToast(localTx.type, status, localTx.hash)
-      reload()
+      positiveReload()
       return status == TransactionCondition.SUCCESS ? true : false
     })
   }
@@ -34,7 +34,7 @@ export const useTransactionExecution = () => {
   const handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
     console.log(functionName, err)
     makeTxToast(txType, TransactionCondition.CANCELLED, undefined, err)
-    reload()
+    negativeReload()
   }
 
   return { handleToast, handleContractCallError }

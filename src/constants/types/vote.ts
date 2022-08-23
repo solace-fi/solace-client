@@ -13,7 +13,7 @@ export type VotesData = {
 }
 
 export type DelegateVotesData = VotesData & {
-  matching: boolean
+  delegator: string
 }
 
 export type VoteAllocation = {

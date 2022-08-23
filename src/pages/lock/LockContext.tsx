@@ -85,7 +85,7 @@ const LockManager: React.FC = (props) => {
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const [coinsOpen, setCoinsOpen] = useState(false)
   const [transactionLoading, setTransactionLoading] = useState<boolean>(false)
   const [currentDelegate, setCurrentDelegate] = useState(ZERO_ADDRESS)
@@ -174,7 +174,7 @@ const LockManager: React.FC = (props) => {
       setCurrentDelegate(delegate)
     }
     getMyDelegate()
-  }, [delegateOf, account, version])
+  }, [delegateOf, account, positiveVersion])
 
   useEffect(() => {
     if (coinOptions.length > 0) setSelectedCoin(coinOptions[0])
@@ -193,29 +193,6 @@ const LockManager: React.FC = (props) => {
       const voteLocks = await Promise.all(lockIDs.map((lockID) => getLock(lockID)))
 
       const locks = lockIDs.map((lockID, index) => ({ ...voteLocks[index], lockID }))
-
-      // const locks = [
-      //   {
-      //     lockID: BigNumber.from(0),
-      //     amount: BigNumber.from('134533333334534444444'),
-      //     end: BigNumber.from('1999999999'),
-      //   },
-      //   {
-      //     lockID: BigNumber.from(1),
-      //     amount: BigNumber.from('1659999999'),
-      //     end: BigNumber.from('1668888888'),
-      //   },
-      //   {
-      //     lockID: BigNumber.from(3),
-      //     amount: BigNumber.from('553333335330444444444'),
-      //     end: BigNumber.from(0),
-      //   },
-      //   {
-      //     lockID: BigNumber.from(4),
-      //     amount: BigNumber.from('16599996454545645999'),
-      //     end: BigNumber.from('1768888888'),
-      //   },
-      // ]
       const sortedLocks = locks.sort((a, b) => {
         return floatUnits(b.amount.sub(a.amount), 18)
       })
@@ -226,7 +203,7 @@ const LockManager: React.FC = (props) => {
     }
     getUserLockData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeNetwork, account, latestBlock, version])
+  }, [activeNetwork, account, latestBlock, positiveVersion])
 
   useEffect(() => {
     const getLockerConstants = async () => {
