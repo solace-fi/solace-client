@@ -118,7 +118,7 @@ export const OwnerVoteTab = () => {
             )}
           </>
         ) : (
-          <Text>Voting is closed</Text>
+          <Text t4s>Voting is closed</Text>
         )}
       </Flex>
     </>
