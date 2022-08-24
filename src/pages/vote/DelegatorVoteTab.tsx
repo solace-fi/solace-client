@@ -1,56 +1,122 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { Accordion } from '../../components/atoms/Accordion'
-import { Button } from '../../components/atoms/Button'
+import { Button, ButtonAppearance } from '../../components/atoms/Button'
 import { Flex, ShadowDiv } from '../../components/atoms/Layout'
 import { DelegatorVoteGauge } from './organisms/DelegatorVoteGauge'
 import { useUwLockVoting } from '../../hooks/lock/useUwLockVoting'
 import { useVoteContext } from './VoteContext'
 import { Text } from '../../components/atoms/Typography'
-import { BigNumber, MulticallProvider, ZERO } from '@solace-fi/sdk-nightly'
+import { BigNumber, ZERO } from '@solace-fi/sdk-nightly'
 import { FunctionName } from '../../constants/enums'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
-import { formatAmount, truncateValue } from '../../utils/formatting'
-import { DelegatorSelectionModal } from './organisms/DelegatorSelectionModal'
-import { useProvider } from '../../context/ProviderManager'
-import { useNetwork } from '../../context/NetworkManager'
-import { useContracts } from '../../context/ContractsManager'
-import multicall from 'ethers-multicall'
-import underwritingLockVotingABI from '../../constants/abi/UnderwritingLockVoting.json'
+import { floatUnits, formatAmount, shortenAddress, truncateValue } from '../../utils/formatting'
+import { SmallerInputSection } from '../../components/molecules/InputSection'
+import { useGeneral } from '../../context/GeneralManager'
+import { CopyButton } from '../../components/molecules/CopyButton'
+import { StyledArrowIosBackOutline } from '../../components/atoms/Icon'
+
+const TextDropdownOptions = ({
+  searchedList,
+  isOpen,
+  noneText,
+  onClick,
+}: {
+  searchedList: { mainText: string; secondaryText: string; icon?: JSX.Element }[]
+  isOpen: boolean
+  noneText?: string
+  onClick: (value: string) => void
+}): JSX.Element => {
+  const { appTheme } = useGeneral()
+  const gradientStyle = useMemo(
+    () =>
+      appTheme == 'light' ? { techygradient: true, warmgradient: false } : { techygradient: false, warmgradient: true },
+    [appTheme]
+  )
+
+  return (
+    <Accordion
+      isOpen={isOpen}
+      style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }}
+      customHeight={'380px'}
+      thinScrollbar
+      widthP={100}
+    >
+      <Flex col gap={8} p={12}>
+        {searchedList.map((item) => (
+          <ButtonAppearance
+            key={item.mainText}
+            matchBg
+            secondary
+            noborder
+            pt={10.5}
+            pb={10.5}
+            pl={12}
+            pr={12}
+            onClick={() => onClick(item.mainText)}
+            style={{ borderRadius: '8px' }}
+          >
+            <Flex between gap={12}>
+              <Flex gap={8} itemsCenter>
+                {item.icon ?? <Text t2>{shortenAddress(item.mainText)}</Text>}
+              </Flex>
+              <Text autoAlignVertical t3 bold {...gradientStyle}>
+                {item.secondaryText}
+              </Text>
+            </Flex>
+          </ButtonAppearance>
+        ))}
+        {searchedList.length === 0 && (
+          <Text t3 textAlignCenter bold>
+            {noneText ?? 'No results found'}
+          </Text>
+        )}
+      </Flex>
+    </Accordion>
+  )
+}
 
 export const DelegatorVoteTab = () => {
-  const { provider } = useProvider()
-  const { activeNetwork } = useNetwork()
-  const { keyContracts } = useContracts()
-  const { uwLockVoting } = keyContracts
   const { voteGeneral, voteDelegators } = useVoteContext()
   const { isVotingOpen, addEmptyVote } = voteGeneral
-  const { delegatorVotesData } = voteDelegators
+  const { delegatorVotesData, editingDelegatorVotesData, handleEditingDelegatorVotesData } = voteDelegators
 
   // todo: fix multicall and incorporate toasts somehow
   const { voteMultiple, removeVoteMultiple } = useUwLockVoting()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
-  const [showDelegatorSelectionModal, setShowDelegatorSelectionModal] = useState(false)
+  const [showDelegatorSelection, setShowDelegatorSelection] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
 
-  /** cannot call vote multiple if any gauges of changed or added votes 
-      are inactive and the allocated vote power is not zero
-  */
+  const selectedDelegator = useMemo(() => editingDelegatorVotesData.delegator, [editingDelegatorVotesData])
 
-  const allAllocsArray = useMemo(() => {
-    const res = []
-    for (let i = 0; i < delegatorVotesData.length; i++) {
-      const alloc = delegatorVotesData[i].localVoteAllocation.map((item, j) => {
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const activeList = useMemo(() => {
+    const filtered = searchTerm
+      ? delegatorVotesData.filter((item) => item.delegator.toLowerCase().includes(searchTerm.toLowerCase()))
+      : delegatorVotesData
+    return filtered
+      .sort((a, b) => {
+        const calcA =
+          floatUnits(a.votePower, 18) -
+          (parseFloat(a.usedVotePowerBPS.toString()) / 10000) * floatUnits(a.votePower, 18)
+        const calcB =
+          floatUnits(b.votePower, 18) -
+          (parseFloat(b.usedVotePowerBPS.toString()) / 10000) * floatUnits(b.votePower, 18)
+        return calcB - calcA
+      })
+      .map((item) => {
         return {
-          ...item,
-          delegator: delegatorVotesData[i].delegator,
-          subIndex: j,
+          mainText: item.delegator,
+          secondaryText: `${truncateValue(
+            floatUnits(item.votePower, 18) -
+              (parseFloat(item.usedVotePowerBPS.toString()) / 10000) * floatUnits(item.votePower, 18),
+            2
+          )} free / ${truncateValue(formatUnits(item.votePower, 18), 2)}`,
         }
       })
-      res.push(...alloc)
-    }
-    return res
-  }, [delegatorVotesData])
+  }, [searchTerm, delegatorVotesData])
 
   const totalVotePower = useMemo(() => {
     return delegatorVotesData.reduce((acc, curr) => {
@@ -58,134 +124,221 @@ export const DelegatorVoteTab = () => {
     }, ZERO)
   }, [delegatorVotesData])
 
-  const totalAllocatedVotePower = useMemo(() => {
-    return delegatorVotesData.reduce((acc, curr) => {
-      return acc + curr.localVoteAllocationTotal
+  const aggregatedUsedVotePowerBPS = useMemo(() => {
+    const aggregatedUsedVotePower = delegatorVotesData.reduce((acc, curr) => {
+      return acc + (parseFloat(curr.usedVotePowerBPS.toString()) / 100) * floatUnits(curr.votePower, 18)
     }, 0)
-  }, [delegatorVotesData])
+    return aggregatedUsedVotePower / floatUnits(totalVotePower, 18)
+  }, [delegatorVotesData, totalVotePower])
 
-  const cannotCallVoteMultiple = useMemo(
-    () =>
-      allAllocsArray.filter((g) => {
-        return (
-          !g.gaugeActive ||
-          (BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)).isZero() && g.added) ||
-          !g.changed
-        )
-      }).length > 0,
-    [allAllocsArray]
-  )
+  /** cannot call vote multiple if any gauges of changed or added votes 
+      are inactive and the allocated vote power is not zero
+  */
+
+  const canCallVoteMultiple = useMemo(() => {
+    const containsChangedOrAddedActiveGauges =
+      editingDelegatorVotesData.localVoteAllocation.filter((g) => {
+        return g.gaugeActive && (g.added || g.changed)
+      }).length > 0
+
+    const hasZeroAllocsForAdded =
+      editingDelegatorVotesData.localVoteAllocation.filter((g) => {
+        return g.added && BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)).isZero()
+      }).length > 0
+
+    return containsChangedOrAddedActiveGauges && !hasZeroAllocsForAdded
+  }, [editingDelegatorVotesData.localVoteAllocation])
 
   const callVoteMultiple = useCallback(async () => {
-    if (!uwLockVoting) return
-    const mcProvider = new MulticallProvider(provider, activeNetwork.chainId)
-    const blockTag = await mcProvider._provider.getBlockNumber()
-    const uwLockVotingMC = new multicall.Contract(uwLockVoting.address, underwritingLockVotingABI)
-
-    const specificVotesToUpdate = allAllocsArray.filter((g) => (g.changed || g.added) && g.gaugeActive)
-    const delegatorToVotesMapping: { [delegator: string]: { gaugeId: BigNumber; votePowerPercentage: string }[] } = {}
-    specificVotesToUpdate.forEach((g) => {
-      if (!delegatorToVotesMapping[g.delegator]) {
-        delegatorToVotesMapping[g.delegator] = [{ gaugeId: g.gaugeId, votePowerPercentage: g.votePowerPercentage }]
-      } else {
-        delegatorToVotesMapping[g.delegator].push({ gaugeId: g.gaugeId, votePowerPercentage: g.votePowerPercentage })
-      }
-    })
-
-    await mcProvider.all(
-      delegatorVotesData.map((d) =>
-        uwLockVotingMC.voteMultiple(
-          d.delegator,
-          delegatorToVotesMapping[d.delegator].map((v) => v.gaugeId),
-          delegatorToVotesMapping[d.delegator].map((v) =>
-            BigNumber.from(Math.floor(parseFloat(formatAmount(v.votePowerPercentage)) * 100))
-          ),
-          { blockTag: blockTag }
-        )
-      )
+    if (!canCallVoteMultiple) return
+    if (!isVotingOpen) return
+    if (!selectedDelegator || !isAddress(selectedDelegator)) return
+    const queuedVotes = editingDelegatorVotesData.localVoteAllocation.filter((g) => g.changed || g.added)
+    if (queuedVotes.length === 0) return
+    await voteMultiple(
+      selectedDelegator,
+      queuedVotes.map((g) => g.gaugeId),
+      queuedVotes.map((g) => BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)))
     )
-  }, [allAllocsArray, delegatorVotesData, uwLockVoting, provider, activeNetwork.chainId])
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callVoteMultiple', err, FunctionName.VOTE_MULTIPLE))
+  }, [selectedDelegator, canCallVoteMultiple, isVotingOpen, editingDelegatorVotesData.localVoteAllocation])
 
   const callRemoveVoteMultiple = useCallback(async () => {
-    if (!uwLockVoting) return
-    const mcProvider = new MulticallProvider(provider, activeNetwork.chainId)
-    const blockTag = await mcProvider._provider.getBlockNumber()
-    const uwLockVotingMC = new multicall.Contract(uwLockVoting.address, underwritingLockVotingABI)
-    const delegatorToVotesMapping: { [delegator: string]: { gaugeId: BigNumber }[] } = {}
-    allAllocsArray.forEach((g) => {
-      if (!delegatorToVotesMapping[g.delegator]) {
-        delegatorToVotesMapping[g.delegator] = [{ gaugeId: g.gaugeId }]
-      } else {
-        delegatorToVotesMapping[g.delegator].push({ gaugeId: g.gaugeId })
-      }
-    })
-
-    await mcProvider.all(
-      delegatorVotesData.map(
-        (d) =>
-          uwLockVotingMC.voteMultiple(
-            d.delegator,
-            delegatorToVotesMapping[d.delegator].map((v) => v.gaugeId)
-          ),
-        { blockTag: blockTag }
-      )
+    if (!isVotingOpen) return
+    if (!selectedDelegator || !isAddress(selectedDelegator)) return
+    if (editingDelegatorVotesData.localVoteAllocation.length == 0) return
+    await removeVoteMultiple(
+      selectedDelegator,
+      editingDelegatorVotesData.localVoteAllocation.map((g) => g.gaugeId)
     )
-  }, [allAllocsArray, delegatorVotesData, uwLockVoting, provider, activeNetwork.chainId])
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callRemoveVoteMultiple', err, FunctionName.REMOVE_VOTE_MULTIPLE))
+  }, [selectedDelegator, isVotingOpen, editingDelegatorVotesData.localVoteAllocation])
 
   return (
     <>
-      <DelegatorSelectionModal
-        show={showDelegatorSelectionModal}
-        handleClose={() => setShowDelegatorSelectionModal(false)}
-        onClick={addEmptyVote}
-      />
-      <Flex col itemsCenter gap={15}>
-        <ShadowDiv>
-          <Flex gap={12} p={10}>
-            <Flex col itemsCenter width={126}>
-              <Text techygradient t6s>
-                Total Points
-              </Text>
-              <Text techygradient big3>
-                {truncateValue(formatUnits(totalVotePower, 18), 2)}
-              </Text>
-            </Flex>
-          </Flex>
-        </ShadowDiv>
-        <Accordion isOpen={allAllocsArray.length > 0} thinScrollbar>
-          <Flex col gap={10} p={10}>
-            {allAllocsArray.map((voteAllocData, i) => (
-              <DelegatorVoteGauge key={i} voteAllocData={voteAllocData} />
-            ))}
-          </Flex>
-        </Accordion>
-        {isVotingOpen ? (
+      {showDelegatorSelection &&
+        (delegatorVotesData.length > 0 ? (
           <>
-            <Button onClick={() => setShowDelegatorSelectionModal(true)}>+ Add Gauge Vote</Button>
-            <Button
-              techygradient
-              secondary
-              noborder
-              widthP={100}
-              disabled={
-                cannotCallVoteMultiple ||
-                allAllocsArray.filter((item) => item.changed).length == 0 ||
-                (delegatorVotesData.length == 0 ? 0 : totalAllocatedVotePower / delegatorVotesData.length) > 100
-              }
-              onClick={callVoteMultiple}
-            >
-              Set Votes
-            </Button>
-            {allAllocsArray.filter((item) => !item.added).length > 0 && (
-              <Button error widthP={100} onClick={callRemoveVoteMultiple}>
-                Remove all votes
-              </Button>
-            )}
+            <Flex col itemsCenter>
+              <ShadowDiv>
+                <Flex gap={12} p={10}>
+                  <Flex col itemsCenter width={126}>
+                    <Text techygradient t6s>
+                      Total Points
+                    </Text>
+                    <Text techygradient big3>
+                      {truncateValue(formatUnits(totalVotePower, 18), 2)}
+                    </Text>
+                  </Flex>
+                  <Flex col itemsCenter width={126}>
+                    <Text t6s>Used Percentage</Text>
+                    <Text big3>{truncateValue(aggregatedUsedVotePowerBPS, 2)}%</Text>
+                  </Flex>
+                  <Flex col itemsCenter width={126}>
+                    <Text t6s>Delegators</Text>
+                    <Text big3>{truncateValue(delegatorVotesData.length, 2)}</Text>
+                  </Flex>
+                </Flex>
+              </ShadowDiv>
+            </Flex>
+            <Text>Select a delegator</Text>
+            <SmallerInputSection
+              placeholder={'Search'}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                border: 'none',
+              }}
+            />
+            <TextDropdownOptions
+              isOpen={true}
+              searchedList={activeList}
+              onClick={(value: string) => {
+                handleEditingDelegatorVotesData(
+                  delegatorVotesData.find((data) => data.delegator.toLowerCase() == value.toLowerCase()) ?? {
+                    delegator: '',
+                    votePower: ZERO,
+                    usedVotePowerBPS: ZERO,
+                    localVoteAllocation: [],
+                    localVoteAllocationTotal: 0,
+                  }
+                )
+                setShowDelegatorSelection(false)
+              }}
+            />
           </>
         ) : (
-          <Text italics>Voting is closed</Text>
-        )}
-      </Flex>
+          <Text>You have no delegators.</Text>
+        ))}
+      {!showDelegatorSelection && (
+        <>
+          <Flex gap={10} stretch between>
+            <Button onClick={() => setShowDelegatorSelection(true)} info>
+              <StyledArrowIosBackOutline size={20} />
+              Back
+            </Button>
+            <Text semibold t2 techygradient autoAlignVertical>
+              {shortenAddress(selectedDelegator)}
+            </Text>
+            <CopyButton toCopy={selectedDelegator} objectName={''} />
+          </Flex>
+          <Flex col itemsCenter gap={15}>
+            <ShadowDiv>
+              <Flex gap={12} p={10}>
+                <Flex col itemsCenter width={126}>
+                  <Text techygradient t6s>
+                    Total Points
+                  </Text>
+                  <Text techygradient big3>
+                    {truncateValue(
+                      formatUnits(
+                        delegatorVotesData.find(
+                          (data) => data.delegator.toLowerCase() == selectedDelegator.toLowerCase()
+                        )?.votePower ?? ZERO,
+                        18
+                      ),
+                      2
+                    )}
+                  </Text>
+                </Flex>
+                <Flex col itemsCenter width={126}>
+                  <Text t6s>Used Percentage</Text>
+                  <Text big3>
+                    {(
+                      parseFloat(
+                        (
+                          delegatorVotesData.find(
+                            (data) => data.delegator.toLowerCase() == selectedDelegator.toLowerCase()
+                          )?.usedVotePowerBPS ?? ZERO
+                        ).toString()
+                      ) / 100
+                    ).toString()}
+                    %
+                  </Text>
+                </Flex>
+                <Button techygradient secondary noborder onClick={() => setIsEditing(!isEditing)}>
+                  {!isEditing
+                    ? editingDelegatorVotesData.localVoteAllocation.length > 0
+                      ? `Edit Votes`
+                      : `Add Votes`
+                    : `End Edits`}
+                </Button>
+              </Flex>
+            </ShadowDiv>
+            {editingDelegatorVotesData.localVoteAllocation.length === 0 && (
+              <Flex col gap={10}>
+                <Text>No votes found</Text>
+              </Flex>
+            )}
+            {editingDelegatorVotesData.localVoteAllocation.length > 0 && (
+              <Accordion isOpen={true} thinScrollbar widthP={!isEditing ? 100 : undefined}>
+                <Flex col gap={10} p={10}>
+                  {editingDelegatorVotesData.localVoteAllocation.map((voteAllocData, i) => (
+                    <DelegatorVoteGauge
+                      key={i}
+                      voteAllocData={voteAllocData}
+                      index={i}
+                      delegator={selectedDelegator}
+                      isEditing={isEditing}
+                    />
+                  ))}
+                </Flex>
+              </Accordion>
+            )}
+            {isVotingOpen ? (
+              isEditing ? (
+                <>
+                  <Button onClick={() => addEmptyVote(false)}>+ Add Gauge Vote</Button>
+                  <Button
+                    techygradient
+                    secondary
+                    noborder
+                    widthP={100}
+                    disabled={
+                      !canCallVoteMultiple ||
+                      editingDelegatorVotesData.localVoteAllocation.filter((item) => item.changed).length == 0 ||
+                      editingDelegatorVotesData.localVoteAllocationTotal > 100
+                    }
+                    onClick={callVoteMultiple}
+                  >
+                    Set Votes
+                  </Button>
+                  {editingDelegatorVotesData.localVoteAllocation.filter((item) => !item.added).length > 0 && (
+                    <Button error widthP={100} onClick={callRemoveVoteMultiple}>
+                      Remove all votes
+                    </Button>
+                  )}
+                </>
+              ) : null
+            ) : (
+              <Text italics>Voting is closed</Text>
+            )}
+          </Flex>
+        </>
+      )}
     </>
   )
 }

@@ -117,7 +117,6 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
         gap: '30px',
       }}
     >
-      <InformationBox type={InfoBoxType.info} text="Withdrawal is available only when the lockup period ends." />
       <StyledForm>
         <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
           <Flex column gap={24}>

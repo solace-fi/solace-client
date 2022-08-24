@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { FunctionName } from '../../../constants/enums'
 import { useTransactionExecution } from '../../../hooks/internal/useInputAmount'
 import { useUwLockVoting } from '../../../hooks/lock/useUwLockVoting'
@@ -13,30 +13,33 @@ import { processProtocolName } from '../../../components/organisms/Dropdown'
 import { Card } from '../../../components/atoms/Card'
 import { isAddress } from '../../../utils'
 import { formatAmount } from '../../../utils/formatting'
+import { VoteAllocation } from '../../../constants/types'
 
 export const DelegatorVoteGauge = ({
   voteAllocData,
+  index,
+  delegator,
+  isEditing,
 }: {
-  voteAllocData: {
-    delegator: string
-    subIndex: number
-    gauge: string
-    gaugeId: BigNumber
-    votePowerPercentage: string
-    added: boolean
-    changed: boolean
-    gaugeActive: boolean
-  }
+  voteAllocData: VoteAllocation
+  index: number
+  delegator: string
+  isEditing: boolean
 }): JSX.Element => {
   const { gauges, voteGeneral, voteDelegators } = useVoteContext()
   const { isVotingOpen, onVoteInput, deleteVote } = voteGeneral
   const { handleGaugeSelectionModal } = gauges
-  const { delegatorVotesData } = voteDelegators
+  const { editingDelegatorVotesData, delegatorVotesData } = voteDelegators
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { vote, removeVote } = useUwLockVoting()
 
+  const appId = useMemo(() => editingDelegatorVotesData.localVoteAllocation[index].gauge, [
+    editingDelegatorVotesData,
+    index,
+  ])
+
   const callVote = useCallback(async () => {
-    if (!voteAllocData.delegator || !isAddress(voteAllocData.delegator)) return
+    if (!delegator || !isAddress(delegator)) return
     if (!isVotingOpen) return
     if (!voteAllocData.changed) return
     if (
@@ -45,7 +48,7 @@ export const DelegatorVoteGauge = ({
     )
       return
     await vote(
-      voteAllocData.delegator,
+      delegator,
       voteAllocData.gaugeId,
       BigNumber.from(Math.floor(parseFloat(formatAmount(voteAllocData.votePowerPercentage)) * 100))
     )
@@ -54,84 +57,98 @@ export const DelegatorVoteGauge = ({
   }, [voteAllocData, isVotingOpen])
 
   const callRemoveVote = useCallback(async () => {
-    if (!voteAllocData.delegator || !isAddress(voteAllocData.delegator)) return
+    if (!delegator || !isAddress(delegator)) return
     if (!isVotingOpen) return
-    await removeVote(voteAllocData.delegator, voteAllocData.gaugeId)
+    await removeVote(delegator, voteAllocData.gaugeId)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callRemoveVote', err, FunctionName.REMOVE_VOTE))
   }, [voteAllocData, isVotingOpen])
 
   return (
     <Card matchBg p={10}>
-      <Flex col gap={10}>
-        <Flex gap={10}>
-          <div style={{ width: '180px' }}>
-            <ThinButton onClick={() => handleGaugeSelectionModal(voteAllocData.subIndex, voteAllocData.delegator)}>
-              <Flex style={{ width: '100%' }} itemsCenter>
-                <Text autoAlignVertical p={5}>
-                  {voteAllocData.gauge != '' && (
-                    <img src={`https://assets.solace.fi/zapperLogos/${voteAllocData.gauge}`} height={16} />
-                  )}
-                </Text>
-                <Text t5s style={{ width: '100%' }}>
-                  <Flex between>
-                    <Text t5s techygradient mont>
-                      {voteAllocData.gauge != '' ? processProtocolName(voteAllocData.gauge) : 'Choose Gauge'}
-                    </Text>
-                    <StyledArrowDropDown size={16} />
-                  </Flex>
-                </Text>
-              </Flex>
-            </ThinButton>
-          </div>
-          <div style={{ width: '70px' }}>
-            <SmallerInputSection
-              placeholder={'%'}
-              value={voteAllocData.votePowerPercentage}
-              onChange={(e) => onVoteInput(e.target.value, voteAllocData.subIndex, voteAllocData.delegator)}
-            />
-          </div>
-          {voteAllocData.added ? (
-            <ShadowDiv>
-              <GraySquareButton
-                width={36}
-                actuallyWhite
+      {isEditing ? (
+        <Flex col gap={10}>
+          <Flex gap={10}>
+            <div style={{ width: '180px' }}>
+              <ThinButton onClick={() => handleGaugeSelectionModal(index, delegator)}>
+                <Flex style={{ width: '100%' }} itemsCenter>
+                  <Text autoAlignVertical p={5}>
+                    {voteAllocData.gauge != '' && (
+                      <img src={`https://assets.solace.fi/zapperLogos/${voteAllocData.gauge}`} height={16} />
+                    )}
+                  </Text>
+                  <Text t5s style={{ width: '100%' }}>
+                    <Flex between>
+                      <Text t5s techygradient mont>
+                        {voteAllocData.gauge != '' ? processProtocolName(voteAllocData.gauge) : 'Choose Gauge'}
+                      </Text>
+                      <StyledArrowDropDown size={16} />
+                    </Flex>
+                  </Text>
+                </Flex>
+              </ThinButton>
+            </div>
+            <div style={{ width: '70px' }}>
+              <SmallerInputSection
+                placeholder={'%'}
+                value={voteAllocData.votePowerPercentage}
+                onChange={(e) => onVoteInput(e.target.value, index, false)}
+              />
+            </div>
+            {voteAllocData.added ? (
+              <ShadowDiv>
+                <GraySquareButton width={36} actuallyWhite noborder onClick={() => deleteVote(index, false)}>
+                  X
+                </GraySquareButton>
+              </ShadowDiv>
+            ) : (
+              <div style={{ width: '36px' }}></div>
+            )}
+          </Flex>
+          <Flex justifyCenter gap={10}>
+            {!voteAllocData.added && (
+              <Button error onClick={callRemoveVote} widthP={100}>
+                Remove vote
+              </Button>
+            )}
+            {isVotingOpen && (
+              <Button
+                secondary
                 noborder
-                onClick={() => deleteVote(voteAllocData.subIndex, voteAllocData.delegator)}
+                techygradient
+                onClick={callVote}
+                widthP={100}
+                disabled={
+                  !voteAllocData.gaugeActive ||
+                  !voteAllocData.changed ||
+                  (parseFloat(formatAmount(voteAllocData.votePowerPercentage)) === 0 && voteAllocData.added) ||
+                  editingDelegatorVotesData.localVoteAllocationTotal > 100
+                }
               >
-                X
-              </GraySquareButton>
-            </ShadowDiv>
-          ) : (
-            <div style={{ width: '36px' }}></div>
-          )}
+                Save Vote
+              </Button>
+            )}
+          </Flex>
         </Flex>
-        <Flex justifyCenter gap={10}>
-          {!voteAllocData.added && (
-            <Button error onClick={callRemoveVote} widthP={100}>
-              Remove vote
-            </Button>
-          )}
-          {isVotingOpen && (
-            <Button
-              secondary
-              noborder
-              techygradient
-              onClick={callVote}
-              widthP={100}
-              disabled={
-                !voteAllocData.gaugeActive ||
-                !voteAllocData.changed ||
-                (parseFloat(formatAmount(voteAllocData.votePowerPercentage)) === 0 && voteAllocData.added) ||
-                (delegatorVotesData.find((item) => item.delegator == voteAllocData.delegator)
-                  ?.localVoteAllocationTotal ?? 0) > 100
-              }
-            >
-              Save Vote
-            </Button>
-          )}
+      ) : (
+        <Flex gap={20} between>
+          <Flex gap={5}>
+            <Text autoAlignVertical p={5}>
+              {appId != '' && <img src={`https://assets.solace.fi/zapperLogos/${appId}`} height={16} />}
+            </Text>
+            <Text t3 techygradient mont autoAlignVertical>
+              {appId != '' ? processProtocolName(appId) : 'Choose Gauge'}
+            </Text>
+          </Flex>
+          <Text bold autoAlignVertical t2>
+            {
+              delegatorVotesData.find((item) => item.delegator == delegator)?.localVoteAllocation[index]
+                .votePowerPercentage
+            }
+            %
+          </Text>
         </Flex>
-      </Flex>
+      )}
     </Card>
   )
 }

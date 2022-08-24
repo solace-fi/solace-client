@@ -10,8 +10,7 @@ import { useFetchGasData } from '../hooks/provider/useGas'
 import { useNetwork } from './NetworkManager'
 import { useGetCrossTokenPricesFromCoingecko } from '../hooks/api/usePrice'
 import { useWeb3React } from '@web3-react/core'
-import { SolaceRiskSeries, TokenToPriceMapping } from '@solace-fi/sdk-nightly'
-import { useRiskSeries } from '../hooks/policy/useSolaceCoverProductV3'
+import { TokenToPriceMapping } from '@solace-fi/sdk-nightly'
 
 /*
 
@@ -34,11 +33,6 @@ type CachedData = {
   deleteLocalTransactions: (txsToDelete: []) => void
   positiveReload: () => void // primary timekeeper intended for reloading UI and data
   negativeReload: () => void // secondary timekeeper intended for reloading UI but not data
-  seriesKit: {
-    series?: SolaceRiskSeries
-    seriesLogos: { label: string; value: string; icon: JSX.Element }[]
-    seriesLoading: boolean
-  }
 }
 
 const CachedDataContext = createContext<CachedData>({
@@ -52,11 +46,6 @@ const CachedDataContext = createContext<CachedData>({
   deleteLocalTransactions: () => undefined,
   positiveReload: () => undefined,
   negativeReload: () => undefined,
-  seriesKit: {
-    series: undefined,
-    seriesLogos: [],
-    seriesLoading: true,
-  },
 })
 
 const CachedDataProvider: React.FC = (props) => {
@@ -69,19 +58,6 @@ const CachedDataProvider: React.FC = (props) => {
   const [minReload, minute] = useReload()
   const { tokenPriceMapping } = useGetCrossTokenPricesFromCoingecko(minute)
   const gasData = useFetchGasData()
-  const { series, loading: seriesLoading } = useRiskSeries()
-
-  const seriesLogos = useMemo(() => {
-    return series
-      ? series.data.protocolMap.map((s) => {
-          return {
-            label: s.appId,
-            value: s.appId,
-            icon: <img src={`https://assets.solace.fi/zapperLogos/${s.appId}`} height={24} />,
-          }
-        })
-      : []
-  }, [series])
 
   const addLocalTransactions = useCallback(
     (txToAdd: LocalTx) => {
@@ -128,11 +104,6 @@ const CachedDataProvider: React.FC = (props) => {
       negativeReload,
       positiveVersion,
       negativeVersion,
-      seriesKit: {
-        series,
-        seriesLogos,
-        seriesLoading,
-      },
     }),
     [
       minute,
@@ -141,9 +112,6 @@ const CachedDataProvider: React.FC = (props) => {
       addLocalTransactions,
       deleteLocalTransactions,
       gasData,
-      series,
-      seriesLogos,
-      seriesLoading,
       positiveVersion,
       negativeVersion,
       positiveReload,

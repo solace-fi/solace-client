@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react'
-import { useCachedData } from '../../context/CachedDataManager'
 import { DropdownOptionsUnique } from './Dropdown'
 import { SmallerInputSection } from '../molecules/InputSection'
 import { Modal } from '../molecules/Modal'
@@ -22,17 +21,22 @@ export const GaugeSelectionModal = ({
   votesAllocationData: VoteAllocation[]
   gaugesData: GaugeData[]
   handleCloseModal: () => void
-  assign: (gaugeName: string, gaugeId: BigNumber, index: number, delegator?: string) => void
+  assign: (gaugeName: string, gaugeId: BigNumber, index: number, isOwner: boolean) => void
 }): JSX.Element => {
-  const { seriesKit } = useCachedData()
   const [searchTerm, setSearchTerm] = useState('')
 
   const gaugeNames = useMemo(() => gaugesData.map((g) => g.gaugeName), [gaugesData])
   const gaugeIds = useMemo(() => gaugesData.map((g) => g.gaugeId), [gaugesData])
-  const gaugeOptions = useMemo(() => seriesKit.seriesLogos.filter((item) => gaugeNames.includes(item.label)), [
-    seriesKit.seriesLogos,
-    gaugeNames,
-  ])
+
+  const gaugeOptions = useMemo(() => {
+    return gaugeNames.map((name) => {
+      return {
+        label: name,
+        value: name,
+        icon: <img src={`https://assets.solace.fi/zapperLogos/${name}`} height={24} />,
+      }
+    })
+  }, [gaugeNames])
 
   const activeList = useMemo(
     () => (searchTerm ? gaugeOptions.filter((item) => item.label.includes(searchTerm.toLowerCase())) : gaugeOptions),
@@ -58,7 +62,7 @@ export const GaugeSelectionModal = ({
         onClick={(value: string) => {
           const foundIndexOfName = gaugeNames.findIndex((name) => name === value)
           if (foundIndexOfName == -1) return
-          assign(value, gaugeIds[foundIndexOfName], target.index ?? 0, target.delegator)
+          assign(value, gaugeIds[foundIndexOfName], target.index ?? 0, !target.delegator)
           handleCloseModal()
         }}
       />

@@ -34,6 +34,7 @@ const TextDropdownOptions = ({
       customHeight={'380px'}
       noBackgroundColor
       thinScrollbar
+      widthP={100}
     >
       <Flex col gap={8} p={12}>
         {searchedList.map((item) => (

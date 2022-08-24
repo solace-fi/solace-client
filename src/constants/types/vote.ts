@@ -12,7 +12,7 @@ export type VotesData = {
   localVoteAllocationTotal: number
 }
 
-export type DelegateVotesData = VotesData & {
+export type DelegatorVotesData = VotesData & {
   delegator: string
 }
 

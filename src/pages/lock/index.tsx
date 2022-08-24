@@ -89,9 +89,8 @@ export default function Lock(): JSX.Element {
 const LockContent = () => {
   const { rightSidebar } = useGeneral()
   const { isMobile, width } = useWindowDimensions()
-  const { intrface, delegateData, locker } = useLockContext()
+  const { intrface, locker } = useLockContext()
   const { locksLoading } = intrface
-  const { handleDelegateModalOpen } = delegateData
   const { maxNumLocks, userLocks: locks, stakedBalance: staked } = locker
 
   // account usewallet
@@ -315,11 +314,6 @@ const LockContent = () => {
                     Withdraw
                   </Button>
                 </Flex>
-              )}
-              {!batchActionsIsEnabled && (
-                <Button secondary info noborder onClick={() => handleDelegateModalOpen(true)}>
-                  <StyledVoteYea size={20} style={{ marginRight: '5px' }} /> Delegate
-                </Button>
               )}
               <Button pl={10} pr={10} onClick={toggleBatchActions} secondary={batchActionsIsEnabled}>
                 <StyledMultiselect size={20} style={{ marginRight: '5px' }} />{' '}

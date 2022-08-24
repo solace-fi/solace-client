@@ -210,6 +210,7 @@ export const useUwLockVotingHelper = () => {
     const response = await axios
       .get(baseApiUrl, { params: { address: user } })
       .then((response: AxiosResponse) => {
+        console.log('my delegators:', response.data)
         return response.data
       })
       .catch((error: any) => {

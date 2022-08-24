@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { Accordion } from '../../components/atoms/Accordion'
 import { Button } from '../../components/atoms/Button'
@@ -13,36 +13,41 @@ import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { isAddress } from '../../utils'
 import { formatAmount, truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
+import { StyledVoteYea } from '../../components/atoms/Icon'
 
 export const OwnerVoteTab = () => {
-  const { voteGeneral, voteOwner } = useVoteContext()
+  const { voteGeneral, voteOwner, delegateData } = useVoteContext()
+  const { handleDelegateModalOpen } = delegateData
   const { isVotingOpen, addEmptyVote } = voteGeneral
-  const { votesData } = voteOwner
+  const { votesData, editingVotesData } = voteOwner
 
   const { voteMultiple, removeVoteMultiple } = useUwLockVoting()
   const { account } = useWeb3React()
   const { handleToast, handleContractCallError } = useTransactionExecution()
+  const [isEditing, setIsEditing] = useState(false)
 
-  /** cannot call vote multiple if any gauges of changed or added votes 
-      are inactive and the allocated vote power is not zero
-  */
-  const cannotCallVoteMultiple = useMemo(
-    () =>
-      votesData.localVoteAllocation.filter((g) => {
-        return (
-          !g.gaugeActive ||
-          (BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)).isZero() && g.added) ||
-          !g.changed
-        )
-      }).length > 0,
-    [votesData.localVoteAllocation]
-  )
+  /**  can call vote multiple if all added or changed gauges are active,
+   * the allocated vote power is not zero if added, and if there are changed or added votes
+   * */
+  const canCallVoteMultiple = useMemo(() => {
+    const containsChangedOrAddedActiveGauges =
+      editingVotesData.localVoteAllocation.filter((g) => {
+        return g.gaugeActive && (g.added || g.changed)
+      }).length > 0
+
+    const hasZeroAllocsForAdded =
+      editingVotesData.localVoteAllocation.filter((g) => {
+        return g.added && BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)).isZero()
+      }).length > 0
+
+    return containsChangedOrAddedActiveGauges && !hasZeroAllocsForAdded
+  }, [editingVotesData.localVoteAllocation])
 
   const callVoteMultiple = useCallback(async () => {
-    if (cannotCallVoteMultiple) return
+    if (!canCallVoteMultiple) return
     if (!isVotingOpen) return
     if (!account || !isAddress(account)) return
-    const queuedVotes = votesData.localVoteAllocation.filter((g) => g.changed || g.added)
+    const queuedVotes = editingVotesData.localVoteAllocation.filter((g) => g.changed || g.added)
     await voteMultiple(
       account,
       queuedVotes.map((g) => g.gaugeId),
@@ -50,25 +55,30 @@ export const OwnerVoteTab = () => {
     )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callVoteMultiple', err, FunctionName.VOTE_MULTIPLE))
-  }, [account, cannotCallVoteMultiple, isVotingOpen, votesData.localVoteAllocation])
+  }, [account, canCallVoteMultiple, isVotingOpen, editingVotesData.localVoteAllocation])
 
   const callRemoveVoteMultiple = useCallback(async () => {
     if (!isVotingOpen) return
     if (!account || !isAddress(account)) return
     await removeVoteMultiple(
       account,
-      votesData.localVoteAllocation.map((g) => g.gaugeId)
+      editingVotesData.localVoteAllocation.map((g) => g.gaugeId)
     )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callRemoveVoteMultiple', err, FunctionName.REMOVE_VOTE_MULTIPLE))
-  }, [account, isVotingOpen, votesData.localVoteAllocation])
+  }, [account, isVotingOpen, editingVotesData.localVoteAllocation])
 
   return (
     <>
-      <Flex>
+      <Flex between>
         <Text semibold t2>
           My Gauge Votes
         </Text>
+        <Flex gap={10}>
+          <Button secondary info noborder onClick={() => handleDelegateModalOpen(true)}>
+            <StyledVoteYea size={20} style={{ marginRight: '5px' }} /> Delegate
+          </Button>
+        </Flex>
       </Flex>
       <Flex col itemsCenter gap={15}>
         <ShadowDiv>
@@ -85,38 +95,54 @@ export const OwnerVoteTab = () => {
               <Text t6s>Used Percentage</Text>
               <Text big3>{(parseFloat(votesData.usedVotePowerBPS.toString()) / 100).toString()}%</Text>
             </Flex>
+            <Button techygradient secondary noborder onClick={() => setIsEditing(!isEditing)}>
+              {!isEditing
+                ? editingVotesData.localVoteAllocation.length > 0
+                  ? `Edit Votes`
+                  : `Add Votes`
+                : `End Edits`}
+            </Button>
           </Flex>
         </ShadowDiv>
-        <Accordion isOpen={votesData.localVoteAllocation.length > 0} thinScrollbar>
-          <Flex col gap={10} p={10}>
-            {votesData.localVoteAllocation.map((voteData, i) => (
-              <OwnerVoteGauge key={i} index={i} />
-            ))}
+        {editingVotesData.localVoteAllocation.length === 0 && (
+          <Flex col gap={10}>
+            <Text>No votes found</Text>
           </Flex>
-        </Accordion>
+        )}
+        {editingVotesData.localVoteAllocation.length > 0 && (
+          <Accordion isOpen={true} thinScrollbar widthP={!isEditing ? 100 : undefined}>
+            <Flex col gap={10} p={10}>
+              {editingVotesData.localVoteAllocation.map((voteData, i) => (
+                <OwnerVoteGauge key={i} index={i} isEditing={isEditing} />
+              ))}
+            </Flex>
+          </Accordion>
+        )}
         {isVotingOpen ? (
-          <>
-            <Button onClick={() => addEmptyVote(undefined)}>+ Add Gauge Vote</Button>
-            <Button
-              techygradient
-              secondary
-              noborder
-              widthP={100}
-              disabled={
-                cannotCallVoteMultiple ||
-                votesData.localVoteAllocation.filter((item) => item.changed).length == 0 ||
-                votesData.localVoteAllocationTotal > 100
-              }
-              onClick={callVoteMultiple}
-            >
-              Set Votes
-            </Button>
-            {votesData.localVoteAllocation.filter((item) => !item.added).length > 0 && (
-              <Button error widthP={100} onClick={callRemoveVoteMultiple}>
-                Remove all votes
+          isEditing ? (
+            <>
+              <Button onClick={() => addEmptyVote(true)}>+ Add Gauge Vote</Button>
+              <Button
+                techygradient
+                secondary
+                noborder
+                widthP={100}
+                disabled={
+                  !canCallVoteMultiple ||
+                  editingVotesData.localVoteAllocation.filter((item) => item.changed).length == 0 ||
+                  editingVotesData.localVoteAllocationTotal > 100
+                }
+                onClick={callVoteMultiple}
+              >
+                Set Votes
               </Button>
-            )}
-          </>
+              {editingVotesData.localVoteAllocation.filter((item) => !item.added).length > 0 && (
+                <Button error widthP={100} onClick={callRemoveVoteMultiple}>
+                  Remove all votes
+                </Button>
+              )}
+            </>
+          ) : null
         ) : (
           <Text>Voting is closed</Text>
         )}
