@@ -236,7 +236,7 @@ export const MultiExtendModal = ({
         <Flex col gap={10}>
           <Button
             secondary
-            warmgradient
+            techygradient
             noborder
             widthP={100}
             disabled={invalidLocks.length > 0}

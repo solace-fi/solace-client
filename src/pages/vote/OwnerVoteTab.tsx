@@ -94,10 +94,21 @@ export const OwnerVoteTab = () => {
             ))}
           </Flex>
         </Accordion>
-        {!isVotingOpen ? (
+        {isVotingOpen ? (
           <>
             <Button onClick={() => addEmptyVote(true)} noborder>
-              <Text underline>+ Add Gauge Vote</Text>
+              <Text
+                underline
+                semibold
+                style={{
+                  // underline width is 2 pixels
+                  textDecorationWidth: '3px',
+                  // separated by 3 pixels from the text
+                  textUnderlineOffset: '5px',
+                }}
+              >
+                + Add Gauge Vote
+              </Text>
             </Button>
             <Button
               techygradient

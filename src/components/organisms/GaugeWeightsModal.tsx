@@ -61,7 +61,7 @@ export const GaugeWeightsModal = ({
 
   return (
     <Modal modalTitle="Current Gauge Weights" isOpen={isOpen} handleClose={handleClose}>
-      <Flex col={isMobile} row={!isMobile} gap={10}>
+      <Flex col={isMobile} row={!isMobile} gap={10} bgSecondary rounded p={12}>
         <ResponsiveContainer width={!isMobile ? '60%' : '100%'} height={300}>
           <PieChart width={50}>
             <Pie
@@ -85,6 +85,8 @@ export const GaugeWeightsModal = ({
           </PieChart>
         </ResponsiveContainer>
         <Flex col gap={10}>
+          {' '}
+          {/**bgSecondary p={12} rounded */}
           <SmallerInputSection
             placeholder={'Search'}
             value={searchTerm}
@@ -94,8 +96,8 @@ export const GaugeWeightsModal = ({
               border: 'none',
             }}
           />
-          <Accordion isOpen thinScrollbar customHeight={'200px'}>
-            <Flex col py={4}>
+          <Accordion isOpen thinScrollbar customHeight={'200px'} noBackgroundColor>
+            <Flex col py={4} bgRaised>
               {searchedList.map((entry, index) => (
                 <Flex key={`${entry.name}-${index}`} between px={10} py={4} gap={5}>
                   <Text
