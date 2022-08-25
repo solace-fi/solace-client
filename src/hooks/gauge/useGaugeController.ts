@@ -219,28 +219,33 @@ export const useGaugeControllerHelper = () => {
     const gaugeWeights = await getAllGaugeWeights()
     const adjustedGaugeWeights = gaugeWeights.slice(offset)
 
-    const gaugeNames = await Promise.all(
-      adjustedGaugeWeights.map(async (gaugeWeight, i) => {
-        return await getGaugeName(BigNumber.from(i).add(BigNumber.from(offset)))
+    try {
+      const gaugeNames = await Promise.all(
+        adjustedGaugeWeights.map(async (gaugeWeight, i) => {
+          return await getGaugeName(BigNumber.from(i).add(BigNumber.from(offset)))
+        })
+      )
+
+      const gaugesActive = await Promise.all(
+        adjustedGaugeWeights.map(async (gaugeWeight, i) => {
+          return await isGaugeActive(BigNumber.from(i).add(BigNumber.from(offset)))
+        })
+      )
+
+      const _gaugesData = adjustedGaugeWeights.map((gaugeWeight, i) => {
+        return {
+          gaugeId: BigNumber.from(i).add(BigNumber.from(offset)),
+          gaugeName: gaugeNames[i],
+          gaugeWeight,
+          isActive: gaugesActive[i],
+        }
       })
-    )
 
-    const gaugesActive = await Promise.all(
-      adjustedGaugeWeights.map(async (gaugeWeight, i) => {
-        return await isGaugeActive(BigNumber.from(i).add(BigNumber.from(offset)))
-      })
-    )
+      setGaugesData(_gaugesData)
+    } catch (error) {
+      console.error('fetchGauges', error)
+    }
 
-    const _gaugesData = adjustedGaugeWeights.map((gaugeWeight, i) => {
-      return {
-        gaugeId: BigNumber.from(i).add(BigNumber.from(offset)),
-        gaugeName: gaugeNames[i],
-        gaugeWeight,
-        isActive: gaugesActive[i],
-      }
-    })
-
-    setGaugesData(_gaugesData)
     setLoading(false)
   }, [getAllGaugeWeights, getGaugeName, isGaugeActive])
 

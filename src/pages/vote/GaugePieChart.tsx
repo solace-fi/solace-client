@@ -21,14 +21,16 @@ export const GaugePieChart = () => {
   const TOP_GAUGES = COLORS.length
 
   const data = useMemo(() => {
-    return gaugesData.map((g) => {
-      return {
-        name: g.gaugeName,
-        value: parseFloat(formatUnits(g.gaugeWeight, 14).split('.')[0]) / 100,
-        id: g.gaugeId,
-        isActive: g.isActive,
-      }
-    })
+    return gaugesData
+      .map((g) => {
+        return {
+          name: g.gaugeName,
+          value: parseFloat(formatUnits(g.gaugeWeight, 14).split('.')[0]) / 100,
+          id: g.gaugeId,
+          isActive: g.isActive,
+        }
+      })
+      .sort((a, b) => b.value - a.value)
   }, [gaugesData])
 
   const summarizedData = useMemo(

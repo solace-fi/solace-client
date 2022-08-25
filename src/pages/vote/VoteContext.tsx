@@ -312,7 +312,6 @@ const VoteManager: React.FC = (props) => {
       const _delegators = await getDelegators(account)
 
       const delegatorsVotesData = await Promise.all(_delegators.map(async (delegator) => getVoteInformation(delegator)))
-      console.log('delegatorsVotesData', delegatorsVotesData)
       const formattedDelegatorVotesData: VoteAllocation[][] = []
 
       for (let i = 0; i < delegatorsVotesData.length; i++) {

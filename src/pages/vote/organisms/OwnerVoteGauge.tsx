@@ -96,15 +96,12 @@ export const OwnerVoteGauge = ({ index, isEditing }: { index: number; isEditing:
           </Flex>
           <Flex justifyCenter gap={10}>
             {!editingVotesData.localVoteAllocation[index].added && (
-              <Button error onClick={callRemoveVote} widthP={100}>
-                Remove vote
-              </Button>
+              <ThinButton onClick={callRemoveVote} widthP={100}>
+                <Text t5s>Remove vote</Text>
+              </ThinButton>
             )}
             {isVotingOpen && (
-              <Button
-                secondary
-                noborder
-                techygradient
+              <ThinButton
                 onClick={callVote}
                 widthP={100}
                 disabled={
@@ -115,8 +112,8 @@ export const OwnerVoteGauge = ({ index, isEditing }: { index: number; isEditing:
                   editingVotesData.localVoteAllocationTotal > 100
                 }
               >
-                Save Vote
-              </Button>
+                <Text t5s>Save Vote</Text>
+              </ThinButton>
             )}
           </Flex>
         </Flex>
