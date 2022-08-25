@@ -324,11 +324,11 @@ export const DelegatorVoteTab = () => {
                     }
                     onClick={callVoteMultiple}
                   >
-                    Set Votes
+                    <Text t3>Save Votes</Text>
                   </Button>
                   {editingDelegatorVotesData.localVoteAllocation.filter((item) => !item.added).length > 0 && (
                     <Button error widthP={100} onClick={callRemoveVoteMultiple}>
-                      Remove all votes
+                      <Text t3>Remove all votes</Text>
                     </Button>
                   )}
                 </>

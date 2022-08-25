@@ -1,15 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, TooltipProps } from 'recharts'
 
-import { Flex, VerticalSeparator } from '../atoms/Layout'
+import { Flex } from '../atoms/Layout'
 import { Text } from '../atoms/Typography'
-import { LoaderText } from '../molecules/LoaderText'
-import { BKPT_NAVBAR } from '../../constants'
 import { useGeneral } from '../../context/GeneralManager'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { Modal } from '../molecules/Modal'
 import { Accordion } from '../atoms/Accordion'
 import { SmallerInputSection } from '../molecules/InputSection'
+import { truncateValue } from '../../utils/formatting'
 
 export const CustomPieChartTooltip = ({ active, payload }: TooltipProps<number, string>): JSX.Element => {
   const { appTheme } = useGeneral()
@@ -40,7 +39,7 @@ export const GaugeWeightsModal = ({
 }: {
   isOpen: boolean
   handleClose: () => void
-  data: { name: string; value: number }[]
+  data: { name: string; value: number; usdValue: number }[]
   colors: string[]
   darkColors: string[]
 }): JSX.Element => {
@@ -99,13 +98,22 @@ export const GaugeWeightsModal = ({
           <Accordion isOpen thinScrollbar customHeight={'200px'} noBackgroundColor>
             <Flex col py={4} bgRaised>
               {searchedList.map((entry, index) => (
-                <Flex key={`${entry.name}-${index}`} between px={10} py={4} gap={5}>
+                <Flex key={`${entry.name}-${index}`} between px={10} py={4} gap={10}>
+                  <Flex gap={10}>
+                    {entry.name !== 'Other Protocols' && (
+                      <img src={`https://assets.solace.fi/zapperLogos/${entry.name}`} height={24} />
+                    )}
+                    <Text
+                      bold
+                      textAlignLeft
+                      style={{ color: index < colors.length ? colors[index] : darkColors[index % darkColors.length] }}
+                    >{`${entry.name}`}</Text>
+                  </Flex>
                   <Text
                     bold
-                    textAlignLeft
+                    textAlignRight
                     style={{ color: index < colors.length ? colors[index] : darkColors[index % darkColors.length] }}
-                  >{`${entry.name}`}</Text>
-                  <Text bold textAlignRight>{`${entry.value}%`}</Text>
+                  >{`$${truncateValue(entry.usdValue, 2)}`}</Text>
                 </Flex>
               ))}
               {searchedList.length === 0 && (

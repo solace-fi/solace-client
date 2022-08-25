@@ -10,10 +10,12 @@ import { Text } from '../../components/atoms/Typography'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { formatUnits } from 'ethers/lib/utils'
 import { useVoteContext } from './VoteContext'
+import { truncateValue } from '../../utils/formatting'
 
 export const GaugePieChart = () => {
   const { gauges } = useVoteContext()
-  const { gaugesData } = gauges
+  const { isMobile } = useWindowDimensions()
+  const { gaugesData, insuranceCapacity } = gauges
 
   const COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', 'rgb(95,93,249)', 'rgb(240,77,66)'], [])
   const DARK_COLORS = useMemo(() => ['rgb(166, 95, 168)', 'rgb(187, 136, 0)', '#4644b9', '#b83c33'], [])
@@ -21,20 +23,28 @@ export const GaugePieChart = () => {
   const TOP_GAUGES = COLORS.length
 
   const data = useMemo(() => {
-    return gaugesData.map((g) => {
-      return {
-        name: g.gaugeName,
-        value: parseFloat(formatUnits(g.gaugeWeight, 14).split('.')[0]) / 100,
-        id: g.gaugeId,
-        isActive: g.isActive,
-      }
-    })
-  }, [gaugesData])
+    return gaugesData
+      .map((g) => {
+        const v = parseFloat(formatUnits(g.gaugeWeight, 14).split('.')[0])
+        return {
+          name: g.gaugeName,
+          value: v / 100,
+          usdValue: (v * insuranceCapacity) / 10000,
+          id: g.gaugeId,
+          isActive: g.isActive,
+        }
+      })
+      .sort((a, b) => b.value - a.value)
+  }, [gaugesData, insuranceCapacity])
 
   const summarizedData = useMemo(
     () => [
       ...data.slice(0, TOP_GAUGES),
-      { name: 'Other Protocols', value: data.slice(TOP_GAUGES).reduce((acc, pv) => pv.value + acc, 0) },
+      {
+        name: 'Other Protocols',
+        value: data.slice(TOP_GAUGES).reduce((acc, pv) => pv.value + acc, 0),
+        usdValue: data.slice(TOP_GAUGES).reduce((acc, pv) => pv.usdValue + acc, 0),
+      },
     ],
     [data, TOP_GAUGES]
   )
@@ -82,8 +92,8 @@ export const GaugePieChart = () => {
         {loading ? (
           <LoaderText />
         ) : (
-          <>
-            <ResponsiveContainer width="60%" height={200}>
+          <Flex col={isMobile} widthP={100}>
+            <ResponsiveContainer width={!isMobile ? '60%' : '100%'} height={200}>
               <PieChart width={25}>
                 <Pie
                   isAnimationActive={animate}
@@ -105,25 +115,30 @@ export const GaugePieChart = () => {
                 <Tooltip content={<CustomPieChartTooltip />} />
               </PieChart>
             </ResponsiveContainer>
-            <Flex col gap={18} widthP={50}>
+            <Flex col gap={18} widthP={!isMobile ? 50 : 100}>
               {summarizedData.map((entry, index) => (
-                <Flex key={`${entry.name}-${index}`} between>
-                  <Text
-                    t4s
-                    bold
-                    textAlignLeft
-                    style={{ color: index < COLORS.length ? COLORS[index] : 'inherit' }}
-                  >{`${entry.name}`}</Text>
+                <Flex key={`${entry.name}-${index}`} between gap={10}>
+                  <Flex gap={10}>
+                    {entry.name !== 'Other Protocols' && (
+                      <img src={`https://assets.solace.fi/zapperLogos/${entry.name}`} height={24} />
+                    )}
+                    <Text
+                      bold
+                      t4s
+                      textAlignLeft
+                      style={{ color: index < COLORS.length ? COLORS[index] : 'inherit' }}
+                    >{`${entry.name}`}</Text>
+                  </Flex>
                   <Text
                     t4s
                     bold
                     textAlignRight
                     style={{ color: index < COLORS.length ? COLORS[index] : 'inherit' }}
-                  >{`${entry.value}%`}</Text>
+                  >{`$${truncateValue(entry.usdValue, 2)}`}</Text>
                 </Flex>
               ))}
             </Flex>
-          </>
+          </Flex>
         )}
       </Flex>
     </TileCard>

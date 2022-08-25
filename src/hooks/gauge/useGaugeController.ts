@@ -1,9 +1,12 @@
 import { ZERO } from '@solace-fi/sdk-nightly'
 import { BigNumber } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { POW_EIGHTEEN } from '../../constants'
 import { GaugeData, Vote } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { useProvider } from '../../context/ProviderManager'
+import { useUwp } from '../lock/useUnderwritingHelper'
 
 export const useGaugeController = () => {
   const { keyContracts } = useContracts()
@@ -207,11 +210,16 @@ export const useGaugeController = () => {
 
 export const useGaugeControllerHelper = () => {
   const { getAllGaugeWeights, getGaugeName, isGaugeActive } = useGaugeController()
+  const { valueOfHolder } = useUwp()
+  const { keyContracts } = useContracts()
+  const { uwe, gaugeController } = keyContracts
+
   const { latestBlock } = useProvider()
   const [loading, setLoading] = useState(false)
   const running = useRef(false)
 
   const [gaugesData, setGaugesData] = useState<GaugeData[]>([])
+  const [insuranceCapacity, setInsuranceCapacity] = useState<number>(0)
 
   const fetchGauges = useCallback(async () => {
     setLoading(true)
@@ -219,28 +227,33 @@ export const useGaugeControllerHelper = () => {
     const gaugeWeights = await getAllGaugeWeights()
     const adjustedGaugeWeights = gaugeWeights.slice(offset)
 
-    const gaugeNames = await Promise.all(
-      adjustedGaugeWeights.map(async (gaugeWeight, i) => {
-        return await getGaugeName(BigNumber.from(i).add(BigNumber.from(offset)))
+    try {
+      const gaugeNames = await Promise.all(
+        adjustedGaugeWeights.map(async (gaugeWeight, i) => {
+          return await getGaugeName(BigNumber.from(i).add(BigNumber.from(offset)))
+        })
+      )
+
+      const gaugesActive = await Promise.all(
+        adjustedGaugeWeights.map(async (gaugeWeight, i) => {
+          return await isGaugeActive(BigNumber.from(i).add(BigNumber.from(offset)))
+        })
+      )
+
+      const _gaugesData = adjustedGaugeWeights.map((gaugeWeight, i) => {
+        return {
+          gaugeId: BigNumber.from(i).add(BigNumber.from(offset)),
+          gaugeName: gaugeNames[i],
+          gaugeWeight,
+          isActive: gaugesActive[i],
+        }
       })
-    )
 
-    const gaugesActive = await Promise.all(
-      adjustedGaugeWeights.map(async (gaugeWeight, i) => {
-        return await isGaugeActive(BigNumber.from(i).add(BigNumber.from(offset)))
-      })
-    )
+      setGaugesData(_gaugesData)
+    } catch (error) {
+      console.error('fetchGauges', error)
+    }
 
-    const _gaugesData = adjustedGaugeWeights.map((gaugeWeight, i) => {
-      return {
-        gaugeId: BigNumber.from(i).add(BigNumber.from(offset)),
-        gaugeName: gaugeNames[i],
-        gaugeWeight,
-        isActive: gaugesActive[i],
-      }
-    })
-
-    setGaugesData(_gaugesData)
     setLoading(false)
   }, [getAllGaugeWeights, getGaugeName, isGaugeActive])
 
@@ -254,5 +267,18 @@ export const useGaugeControllerHelper = () => {
     callFetchGauges()
   }, [latestBlock, fetchGauges])
 
-  return { loading, gaugesData }
+  useEffect(() => {
+    if (!uwe || !gaugeController) return
+    const calculateInsuranceCapacity = async () => {
+      const uf = await valueOfHolder(uwe.address)
+      const l = await gaugeController.leverageFactor()
+      const convertedUf = formatUnits(uf, 18)
+      const convertedL = formatUnits(l, 18)
+      const sic = parseFloat(convertedUf) * parseFloat(convertedL)
+      setInsuranceCapacity(sic)
+    }
+    calculateInsuranceCapacity()
+  }, [uwe, gaugeController, valueOfHolder])
+
+  return { loading, gaugesData, insuranceCapacity }
 }

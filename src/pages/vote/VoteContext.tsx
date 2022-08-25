@@ -18,6 +18,7 @@ type VoteContextType = {
   }
   gauges: {
     gaugesData: GaugeData[]
+    insuranceCapacity: number
     handleGaugeSelectionModal: (index: number, delegator?: string) => void
   }
   delegateData: {
@@ -50,6 +51,7 @@ const VoteContext = createContext<VoteContextType>({
   },
   gauges: {
     gaugesData: [],
+    insuranceCapacity: 0,
     handleGaugeSelectionModal: () => undefined,
   },
   delegateData: {
@@ -93,7 +95,7 @@ const VoteContext = createContext<VoteContextType>({
 })
 
 const VoteManager: React.FC = (props) => {
-  const { loading: gaugesLoading, gaugesData } = useGaugeControllerHelper()
+  const { loading: gaugesLoading, gaugesData, insuranceCapacity } = useGaugeControllerHelper()
   const { keyContracts } = useContracts()
   const { uwLockVoting } = keyContracts
 
@@ -312,7 +314,6 @@ const VoteManager: React.FC = (props) => {
       const _delegators = await getDelegators(account)
 
       const delegatorsVotesData = await Promise.all(_delegators.map(async (delegator) => getVoteInformation(delegator)))
-      console.log('delegatorsVotesData', delegatorsVotesData)
       const formattedDelegatorVotesData: VoteAllocation[][] = []
 
       for (let i = 0; i < delegatorsVotesData.length; i++) {
@@ -436,6 +437,7 @@ const VoteManager: React.FC = (props) => {
         gaugesLoading,
       },
       gauges: {
+        insuranceCapacity,
         gaugesData,
         handleGaugeSelectionModal,
       },
@@ -480,6 +482,7 @@ const VoteManager: React.FC = (props) => {
       currentDelegate,
       delegateModalOpen,
       handleDelegateModalOpen,
+      insuranceCapacity,
     ]
   )
 
