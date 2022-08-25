@@ -52,7 +52,7 @@ const AppButton = styled(Button)`
 
 export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: boolean) => void }) => {
   const { appTheme, toggleTheme } = useGeneral()
-  const { version } = useCachedData()
+  const { positiveReload } = useCachedData()
   const { width, isMobile } = useWindowDimensions()
   const { openNetworkModal, latestBlock } = useProvider()
   const { account } = useWeb3React()
@@ -77,7 +77,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
 
   useEffect(() => {
     _getUserStake()
-  }, [account, version, _getUserStake])
+  }, [account, positiveReload, _getUserStake])
 
   return (
     <>
@@ -154,7 +154,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                           techygradient={appTheme == 'light'}
                         >{`${truncateValue(solaceBalance, 1)} `}</TextSpan>
                         <TextSpan t4 warmgradient={appTheme == 'dark'} techygradient={appTheme == 'light'}>
-                          {SOLACE_TOKEN.constants.symbol}
+                          UWE
                         </TextSpan>
                       </Text>
                     </Flex>
@@ -169,7 +169,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                           techygradient={appTheme == 'light'}
                         >{`${truncateValue(formatUnits(stakedBalance), 1)} `}</TextSpan>
                         <TextSpan t4 warmgradient={appTheme == 'dark'} techygradient={appTheme == 'light'}>
-                          {SOLACE_TOKEN.constants.symbol}
+                          UWE
                         </TextSpan>
                       </Text>
                     </Flex>

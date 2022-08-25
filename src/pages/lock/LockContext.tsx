@@ -8,10 +8,8 @@ import { isAddress } from '../../utils'
 import { TokenSelectionModal } from '../../components/organisms/TokenSelectionModal'
 import { useTokenHelper } from '../../hooks/lock/useUnderwritingHelper'
 import { useCachedData } from '../../context/CachedDataManager'
-import { ZERO, ZERO_ADDRESS } from '@solace-fi/sdk-nightly'
+import { ZERO } from '@solace-fi/sdk-nightly'
 import { useWeb3React } from '@web3-react/core'
-import { useUwLockVoting } from '../../hooks/lock/useUwLockVoting'
-import { DelegateModal } from './organisms/DelegateModal'
 import { useUwLocker } from '../../hooks/lock/useUwLocker'
 import { floatUnits } from '../../utils/formatting'
 import { useNetwork } from '../../context/NetworkManager'
@@ -34,11 +32,6 @@ type LockContextType = {
   input: {
     selectedCoin?: ReadToken
     handleSelectedCoin: (coin: string) => void
-  }
-  delegateData: {
-    delegate: string
-    delegateModalOpen: boolean
-    handleDelegateModalOpen: (value: boolean) => void
   }
   locker: {
     stakedBalance: BigNumber
@@ -67,11 +60,6 @@ const LockContext = createContext<LockContextType>({
     selectedCoin: undefined,
     handleSelectedCoin: () => undefined,
   },
-  delegateData: {
-    delegate: ZERO_ADDRESS,
-    delegateModalOpen: false,
-    handleDelegateModalOpen: () => undefined,
-  },
   locker: {
     stakedBalance: ZERO,
     userLocks: [],
@@ -85,15 +73,12 @@ const LockManager: React.FC = (props) => {
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const [coinsOpen, setCoinsOpen] = useState(false)
   const [transactionLoading, setTransactionLoading] = useState<boolean>(false)
-  const [currentDelegate, setCurrentDelegate] = useState(ZERO_ADDRESS)
-  const [delegateModalOpen, setDelegateModalOpen] = useState(false)
   const [stakedBalance, setStakedBalance] = useState<BigNumber>(ZERO)
 
   const { loading: tokensLoading, tokens } = useTokenHelper()
-  const { delegateOf } = useUwLockVoting()
   const {
     totalStakedBalance,
     minLockDuration: getMinLockDuration,
@@ -148,10 +133,6 @@ const LockManager: React.FC = (props) => {
     setCoinsOpen(value)
   }, [])
 
-  const handleDelegateModalOpen = useCallback((value: boolean) => {
-    setDelegateModalOpen(value)
-  }, [])
-
   const handleTransactionLoading = useCallback((setLoading: boolean) => {
     setTransactionLoading(setLoading)
   }, [])
@@ -163,18 +144,6 @@ const LockManager: React.FC = (props) => {
     },
     [approve]
   )
-
-  useEffect(() => {
-    const getMyDelegate = async () => {
-      if (!account) {
-        setCurrentDelegate(ZERO_ADDRESS)
-        return
-      }
-      const delegate = await delegateOf(account)
-      setCurrentDelegate(delegate)
-    }
-    getMyDelegate()
-  }, [delegateOf, account, version])
 
   useEffect(() => {
     if (coinOptions.length > 0) setSelectedCoin(coinOptions[0])
@@ -193,29 +162,6 @@ const LockManager: React.FC = (props) => {
       const voteLocks = await Promise.all(lockIDs.map((lockID) => getLock(lockID)))
 
       const locks = lockIDs.map((lockID, index) => ({ ...voteLocks[index], lockID }))
-
-      // const locks = [
-      //   {
-      //     lockID: BigNumber.from(0),
-      //     amount: BigNumber.from('134533333334534444444'),
-      //     end: BigNumber.from('1999999999'),
-      //   },
-      //   {
-      //     lockID: BigNumber.from(1),
-      //     amount: BigNumber.from('1659999999'),
-      //     end: BigNumber.from('1668888888'),
-      //   },
-      //   {
-      //     lockID: BigNumber.from(3),
-      //     amount: BigNumber.from('553333335330444444444'),
-      //     end: BigNumber.from(0),
-      //   },
-      //   {
-      //     lockID: BigNumber.from(4),
-      //     amount: BigNumber.from('16599996454545645999'),
-      //     end: BigNumber.from('1768888888'),
-      //   },
-      // ]
       const sortedLocks = locks.sort((a, b) => {
         return floatUnits(b.amount.sub(a.amount), 18)
       })
@@ -226,7 +172,7 @@ const LockManager: React.FC = (props) => {
     }
     getUserLockData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeNetwork, account, latestBlock, version])
+  }, [activeNetwork, account, latestBlock, positiveVersion])
 
   useEffect(() => {
     const getLockerConstants = async () => {
@@ -263,11 +209,6 @@ const LockManager: React.FC = (props) => {
         selectedCoin,
         handleSelectedCoin,
       },
-      delegateData: {
-        delegate: currentDelegate,
-        delegateModalOpen,
-        handleDelegateModalOpen,
-      },
       locker: {
         stakedBalance,
         userLocks,
@@ -287,9 +228,6 @@ const LockManager: React.FC = (props) => {
       handleSelectedCoin,
       transactionLoading,
       balancesLoading,
-      currentDelegate,
-      delegateModalOpen,
-      handleDelegateModalOpen,
       stakedBalance,
       minLockDuration,
       maxLockDuration,
@@ -308,7 +246,6 @@ const LockManager: React.FC = (props) => {
         handleSelectedCoin={handleSelectedCoin}
         handleCloseModal={() => handleCoinsOpen(false)}
       />
-      <DelegateModal show={delegateModalOpen} handleCloseModal={() => handleDelegateModalOpen(false)} />
       {props.children}
     </LockContext.Provider>
   )

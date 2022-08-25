@@ -6,6 +6,10 @@ import { Flex } from '../atoms/Layout'
 import { Text } from '../atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
 import { capitalizeFirstLetter } from '../../utils/formatting'
+import { TokenInfo } from '../../constants/types'
+import { formatUnits } from 'ethers/lib/utils'
+import { truncateValue } from '../../utils/formatting'
+import { StyledArrowDropDown } from '../atoms/Icon'
 
 export function processProtocolName(str: string): string {
   // remove hyphen & capitalize first letter of each word
@@ -52,11 +56,6 @@ export function processProtocolName(str: string): string {
     })
     .join(' ')
 }
-
-import { TokenInfo } from '../../constants/types'
-import { formatUnits } from 'ethers/lib/utils'
-import { truncateValue } from '../../utils/formatting'
-import { StyledArrowDropDown } from '../atoms/Icon'
 
 export const DropdownInputSection = ({
   hasArrow,
@@ -177,9 +176,9 @@ export const DropdownOptions = ({
       thinScrollbar
     >
       <Flex col gap={8} p={12}>
-        {searchedList.map((item) => (
+        {searchedList.map((item, i) => (
           <ButtonAppearance
-            key={item.label}
+            key={i}
             matchBg
             secondary
             noborder
@@ -240,9 +239,9 @@ export const DropdownOptionsUnique = ({
       thinScrollbar
     >
       <Flex col gap={8} px={12}>
-        {searchedList.map((item) => (
+        {searchedList.map((item, i) => (
           <ButtonAppearance
-            key={item.label}
+            key={i}
             matchBg
             secondary
             noborder
@@ -300,9 +299,9 @@ export const BalanceDropdownOptions = ({
   return (
     <Accordion isOpen={isOpen} style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }} customHeight={'380px'}>
       <Flex col gap={8} p={12}>
-        {searchedList.map((item) => (
+        {searchedList.map((item, i) => (
           <ButtonAppearance
-            key={item.address}
+            key={i}
             py={16}
             widthP={100}
             matchBg

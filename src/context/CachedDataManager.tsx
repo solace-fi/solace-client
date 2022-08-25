@@ -10,8 +10,7 @@ import { useFetchGasData } from '../hooks/provider/useGas'
 import { useNetwork } from './NetworkManager'
 import { useGetCrossTokenPricesFromCoingecko } from '../hooks/api/usePrice'
 import { useWeb3React } from '@web3-react/core'
-import { SolaceRiskSeries, TokenToPriceMapping } from '@solace-fi/sdk-nightly'
-import { useRiskSeries } from '../hooks/policy/useSolaceCoverProductV3'
+import { TokenToPriceMapping } from '@solace-fi/sdk-nightly'
 
 /*
 
@@ -26,33 +25,27 @@ should be called manually, such as when the user sends a transaction.
 type CachedData = {
   localTransactions: LocalTx[]
   tokenPriceMapping: TokenToPriceMapping
-  version: number
+  positiveVersion: number // primary timekeeper, triggers updates in components that read this
+  negativeVersion: number // secondary timekeeper, triggers updates in components that read this
   minute: number
   gasData: GasData | undefined
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
-  reload: () => void
-  seriesKit: {
-    series?: SolaceRiskSeries
-    seriesLogos: { label: string; value: string; icon: JSX.Element }[]
-    seriesLoading: boolean
-  }
+  positiveReload: () => void // primary timekeeper intended for reloading UI and data
+  negativeReload: () => void // secondary timekeeper intended for reloading UI but not data
 }
 
 const CachedDataContext = createContext<CachedData>({
   localTransactions: [],
   tokenPriceMapping: {},
-  version: 0,
+  positiveVersion: 0,
+  negativeVersion: 0,
   minute: 0,
   gasData: undefined,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
-  reload: () => undefined,
-  seriesKit: {
-    series: undefined,
-    seriesLogos: [],
-    seriesLoading: true,
-  },
+  positiveReload: () => undefined,
+  negativeReload: () => undefined,
 })
 
 const CachedDataProvider: React.FC = (props) => {
@@ -60,23 +53,11 @@ const CachedDataProvider: React.FC = (props) => {
   const { disconnect } = useWallet()
   const { activeNetwork } = useNetwork()
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
-  const [reload, version] = useReload()
+  const [positiveReload, positiveVersion] = useReload()
+  const [negativeReload, negativeVersion] = useReload()
   const [minReload, minute] = useReload()
   const { tokenPriceMapping } = useGetCrossTokenPricesFromCoingecko(minute)
   const gasData = useFetchGasData()
-  const { series, loading: seriesLoading } = useRiskSeries()
-
-  const seriesLogos = useMemo(() => {
-    return series
-      ? series.data.protocolMap.map((s) => {
-          return {
-            label: s.appId,
-            value: s.appId,
-            icon: <img src={`https://assets.solace.fi/zapperLogos/${s.appId}`} height={24} />,
-          }
-        })
-      : []
-  }, [series])
 
   const addLocalTransactions = useCallback(
     (txToAdd: LocalTx) => {
@@ -115,17 +96,14 @@ const CachedDataProvider: React.FC = (props) => {
     () => ({
       localTransactions: localTxs,
       tokenPriceMapping,
-      version,
       minute,
       gasData,
       addLocalTransactions,
       deleteLocalTransactions,
-      reload,
-      seriesKit: {
-        series,
-        seriesLogos,
-        seriesLoading,
-      },
+      positiveReload,
+      negativeReload,
+      positiveVersion,
+      negativeVersion,
     }),
     [
       minute,
@@ -133,12 +111,11 @@ const CachedDataProvider: React.FC = (props) => {
       tokenPriceMapping,
       addLocalTransactions,
       deleteLocalTransactions,
-      reload,
-      version,
       gasData,
-      series,
-      seriesLogos,
-      seriesLoading,
+      positiveVersion,
+      negativeVersion,
+      positiveReload,
+      negativeReload,
     ]
   )
 

@@ -15,109 +15,126 @@ import { Card } from '../../../components/atoms/Card'
 import { isAddress } from '../../../utils'
 import { formatAmount } from '../../../utils/formatting'
 
-export const OwnerVoteGauge = ({ index }: { index: number }): JSX.Element => {
+export const OwnerVoteGauge = ({ index, isEditing }: { index: number; isEditing: boolean }): JSX.Element => {
   const { account } = useWeb3React()
   const { gauges, voteGeneral, voteOwner } = useVoteContext()
   const { isVotingOpen, onVoteInput, deleteVote } = voteGeneral
   const { handleGaugeSelectionModal } = gauges
-  const { votesData } = voteOwner
-  const appId = useMemo(() => votesData.localVoteAllocation[index].gauge, [votesData, index])
+  const { editingVotesData, votesData } = voteOwner
+  const appId = useMemo(() => editingVotesData.localVoteAllocation[index].gauge, [editingVotesData, index])
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { vote, removeVote } = useUwLockVoting()
 
   const callVote = useCallback(async () => {
     if (!account || !isAddress(account)) return
     if (!isVotingOpen) return
-    if (!votesData.localVoteAllocation[index].changed) return
+    if (!editingVotesData.localVoteAllocation[index].changed) return
     if (
-      !votesData.localVoteAllocation[index].gaugeActive &&
+      !editingVotesData.localVoteAllocation[index].gaugeActive &&
       !BigNumber.from(
-        Math.floor(parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) * 100)
+        Math.floor(parseFloat(formatAmount(editingVotesData.localVoteAllocation[index].votePowerPercentage)) * 100)
       ).isZero()
     )
       return
     await vote(
       account,
-      votesData.localVoteAllocation[index].gaugeId,
+      editingVotesData.localVoteAllocation[index].gaugeId,
       BigNumber.from(
-        Math.floor(parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) * 100)
+        Math.floor(parseFloat(formatAmount(editingVotesData.localVoteAllocation[index].votePowerPercentage)) * 100)
       )
     )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callVote', err, FunctionName.VOTE))
-  }, [account, votesData.localVoteAllocation[index].votePowerPercentage, index, isVotingOpen])
+  }, [account, editingVotesData.localVoteAllocation, index, isVotingOpen])
 
   const callRemoveVote = useCallback(async () => {
     if (!account || !isAddress(account)) return
     if (!isVotingOpen) return
-    await removeVote(account, votesData.localVoteAllocation[index].gaugeId)
+    await removeVote(account, editingVotesData.localVoteAllocation[index].gaugeId)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callRemoveVote', err, FunctionName.REMOVE_VOTE))
-  }, [account, votesData.localVoteAllocation, index, isVotingOpen])
+  }, [account, editingVotesData.localVoteAllocation, index, isVotingOpen])
 
   return (
     <Card matchBg p={10}>
-      <Flex col gap={10}>
-        <Flex gap={10}>
-          <div style={{ width: '180px' }}>
-            <ThinButton onClick={() => handleGaugeSelectionModal(index)}>
-              <Flex style={{ width: '100%' }} itemsCenter>
-                <Text autoAlignVertical p={5}>
-                  {appId != '' && <img src={`https://assets.solace.fi/zapperLogos/${appId}`} height={16} />}
-                </Text>
-                <Text t5s style={{ width: '100%' }}>
-                  <Flex between>
-                    <Text t5s techygradient mont>
-                      {appId != '' ? processProtocolName(appId) : 'Choose Gauge'}
-                    </Text>
-                    <StyledArrowDropDown size={16} />
-                  </Flex>
-                </Text>
-              </Flex>
-            </ThinButton>
-          </div>
-          <div style={{ width: '70px' }}>
-            <SmallerInputSection
-              placeholder={'%'}
-              value={votesData.localVoteAllocation[index].votePowerPercentage}
-              onChange={(e) => onVoteInput(e.target.value, index, true)}
-            />
-          </div>
-          {votesData.localVoteAllocation[index].added ? (
-            <ShadowDiv>
-              <GraySquareButton width={36} actuallyWhite noborder onClick={() => deleteVote(index, true)}>
-                X
-              </GraySquareButton>
-            </ShadowDiv>
-          ) : (
-            <div style={{ width: '36px' }}></div>
-          )}
+      {isEditing ? (
+        <Flex col gap={10}>
+          <Flex gap={10}>
+            <div style={{ width: '180px' }}>
+              <ThinButton onClick={() => handleGaugeSelectionModal(index)}>
+                <Flex style={{ width: '100%' }} itemsCenter>
+                  <Text autoAlignVertical p={5}>
+                    {appId != '' && <img src={`https://assets.solace.fi/zapperLogos/${appId}`} height={16} />}
+                  </Text>
+                  <Text t5s style={{ width: '100%' }}>
+                    <Flex between>
+                      <Text t5s techygradient mont>
+                        {appId != '' ? processProtocolName(appId) : 'Choose Gauge'}
+                      </Text>
+                      <StyledArrowDropDown size={16} />
+                    </Flex>
+                  </Text>
+                </Flex>
+              </ThinButton>
+            </div>
+            <div style={{ width: '70px' }}>
+              <SmallerInputSection
+                placeholder={'%'}
+                value={editingVotesData.localVoteAllocation[index].votePowerPercentage}
+                onChange={(e) => onVoteInput(e.target.value, index, true)}
+              />
+            </div>
+            {editingVotesData.localVoteAllocation[index].added ? (
+              <ShadowDiv>
+                <GraySquareButton width={36} actuallyWhite noborder onClick={() => deleteVote(index, true)}>
+                  X
+                </GraySquareButton>
+              </ShadowDiv>
+            ) : (
+              <div style={{ width: '36px' }}></div>
+            )}
+          </Flex>
+          <Flex justifyCenter gap={10}>
+            {!editingVotesData.localVoteAllocation[index].added && (
+              <Button error onClick={callRemoveVote} widthP={100}>
+                Remove vote
+              </Button>
+            )}
+            {isVotingOpen && (
+              <Button
+                secondary
+                noborder
+                techygradient
+                onClick={callVote}
+                widthP={100}
+                disabled={
+                  !editingVotesData.localVoteAllocation[index].gaugeActive ||
+                  !editingVotesData.localVoteAllocation[index].changed ||
+                  (parseFloat(formatAmount(editingVotesData.localVoteAllocation[index].votePowerPercentage)) === 0 &&
+                    editingVotesData.localVoteAllocation[index].added) ||
+                  editingVotesData.localVoteAllocationTotal > 100
+                }
+              >
+                Save Vote
+              </Button>
+            )}
+          </Flex>
         </Flex>
-        <Flex justifyCenter gap={10}>
-          {!votesData.localVoteAllocation[index].added && (
-            <Button error onClick={callRemoveVote} widthP={100}>
-              Remove vote
-            </Button>
-          )}
-          {isVotingOpen && (
-            <Button
-              secondary
-              noborder
-              techygradient
-              onClick={callVote}
-              widthP={100}
-              disabled={
-                !votesData.localVoteAllocation[index].gaugeActive ||
-                !votesData.localVoteAllocation[index].changed ||
-                parseFloat(formatAmount(votesData.localVoteAllocation[index].votePowerPercentage)) === 0 ||
-                votesData.localVoteAllocationTotal > 100
-              }
-            >
-              Save Vote
-            </Button>
-          )}
+      ) : (
+        <Flex gap={20} between>
+          <Flex gap={5}>
+            <Text autoAlignVertical p={5}>
+              {appId != '' && <img src={`https://assets.solace.fi/zapperLogos/${appId}`} height={16} />}
+            </Text>
+            <Text t3 techygradient mont autoAlignVertical>
+              {appId != '' ? processProtocolName(appId) : 'Choose Gauge'}
+            </Text>
+          </Flex>
+          <Text bold autoAlignVertical t2>
+            {votesData.localVoteAllocation[index].votePowerPercentage}%
+          </Text>
         </Flex>
-      </Flex>
+      )}
     </Card>
   )
 }

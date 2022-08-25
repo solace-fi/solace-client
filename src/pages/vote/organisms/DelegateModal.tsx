@@ -11,7 +11,7 @@ import { Modal } from '../../../components/molecules/Modal'
 import { Text } from '../../../components/atoms/Typography'
 import { shortenAddress } from '../../../utils/formatting'
 import { CopyButton } from '../../../components/molecules/CopyButton'
-import { useLockContext } from '../LockContext'
+import { useVoteContext } from '../VoteContext'
 
 export const DelegateModal = ({
   show,
@@ -22,7 +22,7 @@ export const DelegateModal = ({
 }): JSX.Element => {
   const { setDelegate } = useUwLockVoting()
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { delegateData } = useLockContext()
+  const { delegateData } = useVoteContext()
   const { delegate: currentDelegate } = delegateData
 
   const [stagingDelegate, setStagingDelegate] = useState('')
@@ -64,7 +64,7 @@ export const DelegateModal = ({
           <Flex gap={10} between stretch>
             {currentDelegate !== ZERO_ADDRESS ? (
               <>
-                <Text t2 autoAlignVertical>
+                <Text t2 autoAlignVertical techygradient>
                   {shortenAddress(currentDelegate)}
                 </Text>
                 <CopyButton toCopy={currentDelegate} objectName={''} />
