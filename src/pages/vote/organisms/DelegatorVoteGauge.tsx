@@ -4,7 +4,7 @@ import { FunctionName } from '../../../constants/enums'
 import { useTransactionExecution } from '../../../hooks/internal/useInputAmount'
 import { useUwLockVoting } from '../../../hooks/lock/useUwLockVoting'
 import { useVoteContext } from '../VoteContext'
-import { Button, GraySquareButton, ThinButton } from '../../../components/atoms/Button'
+import { GraySquareButton, ThinButton } from '../../../components/atoms/Button'
 import { StyledArrowDropDown } from '../../../components/atoms/Icon'
 import { Flex, ShadowDiv } from '../../../components/atoms/Layout'
 import { Text } from '../../../components/atoms/Typography'
@@ -105,27 +105,29 @@ export const DelegatorVoteGauge = ({
               <div style={{ width: '36px' }}></div>
             )}
           </Flex>
-          <Flex justifyCenter gap={10}>
-            {!voteAllocData.added && (
-              <ThinButton onClick={callRemoveVote} widthP={100}>
-                <Text t5s>Remove</Text>
-              </ThinButton>
-            )}
-            {isVotingOpen && (
-              <ThinButton
-                onClick={callVote}
-                widthP={100}
-                disabled={
-                  !voteAllocData.gaugeActive ||
-                  !voteAllocData.changed ||
-                  (parseFloat(formatAmount(voteAllocData.votePowerPercentage)) === 0 && voteAllocData.added) ||
-                  editingDelegatorVotesData.localVoteAllocationTotal > 100
-                }
-              >
-                <Text t5s>Save</Text>
-              </ThinButton>
-            )}
-          </Flex>
+          {editingDelegatorVotesData.localVoteAllocation.length > 1 && (
+            <Flex justifyCenter gap={10}>
+              {!voteAllocData.added && (
+                <ThinButton onClick={callRemoveVote} widthP={100}>
+                  <Text t5s>Remove</Text>
+                </ThinButton>
+              )}
+              {isVotingOpen && (
+                <ThinButton
+                  onClick={callVote}
+                  widthP={100}
+                  disabled={
+                    !voteAllocData.gaugeActive ||
+                    !voteAllocData.changed ||
+                    (parseFloat(formatAmount(voteAllocData.votePowerPercentage)) === 0 && voteAllocData.added) ||
+                    editingDelegatorVotesData.localVoteAllocationTotal > 100
+                  }
+                >
+                  <Text t5s>Save</Text>
+                </ThinButton>
+              )}
+            </Flex>
+          )}
         </Flex>
       ) : (
         <Flex gap={20} between>
@@ -138,10 +140,8 @@ export const DelegatorVoteGauge = ({
             </Text>
           </Flex>
           <Text bold autoAlignVertical t2>
-            {
-              delegatorVotesData.find((item) => item.delegator == delegator)?.localVoteAllocation[index]
-                .votePowerPercentage
-            }
+            {delegatorVotesData.find((item) => item.delegator == delegator)?.localVoteAllocation[index]
+              ?.votePowerPercentage ?? 0}
             %
           </Text>
         </Flex>

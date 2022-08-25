@@ -259,13 +259,13 @@ export const useGaugeControllerHelper = () => {
 
   useEffect(() => {
     const callFetchGauges = async () => {
-      if (running.current) return
+      if (running.current || !gaugeController) return
       running.current = true
       await fetchGauges()
       running.current = false
     }
     callFetchGauges()
-  }, [latestBlock, fetchGauges])
+  }, [latestBlock, fetchGauges, gaugeController])
 
   useEffect(() => {
     if (!uwe || !gaugeController) return

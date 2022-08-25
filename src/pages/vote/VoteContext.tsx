@@ -36,6 +36,7 @@ type VoteContextType = {
   voteOwner: {
     votesData: VotesData
     editingVotesData: VotesData
+    handleEditingVotesData: (votesData: VotesData) => void
   }
   voteDelegators: {
     delegatorVotesData: DelegatorVotesData[]
@@ -79,6 +80,7 @@ const VoteContext = createContext<VoteContextType>({
       usedVotePowerBPS: ZERO,
       localVoteAllocationTotal: 0,
     },
+    handleEditingVotesData: () => undefined,
   },
   voteDelegators: {
     delegatorVotesData: [],
@@ -137,6 +139,10 @@ const VoteManager: React.FC = (props) => {
 
   const handleEditingDelegatorVotesData = useCallback((data: DelegatorVotesData) => {
     setEditingDelegatorVotesData(data)
+  }, [])
+
+  const handleEditingVotesData = useCallback((data: VotesData) => {
+    setEditingVotesData(data)
   }, [])
 
   const handleDelegateModalOpen = useCallback((value: boolean) => {
@@ -456,6 +462,7 @@ const VoteManager: React.FC = (props) => {
       voteOwner: {
         votesData,
         editingVotesData,
+        handleEditingVotesData,
       },
       voteDelegators: {
         delegatorVotesData,
@@ -483,6 +490,7 @@ const VoteManager: React.FC = (props) => {
       delegateModalOpen,
       handleDelegateModalOpen,
       insuranceCapacity,
+      handleEditingVotesData,
     ]
   )
 

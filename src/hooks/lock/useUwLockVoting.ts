@@ -5,6 +5,7 @@ import { useCallback, useMemo } from 'react'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx, Vote } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
+import { isAddress } from '../../utils'
 import { useGetFunctionGas } from '../provider/useGas'
 
 export const useUwLockVoting = () => {
@@ -222,6 +223,13 @@ export const useUwLockVotingHelper = () => {
 
   const getVoteInformation = useCallback(
     async (voter: string) => {
+      if (!isAddress(voter))
+        return {
+          votePower: ZERO,
+          usedVotePowerBPS: ZERO,
+          delegate: ZERO_ADDRESS,
+          votes: [],
+        }
       const [votePower, usedVotePowerBPS, votes, delegate] = await Promise.all([
         getVotePower(voter),
         usedVotePowerBPSOf(voter),

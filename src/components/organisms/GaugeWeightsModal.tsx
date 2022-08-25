@@ -34,13 +34,17 @@ export const GaugeWeightsModal = ({
   isOpen,
   handleClose,
   data,
-  colors,
+  chartColors,
+  textColors,
+  lightColors,
   darkColors,
 }: {
   isOpen: boolean
   handleClose: () => void
   data: { name: string; value: number; usdValue: number }[]
-  colors: string[]
+  chartColors: string[]
+  textColors: string[]
+  lightColors: string[]
   darkColors: string[]
 }): JSX.Element => {
   const { isMobile } = useWindowDimensions()
@@ -76,7 +80,7 @@ export const GaugeWeightsModal = ({
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={index < colors.length ? colors[index] : darkColors[index % darkColors.length]}
+                  fill={index < chartColors.length ? chartColors[index] : darkColors[index % darkColors.length]}
                 />
               ))}
             </Pie>
@@ -106,13 +110,17 @@ export const GaugeWeightsModal = ({
                     <Text
                       bold
                       textAlignLeft
-                      style={{ color: index < colors.length ? colors[index] : darkColors[index % darkColors.length] }}
+                      style={{
+                        color: index < textColors.length ? textColors[index] : darkColors[index % darkColors.length],
+                      }}
                     >{`${entry.name}`}</Text>
                   </Flex>
                   <Text
                     bold
                     textAlignRight
-                    style={{ color: index < colors.length ? colors[index] : darkColors[index % darkColors.length] }}
+                    style={{
+                      color: index < textColors.length ? textColors[index] : darkColors[index % darkColors.length],
+                    }}
                   >{`$${truncateValue(entry.usdValue, 2)}`}</Text>
                 </Flex>
               ))}

@@ -15,12 +15,14 @@ import { formatAmount, truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { StyledVoteYea } from '../../components/atoms/Icon'
 import { useCachedData } from '../../context/CachedDataManager'
+import { SmallerInputSection } from '../../components/molecules/InputSection'
+import useDebounce from '@rooks/use-debounce'
 
 export const OwnerVoteTab = () => {
   const { voteGeneral, voteOwner, delegateData } = useVoteContext()
   const { handleDelegateModalOpen } = delegateData
-  const { isVotingOpen, addEmptyVote } = voteGeneral
-  const { votesData, editingVotesData } = voteOwner
+  const { isVotingOpen, addEmptyVote, onVoteInput } = voteGeneral
+  const { votesData, editingVotesData, handleEditingVotesData } = voteOwner
 
   const { positiveVersion } = useCachedData()
 
@@ -28,6 +30,7 @@ export const OwnerVoteTab = () => {
   const { account } = useWeb3React()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [isEditing, setIsEditing] = useState(false)
+  const [commonPercentage, setCommonPercentage] = useState<string>('')
 
   /**  can call vote multiple if all added or changed gauges are active,
    * the allocated vote power is not zero if added, and if there are changed or added votes
@@ -87,9 +90,23 @@ export const OwnerVoteTab = () => {
     }
   }, [account, isVotingOpen, editingVotesData.localVoteAllocation])
 
+  const setCommonPercentageValue = useDebounce(() => {
+    for (let i = 0; i < editingVotesData.localVoteAllocation.length; i++) {
+      onVoteInput(commonPercentage, i, true)
+    }
+  }, 300)
+
+  useEffect(() => {
+    if (isEditing) setCommonPercentageValue()
+  }, [commonPercentage, setCommonPercentageValue])
+
   useEffect(() => {
     setIsEditing(false)
   }, [positiveVersion])
+
+  useEffect(() => {
+    if (!isEditing) handleEditingVotesData(votesData)
+  }, [isEditing])
 
   return (
     <>
@@ -106,7 +123,7 @@ export const OwnerVoteTab = () => {
       <Flex col itemsCenter gap={15}>
         <ShadowDiv>
           <Flex gap={12} p={10}>
-            <Flex col itemsCenter width={126}>
+            <Flex col itemsCenter width={100}>
               <Text techygradient t6s>
                 Total Points
               </Text>
@@ -114,7 +131,7 @@ export const OwnerVoteTab = () => {
                 {truncateValue(formatUnits(votesData.votePower, 18), 2)}
               </Text>
             </Flex>
-            <Flex col itemsCenter width={126}>
+            <Flex col itemsCenter width={100}>
               <Text t6s>Used Percentage</Text>
               <Text big3>{(parseFloat(votesData.usedVotePowerBPS.toString()) / 100).toString()}%</Text>
             </Flex>
@@ -132,11 +149,25 @@ export const OwnerVoteTab = () => {
             <Text>No votes found</Text>
           </Flex>
         )}
+        {editingVotesData.localVoteAllocation.length > 1 && isEditing && (
+          <Flex col gap={5}>
+            <Text t5s>Set all to this percentage</Text>
+            <SmallerInputSection
+              placeholder={'%'}
+              value={commonPercentage}
+              onChange={(e) => setCommonPercentage(e.target.value)}
+              style={{
+                width: '100%',
+                border: 'none',
+              }}
+            />
+          </Flex>
+        )}
         {editingVotesData.localVoteAllocation.length > 0 && (
           <Accordion isOpen={true} thinScrollbar widthP={!isEditing ? 100 : undefined}>
             <Flex col gap={10} p={10}>
               {editingVotesData.localVoteAllocation.map((voteData, i) => (
-                <OwnerVoteGauge key={i} index={i} isEditing={isEditing} />
+                <OwnerVoteGauge key={i} index={i} isEditing={isEditing} voteAllocData={voteData} />
               ))}
             </Flex>
           </Accordion>

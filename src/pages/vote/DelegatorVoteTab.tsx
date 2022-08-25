@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { Accordion } from '../../components/atoms/Accordion'
 import { Button, ButtonAppearance } from '../../components/atoms/Button'
@@ -15,6 +15,8 @@ import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { useGeneral } from '../../context/GeneralManager'
 import { CopyButton } from '../../components/molecules/CopyButton'
 import { StyledArrowIosBackOutline } from '../../components/atoms/Icon'
+import { useCachedData } from '../../context/CachedDataManager'
+import useDebounce from '@rooks/use-debounce'
 
 const TextDropdownOptions = ({
   searchedList,
@@ -78,15 +80,17 @@ const TextDropdownOptions = ({
 
 export const DelegatorVoteTab = () => {
   const { voteGeneral, voteDelegators } = useVoteContext()
-  const { isVotingOpen, addEmptyVote } = voteGeneral
+  const { isVotingOpen, addEmptyVote, onVoteInput } = voteGeneral
   const { delegatorVotesData, editingDelegatorVotesData, handleEditingDelegatorVotesData } = voteDelegators
 
-  // todo: fix multicall and incorporate toasts somehow
+  const { positiveVersion } = useCachedData()
+
   const { vote, removeVote, voteMultiple, removeVoteMultiple } = useUwLockVoting()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const [showDelegatorSelection, setShowDelegatorSelection] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
+  const [commonPercentage, setCommonPercentage] = useState<string>('')
 
   const selectedDelegator = useMemo(() => editingDelegatorVotesData.delegator, [editingDelegatorVotesData])
 
@@ -192,6 +196,33 @@ export const DelegatorVoteTab = () => {
     }
   }, [selectedDelegator, isVotingOpen, editingDelegatorVotesData.localVoteAllocation])
 
+  const setCommonPercentageValue = useDebounce(() => {
+    for (let i = 0; i < editingDelegatorVotesData.localVoteAllocation.length; i++) {
+      onVoteInput(commonPercentage, i, false)
+    }
+  }, 300)
+
+  useEffect(() => {
+    if (isEditing) setCommonPercentageValue()
+  }, [commonPercentage, setCommonPercentageValue])
+
+  useEffect(() => {
+    setIsEditing(false)
+  }, [positiveVersion])
+
+  useEffect(() => {
+    if (!isEditing)
+      handleEditingDelegatorVotesData(
+        delegatorVotesData.find((data) => data.delegator.toLowerCase() == selectedDelegator.toLowerCase()) ?? {
+          delegator: '',
+          votePower: ZERO,
+          usedVotePowerBPS: ZERO,
+          localVoteAllocation: [],
+          localVoteAllocationTotal: 0,
+        }
+      )
+  }, [isEditing])
+
   return (
     <>
       {showDelegatorSelection &&
@@ -200,7 +231,7 @@ export const DelegatorVoteTab = () => {
             <Flex col itemsCenter>
               <ShadowDiv>
                 <Flex gap={12} p={10}>
-                  <Flex col itemsCenter width={126}>
+                  <Flex col itemsCenter width={100}>
                     <Text techygradient t6s>
                       Total Points
                     </Text>
@@ -208,11 +239,11 @@ export const DelegatorVoteTab = () => {
                       {truncateValue(formatUnits(totalVotePower, 18), 2)}
                     </Text>
                   </Flex>
-                  <Flex col itemsCenter width={126}>
+                  <Flex col itemsCenter width={100}>
                     <Text t6s>Used Percentage</Text>
                     <Text big3>{truncateValue(aggregatedUsedVotePowerBPS, 2)}%</Text>
                   </Flex>
-                  <Flex col itemsCenter width={126}>
+                  <Flex col itemsCenter width={100}>
                     <Text t6s>Delegators</Text>
                     <Text big3>{truncateValue(delegatorVotesData.length, 2)}</Text>
                   </Flex>
@@ -264,7 +295,7 @@ export const DelegatorVoteTab = () => {
           <Flex col itemsCenter gap={15}>
             <ShadowDiv>
               <Flex gap={12} p={10}>
-                <Flex col itemsCenter width={126}>
+                <Flex col itemsCenter width={100}>
                   <Text techygradient t6s>
                     Total Points
                   </Text>
@@ -280,7 +311,7 @@ export const DelegatorVoteTab = () => {
                     )}
                   </Text>
                 </Flex>
-                <Flex col itemsCenter width={126}>
+                <Flex col itemsCenter width={100}>
                   <Text t6s>Used Percentage</Text>
                   <Text big3>
                     {(
@@ -309,6 +340,20 @@ export const DelegatorVoteTab = () => {
                 <Text>No votes found</Text>
               </Flex>
             )}
+            {editingDelegatorVotesData.localVoteAllocation.length > 1 && isEditing && (
+              <Flex col gap={5}>
+                <Text t5s>Set all to this percentage</Text>
+                <SmallerInputSection
+                  placeholder={'%'}
+                  value={commonPercentage}
+                  onChange={(e) => setCommonPercentage(e.target.value)}
+                  style={{
+                    width: '100%',
+                    border: 'none',
+                  }}
+                />
+              </Flex>
+            )}
             {editingDelegatorVotesData.localVoteAllocation.length > 0 && (
               <Accordion isOpen={true} thinScrollbar widthP={!isEditing ? 100 : undefined}>
                 <Flex col gap={10} p={10}>
@@ -327,7 +372,20 @@ export const DelegatorVoteTab = () => {
             {isVotingOpen ? (
               isEditing ? (
                 <>
-                  <Button onClick={() => addEmptyVote(false)}>+ Add Gauge Vote</Button>
+                  <Button onClick={() => addEmptyVote(false)} noborder>
+                    <Text
+                      underline
+                      semibold
+                      style={{
+                        // underline width is 2 pixels
+                        textDecorationWidth: '3px',
+                        // separated by 3 pixels from the text
+                        textUnderlineOffset: '5px',
+                      }}
+                    >
+                      + Add Gauge Vote
+                    </Text>
+                  </Button>
                   <Button
                     techygradient
                     secondary

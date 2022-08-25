@@ -11,16 +11,27 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { formatUnits } from 'ethers/lib/utils'
 import { useVoteContext } from './VoteContext'
 import { truncateValue } from '../../utils/formatting'
+import { useGeneral } from '../../context/GeneralManager'
 
 export const GaugePieChart = () => {
-  const { gauges } = useVoteContext()
+  const { appTheme } = useGeneral()
+  const { gauges, intrface } = useVoteContext()
+  const { gaugesLoading } = intrface
   const { isMobile } = useWindowDimensions()
   const { gaugesData, insuranceCapacity } = gauges
 
-  const COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', 'rgb(95,93,249)', 'rgb(240,77,66)'], [])
-  const DARK_COLORS = useMemo(() => ['rgb(166, 95, 168)', 'rgb(187, 136, 0)', '#4644b9', '#b83c33'], [])
+  const CHART_COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', 'rgb(95,93,249)', 'rgb(240,77,66)'], [])
+  const LIGHT_COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', '#6493fa', 'rgb(240,77,66)'], [])
+  const DARK_COLORS = useMemo(() => ['rgb(182, 104, 185)', 'rgb(187, 136, 0)', 'rgb(95,93,249)', '#b83c33'], [])
 
-  const TOP_GAUGES = COLORS.length
+  const TEXT_COLORS = useMemo(() => {
+    if (appTheme === 'dark') {
+      return LIGHT_COLORS
+    }
+    return DARK_COLORS
+  }, [appTheme, LIGHT_COLORS, DARK_COLORS])
+
+  const TOP_GAUGES = CHART_COLORS.length
 
   const data = useMemo(() => {
     return gaugesData
@@ -60,10 +71,12 @@ export const GaugePieChart = () => {
   }, [openGaugeWeightsModal])
 
   useEffect(() => {
-    setTimeout(() => {
-      setLoading(false)
-    }, 2000)
-  }, [])
+    if (!gaugesLoading) {
+      setTimeout(() => {
+        setLoading(false)
+      }, 2000)
+    }
+  }, [gaugesLoading])
 
   const onAnimationStart = useCallback(() => {
     setTimeout(() => {
@@ -77,7 +90,9 @@ export const GaugePieChart = () => {
         isOpen={openGaugeWeightsModal}
         handleClose={handleGaugeWeightsModal}
         data={data}
-        colors={COLORS}
+        chartColors={CHART_COLORS}
+        textColors={TEXT_COLORS}
+        lightColors={LIGHT_COLORS}
         darkColors={DARK_COLORS}
       />
       <Flex between itemsCenter>
@@ -108,7 +123,7 @@ export const GaugePieChart = () => {
                   {summarizedData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={index == summarizedData.length - 1 ? '#DCDCDC' : COLORS[index % COLORS.length]}
+                      fill={index == summarizedData.length - 1 ? '#DCDCDC' : CHART_COLORS[index % CHART_COLORS.length]}
                     />
                   ))}
                 </Pie>
@@ -126,14 +141,14 @@ export const GaugePieChart = () => {
                       bold
                       t4s
                       textAlignLeft
-                      style={{ color: index < COLORS.length ? COLORS[index] : 'inherit' }}
+                      style={{ color: index < TEXT_COLORS.length ? TEXT_COLORS[index] : 'inherit' }}
                     >{`${entry.name}`}</Text>
                   </Flex>
                   <Text
                     t4s
                     bold
                     textAlignRight
-                    style={{ color: index < COLORS.length ? COLORS[index] : 'inherit' }}
+                    style={{ color: index < TEXT_COLORS.length ? TEXT_COLORS[index] : 'inherit' }}
                   >{`$${truncateValue(entry.usdValue, 2)}`}</Text>
                 </Flex>
               ))}
