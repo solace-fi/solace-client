@@ -144,7 +144,20 @@ export const OwnerVoteTab = () => {
         {isVotingOpen ? (
           isEditing ? (
             <>
-              <Button onClick={() => addEmptyVote(true)}>+ Add Gauge Vote</Button>
+              <Button onClick={() => addEmptyVote(true)} noborder>
+                <Text
+                  underline
+                  semibold
+                  style={{
+                    // underline width is 2 pixels
+                    textDecorationWidth: '3px',
+                    // separated by 3 pixels from the text
+                    textUnderlineOffset: '5px',
+                  }}
+                >
+                  + Add Gauge Vote
+                </Text>
+              </Button>
               <Button
                 techygradient
                 secondary
@@ -167,7 +180,7 @@ export const OwnerVoteTab = () => {
             </>
           ) : null
         ) : (
-          <Text>Voting is closed</Text>
+          <Text t4s>Voting is closed</Text>
         )}
       </Flex>
     </>

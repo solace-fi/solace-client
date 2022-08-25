@@ -80,11 +80,11 @@ export const GaugePieChart = () => {
         colors={COLORS}
         darkColors={DARK_COLORS}
       />
-      <Flex between>
-        <Text semibold t2>
+      <Flex between itemsCenter>
+        <Text semibold t2_5>
           Current Gauge Weights
         </Text>
-        <Button secondary techygradient noborder onClick={handleGaugeWeightsModal} disabled={loading}>
+        <Button secondary techygradient noborder onClick={handleGaugeWeightsModal} disabled={loading} width={100}>
           See More
         </Button>
       </Flex>
@@ -124,11 +124,13 @@ export const GaugePieChart = () => {
                     )}
                     <Text
                       bold
+                      t4s
                       textAlignLeft
                       style={{ color: index < COLORS.length ? COLORS[index] : 'inherit' }}
                     >{`${entry.name}`}</Text>
                   </Flex>
                   <Text
+                    t4s
                     bold
                     textAlignRight
                     style={{ color: index < COLORS.length ? COLORS[index] : 'inherit' }}

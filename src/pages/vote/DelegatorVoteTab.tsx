@@ -301,7 +301,7 @@ export const DelegatorVoteTab = () => {
                       ? `Edit Votes`
                       : `Add Votes`
                     : `End Edits`}
-                </Button>
+                </Button>{' '}
               </Flex>
             </ShadowDiv>
             {editingDelegatorVotesData.localVoteAllocation.length === 0 && (
@@ -350,7 +350,7 @@ export const DelegatorVoteTab = () => {
                 </>
               ) : null
             ) : (
-              <Text italics>Voting is closed</Text>
+              <Text t4s>Voting is closed</Text>
             )}
           </Flex>
         </>
