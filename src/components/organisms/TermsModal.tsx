@@ -15,10 +15,10 @@ export const TermsModal = ({ show, handleClose }: { show: boolean; handleClose: 
   }
 
   return (
-    <Modal isOpen={show} handleClose={handleClose} modalTitle={'Terms & Conditions'} disableCloseButton>
+    <Modal isOpen={show} handleClose={handleClose} modalTitle={'Terms & Conditions'} disableCloseButton centerTitle>
       <Flex col itemsCenter gap={20}>
         <Text textAlignCenter width={270}>
-          By entering this website, you agree to the terms and conditions.
+          {`Please read, by entering you agree to our Terms & Conditions.`}
         </Text>
         <HyperLink
           href={'https://www.solace.fi/solace-terms-and-conditions'}
@@ -39,7 +39,7 @@ export const TermsModal = ({ show, handleClose }: { show: boolean; handleClose: 
         </HyperLink>
         <Button info py={10} widthP={100} onClick={handleCloseModal}>
           <Text t2_5s lineHeight={20}>
-            Continue onto website
+            Continue to website
           </Text>
         </Button>
       </Flex>
