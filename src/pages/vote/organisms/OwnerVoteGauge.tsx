@@ -97,7 +97,7 @@ export const OwnerVoteGauge = ({ index, isEditing }: { index: number; isEditing:
           <Flex justifyCenter gap={10}>
             {!editingVotesData.localVoteAllocation[index].added && (
               <ThinButton onClick={callRemoveVote} widthP={100}>
-                <Text t5s>Remove vote</Text>
+                <Text t5s>Remove</Text>
               </ThinButton>
             )}
             {isVotingOpen && (
@@ -112,7 +112,7 @@ export const OwnerVoteGauge = ({ index, isEditing }: { index: number; isEditing:
                   editingVotesData.localVoteAllocationTotal > 100
                 }
               >
-                <Text t5s>Save Vote</Text>
+                <Text t5s>Save</Text>
               </ThinButton>
             )}
           </Flex>

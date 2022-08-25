@@ -52,9 +52,9 @@ const AppButton = styled(Button)`
 
 export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: boolean) => void }) => {
   const { appTheme, toggleTheme } = useGeneral()
-  const { positiveReload } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const { width, isMobile } = useWindowDimensions()
-  const { openNetworkModal, latestBlock } = useProvider()
+  const { openNetworkModal } = useProvider()
   const { account } = useWeb3React()
   const name = useENS()
   const { openWalletModal } = useWallet()
@@ -77,7 +77,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
 
   useEffect(() => {
     _getUserStake()
-  }, [account, positiveReload, _getUserStake])
+  }, [account, positiveVersion, _getUserStake])
 
   return (
     <>

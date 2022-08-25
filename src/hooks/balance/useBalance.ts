@@ -15,7 +15,7 @@ export const useNativeTokenBalance = (): string => {
   const { provider } = useProvider()
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
-  const { positiveReload } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const [balance, setBalance] = useState<string>('0')
   const running = useRef(false)
 
@@ -33,7 +33,7 @@ export const useNativeTokenBalance = (): string => {
       }
     }
     getNativeTokenBalance()
-  }, [activeNetwork, account, positiveReload])
+  }, [activeNetwork, account, positiveVersion])
 
   return balance
 }
@@ -42,7 +42,7 @@ export const useSolaceBalance = (): string => {
   const { keyContracts } = useContracts()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWeb3React()
-  const { positiveReload } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const [solaceBalance, setSolaceBalance] = useState<string>('0')
 
   const getSolaceBalance = useCallback(async () => {
@@ -68,7 +68,7 @@ export const useSolaceBalance = (): string => {
     return () => {
       solace.removeAllListeners()
     }
-  }, [account, solace, getSolaceBalance, positiveReload])
+  }, [account, solace, getSolaceBalance, positiveVersion])
 
   return solaceBalance
 }
@@ -86,7 +86,7 @@ export const useBatchBalances = (
 } => {
   const { account } = useWeb3React()
   const { provider } = useProvider()
-  const { positiveReload } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const { activeNetwork } = useNetwork()
   const [loading, setLoading] = useState(false)
   const [batchBalances, setBatchBalances] = useState<{ addr: string; balance: BigNumber }[]>([])
@@ -106,7 +106,7 @@ export const useBatchBalances = (
       setLoading(false)
     }
     getBalances()
-  }, [account, coinOptions, provider, positiveReload])
+  }, [account, coinOptions, provider, positiveVersion])
 
   return { loading, batchBalances }
 }

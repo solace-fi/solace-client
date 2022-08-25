@@ -108,7 +108,7 @@ export const DelegatorVoteGauge = ({
           <Flex justifyCenter gap={10}>
             {!voteAllocData.added && (
               <ThinButton onClick={callRemoveVote} widthP={100}>
-                <Text t5s>Remove vote</Text>
+                <Text t5s>Remove</Text>
               </ThinButton>
             )}
             {isVotingOpen && (
@@ -122,7 +122,7 @@ export const DelegatorVoteGauge = ({
                   editingDelegatorVotesData.localVoteAllocationTotal > 100
                 }
               >
-                <Text t5s>Save Vote</Text>
+                <Text t5s>Save</Text>
               </ThinButton>
             )}
           </Flex>

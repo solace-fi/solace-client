@@ -82,7 +82,7 @@ export const DelegatorVoteTab = () => {
   const { delegatorVotesData, editingDelegatorVotesData, handleEditingDelegatorVotesData } = voteDelegators
 
   // todo: fix multicall and incorporate toasts somehow
-  const { voteMultiple, removeVoteMultiple } = useUwLockVoting()
+  const { vote, removeVote, voteMultiple, removeVoteMultiple } = useUwLockVoting()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const [showDelegatorSelection, setShowDelegatorSelection] = useState(true)
@@ -155,25 +155,41 @@ export const DelegatorVoteTab = () => {
     if (!selectedDelegator || !isAddress(selectedDelegator)) return
     const queuedVotes = editingDelegatorVotesData.localVoteAllocation.filter((g) => g.changed || g.added)
     if (queuedVotes.length === 0) return
-    await voteMultiple(
-      selectedDelegator,
-      queuedVotes.map((g) => g.gaugeId),
-      queuedVotes.map((g) => BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)))
-    )
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callVoteMultiple', err, FunctionName.VOTE_MULTIPLE))
+    if (queuedVotes.length > 1) {
+      await voteMultiple(
+        selectedDelegator,
+        queuedVotes.map((g) => g.gaugeId),
+        queuedVotes.map((g) => BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)))
+      )
+        .then((res) => handleToast(res.tx, res.localTx))
+        .catch((err) => handleContractCallError('callVoteMultiple', err, FunctionName.VOTE_MULTIPLE))
+    } else {
+      await vote(
+        selectedDelegator,
+        queuedVotes[0].gaugeId,
+        BigNumber.from(Math.floor(parseFloat(formatAmount(queuedVotes[0].votePowerPercentage)) * 100))
+      )
+        .then((res) => handleToast(res.tx, res.localTx))
+        .catch((err) => handleContractCallError('callVote', err, FunctionName.VOTE))
+    }
   }, [selectedDelegator, canCallVoteMultiple, isVotingOpen, editingDelegatorVotesData.localVoteAllocation])
 
   const callRemoveVoteMultiple = useCallback(async () => {
     if (!isVotingOpen) return
     if (!selectedDelegator || !isAddress(selectedDelegator)) return
     if (editingDelegatorVotesData.localVoteAllocation.length == 0) return
-    await removeVoteMultiple(
-      selectedDelegator,
-      editingDelegatorVotesData.localVoteAllocation.map((g) => g.gaugeId)
-    )
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callRemoveVoteMultiple', err, FunctionName.REMOVE_VOTE_MULTIPLE))
+    if (editingDelegatorVotesData.localVoteAllocation.length > 1) {
+      await removeVoteMultiple(
+        selectedDelegator,
+        editingDelegatorVotesData.localVoteAllocation.map((g) => g.gaugeId)
+      )
+        .then((res) => handleToast(res.tx, res.localTx))
+        .catch((err) => handleContractCallError('callRemoveVoteMultiple', err, FunctionName.REMOVE_VOTE_MULTIPLE))
+    } else {
+      await removeVote(selectedDelegator, editingDelegatorVotesData.localVoteAllocation[0].gaugeId)
+        .then((res) => handleToast(res.tx, res.localTx))
+        .catch((err) => handleContractCallError('callRemoveVote', err, FunctionName.REMOVE_VOTE))
+    }
   }, [selectedDelegator, isVotingOpen, editingDelegatorVotesData.localVoteAllocation])
 
   return (

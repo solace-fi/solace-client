@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { Accordion } from '../../components/atoms/Accordion'
 import { Button } from '../../components/atoms/Button'
@@ -14,6 +14,7 @@ import { isAddress } from '../../utils'
 import { formatAmount, truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { StyledVoteYea } from '../../components/atoms/Icon'
+import { useCachedData } from '../../context/CachedDataManager'
 
 export const OwnerVoteTab = () => {
   const { voteGeneral, voteOwner, delegateData } = useVoteContext()
@@ -21,7 +22,9 @@ export const OwnerVoteTab = () => {
   const { isVotingOpen, addEmptyVote } = voteGeneral
   const { votesData, editingVotesData } = voteOwner
 
-  const { voteMultiple, removeVoteMultiple } = useUwLockVoting()
+  const { positiveVersion } = useCachedData()
+
+  const { vote, removeVote, voteMultiple, removeVoteMultiple } = useUwLockVoting()
   const { account } = useWeb3React()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [isEditing, setIsEditing] = useState(false)
@@ -47,26 +50,46 @@ export const OwnerVoteTab = () => {
     if (!canCallVoteMultiple) return
     if (!isVotingOpen) return
     if (!account || !isAddress(account)) return
-    const queuedVotes = editingVotesData.localVoteAllocation.filter((g) => g.changed || g.added)
-    await voteMultiple(
-      account,
-      queuedVotes.map((g) => g.gaugeId),
-      queuedVotes.map((g) => BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)))
-    )
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callVoteMultiple', err, FunctionName.VOTE_MULTIPLE))
+    const queuedVotes = editingVotesData.localVoteAllocation.filter((g) => (g.changed || g.added) && g.gaugeActive)
+    if (queuedVotes.length > 1) {
+      await voteMultiple(
+        account,
+        queuedVotes.map((g) => g.gaugeId),
+        queuedVotes.map((g) => BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)))
+      )
+        .then((res) => handleToast(res.tx, res.localTx))
+        .catch((err) => handleContractCallError('callVoteMultiple', err, FunctionName.VOTE_MULTIPLE))
+    } else {
+      await vote(
+        account,
+        queuedVotes[0].gaugeId,
+        BigNumber.from(Math.floor(parseFloat(formatAmount(queuedVotes[0].votePowerPercentage)) * 100))
+      )
+        .then((res) => handleToast(res.tx, res.localTx))
+        .catch((err) => handleContractCallError('callVote', err, FunctionName.VOTE))
+    }
   }, [account, canCallVoteMultiple, isVotingOpen, editingVotesData.localVoteAllocation])
 
   const callRemoveVoteMultiple = useCallback(async () => {
     if (!isVotingOpen) return
     if (!account || !isAddress(account)) return
-    await removeVoteMultiple(
-      account,
-      editingVotesData.localVoteAllocation.map((g) => g.gaugeId)
-    )
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callRemoveVoteMultiple', err, FunctionName.REMOVE_VOTE_MULTIPLE))
+    if (editingVotesData.localVoteAllocation.length > 1) {
+      await removeVoteMultiple(
+        account,
+        editingVotesData.localVoteAllocation.map((g) => g.gaugeId)
+      )
+        .then((res) => handleToast(res.tx, res.localTx))
+        .catch((err) => handleContractCallError('callRemoveVoteMultiple', err, FunctionName.REMOVE_VOTE_MULTIPLE))
+    } else {
+      await removeVote(account, editingVotesData.localVoteAllocation[0].gaugeId)
+        .then((res) => handleToast(res.tx, res.localTx))
+        .catch((err) => handleContractCallError('callRemoveVote', err, FunctionName.REMOVE_VOTE))
+    }
   }, [account, isVotingOpen, editingVotesData.localVoteAllocation])
+
+  useEffect(() => {
+    setIsEditing(false)
+  }, [positiveVersion])
 
   return (
     <>
