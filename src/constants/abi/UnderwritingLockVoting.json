@@ -18,6 +18,7 @@
   { "inputs": [], "name": "NotGaugeController", "type": "error" },
   { "inputs": [], "name": "NotOwner", "type": "error" },
   { "inputs": [], "name": "NotOwnerNorDelegate", "type": "error" },
+  { "inputs": [], "name": "NotUpdaterNorGovernance", "type": "error" },
   { "inputs": [], "name": "SingleVotePowerBPSOver10000", "type": "error" },
   { "inputs": [], "name": "TotalVotePowerBPSOver10000", "type": "error" },
   { "inputs": [], "name": "VoterHasNoLocks", "type": "error" },
@@ -62,6 +63,12 @@
     "anonymous": false,
     "inputs": [{ "indexed": true, "internalType": "address", "name": "registry", "type": "address" }],
     "name": "RegistrySet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "updater", "type": "address" }],
+    "name": "UpdaterSet",
     "type": "event"
   },
   {
@@ -159,6 +166,13 @@
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "address", "name": "delegate_", "type": "address" }],
+    "name": "getVotingDelegatorsOf",
+    "outputs": [{ "internalType": "address[]", "name": "votingDelegators", "type": "address[]" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "governance",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
@@ -222,6 +236,16 @@
     "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "address[]", "name": "voters_", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "gaugeIDs_", "type": "uint256[]" }
+    ],
+    "name": "removeVotesForMultipleVoters",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "revenueRouter",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
@@ -250,8 +274,22 @@
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "address", "name": "updater_", "type": "address" }],
+    "name": "setUpdater",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "underwritingLocker",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "updater",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
@@ -270,6 +308,17 @@
       { "internalType": "uint256", "name": "votePowerBPS_", "type": "uint256" }
     ],
     "name": "vote",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address[]", "name": "voters_", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "gaugeIDs_", "type": "uint256[]" },
+      { "internalType": "uint256[]", "name": "votePowerBPSs_", "type": "uint256[]" }
+    ],
+    "name": "voteForMultipleVoters",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -20,7 +20,7 @@
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": false, "internalType": "address", "name": "user", "type": "address" },
+      { "indexed": true, "internalType": "address", "name": "user", "type": "address" },
       { "indexed": false, "internalType": "uint256", "name": "uwpAmount", "type": "uint256" },
       { "indexed": false, "internalType": "uint256", "name": "uweAmount", "type": "uint256" }
     ],
@@ -83,8 +83,14 @@
   },
   {
     "anonymous": false,
+    "inputs": [{ "indexed": false, "internalType": "address", "name": "uwp", "type": "address" }],
+    "name": "UwpSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
-      { "indexed": false, "internalType": "address", "name": "user", "type": "address" },
+      { "indexed": true, "internalType": "address", "name": "user", "type": "address" },
       { "indexed": false, "internalType": "uint256", "name": "uwpAmount", "type": "uint256" },
       { "indexed": false, "internalType": "uint256", "name": "uweAmount", "type": "uint256" }
     ],
@@ -309,6 +315,13 @@
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "address", "name": "uwp_", "type": "address" }],
+    "name": "setUwp",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "symbol",
     "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
@@ -324,7 +337,7 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "address", "name": "recipient", "type": "address" },
       { "internalType": "uint256", "name": "amount", "type": "uint256" }
     ],
     "name": "transfer",
@@ -334,8 +347,8 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "from", "type": "address" },
-      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "address", "name": "sender", "type": "address" },
+      { "internalType": "address", "name": "recipient", "type": "address" },
       { "internalType": "uint256", "name": "amount", "type": "uint256" }
     ],
     "name": "transferFrom",

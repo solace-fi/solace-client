@@ -88,6 +88,20 @@ export const useUwLockVoting = () => {
     [uwLockVoting]
   )
 
+  const getVotingDelegatorsOf = useCallback(
+    async (delegate: string): Promise<string[]> => {
+      if (!uwLockVoting) return []
+      try {
+        const delegators = await uwLockVoting.getVotingDelegatorsOf(delegate)
+        return delegators
+      } catch (error) {
+        console.error(error)
+        return []
+      }
+    },
+    [uwLockVoting]
+  )
+
   const usedVotePowerBPSOf = useCallback(
     async (voter: string): Promise<BigNumber> => {
       if (!uwLockVoting) return ZERO
@@ -200,26 +214,12 @@ export const useUwLockVoting = () => {
     setDelegate,
     delegateOf,
     usedVotePowerBPSOf,
+    getVotingDelegatorsOf,
   }
 }
 
 export const useUwLockVotingHelper = () => {
   const { getVotePower, usedVotePowerBPSOf, getVotes, delegateOf } = useUwLockVoting()
-
-  const getDelegators = useCallback(async (user: string): Promise<string[]> => {
-    const baseApiUrl = 'http://35.87.172.151:18123/getDelegators'
-    const response = await axios
-      .get(baseApiUrl, { params: { address: user } })
-      .then((response: AxiosResponse) => {
-        console.log('my delegators:', response.data)
-        return response.data
-      })
-      .catch((error: any) => {
-        console.log('getDelegators: ', error)
-        return []
-      })
-    return response
-  }, [])
 
   const getVoteInformation = useCallback(
     async (voter: string) => {
@@ -241,5 +241,5 @@ export const useUwLockVotingHelper = () => {
     [delegateOf, getVotePower, getVotes, usedVotePowerBPSOf]
   )
 
-  return { getDelegators, getVoteInformation }
+  return { getVoteInformation }
 }

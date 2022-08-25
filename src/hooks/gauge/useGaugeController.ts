@@ -2,10 +2,8 @@ import { ZERO } from '@solace-fi/sdk-nightly'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { POW_EIGHTEEN } from '../../constants'
 import { GaugeData, Vote } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
-import { useProvider } from '../../context/ProviderManager'
 import { useUwp } from '../lock/useUnderwritingHelper'
 
 export const useGaugeController = () => {
@@ -214,7 +212,6 @@ export const useGaugeControllerHelper = () => {
   const { keyContracts } = useContracts()
   const { uwe, gaugeController } = keyContracts
 
-  const { latestBlock } = useProvider()
   const [loading, setLoading] = useState(false)
   const running = useRef(false)
 
@@ -265,7 +262,7 @@ export const useGaugeControllerHelper = () => {
       running.current = false
     }
     callFetchGauges()
-  }, [latestBlock, fetchGauges, gaugeController])
+  }, [fetchGauges, gaugeController])
 
   useEffect(() => {
     if (!uwe || !gaugeController) return

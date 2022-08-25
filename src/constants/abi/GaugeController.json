@@ -25,6 +25,7 @@
   { "inputs": [], "name": "GaugeWeightsAlreadyUpdated", "type": "error" },
   { "inputs": [], "name": "GaugeWeightsNotYetUpdated", "type": "error" },
   { "inputs": [], "name": "NoTokenholdersAdded", "type": "error" },
+  { "inputs": [], "name": "NotUpdaterNorGovernance", "type": "error" },
   { "inputs": [], "name": "NotVotingContract", "type": "error" },
   { "inputs": [], "name": "TokenholderNotPresent", "type": "error" },
   { "inputs": [], "name": "VotingContractNotAdded", "type": "error" },
@@ -115,6 +116,12 @@
     "anonymous": false,
     "inputs": [{ "indexed": true, "internalType": "address", "name": "tokenholder", "type": "address" }],
     "name": "TokenholderRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "updater", "type": "address" }],
+    "name": "UpdaterSet",
     "type": "event"
   },
   {
@@ -364,6 +371,13 @@
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "address", "name": "updater_", "type": "address" }],
+    "name": "setUpdater",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "token",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
@@ -385,6 +399,13 @@
     "type": "function"
   },
   { "inputs": [], "name": "updateGaugeWeights", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  {
+    "inputs": [],
+    "name": "updater",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
   {
     "inputs": [
       { "internalType": "address", "name": "voter_", "type": "address" },

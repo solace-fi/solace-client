@@ -1,7 +1,6 @@
 [
   {
     "inputs": [
-      { "internalType": "address", "name": "uwp_", "type": "address" },
       { "internalType": "address", "name": "uwe_", "type": "address" },
       { "internalType": "address", "name": "locker_", "type": "address" }
     ],

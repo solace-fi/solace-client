@@ -101,8 +101,8 @@ const VoteManager: React.FC = (props) => {
   const { keyContracts } = useContracts()
   const { uwLockVoting } = keyContracts
 
-  const { isVotingOpen: checkIfVotingIsOpen, delegateOf } = useUwLockVoting()
-  const { getDelegators, getVoteInformation } = useUwLockVotingHelper()
+  const { isVotingOpen: checkIfVotingIsOpen, delegateOf, getVotingDelegatorsOf: getDelegators } = useUwLockVoting()
+  const { getVoteInformation } = useUwLockVotingHelper()
   const { positiveVersion } = useCachedData()
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
