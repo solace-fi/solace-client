@@ -1,9 +1,12 @@
 import { ZERO } from '@solace-fi/sdk-nightly'
 import { BigNumber } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { POW_EIGHTEEN } from '../../constants'
 import { GaugeData, Vote } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { useProvider } from '../../context/ProviderManager'
+import { useUwp } from '../lock/useUnderwritingHelper'
 
 export const useGaugeController = () => {
   const { keyContracts } = useContracts()
@@ -207,11 +210,16 @@ export const useGaugeController = () => {
 
 export const useGaugeControllerHelper = () => {
   const { getAllGaugeWeights, getGaugeName, isGaugeActive } = useGaugeController()
+  const { valueOfHolder } = useUwp()
+  const { keyContracts } = useContracts()
+  const { uwe, gaugeController } = keyContracts
+
   const { latestBlock } = useProvider()
   const [loading, setLoading] = useState(false)
   const running = useRef(false)
 
   const [gaugesData, setGaugesData] = useState<GaugeData[]>([])
+  const [insuranceCapacity, setInsuranceCapacity] = useState<number>(0)
 
   const fetchGauges = useCallback(async () => {
     setLoading(true)
@@ -259,5 +267,18 @@ export const useGaugeControllerHelper = () => {
     callFetchGauges()
   }, [latestBlock, fetchGauges])
 
-  return { loading, gaugesData }
+  useEffect(() => {
+    if (!uwe || !gaugeController) return
+    const calculateInsuranceCapacity = async () => {
+      const uf = await valueOfHolder(uwe.address)
+      const l = await gaugeController.leverageFactor()
+      const convertedUf = formatUnits(uf, 18)
+      const convertedL = formatUnits(l, 18)
+      const sic = parseFloat(convertedUf) * parseFloat(convertedL)
+      setInsuranceCapacity(sic)
+    }
+    calculateInsuranceCapacity()
+  }, [uwe, gaugeController, valueOfHolder])
+
+  return { loading, gaugesData, insuranceCapacity }
 }

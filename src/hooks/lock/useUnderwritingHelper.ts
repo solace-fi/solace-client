@@ -190,8 +190,8 @@ export const useUwp = () => {
     async (holder: string): Promise<BigNumber> => {
       if (!uwp) return ZERO
       try {
-        const valuePerShare = await uwp.valueOfShares(holder)
-        return valuePerShare
+        const valueOfHolder = await uwp.valueOfHolder(holder)
+        return valueOfHolder
       } catch (error) {
         console.error(error)
         return ZERO

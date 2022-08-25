@@ -47,6 +47,7 @@ export const Z_MODAL = z2
 export const Z_TOOLTIP = z3
 
 export const POW_NINE = 1000000000
+export const POW_EIGHTEEN = 1000000000000000000
 
 export const CP_ROI = '150.5%'
 export const LP_ROI = '6.0%'
