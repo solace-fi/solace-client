@@ -93,7 +93,12 @@ export const IconAndText = ({
           [Tab.LOCK]: <StyledClock css={disabled ? disabledClassName : className} />,
         }[tab]
       }
-      <StyledWords disabled={disabled}>
+      <StyledWords
+        disabled={disabled}
+        style={{
+          marginTop: '2px',
+        }}
+      >
         {
           {
             [Tab.DEPOSIT]: 'SOLACE',
