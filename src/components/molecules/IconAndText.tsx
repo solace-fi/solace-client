@@ -79,6 +79,7 @@ export const IconAndText = ({
       className="hidden lg:flex rounded-l-xl border-r p-5 space-x-1 items-center"
       style={{
         flexShrink: '0',
+        gap: '4px',
       }}
     >
       {
