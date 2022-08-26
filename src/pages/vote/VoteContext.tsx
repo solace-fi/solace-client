@@ -72,13 +72,13 @@ const VoteContext = createContext<VoteContextType>({
       localVoteAllocation: [],
       votePower: ZERO,
       usedVotePowerBPS: ZERO,
-      localVoteAllocationTotal: 0,
+      localVoteAllocationPercentageTotal: 0,
     },
     editingVotesData: {
       localVoteAllocation: [],
       votePower: ZERO,
       usedVotePowerBPS: ZERO,
-      localVoteAllocationTotal: 0,
+      localVoteAllocationPercentageTotal: 0,
     },
     handleEditingVotesData: () => undefined,
   },
@@ -89,7 +89,7 @@ const VoteContext = createContext<VoteContextType>({
       votePower: ZERO,
       usedVotePowerBPS: ZERO,
       localVoteAllocation: [],
-      localVoteAllocationTotal: 0,
+      localVoteAllocationPercentageTotal: 0,
     },
     handleEditingDelegatorVotesData: () => undefined,
     handleDelegatorVotesData: () => undefined,
@@ -117,7 +117,7 @@ const VoteManager: React.FC = (props) => {
     votePower: ZERO,
     usedVotePowerBPS: ZERO,
     localVoteAllocation: [],
-    localVoteAllocationTotal: 0,
+    localVoteAllocationPercentageTotal: 0,
   })
   const [editingVotesData, setEditingVotesData] = useState<VotesData>(votesData)
 
@@ -126,7 +126,7 @@ const VoteManager: React.FC = (props) => {
     votePower: ZERO,
     usedVotePowerBPS: ZERO,
     localVoteAllocation: [],
-    localVoteAllocationTotal: 0,
+    localVoteAllocationPercentageTotal: 0,
   })
   const [delegatorVotesData, setDelegatorVotesData] = useState<DelegatorVotesData[]>([])
 
@@ -169,7 +169,10 @@ const VoteManager: React.FC = (props) => {
         return {
           ...prevState,
           localVoteAllocation: newAlloc,
-          localVoteAllocationTotal: newAlloc.reduce((acc, curr) => acc + parseFloat(curr.votePowerPercentage), 0),
+          localVoteAllocationPercentageTotal: newAlloc.reduce(
+            (acc, curr) => acc + parseFloat(curr.votePowerPercentage),
+            0
+          ),
         }
       })
     } else {
@@ -191,7 +194,10 @@ const VoteManager: React.FC = (props) => {
         return {
           ...prevState,
           localVoteAllocation: newAlloc,
-          localVoteAllocationTotal: newAlloc.reduce((acc, curr) => acc + parseFloat(curr.votePowerPercentage), 0),
+          localVoteAllocationPercentageTotal: newAlloc.reduce(
+            (acc, curr) => acc + parseFloat(curr.votePowerPercentage),
+            0
+          ),
         }
       })
     }
@@ -204,7 +210,7 @@ const VoteManager: React.FC = (props) => {
         return {
           ...prevState,
           localVoteAllocation: filtered,
-          localVoteAllocationTotal: filtered.reduce((acc, curr) => {
+          localVoteAllocationPercentageTotal: filtered.reduce((acc, curr) => {
             return acc + parseFloat(curr.votePowerPercentage)
           }, 0),
         }
@@ -215,7 +221,7 @@ const VoteManager: React.FC = (props) => {
         return {
           ...prevState,
           localVoteAllocation: filtered,
-          localVoteAllocationTotal: filtered.reduce((acc, curr) => {
+          localVoteAllocationPercentageTotal: filtered.reduce((acc, curr) => {
             return acc + parseFloat(curr.votePowerPercentage)
           }, 0),
         }
@@ -308,7 +314,7 @@ const VoteManager: React.FC = (props) => {
           votePower: ZERO,
           usedVotePowerBPS: ZERO,
           localVoteAllocation: [],
-          localVoteAllocationTotal: 0,
+          localVoteAllocationPercentageTotal: 0,
         }
         setVotesData(res)
         setEditingVotesData(res)
@@ -345,7 +351,7 @@ const VoteManager: React.FC = (props) => {
           votePower: item.votePower,
           usedVotePowerBPS: item.usedVotePowerBPS,
           localVoteAllocation: formattedDelegatorVotesData[i],
-          localVoteAllocationTotal: formattedDelegatorVotesData[i].reduce((acc, curr) => {
+          localVoteAllocationPercentageTotal: formattedDelegatorVotesData[i].reduce((acc, curr) => {
             return acc + parseFloat(curr.votePowerPercentage)
           }, 0),
           delegator: _delegators[i],
@@ -358,7 +364,7 @@ const VoteManager: React.FC = (props) => {
           votePower: ZERO,
           usedVotePowerBPS: ZERO,
           localVoteAllocation: [],
-          localVoteAllocationTotal: 0,
+          localVoteAllocationPercentageTotal: 0,
           delegator: '',
         }
       )
@@ -383,7 +389,7 @@ const VoteManager: React.FC = (props) => {
         votePower: userVoteInfo.votePower,
         usedVotePowerBPS: userVoteInfo.usedVotePowerBPS,
         localVoteAllocation: formattedUserVotesData,
-        localVoteAllocationTotal: formattedUserVotesData.reduce((acc, curr) => {
+        localVoteAllocationPercentageTotal: formattedUserVotesData.reduce((acc, curr) => {
           return acc + parseFloat(curr.votePowerPercentage)
         }, 0),
       }

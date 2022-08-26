@@ -218,7 +218,7 @@ export const DelegatorVoteTab = () => {
           votePower: ZERO,
           usedVotePowerBPS: ZERO,
           localVoteAllocation: [],
-          localVoteAllocationTotal: 0,
+          localVoteAllocationPercentageTotal: 0,
         }
       )
   }, [isEditing])
@@ -270,7 +270,7 @@ export const DelegatorVoteTab = () => {
                     votePower: ZERO,
                     usedVotePowerBPS: ZERO,
                     localVoteAllocation: [],
-                    localVoteAllocationTotal: 0,
+                    localVoteAllocationPercentageTotal: 0,
                   }
                 )
                 setShowDelegatorSelection(false)
@@ -394,7 +394,7 @@ export const DelegatorVoteTab = () => {
                     disabled={
                       !canCallVoteMultiple ||
                       editingDelegatorVotesData.localVoteAllocation.filter((item) => item.changed).length == 0 ||
-                      editingDelegatorVotesData.localVoteAllocationTotal > 100
+                      editingDelegatorVotesData.localVoteAllocationPercentageTotal > 100
                     }
                     onClick={callVoteMultiple}
                   >

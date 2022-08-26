@@ -114,7 +114,7 @@ export const OwnerVoteGauge = ({
                     !voteAllocData.gaugeActive ||
                     !voteAllocData.changed ||
                     (parseFloat(formatAmount(voteAllocData.votePowerPercentage)) === 0 && voteAllocData.added) ||
-                    editingVotesData.localVoteAllocationTotal > 100
+                    editingVotesData.localVoteAllocationPercentageTotal > 100
                   }
                 >
                   <Text t5s>Save</Text>

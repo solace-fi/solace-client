@@ -197,7 +197,7 @@ export const OwnerVoteTab = () => {
                 disabled={
                   !canCallVoteMultiple ||
                   editingVotesData.localVoteAllocation.filter((item) => item.changed).length == 0 ||
-                  editingVotesData.localVoteAllocationTotal > 100
+                  editingVotesData.localVoteAllocationPercentageTotal > 100
                 }
                 onClick={callVoteMultiple}
               >

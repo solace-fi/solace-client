@@ -9,7 +9,7 @@ export type VotesData = {
   votePower: BigNumber
   usedVotePowerBPS: BigNumber
   localVoteAllocation: VoteAllocation[]
-  localVoteAllocationTotal: number
+  localVoteAllocationPercentageTotal: number
 }
 
 export type DelegatorVotesData = VotesData & {
