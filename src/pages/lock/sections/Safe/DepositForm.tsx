@@ -46,15 +46,14 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
 
   const { width } = useWindowDimensions()
   const { depositIntoLock, calculateDeposit } = useDepositHelper()
-  const { intrface, paymentCoins, input } = useLockContext()
+  const { intrface, paymentCoins, input, locker } = useLockContext()
   const { tokensLoading } = intrface
   const { batchBalanceData, coinsOpen, handleCoinsOpen, approveCPM } = paymentCoins
   const { selectedCoin } = input
+  const { stakeInputValue, stakeRangeValue, handleStakeInputValue, handleStakeRangeValue } = locker
 
   const disabled = false
 
-  const [inputValue, setInputValue] = React.useState('')
-  const [rangeValue, setRangeValue] = React.useState('0')
   const [equivalentUwe, setEquivalentUwe] = useState<BigNumber>(ZERO)
 
   const selectedCoinContract = useMemo(
@@ -65,7 +64,9 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
   const depositApproval = useTokenAllowance(
     selectedCoinContract ?? null,
     depositHelper?.address ?? null,
-    inputValue && inputValue != '.' ? parseUnits(inputValue, selectedCoin?.decimals ?? 18).toString() : '0'
+    stakeInputValue && stakeInputValue != '.'
+      ? parseUnits(stakeInputValue, selectedCoin?.decimals ?? 18).toString()
+      : '0'
   )
 
   const selectedCoinBalance = useMemo(() => {
@@ -77,15 +78,15 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
 
   const isAcceptableDeposit = useMemo(() => {
     if (!selectedCoinBalance) return false
-    return isAppropriateAmount(formatAmount(inputValue), selectedCoin?.decimals ?? 18, selectedCoinBalance)
+    return isAppropriateAmount(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18, selectedCoinBalance)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [batchBalanceData, inputValue, selectedCoin])
+  }, [batchBalanceData, stakeInputValue, selectedCoin])
 
   const callDepositIntoLock = async () => {
     if (!account || !selectedCoinContract) return
     await depositIntoLock(
       selectedCoinContract.address,
-      parseUnits(formatAmount(inputValue), selectedCoin?.decimals ?? 18),
+      parseUnits(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18),
       lock.lockID
     )
       .then((res) => handleToast(res.tx, res.localTx))
@@ -93,20 +94,20 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
   }
 
   const inputOnChange = (value: string) => {
-    const filtered = filterAmount(value, formatAmount(inputValue))
+    const filtered = filterAmount(value, formatAmount(stakeInputValue))
     if (filtered.includes('.') && filtered.split('.')[1]?.length > (selectedCoin?.decimals ?? 18)) return
-    setRangeValue(accurateMultiply(filtered, selectedCoin?.decimals ?? 18))
-    setInputValue(filtered)
+    handleStakeRangeValue(accurateMultiply(filtered, selectedCoin?.decimals ?? 18))
+    handleStakeInputValue(filtered)
   }
 
   const rangeOnChange = (value: string, convertFromSciNota = true) => {
-    setInputValue(
+    handleStakeInputValue(
       formatUnits(
         BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`),
         selectedCoin?.decimals ?? 18
       )
     )
-    setRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`)
+    handleStakeRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`)
   }
 
   const setMax = () => rangeOnChange(selectedCoinBalance.toString())
@@ -115,7 +116,7 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
     if (selectedCoin) {
       const res = await calculateDeposit(
         selectedCoin.address,
-        parseUnits(formatAmount(inputValue), selectedCoin?.decimals ?? 18)
+        parseUnits(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18)
       )
       setEquivalentUwe(res)
     }
@@ -123,12 +124,12 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
 
   useEffect(() => {
     getConversion()
-  }, [inputValue, selectedCoin])
+  }, [stakeInputValue, selectedCoin])
 
   useEffect(() => {
-    if (inputValue.includes('.') && inputValue.split('.')[1]?.length) {
-      if (selectedCoin && selectedCoin.decimals < inputValue.split('.')[1].length) {
-        setInputValue(fixed(formatAmount(inputValue), selectedCoin.decimals).toString())
+    if (stakeInputValue.includes('.') && stakeInputValue.split('.')[1]?.length) {
+      if (selectedCoin && selectedCoin.decimals < stakeInputValue.split('.')[1].length) {
+        handleStakeInputValue(fixed(formatAmount(stakeInputValue), selectedCoin.decimals).toString())
       }
     }
   }, [selectedCoin])
@@ -178,7 +179,7 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
             <InputSection
               placeholder={'Amount'}
               tab={Tab.DEPOSIT}
-              value={inputValue}
+              value={stakeInputValue}
               onChange={(e) => inputOnChange(e.target.value)}
               setMax={() =>
                 !disabled
@@ -190,7 +191,7 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
               disabled={disabled}
             />
             <StyledSlider
-              value={rangeValue}
+              value={stakeRangeValue}
               onChange={(e) => rangeOnChange(e.target.value)}
               min={1}
               max={selectedCoinBalance.toString()}
@@ -233,9 +234,9 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
               warmgradient
               noborder
               disabled={
-                !inputValue ||
-                inputValue == '.' ||
-                parseUnits(inputValue, selectedCoin?.decimals ?? 18).isZero() ||
+                !stakeInputValue ||
+                stakeInputValue == '.' ||
+                parseUnits(stakeInputValue, selectedCoin?.decimals ?? 18).isZero() ||
                 !selectedCoinContract ||
                 !depositHelper
               }
@@ -243,7 +244,7 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
                 approveCPM(
                   depositHelper?.address ?? '',
                   selectedCoinContract?.address ?? '',
-                  parseUnits(inputValue, selectedCoin?.decimals ?? 18)
+                  parseUnits(stakeInputValue, selectedCoin?.decimals ?? 18)
                 )
               }
             >

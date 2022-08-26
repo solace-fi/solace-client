@@ -50,7 +50,16 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const { tokensLoading } = intrface
   const { batchBalanceData, coinsOpen, handleCoinsOpen, approveCPM } = paymentCoins
   const { selectedCoin } = input
-  const { minLockDuration, maxLockDuration, maxNumLocks, userLocks } = locker
+  const {
+    minLockDuration,
+    maxLockDuration,
+    maxNumLocks,
+    userLocks,
+    stakeInputValue,
+    stakeRangeValue,
+    handleStakeInputValue,
+    handleStakeRangeValue,
+  } = locker
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { depositAndLock, calculateDeposit } = useDepositHelper()
@@ -74,8 +83,6 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   }, [batchBalanceData, selectedCoin])
 
   const accordionRef = useRef<HTMLDivElement>(null)
-  const [stakeInputValue, setStakeInputValue] = useState('')
-  const [stakeRangeValue, setStakeRangeValue] = useState('0')
   const [lockInputValue, setLockInputValue] = useState(`${minDays}`)
   const [equivalentUwe, setEquivalentUwe] = useState<BigNumber>(ZERO)
 
@@ -109,18 +116,18 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const stakeInputOnChange = (value: string) => {
     const filtered = filterAmount(value, formatAmount(stakeInputValue))
     if (filtered.includes('.') && filtered.split('.')[1]?.length > (selectedCoin?.decimals ?? 18)) return
-    setStakeRangeValue(accurateMultiply(filtered, selectedCoin?.decimals ?? 18))
-    setStakeInputValue(filtered)
+    handleStakeRangeValue(accurateMultiply(filtered, selectedCoin?.decimals ?? 18))
+    handleStakeInputValue(filtered)
   }
 
   const stakeRangeOnChange = (value: string, convertFromSciNota = true) => {
-    setStakeInputValue(
+    handleStakeInputValue(
       formatUnits(
         BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`),
         selectedCoin?.decimals ?? 18
       )
     )
-    setStakeRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`)
+    handleStakeRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`)
   }
 
   /*            LOCK INPUT & RANGE HANDLERS             */

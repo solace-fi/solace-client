@@ -11,7 +11,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { ZERO } from '@solace-fi/sdk-nightly'
 import { useWeb3React } from '@web3-react/core'
 import { useUwLocker } from '../../hooks/lock/useUwLocker'
-import { floatUnits } from '../../utils/formatting'
+import { accurateMultiply, fixed, floatUnits, formatAmount } from '../../utils/formatting'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 
@@ -39,6 +39,10 @@ type LockContextType = {
     minLockDuration: BigNumber
     maxLockDuration: BigNumber
     maxNumLocks: BigNumber
+    stakeInputValue: string
+    stakeRangeValue: string
+    handleStakeInputValue: (value: string) => void
+    handleStakeRangeValue: (value: string) => void
   }
 }
 
@@ -66,6 +70,10 @@ const LockContext = createContext<LockContextType>({
     minLockDuration: ZERO,
     maxLockDuration: ZERO,
     maxNumLocks: ZERO,
+    stakeInputValue: '',
+    stakeRangeValue: '0',
+    handleStakeInputValue: () => undefined,
+    handleStakeRangeValue: () => undefined,
   },
 })
 
@@ -104,6 +112,8 @@ const LockManager: React.FC = (props) => {
     }[]
   >([])
   const [locksLoading, setLocksLoading] = useState(true)
+  const [stakeInputValue, setStakeInputValue] = useState<string>('')
+  const [stakeRangeValue, setStakeRangeValue] = useState<string>('0')
 
   const { approve } = useTokenApprove(setTransactionLoading)
 
@@ -119,15 +129,13 @@ const LockManager: React.FC = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchBalances, tokenPriceMapping])
 
-  const handleSelectedCoin = useCallback(
-    (addr: string) => {
-      const coin = coinOptions.find((c) => c.address === addr)
-      if (coin) {
-        setSelectedCoin(coin)
-      }
-    },
-    [coinOptions]
-  )
+  const handleStakeInputValue = useCallback((value: string) => {
+    setStakeInputValue(value)
+  }, [])
+
+  const handleStakeRangeValue = useCallback((value: string) => {
+    setStakeRangeValue(value)
+  }, [])
 
   const handleCoinsOpen = useCallback((value: boolean) => {
     setCoinsOpen(value)
@@ -145,8 +153,21 @@ const LockManager: React.FC = (props) => {
     [approve]
   )
 
+  const handleSelectedCoin = useCallback(
+    (addr: string) => {
+      const coin = coinOptions.find((c) => c.address === addr)
+      if (coin) {
+        const f = fixed(formatAmount(stakeInputValue), coin.decimals).toString()
+        handleStakeInputValue(f)
+        handleStakeRangeValue(accurateMultiply(f, coin.decimals ?? 18))
+        setSelectedCoin(coin)
+      }
+    },
+    [coinOptions, stakeInputValue, handleStakeInputValue, handleStakeRangeValue]
+  )
+
   useEffect(() => {
-    if (coinOptions.length > 0) setSelectedCoin(coinOptions[0])
+    if (coinOptions.length > 0) handleSelectedCoin(coinOptions[0].address)
   }, [coinOptions])
 
   useEffect(() => {
@@ -215,6 +236,10 @@ const LockManager: React.FC = (props) => {
         minLockDuration,
         maxLockDuration,
         maxNumLocks,
+        stakeInputValue,
+        stakeRangeValue,
+        handleStakeInputValue,
+        handleStakeRangeValue,
       },
     }),
     [
@@ -234,6 +259,10 @@ const LockManager: React.FC = (props) => {
       maxNumLocks,
       userLocks,
       locksLoading,
+      stakeInputValue,
+      stakeRangeValue,
+      handleStakeInputValue,
+      handleStakeRangeValue,
     ]
   )
   return (
