@@ -17,6 +17,7 @@ import { CopyButton } from '../../components/molecules/CopyButton'
 import { StyledArrowIosBackOutline } from '../../components/atoms/Icon'
 import { useCachedData } from '../../context/CachedDataManager'
 import useDebounce from '@rooks/use-debounce'
+import { EpochTimer } from './organisms/EpochTimer'
 
 const TextDropdownOptions = ({
   searchedList,
@@ -102,22 +103,14 @@ export const DelegatorVoteTab = () => {
       : delegatorVotesData
     return filtered
       .sort((a, b) => {
-        const calcA =
-          floatUnits(a.votePower, 18) -
-          (parseFloat(a.usedVotePowerBPS.toString()) / 10000) * floatUnits(a.votePower, 18)
-        const calcB =
-          floatUnits(b.votePower, 18) -
-          (parseFloat(b.usedVotePowerBPS.toString()) / 10000) * floatUnits(b.votePower, 18)
+        const calcA = floatUnits(a.votePower, 18)
+        const calcB = floatUnits(b.votePower, 18)
         return calcB - calcA
       })
       .map((item) => {
         return {
           mainText: item.delegator,
-          secondaryText: `${truncateValue(
-            floatUnits(item.votePower, 18) -
-              (parseFloat(item.usedVotePowerBPS.toString()) / 10000) * floatUnits(item.votePower, 18),
-            2
-          )} free / ${truncateValue(formatUnits(item.votePower, 18), 2)}`,
+          secondaryText: `${truncateValue(formatUnits(item.votePower, 18), 2)}`,
         }
       })
   }, [searchTerm, delegatorVotesData])
@@ -225,6 +218,7 @@ export const DelegatorVoteTab = () => {
 
   return (
     <>
+      {isVotingOpen && <EpochTimer />}
       {showDelegatorSelection &&
         (delegatorVotesData.length > 0 ? (
           <>

@@ -28,7 +28,7 @@ import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent, F
 import { StyledCoinStack, StyledVoteYea } from '../components/atoms/Icon'
 
 /* import constants */
-import { BKPT_2, BKPT_NAVBAR, MARKETING_SITE } from '../constants'
+import { BKPT_2, BKPT_NAVBAR } from '../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../hooks/internal/useWindowDimensions'

@@ -17,6 +17,7 @@ import { StyledVoteYea } from '../../components/atoms/Icon'
 import { useCachedData } from '../../context/CachedDataManager'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import useDebounce from '@rooks/use-debounce'
+import { EpochTimer } from './organisms/EpochTimer'
 
 export const OwnerVoteTab = () => {
   const { voteGeneral, voteOwner, delegateData } = useVoteContext()
@@ -110,6 +111,7 @@ export const OwnerVoteTab = () => {
 
   return (
     <>
+      {isVotingOpen && <EpochTimer />}
       <Flex between>
         <Text semibold t2>
           My Gauge Votes

@@ -82,6 +82,10 @@ export const DelegateModal = ({
             value={stagingDelegate}
             onChange={(e) => inputOnChange(e.target.value)}
           />
+          <Text t5s warning width={200}>
+            Both you and your delegate will have the same level of control over your votes. Ensure that your delegate is
+            someone you can trust.
+          </Text>
           <Flex gap={10}>
             <Button
               error
