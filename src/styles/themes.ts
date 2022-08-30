@@ -153,7 +153,7 @@ export const darkTheme = {
     glow: '0 0 7px #00ffd1',
   },
   card: {
-    bg_color_0: 'rgba(255, 255, 255, 0.05)',
+    bg_color_0: 'rgb(59, 62, 73)',
     bg_color_1: 'linear-gradient(145.04deg, #F3D37E 0%, #F04D42 100%)',
     bg_color_2: 'linear-gradient(145.04deg, #D478D8 0%, #5F5DF9 100%)',
     fade: 'rgb(64, 80, 128)',
@@ -186,7 +186,7 @@ export const darkTheme = {
   table: {
     highlight_bg_color: 'rgba(76, 87, 133)',
     hover_color: 'rgba(255, 255, 255, 0.2)',
-    cell_bg_color: 'rgba(255, 255, 255, 0.05)',
+    cell_bg_color: 'rgb(59, 62, 73)',
     head_bg_color: '#2E3440',
   },
   progress: {

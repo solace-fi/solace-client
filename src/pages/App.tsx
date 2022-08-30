@@ -21,11 +21,11 @@ import { Route, Switch, useLocation } from 'react-router-dom'
 /* import pages */
 import Lock from './lock'
 import Gauge from './vote'
+import Analytics from './analytics'
 /* import components */
 import { MenusTopNavBar } from '../components/organisms/MenusTopNavbar'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent, Flex } from '../components/atoms/Layout'
 // import { Statistics } from '../components/organisms/Statistics'
-import { StyledCoinStack, StyledVoteYea } from '../components/atoms/Icon'
 
 /* import constants */
 import { BKPT_2, BKPT_NAVBAR } from '../constants'
@@ -47,18 +47,22 @@ export default function App(): any {
 
   const pages: PageInfo[] = [
     {
-      name: 'Lock',
-      title: 'My Locking',
-      to: '/lock',
-      icon: <StyledCoinStack size={30} />,
-      component: Lock,
-    },
-    {
       name: 'Vote',
       title: 'My Voting',
       to: '/vote',
-      icon: <StyledVoteYea size={30} />,
       component: Gauge,
+    },
+    {
+      name: 'Lock',
+      title: 'My Locking',
+      to: '/lock',
+      component: Lock,
+    },
+    {
+      name: 'Analytics',
+      title: 'Native Analytics',
+      to: '/analytics',
+      component: Analytics,
     },
   ]
 
@@ -67,12 +71,13 @@ export default function App(): any {
       <AnalyticsReporter />
       <GlobalStyle location={location} />
       <MenusTopNavBar setShowLeft={setLeftSidebar} setShowRight={setRightSidebar} />
-      <InfoSideNavbar show={width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR)} />
+      <InfoSideNavbar pages={pages} show={width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR)} />
       <AppMenu show={rightSidebar} setShow={setRightSidebar} />
       <Layout>
         <ContentContainer>
           <SideNavContent mobileWidth={6}></SideNavContent>
           <MobileInfoSideNavbar
+            pages={pages}
             show={leftSidebar && width < (rightSidebar ? BKPT_2 : BKPT_NAVBAR)}
             setShow={setLeftSidebar}
           />

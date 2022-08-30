@@ -1,5 +1,5 @@
 import { TransactionCondition, SystemNotice, Error } from '../enums'
-import { BigNumber, SolaceRiskProtocol } from '@solace-fi/sdk-nightly'
+import { SolaceRiskProtocol } from '@solace-fi/sdk-nightly'
 
 export type CheckboxData = { id: string; checked: boolean }
 
@@ -39,7 +39,6 @@ export type PageInfo = {
   name: string
   title: string
   to: string
-  icon: JSX.Element
   component: () => any
 }
 

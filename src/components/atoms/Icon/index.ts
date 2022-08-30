@@ -13,6 +13,7 @@ import { Dashboard } from '@styled-icons/material/Dashboard'
 import { Discord } from '@styled-icons/simple-icons/Discord'
 import { DocumentText } from '@styled-icons/typicons/DocumentText'
 import { Documents } from '@styled-icons/ionicons-sharp/Documents'
+import { Analytics } from '@styled-icons/ionicons-sharp/Analytics'
 import { DotsHorizontalRounded } from '@styled-icons/boxicons-regular/DotsHorizontalRounded'
 import { HelpCircle } from '@styled-icons/boxicons-regular/HelpCircle'
 import { FileEarmarkLock2Fill } from '@styled-icons/bootstrap/FileEarmarkLock2Fill'
@@ -175,3 +176,5 @@ export const StyledVoteYea = styled(VoteYea)``
 export const StyledFire = styled(LocalFireDepartment)`
   ${StyledIconCss}
 `
+
+export const StyledAnalytics = styled(Analytics)``
