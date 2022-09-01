@@ -216,12 +216,14 @@ export const DropdownOptionsUnique = ({
   isOpen,
   noneText,
   onClick,
+  processName = true,
 }: {
   comparingList: string[]
   searchedList: { label: string; value: string; icon?: JSX.Element }[]
   isOpen: boolean
   noneText?: string
   onClick: (value: string) => void
+  processName?: boolean
 }): JSX.Element => {
   const { appTheme } = useGeneral()
   const gradientStyle = useMemo(
@@ -263,7 +265,7 @@ export const DropdownOptionsUnique = ({
                 )}
               </Flex>
               <Text autoAlignVertical t5s bold>
-                {processProtocolName(item.value)}
+                {processName ? processProtocolName(item.value) : item.value}
               </Text>
             </Flex>
           </ButtonAppearance>
