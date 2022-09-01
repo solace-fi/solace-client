@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import vegaEmbed from 'vega-embed'
 import { hydrateLibrary, metalog, simulateSIP, listSIPs, p, q } from '@solace-fi/hydrate'
 import { Flex } from '../../components/atoms/Layout'
 import { InputSection } from '../../components/molecules/InputSection'
 import { Button } from '../../components/atoms/Button'
-import volatility from '../../constants/volatility.json'
 import { useGeneral } from '../../context/GeneralManager'
+import axios from 'axios'
 
 export const TokenPriceVolatilityHistogram = () => {
   const { appTheme } = useGeneral()
   const [tickerSymbol, setTickerSymbol] = useState('')
   const [displayVega, setDisplayVega] = useState(false)
   const [hydratedData, setHydratedData] = useState<any>(undefined)
+  const [acceptedTickers, setAcceptedTickers] = useState<string[]>([])
 
   function fetchVega(dataIn: any, theme: string) {
     vegaEmbed('#vis', {
@@ -31,7 +32,7 @@ export const TokenPriceVolatilityHistogram = () => {
       },
       data: {
         name: 'table',
-        values: dataIn.aave.map((item: number) => {
+        values: dataIn.map((item: number) => {
           return {
             x: item,
             var: 0.99,
@@ -60,7 +61,6 @@ export const TokenPriceVolatilityHistogram = () => {
             },
             x2: { field: 'bin_Range_end' },
             y: {
-              // title: 'Relative Frequency',
               axis: {
                 title: 'Relative Frequency',
                 titleColor: theme == 'light' ? 'black' : 'white',
@@ -83,29 +83,43 @@ export const TokenPriceVolatilityHistogram = () => {
     })
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     try {
-      const res: any = volatility
-      const hydration: any = hydrateLibrary(res.data, 1000)
-      fetchVega(hydration, appTheme)
-      setHydratedData(hydration)
+      fetchVega(hydratedData[tickerSymbol], appTheme)
       setDisplayVega(true)
     } catch (e) {
       console.log(e)
     }
-  }
+  }, [appTheme, hydratedData, tickerSymbol])
 
   useEffect(() => {
-    if (hydratedData && displayVega) {
-      fetchVega(hydratedData, appTheme)
+    const mountAndHydrate = async () => {
+      const res: any = await axios.get(`https://stats-cache.solace.fi/volatility.json`)
+      const hydration: any = hydrateLibrary(res.data.data, 1000)
+      Object.keys(hydration).map((key) => {
+        setAcceptedTickers((acceptedTickers) => [...acceptedTickers, key])
+      })
+      setHydratedData(hydration)
     }
+    mountAndHydrate()
+  }, [])
+
+  useEffect(() => {
+    if (hydratedData && displayVega) fetchVega(hydratedData[tickerSymbol], appTheme)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appTheme])
 
   return (
     <Flex col>
       <Flex gap={10} id="vis">
-        <InputSection value={tickerSymbol} onChange={(e) => setTickerSymbol(e.target.value)} />
-        <Button onClick={handleSubmit}>Get Quote</Button>
+        <InputSection
+          value={tickerSymbol}
+          onChange={(e) => setTickerSymbol(e.target.value)}
+          placeholder={'Token Symbol'}
+        />
+        <Button onClick={handleSubmit} disabled={!acceptedTickers.includes(tickerSymbol.toLowerCase())}>
+          Get Quote
+        </Button>
       </Flex>
     </Flex>
   )

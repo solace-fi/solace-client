@@ -64,7 +64,6 @@ export const useDistributedColors = (maxItems: number): string[] => {
             }
             break
           case 'gd':
-            // g -= increment
             if (g - increment <= rangeMin) {
               const leftOver = rangeMin - g - increment
               g = rangeMin

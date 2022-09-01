@@ -1,3 +1,4 @@
+import { capitalizeFirstLetter } from '../../utils/formatting'
 import axios from 'axios'
 import React, { useEffect, useMemo, useState } from 'react'
 import { AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, Area } from 'recharts'
@@ -10,6 +11,26 @@ import { formatCurrency } from '../../utils/formatting'
 export const TokenPortfolioAreaChart = () => {
   const { width } = useWindowDimensions()
   const [data, setData] = useState<any[]>([])
+
+  const keys = useMemo(
+    () => [
+      'usdc',
+      'dai',
+      'usdt',
+      'frax',
+      'wbtc',
+      'weth',
+      'near',
+      'aurora',
+      'ply',
+      'bstn',
+      'bbt',
+      'tri',
+      'vwave',
+      'solace',
+    ],
+    []
+  )
 
   function reformatData(json: any): any {
     if (!json || json.length == 0) return []
@@ -31,37 +52,10 @@ export const TokenPortfolioAreaChart = () => {
 
       const newRow: any = {
         timestamp: parseInt(currData.timestamp),
-        usdc: usdArr[0],
-        dai: usdArr[1],
-        usdt: usdArr[2],
-        frax: usdArr[3],
-        wbtc: usdArr[4],
-        weth: usdArr[5],
-        near: usdArr[6],
-        aurora: usdArr[7],
-        ply: usdArr[8],
-        bstn: usdArr[9],
-        bbt: usdArr[10],
-        tri: usdArr[11],
-        vwave: usdArr[12],
-        solace: usdArr[13],
       }
-      const keys = [
-        'usdc',
-        'dai',
-        'usdt',
-        'frax',
-        'wbtc',
-        'weth',
-        'near',
-        'aurora',
-        'ply',
-        'bstn',
-        'bbt',
-        'tri',
-        'vwave',
-        'solace',
-      ]
+      keys.forEach((key, i) => {
+        newRow[key] = usdArr[i]
+      })
       const inf = keys.filter((key) => newRow[key] == Infinity).length > 0
       if (!inf) output.push(newRow)
     }
@@ -85,6 +79,14 @@ export const TokenPortfolioAreaChart = () => {
 
   return (
     <AreaChart width={width * 0.75} height={300} data={history}>
+      <defs>
+        {keys.map((key, i) => (
+          <linearGradient id={`color${capitalizeFirstLetter(key)}`} x1="0" y1="0" x2="0" y2="1" key={i}>
+            <stop offset="5%" stopColor={colors[i]} stopOpacity={0.8} />
+            <stop offset="95%" stopColor={colors[i]} stopOpacity={0} />
+          </linearGradient>
+        ))}
+      </defs>
       <XAxis
         dataKey="timestamp"
         scale="time"
@@ -103,20 +105,19 @@ export const TokenPortfolioAreaChart = () => {
       />
       <CartesianGrid strokeDasharray="3 3" />
       <Tooltip content={<CustomTooltip valueDecimals={2} chartType={'stackedLine'} />} />
-      <Area type="monotone" dataKey="usdc" stroke={colors[0]} fillOpacity={1} fill="url(#colorUsdc)" stackId="1" />
-      <Area type="monotone" dataKey="dai" stroke={colors[1]} fillOpacity={1} fill="url(#colorDai)" stackId="1" />
-      <Area type="monotone" dataKey="usdt" stroke={colors[2]} fillOpacity={1} fill="url(#colorUsdt)" stackId="1" />
-      <Area type="monotone" dataKey="frax" stroke={colors[3]} fillOpacity={1} fill="url(#colorFrax)" stackId="1" />
-      <Area type="monotone" dataKey="wbtc" stroke={colors[5]} fillOpacity={1} fill="url(#colorWbtc)" stackId="1" />
-      <Area type="monotone" dataKey="weth" stroke={colors[4]} fillOpacity={1} fill="url(#colorWeth)" stackId="1" />
-      <Area type="monotone" dataKey="near" stroke={colors[6]} fillOpacity={1} fill="url(#colorNear)" stackId="1" />
-      <Area type="monotone" dataKey="aurora" stroke={colors[7]} fillOpacity={1} fill="url(#colorAurora)" stackId="1" />
-      <Area type="monotone" dataKey="ply" stroke={colors[8]} fillOpacity={1} fill="url(#colorPly)" stackId="1" />
-      <Area type="monotone" dataKey="bstn" stroke={colors[9]} fillOpacity={1} fill="url(#colorBstn)" stackId="1" />
-      <Area type="monotone" dataKey="bbt" stroke={colors[10]} fillOpacity={1} fill="url(#colorBbt)" stackId="1" />
-      <Area type="monotone" dataKey="tri" stroke={colors[11]} fillOpacity={1} fill="url(#colorTri)" stackId="1" />
-      <Area type="monotone" dataKey="vwave" stroke={colors[12]} fillOpacity={1} fill="url(#colorVwave)" stackId="1" />
-      <Area type="monotone" dataKey="solace" stroke={colors[13]} fillOpacity={1} fill="url(#colorSolace)" stackId="1" />
+      {keys.map((key, i) => {
+        return (
+          <Area
+            key={i}
+            type="monotone"
+            dataKey={key}
+            stroke={colors[i]}
+            fillOpacity={1}
+            fill={`url(#color${capitalizeFirstLetter(key)})`}
+            stackId="1"
+          />
+        )
+      })}
     </AreaChart>
   )
 }
