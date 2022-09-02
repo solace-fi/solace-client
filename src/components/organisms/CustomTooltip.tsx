@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { useGeneral } from '../../context/GeneralManager'
 import { useDistributedColors } from '../../hooks/internal/useDistributedColors'
+import { useAnalyticsContext } from '../../pages/analytics/AnalyticsContext'
 import { tooltipFormatterNumber, rightPad, leftPad, formatTimestamp } from '../../utils/formatting'
 import { Card } from '../atoms/Card'
 import { Flex } from '../atoms/Layout'
 import { Text } from '../atoms/Typography'
 
 export function CustomTooltip(props: any) {
-  const { appTheme } = useGeneral()
+  const { acceptedTickers } = useAnalyticsContext()
   const { active, payload, label, valuePrefix, valueDecimals, chartType } = props
   const [payload2, setPayload2] = useState<any[] | undefined>(undefined)
 
-  const colors = useDistributedColors(14)
+  const colors = useDistributedColors(acceptedTickers.length)
 
   useEffect(() => {
     if (!active || !payload || !payload.length) {

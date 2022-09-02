@@ -1,22 +1,19 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import vegaEmbed from 'vega-embed'
-import { hydrateLibrary, metalog, simulateSIP, listSIPs, p, q } from '@solace-fi/hydrate'
 import { Flex } from '../../components/atoms/Layout'
-import { Button } from '../../components/atoms/Button'
 import { useGeneral } from '../../context/GeneralManager'
-import axios from 'axios'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { DropdownOptionsUnique } from '../../components/organisms/Dropdown'
 import { Text } from '../../components/atoms/Typography'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
+import { useAnalyticsContext } from './AnalyticsContext'
 
 export const TokenPriceVolatilityHistogram = () => {
   const { appTheme } = useGeneral()
   const { isMobile } = useWindowDimensions()
+  const { hydratedVolatilityData, acceptedTickers } = useAnalyticsContext()
   const [tickerSymbol, setTickerSymbol] = useState('')
   const [displayVega, setDisplayVega] = useState(false)
-  const [hydratedData, setHydratedData] = useState<any>(undefined)
-  const [acceptedTickers, setAcceptedTickers] = useState<string[]>([])
   const [searchTerm, setSearchTerm] = useState('')
 
   const activeList = useMemo(
@@ -34,7 +31,7 @@ export const TokenPriceVolatilityHistogram = () => {
     [searchTerm, acceptedTickers]
   )
 
-  function fetchVega(dataIn: any, theme: string) {
+  function fetchVega(dataIn: any, theme: 'light' | 'dark') {
     vegaEmbed('#vis', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
       title: { text: 'Simulated Daily Price Changes', color: theme == 'light' ? 'black' : 'white' },
@@ -95,7 +92,7 @@ export const TokenPriceVolatilityHistogram = () => {
           mark: 'rule',
           encoding: {
             x: { aggregate: 'mean', field: 'var' },
-            color: { value: 'yellow' },
+            color: { value: 'lightgreen' },
             size: { value: 3 },
           },
         },
@@ -103,35 +100,14 @@ export const TokenPriceVolatilityHistogram = () => {
     })
   }
 
-  // const handleSubmit = useCallback(async () => {
-  //   try {
-  //     fetchVega(hydratedData[tickerSymbol], appTheme)
-  //     setDisplayVega(true)
-  //   } catch (e) {
-  //     console.log(e)
-  //   }
-  // }, [appTheme, hydratedData, tickerSymbol])
-
   useEffect(() => {
     if (!tickerSymbol) return
-    fetchVega(hydratedData[tickerSymbol], appTheme)
+    fetchVega(hydratedVolatilityData[tickerSymbol], appTheme)
     setDisplayVega(true)
   }, [tickerSymbol])
 
   useEffect(() => {
-    const mountAndHydrate = async () => {
-      const res: any = await axios.get(`https://stats-cache.solace.fi/volatility.json`)
-      const hydration: any = hydrateLibrary(res.data.data, 1000)
-      Object.keys(hydration).map((key) => {
-        setAcceptedTickers((acceptedTickers) => [...acceptedTickers, key])
-      })
-      setHydratedData(hydration)
-    }
-    mountAndHydrate()
-  }, [])
-
-  useEffect(() => {
-    if (hydratedData && displayVega) fetchVega(hydratedData[tickerSymbol], appTheme)
+    if (hydratedVolatilityData && displayVega) fetchVega(hydratedVolatilityData[tickerSymbol], appTheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appTheme])
 
@@ -156,7 +132,7 @@ export const TokenPriceVolatilityHistogram = () => {
         />
       </Flex>
       <Flex id="vis" widthP={100} justifyCenter>
-        <Text autoAlign>Please select a token to view volatility</Text>
+        <Text autoAlign>Please select a token to view its volatility</Text>
       </Flex>
     </Flex>
   )

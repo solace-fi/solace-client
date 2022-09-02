@@ -7,30 +7,11 @@ import { useDistributedColors } from '../../hooks/internal/useDistributedColors'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { calculateMonthlyTicks, xtickLabelFormatter } from '../../utils/chart'
 import { formatCurrency } from '../../utils/formatting'
+import { useAnalyticsContext } from './AnalyticsContext'
 
 export const TokenPortfolioAreaChart = () => {
   const { width } = useWindowDimensions()
-  const [data, setData] = useState<any[]>([])
-
-  const keys = useMemo(
-    () => [
-      'usdc',
-      'dai',
-      'usdt',
-      'frax',
-      'wbtc',
-      'weth',
-      'near',
-      'aurora',
-      'ply',
-      'bstn',
-      'bbt',
-      'tri',
-      'vwave',
-      'solace',
-    ],
-    []
-  )
+  const { nativeUwpHistoryData: data, acceptedTickers } = useAnalyticsContext()
 
   function reformatData(json: any): any {
     if (!json || json.length == 0) return []
@@ -53,34 +34,26 @@ export const TokenPortfolioAreaChart = () => {
       const newRow: any = {
         timestamp: parseInt(currData.timestamp),
       }
-      keys.forEach((key, i) => {
+      acceptedTickers.forEach((key, i) => {
         newRow[key] = usdArr[i]
       })
-      const inf = keys.filter((key) => newRow[key] == Infinity).length > 0
+      const inf = acceptedTickers.filter((key) => newRow[key] == Infinity).length > 0
       if (!inf) output.push(newRow)
     }
     output.sort((a: any, b: any) => a.timestamp - b.timestamp)
     return output
   }
 
-  const history = useMemo(() => reformatData(data), [data])
+  const history = useMemo(() => (acceptedTickers.length == 0 ? [] : reformatData(data)), [data, acceptedTickers])
   const xticks =
     history.length > 0 ? calculateMonthlyTicks(history[0].timestamp, history[history.length - 1].timestamp) : []
 
-  const colors = useDistributedColors(14)
-
-  useEffect(() => {
-    const getData = async () => {
-      const analytics = await axios.get('https://stats-cache.solace.fi/native_uwp/all.json')
-      setData(analytics.data['5']) // 5 is gorli chainid
-    }
-    getData()
-  }, [])
+  const colors = useDistributedColors(acceptedTickers.length)
 
   return (
     <AreaChart width={width * 0.75} height={300} data={history}>
       <defs>
-        {keys.map((key, i) => (
+        {acceptedTickers.map((key, i) => (
           <linearGradient id={`color${capitalizeFirstLetter(key)}`} x1="0" y1="0" x2="0" y2="1" key={i}>
             <stop offset="5%" stopColor={colors[i]} stopOpacity={0.8} />
             <stop offset="95%" stopColor={colors[i]} stopOpacity={0} />
@@ -105,7 +78,7 @@ export const TokenPortfolioAreaChart = () => {
       />
       <CartesianGrid strokeDasharray="3 3" />
       <Tooltip content={<CustomTooltip valueDecimals={2} chartType={'stackedLine'} />} />
-      {keys.map((key, i) => {
+      {acceptedTickers.map((key, i) => {
         return (
           <Area
             key={i}
