@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from '
 
 type AnalyticsContextType = {
   nativeUwpHistoryData: any[]
+  volatilityData: any
   hydratedVolatilityData: any
   acceptedTickers: string[]
   trials: number
@@ -12,6 +13,7 @@ type AnalyticsContextType = {
 const AnalyticsContext = createContext<AnalyticsContextType>({
   nativeUwpHistoryData: [],
   hydratedVolatilityData: undefined,
+  volatilityData: undefined,
   acceptedTickers: [],
   trials: 0,
 })
@@ -19,6 +21,7 @@ const AnalyticsContext = createContext<AnalyticsContextType>({
 const AnalyticsManager: React.FC = ({ children }) => {
   const [data, setData] = useState<any[]>([])
   const [hydratedData, setHydratedData] = useState<any>(undefined)
+  const [volatilityData, setVolatilityData] = useState<any>(undefined)
   const [acceptedTickers, setAcceptedTickers] = useState<string[]>([])
   const trials = useMemo(() => 1000, [])
 
@@ -30,6 +33,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
       Object.keys(hydration).map((key) => {
         _acceptedTickers.push(key)
       })
+      setVolatilityData(res)
       setAcceptedTickers(_acceptedTickers)
       setHydratedData(hydration)
     }
@@ -47,11 +51,12 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const value = useMemo(
     () => ({
       nativeUwpHistoryData: data,
+      volatilityData,
       hydratedVolatilityData: hydratedData,
       acceptedTickers,
       trials,
     }),
-    [data, hydratedData, acceptedTickers, trials]
+    [data, hydratedData, acceptedTickers, trials, volatilityData]
   )
 
   return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>

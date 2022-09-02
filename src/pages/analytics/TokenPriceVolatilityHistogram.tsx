@@ -7,11 +7,12 @@ import { DropdownOptionsUnique } from '../../components/organisms/Dropdown'
 import { Text } from '../../components/atoms/Typography'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useAnalyticsContext } from './AnalyticsContext'
+import { q } from '@solace-fi/hydrate'
 
 export const TokenPriceVolatilityHistogram = () => {
   const { appTheme } = useGeneral()
   const { isMobile } = useWindowDimensions()
-  const { hydratedVolatilityData, acceptedTickers } = useAnalyticsContext()
+  const { volatilityData, hydratedVolatilityData, acceptedTickers } = useAnalyticsContext()
   const [tickerSymbol, setTickerSymbol] = useState('')
   const [displayVega, setDisplayVega] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -31,7 +32,17 @@ export const TokenPriceVolatilityHistogram = () => {
     [searchTerm, acceptedTickers]
   )
 
-  function fetchVega(dataIn: any, theme: 'light' | 'dark') {
+  const getVarBar = () => {
+    const p = [0.05]
+    const sips = volatilityData.data.data.sips
+    const tokenSip = sips.find((sip: any) => sip.name === tickerSymbol)
+    if (!tokenSip) return 0.99
+    const aCoefficients = tokenSip.arguments.aCoefficients
+    const varBar = q(p, aCoefficients, undefined, undefined)
+    return varBar[0]
+  }
+
+  const fetchVega = (dataIn: any, theme: 'light' | 'dark', varBar = 0.99) => {
     vegaEmbed('#vis', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
       title: { text: 'Simulated Daily Price Changes', color: theme == 'light' ? 'black' : 'white' },
@@ -52,7 +63,7 @@ export const TokenPriceVolatilityHistogram = () => {
         values: dataIn.map((item: number) => {
           return {
             x: item,
-            var: 0.99,
+            var: varBar,
           }
         }),
       },
@@ -101,15 +112,20 @@ export const TokenPriceVolatilityHistogram = () => {
   }
 
   useEffect(() => {
-    if (!tickerSymbol) return
-    fetchVega(hydratedVolatilityData[tickerSymbol], appTheme)
+    if (!tickerSymbol && !volatilityData?.data?.data?.sips) return
+    const varBar = getVarBar()
+    fetchVega(hydratedVolatilityData[tickerSymbol], appTheme, varBar)
     setDisplayVega(true)
   }, [tickerSymbol])
 
-  useEffect(() => {
-    if (hydratedVolatilityData && displayVega) fetchVega(hydratedVolatilityData[tickerSymbol], appTheme)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appTheme])
+  useEffect(
+    () => {
+      if (!hydratedVolatilityData || !displayVega || !volatilityData?.data?.data?.sips) return
+      const varBar = getVarBar()
+      fetchVega(hydratedVolatilityData[tickerSymbol], appTheme, varBar)
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+    [appTheme]
+  )
 
   return (
     <Flex gap={10} col={isMobile}>
