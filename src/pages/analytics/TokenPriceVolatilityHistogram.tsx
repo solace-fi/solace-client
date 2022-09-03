@@ -45,7 +45,7 @@ export const TokenPriceVolatilityHistogram = () => {
   const fetchVega = (dataIn: any, theme: 'light' | 'dark', varBar = 0.99) => {
     vegaEmbed('#vis', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-      title: { text: 'Simulated Daily Price Changes', color: theme == 'light' ? 'black' : 'white' },
+      title: { text: 'Simulated Daily % Price Change', color: theme == 'light' ? 'black' : 'white' },
       config: {
         style: { cell: { stroke: 'transparent' } },
         axis: { labelColor: theme == 'light' ? 'black' : 'white' },
@@ -62,8 +62,8 @@ export const TokenPriceVolatilityHistogram = () => {
         name: 'table',
         values: dataIn.map((item: number) => {
           return {
-            x: item,
-            var: varBar,
+            x: (item - 1) * 100,
+            var: (varBar - 1) * 100,
           }
         }),
       },
@@ -80,12 +80,12 @@ export const TokenPriceVolatilityHistogram = () => {
             },
             { calculate: 'datum.Count/datum.TotalCount', as: 'PercentOfTotal' },
           ],
-          mark: { type: 'bar', tooltip: false, line: { color: 'darkgreen' } },
+          mark: { type: 'area', tooltip: false },
           encoding: {
             x: {
               field: 'bin_Range',
-              bin: { binned: true },
-              title: '',
+              bin: { binned: true, maxbins: 20, anchor: 1 },
+              scale: { domain: [-50, 50] },
             },
             x2: { field: 'bin_Range_end' },
             y: {
@@ -97,14 +97,25 @@ export const TokenPriceVolatilityHistogram = () => {
               field: 'PercentOfTotal',
               type: 'quantitative',
             },
+            color: { value: '#D478D8' },
           },
         },
         {
           mark: 'rule',
           encoding: {
             x: { aggregate: 'mean', field: 'var' },
-            color: { value: 'lightgreen' },
+            color: { value: '#F04D42' },
             size: { value: 3 },
+          },
+        },
+        {
+          mark: {
+            type: 'text',
+            align: 'left',
+            text: ['Solace makes up ', '20%  of the portfolio'],
+            dx: 50,
+            fontSize: 22,
+            color: theme == 'light' ? 'black' : 'white',
           },
         },
       ],

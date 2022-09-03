@@ -77,7 +77,7 @@ export const TokenPortfolioHistogram = () => {
         values: dataIn.map((item: number) => {
           return {
             x: item,
-            var: 0.99,
+            var: 0.88,
           }
         }),
       },
@@ -111,13 +111,14 @@ export const TokenPortfolioHistogram = () => {
               field: 'PercentOfTotal',
               type: 'quantitative',
             },
+            color: { value: '#5F5DF9' },
           },
         },
         {
           mark: 'rule',
           encoding: {
             x: { aggregate: 'mean', field: 'var' },
-            color: { value: 'lightgreen' },
+            color: { value: '#F04D42' },
             size: { value: 3 },
           },
         },
