@@ -9,6 +9,7 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useAnalyticsContext } from './AnalyticsContext'
 import { q } from '@solace-fi/hydrate'
 import { StyledSlider } from '../../components/atoms/Input'
+import { fixed } from '../../utils/formatting'
 
 export const TokenPriceVolatilityHistogram = () => {
   const { appTheme } = useGeneral()
@@ -18,8 +19,8 @@ export const TokenPriceVolatilityHistogram = () => {
   const [displayVega, setDisplayVega] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const [rangeValue, setRangeValue] = useState(1)
-  const var4Bar = useMemo(() => [1 - Math.max((10000 - rangeValue) / 10000, 0.9)], [rangeValue]) // rangeValue can only be 1 - 9990
+  const [rangeValue, setRangeValue] = useState(995)
+  const var4Bar = useMemo(() => [1 - (10000 - rangeValue) / 10000], [rangeValue]) // rangeValue can only be 1 - 9990
   const disabled = false
   const activeList = useMemo(
     // TODO: ticker symbols or project names? /vote is using names
@@ -127,7 +128,7 @@ export const TokenPriceVolatilityHistogram = () => {
           mark: {
             type: 'text',
             align: 'left',
-            text: [`VaR at ${(var4Bar[0] * 100).toFixed(2)}%`, `${dataIn.weight.toFixed(2)}% of the pool`],
+            text: [`[VaR at ${((var4Bar[0] - 1) * -100).toFixed(2)}%, ${fixed(dataIn.weight * 100, 2)}% of the pool]`],
             dx: 50,
             fontSize: 22,
             color: theme == 'light' ? 'black' : 'white',
@@ -142,7 +143,7 @@ export const TokenPriceVolatilityHistogram = () => {
     const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
     const varBar = getVarBar(var4Bar, tickerSymbol)
     fetchVega(allDataPortfolio[chartDataIndex], appTheme, varBar)
-    setDisplayVega(true)
+    if (!displayVega) setDisplayVega(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio])
 
@@ -177,7 +178,7 @@ export const TokenPriceVolatilityHistogram = () => {
               setRangeValue(parseInt(e.target.value))
             }}
             min={1}
-            max={9990}
+            max={1000} // 10% of 10000 is 1000, so that we limit the slider for the user
             disabled={disabled}
           />
         )}
