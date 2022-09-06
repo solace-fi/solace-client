@@ -5,6 +5,7 @@ import AnalyticsManager from './AnalyticsContext'
 import { TokenPortfolioAreaChart } from './TokenPortfolioAreaChart'
 import { TokenPortfolioHistogram } from './TokenPortfolioHistogram'
 import { TokenPriceVolatilityHistogram } from './TokenPriceVolatilityHistogram'
+import { TokenPriceVolatilityCumm } from './TokenPriceVolatilityCumm'
 
 export default function Analytics(): JSX.Element {
   return (
@@ -12,13 +13,13 @@ export default function Analytics(): JSX.Element {
       <Flex col gap={20}>
         <Flex col gap={10}>
           <Text t2 semibold>
-            Historical Token Portfolio in Native UWP
+            Underwriting Pool Composition (USD)
           </Text>
-          <TokenPortfolioAreaChart />
+          {/* <TokenPortfolioAreaChart /> */}
         </Flex>
         <Flex col gap={10}>
           <Text t2 semibold>
-            Native Portfolio Volatility
+            Underwriting Pool Volatility (Daily % change)
           </Text>
           <TokenPortfolioHistogram />
         </Flex>
@@ -27,6 +28,12 @@ export default function Analytics(): JSX.Element {
             Token Price Volatility
           </Text>
           <TokenPriceVolatilityHistogram />
+        </Flex>
+        <Flex col gap={10}>
+          <Text t2 semibold>
+            Token Price Volatility Cummulative
+          </Text>
+          <TokenPriceVolatilityCumm />
         </Flex>
       </Flex>
     </AnalyticsManager>

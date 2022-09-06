@@ -1,62 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { useAnalyticsContext } from './AnalyticsContext'
 import vegaEmbed from 'vega-embed'
 import { useGeneral } from '../../context/GeneralManager'
-import { WrappedTokenToMasterToken } from '@solace-fi/sdk-nightly'
 
 export const TokenPortfolioHistogram = () => {
   const { appTheme } = useGeneral()
-  const { nativeUwpHistoryData: data, hydratedVolatilityData, acceptedTickers, trials } = useAnalyticsContext()
+  const { portfolioVolatilityData } = useAnalyticsContext()
 
-  const tokenUsdBalances = useMemo(() => getBalancesFromData(data), [data])
-  const tokenWeights = useMemo(() => getWeightsFromBalances(tokenUsdBalances), [tokenUsdBalances])
-
-  const [adjustedVolatilityData, setAdjustedVolatilityData] = useState<number[]>([])
-
-  function getBalancesFromData(json: any): any {
-    if (!json || json.length == 0) return []
-    const latestData = json[json.length - 1]
-    const tokens = latestData.tokens
-    const tokenKeys = Object.keys(tokens)
-    const usdArr = tokenKeys
-      .filter(
-        (key) =>
-          acceptedTickers.includes(key.toLowerCase()) ||
-          acceptedTickers.includes(WrappedTokenToMasterToken[key.toLowerCase()])
-      )
-      .map((key: string) => {
-        const balance = tokens[key].balance - 0
-        const price = tokens[key].price - 0
-        const usd = balance * price
-        return usd
-      })
-    return usdArr
-  }
-
-  function getWeightsFromBalances(balances: number[]): number[] {
-    const sum = balances.reduce((a: number, b: number) => a + b, 0)
-    const weights = balances.map((balance) => balance / sum)
-    return weights
-  }
-
-  const adjustHydratedData = useCallback(() => {
-    const result: number[] = Array(trials).fill(0) // fixed array of length 1000 and initialized with zeroes
-    for (let i = 0; i < trials; i++) {
-      let trialSum = 0
-      for (let j = 0; j < acceptedTickers.length; j++) {
-        const ticker = acceptedTickers[j]
-        const volatilityTrials = hydratedVolatilityData[ticker] // array of 1000 trials based on token ticker
-        const weight = tokenWeights[j] // number less than 1
-        const adjustedVolatility = volatilityTrials[i] * weight
-        trialSum += adjustedVolatility
-      }
-      result[i] = trialSum // add to the result array
-    }
-    setAdjustedVolatilityData(result)
-  }, [acceptedTickers, hydratedVolatilityData, tokenWeights, trials])
-
-  function fetchVega(dataIn: any, theme: 'light' | 'dark') {
+  function fetchVega(dataIn: any, theme: 'light' | 'dark', varBar: number) {
     vegaEmbed('#vis2', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
       title: { text: 'Portfolio Volatility', color: theme == 'light' ? 'black' : 'white' },
@@ -76,8 +28,8 @@ export const TokenPortfolioHistogram = () => {
         name: 'table',
         values: dataIn.map((item: number) => {
           return {
-            x: item,
-            var: 0.88,
+            x: (item - 1) * 100,
+            var: (varBar - 1) * 100,
           }
         }),
       },
@@ -127,14 +79,23 @@ export const TokenPortfolioHistogram = () => {
   }
 
   useEffect(() => {
-    if (!hydratedVolatilityData || acceptedTickers.length == 0 || tokenWeights.length == 0) return
-    adjustHydratedData()
-  }, [adjustHydratedData, acceptedTickers, hydratedVolatilityData, tokenWeights])
-
-  useEffect(() => {
-    if (adjustedVolatilityData.length == 0) return
-    fetchVega(adjustedVolatilityData, appTheme)
-  }, [adjustedVolatilityData, appTheme])
+    if (portfolioVolatilityData.length == 0) return
+    const quantile = (arr: number[], q: number) => {
+      // const sorted = asc(arr); // CAUTION assumed array is sorted
+      const sorted = arr
+      const pos = (sorted.length - 1) * q
+      const base = Math.floor(pos)
+      const rest = pos - base
+      if (sorted[base + 1] !== undefined) {
+        return sorted[base] + rest * (sorted[base + 1] - sorted[base])
+      } else {
+        return sorted[base]
+      }
+    }
+    const varBar = quantile(portfolioVolatilityData.sort(), 0.01)
+    console.log('varBar', varBar) // VaR should be a slider
+    fetchVega(portfolioVolatilityData, appTheme, varBar)
+  }, [portfolioVolatilityData, appTheme])
 
   return <Flex id="vis2" />
 }
