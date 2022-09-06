@@ -15,7 +15,7 @@ export default function Analytics(): JSX.Element {
           <Text t2 semibold>
             Underwriting Pool Composition (USD)
           </Text>
-          {/* <TokenPortfolioAreaChart /> */}
+          <TokenPortfolioAreaChart />
         </Flex>
         <Flex col gap={10}>
           <Text t2 semibold>

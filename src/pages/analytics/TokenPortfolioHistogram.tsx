@@ -93,7 +93,6 @@ export const TokenPortfolioHistogram = () => {
       }
     }
     const varBar = quantile(portfolioVolatilityData.sort(), 0.01)
-    console.log('varBar', varBar) // VaR should be a slider
     fetchVega(portfolioVolatilityData, appTheme, varBar)
   }, [portfolioVolatilityData, appTheme])
 

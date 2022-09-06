@@ -1,6 +1,5 @@
+import React from 'react'
 import { capitalizeFirstLetter } from '../../utils/formatting'
-import axios from 'axios'
-import React, { useMemo } from 'react'
 import { AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, Area } from 'recharts'
 import { CustomTooltip } from '../../components/organisms/CustomTooltip'
 import { useDistributedColors } from '../../hooks/internal/useDistributedColors'
@@ -12,27 +11,17 @@ import { useAnalyticsContext } from './AnalyticsContext'
 export const TokenPortfolioAreaChart = () => {
   const { width } = useWindowDimensions()
   const { priceHistory30D, acceptedTickers } = useAnalyticsContext()
-  console.log('area area', priceHistory30D)
-  const history = useMemo(() => priceHistory30D, [priceHistory30D])
-  console.log('history', history)
-  const reformatHistory = history
-  reformatHistory.forEach((item: any) => {
-    delete item.timestamp
-  })
-  console.log('reformatHistory', reformatHistory)
-  history.forEach((item: any) => {
-    // console.log('this is it', Object.fromEntries(Object.entries(item).filter(([key]) => key.includes('timestamp'))))
-  })
   const xticks =
-    history.length > 0 ? calculateMonthlyTicks(history[0].timestamp, history[history.length - 1].timestamp) : []
+    priceHistory30D.length > 0
+      ? calculateMonthlyTicks(priceHistory30D[0].timestamp, priceHistory30D[priceHistory30D.length - 1].timestamp)
+      : []
 
-  //const colors = useDistributedColors(acceptedTickers.length)
-  const colors = useDistributedColors(history.length)
+  const colors = useDistributedColors(acceptedTickers.length)
 
   return (
-    <AreaChart width={width * 0.75} height={300} data={history}>
+    <AreaChart width={width * 0.75} height={300} data={priceHistory30D}>
       <defs>
-        {history.map((key, i) => (
+        {acceptedTickers.map((key, i) => (
           <linearGradient id={`color${capitalizeFirstLetter(key)}`} x1="0" y1="0" x2="0" y2="1" key={i}>
             <stop offset="5%" stopColor={colors[i]} stopOpacity={0.8} />
             <stop offset="95%" stopColor={colors[i]} stopOpacity={0} />
@@ -57,7 +46,7 @@ export const TokenPortfolioAreaChart = () => {
       />
       <CartesianGrid strokeDasharray="3 3" />
       <Tooltip content={<CustomTooltip valueDecimals={2} chartType={'stackedLine'} />} />
-      {history.map((key, i) => {
+      {acceptedTickers.map((key, i) => {
         return (
           <Area
             key={i}

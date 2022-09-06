@@ -17,7 +17,9 @@ export const TokenPriceVolatilityHistogram = () => {
   const [tickerSymbol, setTickerSymbol] = useState('')
   const [displayVega, setDisplayVega] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [var4Bar, setVar4Bar] = useState([0.01])
+
+  const [rangeValue, setRangeValue] = useState(1)
+  const var4Bar = useMemo(() => [1 - Math.max((10000 - rangeValue) / 10000, 0.9)], [rangeValue]) // rangeValue can only be 1 - 9990
   const disabled = false
   const activeList = useMemo(
     // TODO: ticker symbols or project names? /vote is using names
@@ -38,21 +40,25 @@ export const TokenPriceVolatilityHistogram = () => {
   const getVarBar = (p: any, tickerSymbolIn: string | undefined) => {
     //const p = [0.05] // TODO: make this dynamic value based on user input with a slider
     const sips = sipMathLib.data.sips
-    console.log('sips', sips, tickerSymbolIn)
+    // console.log('sips', sips, tickerSymbolIn)
     const tokenSip = sips.find((sip: any) => sip.name === tickerSymbolIn)
-    console.log('tokenSip', tokenSip)
+    // console.log('tokenSip', tokenSip)
     if (!tokenSip) return 0.99
     const aCoefficients = tokenSip.arguments.aCoefficients
-    console.log('aCoefficients', aCoefficients)
+    // console.log('aCoefficients', aCoefficients)
     const quantile = q(p, aCoefficients, undefined, undefined)
-    console.log('quantile', quantile[0])
+    // console.log('quantile', quantile[0])
+    // at this VaR, you can lose up to (1 - quantile[0]) * 100 % of your portfolio
     return quantile[0]
   }
 
-  const fetchVega = (dataIn: any, theme: 'light' | 'dark', varBar: number, weight: any, symbol: string) => {
+  const fetchVega = (dataIn: any, theme: 'light' | 'dark', varBar: number) => {
     vegaEmbed('#vis', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-      title: { text: `${symbol.toUpperCase()}` + ' Daily % Price Change', color: theme == 'light' ? 'black' : 'white' },
+      title: {
+        text: `${dataIn.symbol.toUpperCase()}` + ' Daily % Price Change',
+        color: theme == 'light' ? 'black' : 'white',
+      },
       config: {
         style: { cell: { stroke: 'transparent' } },
         axis: { labelColor: theme == 'light' ? 'black' : 'white' },
@@ -121,7 +127,7 @@ export const TokenPriceVolatilityHistogram = () => {
           mark: {
             type: 'text',
             align: 'left',
-            text: [`VaR at ${(var4Bar[0] * 100).toFixed(2)}%`, `${weight.toFixed(2)}% of the pool`],
+            text: [`VaR at ${(var4Bar[0] * 100).toFixed(2)}%`, `${dataIn.weight.toFixed(2)}% of the pool`],
             dx: 50,
             fontSize: 22,
             color: theme == 'light' ? 'black' : 'white',
@@ -134,37 +140,11 @@ export const TokenPriceVolatilityHistogram = () => {
   useEffect(() => {
     if (!tickerSymbol) return
     const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
-    console.log('chartDataIndex', allDataPortfolio[chartDataIndex])
-    // const varProbability: any = [0.01] // VaR should become dynamic with a slider
-    const varBar = getVarBar([var4Bar], allDataPortfolio[chartDataIndex].symbol)
-
-    fetchVega(
-      allDataPortfolio[chartDataIndex],
-      appTheme,
-      varBar,
-      allDataPortfolio[chartDataIndex].weight,
-      allDataPortfolio[chartDataIndex].symbol
-    )
+    const varBar = getVarBar(var4Bar, tickerSymbol)
+    fetchVega(allDataPortfolio[chartDataIndex], appTheme, varBar)
     setDisplayVega(true)
-  }, [tickerSymbol, var4Bar])
-
-  // Hmm twice? can we move appTheme up to [tickerSymbol,appTheme] ?
-  useEffect(
-    () => {
-      if (!displayVega || !sipMathLib) return
-      const varProbability: any = [0.01] // VaR should become dynamic with a slider
-      const varBar = getVarBar(varProbability, tickerSymbol)
-      const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
-      fetchVega(
-        allDataPortfolio[chartDataIndex],
-        appTheme,
-        varBar,
-        allDataPortfolio[chartDataIndex].weight,
-        allDataPortfolio[chartDataIndex].symbol
-      )
-    },
-    [appTheme] // eslint-disable-next-line react-hooks/exhaustive-deps
-  )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio])
 
   return (
     <Flex gap={10} col={isMobile}>
@@ -186,19 +166,22 @@ export const TokenPriceVolatilityHistogram = () => {
           processName={false}
         />
       </Flex>
-      <Flex id="vis" widthP={100} justifyCenter>
-        <Text autoAlign>Please select a token to view its volatility</Text>
+      <Flex col widthP={100}>
+        <Flex id="vis" widthP={100} justifyCenter>
+          <Text autoAlign>Please select a token to view its volatility</Text>
+        </Flex>
+        {displayVega && (
+          <StyledSlider
+            value={rangeValue}
+            onChange={(e) => {
+              setRangeValue(parseInt(e.target.value))
+            }}
+            min={1}
+            max={9990}
+            disabled={disabled}
+          />
+        )}
       </Flex>
-      <StyledSlider
-        value={50}
-        onChange={(e) => {
-          setVar4Bar([e.target.valueAsNumber / 1000]) // CAUTION can only slide to 0.1
-          console.log('get quantile for this probability ', e.target.valueAsNumber / 1000)
-        }}
-        min={1}
-        max={100}
-        disabled={disabled}
-      />
     </Flex>
   )
 }
