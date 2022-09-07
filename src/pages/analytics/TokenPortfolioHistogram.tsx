@@ -3,6 +3,7 @@ import { Flex } from '../../components/atoms/Layout'
 import { useAnalyticsContext } from './AnalyticsContext'
 import vegaEmbed from 'vega-embed'
 import { useGeneral } from '../../context/GeneralManager'
+import { Text } from '../../components/atoms/Typography'
 
 export const TokenPortfolioHistogram = () => {
   const { appTheme } = useGeneral()
@@ -96,5 +97,12 @@ export const TokenPortfolioHistogram = () => {
     fetchVega(portfolioVolatilityData, appTheme, varBar)
   }, [portfolioVolatilityData, appTheme])
 
-  return <Flex id="vis2" />
+  return (
+    <Flex col>
+      <Flex id="vis2" />
+      <Text textAlignCenter t2>
+        Portfolio VaR at 95% is 12% loss
+      </Text>
+    </Flex>
+  )
 }

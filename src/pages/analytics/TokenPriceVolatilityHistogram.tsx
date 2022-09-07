@@ -9,7 +9,6 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useAnalyticsContext } from './AnalyticsContext'
 import { q } from '@solace-fi/hydrate'
 import { StyledSlider } from '../../components/atoms/Input'
-import { fixed } from '../../utils/formatting'
 
 export const TokenPriceVolatilityHistogram = () => {
   const { appTheme } = useGeneral()
@@ -20,8 +19,11 @@ export const TokenPriceVolatilityHistogram = () => {
   const [searchTerm, setSearchTerm] = useState('')
 
   const [rangeValue, setRangeValue] = useState(995)
+  const [varBar, setVarBar] = useState<number>(0)
   const var4Bar = useMemo(() => [1 - (10000 - rangeValue) / 10000], [rangeValue]) // rangeValue can only be 1 - 9990
-  const disabled = false
+  const valueOfRiskPercentage = useMemo(() => ((var4Bar[0] - 1) * -100).toFixed(2), [var4Bar])
+  const lossPercentage = useMemo(() => ((varBar - 1) * 100).toFixed(2), [varBar])
+
   const activeList = useMemo(
     // TODO: ticker symbols or project names? /vote is using names
     () =>
@@ -124,16 +126,16 @@ export const TokenPriceVolatilityHistogram = () => {
             size: { value: 3 },
           },
         },
-        {
-          mark: {
-            type: 'text',
-            align: 'left',
-            text: [`[VaR at ${((var4Bar[0] - 1) * -100).toFixed(2)}%, ${fixed(dataIn.weight * 100, 2)}% of the pool]`],
-            dx: 50,
-            fontSize: 22,
-            color: theme == 'light' ? 'black' : 'white',
-          },
-        },
+        // {
+        //   mark: {
+        //     type: 'text',
+        //     align: 'left',
+        //     text: [`VaR at ${valueOfRiskPercentage}%`, `${((varBar - 1) * 100).toFixed(2)}% loss or more`],
+        //     dx: 50,
+        //     fontSize: 22,
+        //     color: theme == 'light' ? 'black' : 'white',
+        //   },
+        // },
       ],
     })
   }
@@ -142,6 +144,7 @@ export const TokenPriceVolatilityHistogram = () => {
     if (!tickerSymbol) return
     const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
     const varBar = getVarBar(var4Bar, tickerSymbol)
+    setVarBar(varBar)
     fetchVega(allDataPortfolio[chartDataIndex], appTheme, varBar)
     if (!displayVega) setDisplayVega(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -172,15 +175,22 @@ export const TokenPriceVolatilityHistogram = () => {
           <Text autoAlign>Please select a token to view its volatility</Text>
         </Flex>
         {displayVega && (
-          <StyledSlider
-            value={rangeValue}
-            onChange={(e) => {
-              setRangeValue(parseInt(e.target.value))
-            }}
-            min={1}
-            max={1000} // 10% of 10000 is 1000, so that we limit the slider for the user
-            disabled={disabled}
-          />
+          <Flex col gap={10}>
+            <Text textAlignCenter t2>
+              {tickerSymbol} at Value of Risk {valueOfRiskPercentage}% is {lossPercentage}% loss
+            </Text>
+            <Flex col>
+              <Text textAlignCenter>Use the slider below to adjust the value of risk</Text>
+              <StyledSlider
+                value={rangeValue}
+                onChange={(e) => {
+                  setRangeValue(parseInt(e.target.value))
+                }}
+                min={1}
+                max={1000} // 10% of 10000 is 1000, so that we limit the slider for the user
+              />
+            </Flex>
+          </Flex>
         )}
       </Flex>
     </Flex>
