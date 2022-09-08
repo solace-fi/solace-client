@@ -78,7 +78,8 @@ const AnalyticsManager: React.FC = ({ children }) => {
       const timestamp = currData.timestamp
       if (timestamp < start) continue
       const tokens = currData.tokens
-      const tokenKeys = Object.keys(tokens)
+      // todo: vwave is taken out for now
+      const tokenKeys = Object.keys(tokens).filter((key) => key.toLowerCase() !== 'vwave')
       allTokenKeys = tokenKeys.map((item) => item.toLowerCase())
       const usdArr = tokenKeys.map((key: string) => {
         const balance = tokens[key].balance - 0
@@ -133,14 +134,13 @@ const AnalyticsManager: React.FC = ({ children }) => {
   }, [])
 
   const getPortfolioDetailData = useCallback(
-    (json: any, simulatedReturns: { [key: string]: number[] }): MassUwpDataPortfolio[] => {
+    (json: any, simulatedReturns: { [key: string]: number[] }, tokenKeys: string[]): MassUwpDataPortfolio[] => {
       if (!json || json.length == 0) return []
       const latestData = json[json.length - 1]
       const tokens = latestData.tokens
-      const tokenKeys = Object.keys(tokens)
       const tokenDetails = tokenKeys.map((key: string) => {
-        const balance = tokens[key].balance - 0
-        const price = tokens[key].price - 0
+        const balance = tokens[key.toUpperCase()].balance - 0
+        const price = tokens[key.toUpperCase()].price - 0
         const usd = balance * price
         const _tokenDetails = {
           symbol: key.toLowerCase(),
@@ -200,7 +200,8 @@ const AnalyticsManager: React.FC = ({ children }) => {
       if (validateTokenArrays(allTokenKeys, numSips)) {
         const allDataPortfolio: MassUwpDataPortfolio[] = getPortfolioDetailData(
           fetchedUwpData.data[`${activeNetwork.chainId}`],
-          _simulatedReturns
+          _simulatedReturns,
+          allTokenKeys
         )
         const tokenWeights = getWeightsFromBalances(
           allDataPortfolio.map((token: MassUwpDataPortfolio) => token.usdBalance)
