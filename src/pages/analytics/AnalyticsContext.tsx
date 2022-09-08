@@ -96,7 +96,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
     const adjustedOutput = output.map((row) => {
       const newRow: any = { timestamp: row.timestamp }
       Object.keys(nonZeroBalanceMapping).forEach((key) => {
-        newRow[key.toLowerCase()] = row[key.toUpperCase()]
+        newRow[key.toLowerCase()] = row[key.toLowerCase()]
       })
       return newRow
     })
