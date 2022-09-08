@@ -6,6 +6,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 type AnalyticsContextType = {
   intrface: {
+    canSeePortfolioAreaChart: boolean
     canSeePortfolioVolatility: boolean
     canSeeTokenVolatilities: boolean
   }
@@ -18,11 +19,13 @@ type AnalyticsContextType = {
     allDataPortfolio: any[]
     fetchedSipMathLib: any
     fetchedUwpData: any
+    tokenPrices: { symbol: string; price: number }[]
   }
 }
 
 const AnalyticsContext = createContext<AnalyticsContextType>({
   intrface: {
+    canSeePortfolioAreaChart: false,
     canSeePortfolioVolatility: false,
     canSeeTokenVolatilities: false,
   },
@@ -35,6 +38,7 @@ const AnalyticsContext = createContext<AnalyticsContextType>({
     allDataPortfolio: [],
     fetchedSipMathLib: undefined,
     fetchedUwpData: undefined,
+    tokenPrices: [],
   },
 })
 
@@ -45,10 +49,12 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const [portfolioVolatilityData, setPortfolioVolatilityData] = useState<number[]>([])
   const [priceHistory30D, setPriceHistory30D] = useState<any[]>([])
   const [allDataPortfolio, setAllDataPortfolio] = useState<any[]>([])
+  const [tokenPrices, setTokenPrices] = useState<{ symbol: string; price: number }[]>([])
 
   const [fetchedUwpData, setFetchedUwpData] = useState<any>(undefined)
   const [fetchedSipMathLib, setFetchedSipMathLib] = useState<any>(undefined)
 
+  const [canSeePortfolioAreaChart, setCanSeePortfolioAreaChart] = useState<boolean>(false)
   const [canSeePortfolioVolatility, setCanSeePortfolioVolatility] = useState<boolean>(false)
   const [canSeeTokenVolatilities, setCanSeeTokenVolatilities] = useState<boolean>(false)
 
@@ -66,6 +72,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
     const output = []
     const nonZeroBalanceMapping: { [key: string]: boolean } = {}
     let allTokenKeys: string[] = []
+    const latestTokenPrices: { symbol: string; price: number }[] = []
 
     for (let i = 1; i < json.length; ++i) {
       const currData = json[i]
@@ -78,6 +85,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
         const balance = tokens[key].balance - 0
         const price = tokens[key].price - 0
         const usd = balance * price
+        if (i === json.length - 1) latestTokenPrices.push({ symbol: key.toLowerCase(), price: price })
         if (usd > 0) nonZeroBalanceMapping[key.toLowerCase()] = true
         return usd
       })
@@ -101,7 +109,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
         })
         return newerRow
       })
-    return { output: adjustedOutput, allTokenKeys }
+    return { output: adjustedOutput, allTokenKeys, latestTokenPrices }
   }, [])
 
   const getPortfolioVolatility = useCallback((weights: number[], simulatedVolatility: any[]): number[] => {
@@ -133,17 +141,16 @@ const AnalyticsManager: React.FC = ({ children }) => {
       const tokens = latestData.tokens
       const tokenKeys = Object.keys(tokens)
       const tokenDetails = tokenKeys.map((key: string) => {
-        const symbol = key
-        const balance = tokens[symbol].balance - 0
-        const price = tokens[symbol].price - 0
+        const balance = tokens[key].balance - 0
+        const price = tokens[key].price - 0
         const usd = balance * price
         const _tokenDetails = {
-          symbol: symbol.toLowerCase(),
+          symbol: key.toLowerCase(),
           balance: balance,
           price: price,
           usdBalance: usd,
           weight: 0,
-          simulation: simulatedReturns[symbol.toLowerCase()] ?? [],
+          simulation: simulatedReturns[key.toLowerCase()] ?? [],
         }
         return _tokenDetails
       })
@@ -151,39 +158,6 @@ const AnalyticsManager: React.FC = ({ children }) => {
     },
     []
   )
-
-  // useEffect(() => {
-  //   const mountAndHydrate = async () => {
-  //     // Get Price History for Native UWP
-  //     // DANGER we are assuming volatility.json has the exact same tokens as found in UWP
-  //     // TODO: Trigger /volatily metadata.json update as tokens are deposited in uwp
-
-  //     // 1  a. Get token volatility.json from cache
-  //     //    b. TODO: Get UWP tokens symbols from onchain, use sdk??
-  //     //    c. get token position amounts and their price from all.json cache
-  //     //    d. Simulate each token volatility for 1000 trials
-  //     // 2  Calculate token weights as % of UWP from allData.json
-  //     // 3  Calculate the Portfolio volatility as the sumproduct of the token volatilities
-  //     // 4  Filter and reformat whitelisted token price history
-  //     // 5  Set states
-
-  //     //// 1 ////
-
-  //     //// 2 ////
-
-  //     // TODO Check that positions are aligned from weights to allDataPortfolio
-
-  //     //// 3 //// Cacluate sumProduct for portfolio using weights
-
-  //     //// 4 ////
-
-  //     //// 5 ////
-  //     setPriceHistory30D(priceHistory30D) // TODO: Consider putting into allDataPortfolio
-  //     setAcceptedTickers(_acceptedTickers) // TODO: Consider putting into allDataPortfolio
-  //     setAllDataPortfolio(allDataPortfolio)
-  //   }
-  //   mountAndHydrate()
-  // }, [trials])
 
   useEffect(() => {
     const init = async () => {
@@ -197,19 +171,26 @@ const AnalyticsManager: React.FC = ({ children }) => {
 
   useEffect(() => {
     const getData = async () => {
-      if (!fetchedUwpData || !fetchedUwpData.data[`${activeNetwork.chainId}`] || !fetchedSipMathLib) return
+      if (!fetchedUwpData || !fetchedUwpData.data[`${activeNetwork.chainId}`] || !fetchedSipMathLib) {
+        setCanSeePortfolioAreaChart(false)
+        setCanSeePortfolioVolatility(false)
+        setCanSeeTokenVolatilities(false)
+        return
+      }
 
-      const { output: _priceHistory30D, allTokenKeys } = reformatDataForAreaChart(
+      const { output: _priceHistory30D, allTokenKeys, latestTokenPrices } = reformatDataForAreaChart(
         fetchedUwpData.data[`${activeNetwork.chainId}`]
       )
+
+      setTokenPrices(latestTokenPrices)
+      setTokenHistogramTickers(fetchedSipMathLib.data.sips.map((item: any) => item.name.toLowerCase()))
+      setPortfolioHistogramTickers(allTokenKeys)
+      setPriceHistory30D(_priceHistory30D)
+      setCanSeePortfolioAreaChart(true)
 
       const numSips = listSIPs(fetchedSipMathLib.data).map((item) => item.toLowerCase())
 
       const _simulatedReturns: { [key: string]: number[] } = hydrateLibrary(fetchedSipMathLib.data, TRIALS)
-
-      setTokenHistogramTickers(fetchedSipMathLib.data.sips.map((item: any) => item.name.toLowerCase()))
-      setPortfolioHistogramTickers(allTokenKeys)
-      setPriceHistory30D(_priceHistory30D)
 
       if (validateTokenArrays(allTokenKeys, numSips)) {
         const allDataPortfolio: MassUwpDataPortfolio[] = getPortfolioDetailData(
@@ -251,6 +232,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const value = useMemo(
     () => ({
       intrface: {
+        canSeePortfolioAreaChart,
         canSeeTokenVolatilities,
         canSeePortfolioVolatility,
       },
@@ -263,9 +245,11 @@ const AnalyticsManager: React.FC = ({ children }) => {
         allDataPortfolio,
         fetchedUwpData,
         fetchedSipMathLib,
+        tokenPrices,
       },
     }),
     [
+      canSeePortfolioAreaChart,
       portfolioHistogramTickers,
       tokenHistogramTickers,
       portfolioVolatilityData,
@@ -275,6 +259,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
       canSeePortfolioVolatility,
       fetchedUwpData,
       fetchedSipMathLib,
+      tokenPrices,
     ]
   )
   return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>

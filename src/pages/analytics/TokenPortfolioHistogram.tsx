@@ -1,15 +1,22 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { useAnalyticsContext } from './AnalyticsContext'
 import vegaEmbed from 'vega-embed'
 import { useGeneral } from '../../context/GeneralManager'
 import { Text } from '../../components/atoms/Typography'
+import { StyledSlider } from '../../components/atoms/Input'
 
 export const TokenPortfolioHistogram = () => {
   const { appTheme } = useGeneral()
   const { intrface, data } = useAnalyticsContext()
   const { canSeePortfolioVolatility } = intrface
   const { portfolioVolatilityData } = data
+
+  const [rangeValue, setRangeValue] = useState(995)
+  const [varBar, setVarBar] = useState<number>(0)
+  const var4Bar = useMemo(() => [1 - (10000 - rangeValue) / 10000], [rangeValue]) // rangeValue can only be 1 - 9990
+  const valueOfRiskPercentage = useMemo(() => ((var4Bar[0] - 1) * -100).toFixed(2), [var4Bar])
+  const lossPercentage = useMemo(() => ((varBar - 1) * 100).toFixed(2), [varBar])
 
   function fetchVega(dataIn: any, theme: 'light' | 'dark', varBar: number) {
     vegaEmbed('#vis2', {
@@ -96,6 +103,7 @@ export const TokenPortfolioHistogram = () => {
       }
     }
     const varBar = quantile(portfolioVolatilityData.sort(), 0.01)
+    setVarBar(varBar)
     fetchVega(portfolioVolatilityData, appTheme, varBar)
   }, [portfolioVolatilityData, appTheme, canSeePortfolioVolatility])
 
@@ -104,9 +112,22 @@ export const TokenPortfolioHistogram = () => {
       {canSeePortfolioVolatility ? (
         <>
           <Flex id="vis2" />
-          <Text textAlignCenter t2>
-            Portfolio VaR at 95% is 12% loss
-          </Text>
+          <Flex col gap={10}>
+            <Text textAlignCenter t2>
+              Portfolio at Value of Risk {valueOfRiskPercentage}% is {lossPercentage}% loss
+            </Text>
+            <Flex col>
+              <Text textAlignCenter>Use the slider below to adjust the value of risk</Text>
+              <StyledSlider
+                value={rangeValue}
+                onChange={(e) => {
+                  setRangeValue(parseInt(e.target.value))
+                }}
+                min={1}
+                max={1000} // 10% of 10000 is 1000, so that we limit the slider for the user
+              />
+            </Flex>
+          </Flex>
         </>
       ) : (
         <Text textAlignCenter t2>
