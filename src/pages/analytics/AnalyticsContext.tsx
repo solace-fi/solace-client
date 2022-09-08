@@ -1,7 +1,6 @@
 import { hydrateLibrary, listSIPs } from '@solace-fi/hydrate'
 import axios from 'axios'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { WrappedTokenToMasterToken } from '@solace-fi/sdk-nightly'
 import { MassUwpDataPortfolio } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 
@@ -83,17 +82,21 @@ const AnalyticsManager: React.FC = ({ children }) => {
         timestamp: parseInt(currData.timestamp),
       }
       tokenKeys.forEach((key, i) => {
-        newRow[key] = usdArr[i]
+        newRow[key.toLowerCase()] = usdArr[i]
       })
-      const inf = tokenKeys.filter((key) => newRow[key] == Infinity).length > 0
+      const inf = tokenKeys.filter((key) => newRow[key.toLowerCase()] == Infinity).length > 0
       if (!inf) output.push(newRow)
       output.push(newRow)
     }
+
+    // sort by timestamp
     output.sort((a: any, b: any) => a.timestamp - b.timestamp)
+
+    //only add tokens that had non-zero balances
     const adjustedOutput = output.map((row) => {
       const newRow: any = { timestamp: row.timestamp }
       Object.keys(nonZeroBalanceMapping).forEach((key) => {
-        newRow[key] = row[key.toUpperCase()]
+        newRow[key.toLowerCase()] = row[key.toUpperCase()]
       })
       return newRow
     })
@@ -133,15 +136,11 @@ const AnalyticsManager: React.FC = ({ children }) => {
       const tokens = latestData.tokens
       const tokenKeys = Object.keys(tokens)
       const tokenDetails = tokenKeys
-        .filter(
-          (key) =>
-            nonZeroBalanceMapping[key.toLowerCase()] ||
-            nonZeroBalanceMapping[WrappedTokenToMasterToken[key.toLowerCase()]]
-        )
+        .filter((key) => nonZeroBalanceMapping[key.toLowerCase()])
         .map((key: string) => {
           const symbol = key.toLowerCase()
-          const balance = tokens[key].balance - 0
-          const price = tokens[key].price - 0
+          const balance = tokens[symbol].balance - 0
+          const price = tokens[symbol].price - 0
           const usd = balance * price
           const _tokenDetails = {
             symbol: symbol,
@@ -149,7 +148,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
             price: price,
             usdBalance: usd,
             weight: 0,
-            simulation: simulatedReturns[symbol],
+            simulation: simulatedReturns[symbol] ?? [],
           }
           return _tokenDetails
         })
@@ -203,13 +202,16 @@ const AnalyticsManager: React.FC = ({ children }) => {
 
   useEffect(() => {
     const getData = async () => {
-      if (!fetchedUwpData.data[`${activeNetwork.chainId}`] || !fetchedUwpData || !fetchedSipMathLib) return
+      if (!fetchedUwpData || !fetchedUwpData.data[`${activeNetwork.chainId}`] || !fetchedSipMathLib) return
 
       const { output: _priceHistory30D, nonZeroBalanceMapping } = reformatDataForAreaChart(
         fetchedUwpData.data[`${activeNetwork.chainId}`]
       )
 
+      // all tokens that have non-zero balances
       const whiteListedPortfolioNonZeroTokens = Object.keys(nonZeroBalanceMapping).map((item) => item.toLowerCase())
+
+      // sipmathlib filtered to only include tokens that have non-zero balances
       const filteredSipMathLib = {
         ...fetchedSipMathLib,
         data: {
@@ -224,6 +226,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
       }
       const numSips = listSIPs(filteredSipMathLib.data.data).map((item) => item.toLowerCase())
 
+      // if number of tokens with non-zero balances equals the number of sips, hydrate and get details, finally enable histogram charts
       if (validateTokenArrays(whiteListedPortfolioNonZeroTokens, numSips)) {
         const _simulatedReturns: any = hydrateLibrary(filteredSipMathLib.data.data, TRIALS)
         const allDataPortfolio: MassUwpDataPortfolio[] = getPortfolioDetailData(
