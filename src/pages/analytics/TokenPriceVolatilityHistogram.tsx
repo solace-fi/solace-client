@@ -8,20 +8,31 @@ import { Text } from '../../components/atoms/Typography'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useAnalyticsContext } from './AnalyticsContext'
 import { q } from '@solace-fi/hydrate'
+import { StyledSlider } from '../../components/atoms/Input'
+import { Loader } from '../../components/atoms/Loader'
 
 export const TokenPriceVolatilityHistogram = () => {
   const { appTheme } = useGeneral()
   const { isMobile } = useWindowDimensions()
-  const { volatilityData, hydratedVolatilityData, acceptedTickers } = useAnalyticsContext()
+  const { intrface, data } = useAnalyticsContext()
+  const { canSeeTokenVolatilities } = intrface
+  const { tokenHistogramTickers, fetchedSipMathLib, allDataPortfolio } = data
   const [tickerSymbol, setTickerSymbol] = useState('')
   const [displayVega, setDisplayVega] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
 
+  const [rangeValue, setRangeValue] = useState(995)
+  const [varBar, setVarBar] = useState<number>(0)
+  const var4Bar = useMemo(() => [1 - (10000 - rangeValue) / 10000], [rangeValue]) // rangeValue can only be 1 - 9990
+  const valueOfRiskPercentage = useMemo(() => ((var4Bar[0] - 1) * -100).toFixed(2), [var4Bar])
+  const lossPercentage = useMemo(() => ((varBar - 1) * 100).toFixed(2), [varBar])
+
   const activeList = useMemo(
+    // TODO: ticker symbols or project names? /vote is using names
     () =>
       (searchTerm
-        ? acceptedTickers.filter((item) => item.toLowerCase().includes(searchTerm.toLowerCase()))
-        : acceptedTickers
+        ? tokenHistogramTickers.filter((item) => item.toLowerCase().includes(searchTerm.toLowerCase()))
+        : tokenHistogramTickers
       ).map((ticker) => {
         return {
           label: ticker.toLowerCase(),
@@ -29,23 +40,31 @@ export const TokenPriceVolatilityHistogram = () => {
           icon: <img src={`https://assets.solace.fi/${ticker.toLowerCase()}`} height={24} />,
         }
       }),
-    [searchTerm, acceptedTickers]
+    [searchTerm, tokenHistogramTickers]
   )
 
-  const getVarBar = () => {
-    const p = [0.05]
-    const sips = volatilityData.data.data.sips
-    const tokenSip = sips.find((sip: any) => sip.name === tickerSymbol)
+  const getVarBar = (p: any, tickerSymbolIn: string | undefined) => {
+    //const p = [0.05] // TODO: make this dynamic value based on user input with a slider
+    const sips = fetchedSipMathLib.data.sips
+    // console.log('sips', sips, tickerSymbolIn)
+    const tokenSip = sips.find((sip: any) => sip.name === tickerSymbolIn)
+    // console.log('tokenSip', tokenSip)
     if (!tokenSip) return 0.99
     const aCoefficients = tokenSip.arguments.aCoefficients
-    const varBar = q(p, aCoefficients, undefined, undefined)
-    return varBar[0]
+    // console.log('aCoefficients', aCoefficients)
+    const quantile = q(p, aCoefficients, undefined, undefined)
+    // console.log('quantile', quantile[0])
+    // at this VaR, you can lose up to (1 - quantile[0]) * 100 % of your portfolio
+    return quantile[0]
   }
 
-  const fetchVega = (dataIn: any, theme: 'light' | 'dark', varBar = 0.99) => {
+  const fetchVega = (dataIn: any, theme: 'light' | 'dark', varBar: number) => {
     vegaEmbed('#vis', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-      title: { text: 'Simulated Daily % Price Change', color: theme == 'light' ? 'black' : 'white' },
+      title: {
+        text: `${dataIn.symbol.toUpperCase()}` + ' Daily % Price Change',
+        color: theme == 'light' ? 'black' : 'white',
+      },
       config: {
         style: { cell: { stroke: 'transparent' } },
         axis: { labelColor: theme == 'light' ? 'black' : 'white' },
@@ -58,9 +77,10 @@ export const TokenPriceVolatilityHistogram = () => {
         contains: 'padding',
         resize: true,
       },
+      // signals: [{ name: 'varBar', value: 0, bind: { input: 'range', min: -0.1, max: 0.1 } }],
       data: {
         name: 'table',
-        values: dataIn.map((item: number) => {
+        values: dataIn.simulation.map((item: number) => {
           return {
             x: (item - 1) * 100,
             var: (varBar - 1) * 100,
@@ -80,17 +100,18 @@ export const TokenPriceVolatilityHistogram = () => {
             },
             { calculate: 'datum.Count/datum.TotalCount', as: 'PercentOfTotal' },
           ],
-          mark: { type: 'area', tooltip: false },
+          mark: { type: 'bar', tooltip: false },
           encoding: {
             x: {
               field: 'bin_Range',
               bin: { binned: true, maxbins: 20, anchor: 1 },
-              scale: { domain: [-50, 50] },
+              // scale: { domain: [-50, 50] },
+              title: '',
             },
             x2: { field: 'bin_Range_end' },
             y: {
               axis: {
-                title: 'Relative Frequency',
+                title: 'Frequency',
                 titleColor: theme == 'light' ? 'black' : 'white',
                 format: '.1~%',
               },
@@ -108,59 +129,83 @@ export const TokenPriceVolatilityHistogram = () => {
             size: { value: 3 },
           },
         },
-        {
-          mark: {
-            type: 'text',
-            align: 'left',
-            text: ['Solace makes up ', '20%  of the portfolio'],
-            dx: 50,
-            fontSize: 22,
-            color: theme == 'light' ? 'black' : 'white',
-          },
-        },
+        // {
+        //   mark: {
+        //     type: 'text',
+        //     align: 'left',
+        //     text: [`VaR at ${valueOfRiskPercentage}%`, `${((varBar - 1) * 100).toFixed(2)}% loss or more`],
+        //     dx: 50,
+        //     fontSize: 22,
+        //     color: theme == 'light' ? 'black' : 'white',
+        //   },
+        // },
       ],
     })
   }
 
   useEffect(() => {
-    if (!tickerSymbol && !volatilityData?.data?.data?.sips) return
-    const varBar = getVarBar()
-    fetchVega(hydratedVolatilityData[tickerSymbol], appTheme, varBar)
-    setDisplayVega(true)
-  }, [tickerSymbol])
-
-  useEffect(
-    () => {
-      if (!hydratedVolatilityData || !displayVega || !volatilityData?.data?.data?.sips) return
-      const varBar = getVarBar()
-      fetchVega(hydratedVolatilityData[tickerSymbol], appTheme, varBar)
-    }, // eslint-disable-next-line react-hooks/exhaustive-deps
-    [appTheme]
-  )
+    if (!tickerSymbol || !canSeeTokenVolatilities) return
+    const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
+    const varBar = getVarBar(var4Bar, tickerSymbol)
+    setVarBar(varBar)
+    fetchVega(allDataPortfolio[chartDataIndex], appTheme, varBar)
+    if (!displayVega) setDisplayVega(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio, canSeeTokenVolatilities])
 
   return (
-    <Flex gap={10} col={isMobile}>
-      <Flex col>
-        <SmallerInputSection
-          placeholder={'Search'}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            width: '250px',
-            border: 'none',
-          }}
-        />
-        <DropdownOptionsUnique
-          isOpen={true}
-          searchedList={activeList}
-          comparingList={[tickerSymbol.toLowerCase()]}
-          onClick={(value: string) => setTickerSymbol(value)}
-          processName={false}
-        />
-      </Flex>
-      <Flex id="vis" widthP={100} justifyCenter>
-        <Text autoAlign>Please select a token to view its volatility</Text>
-      </Flex>
+    <Flex gap={10} col={isMobile || !canSeeTokenVolatilities}>
+      {canSeeTokenVolatilities ? (
+        <>
+          <Flex col>
+            <SmallerInputSection
+              placeholder={'Search'}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '250px',
+                border: 'none',
+              }}
+            />
+            <DropdownOptionsUnique
+              isOpen={true}
+              searchedList={activeList}
+              comparingList={[tickerSymbol.toLowerCase()]}
+              onClick={(value: string) => setTickerSymbol(value)}
+              processName={false}
+            />
+          </Flex>
+          <Flex col widthP={100}>
+            <Flex id="vis" widthP={100} justifyCenter>
+              <Text autoAlign>Please select a token to view its volatility</Text>
+            </Flex>
+            {displayVega && (
+              <Flex col gap={10}>
+                <Text textAlignCenter t2>
+                  {tickerSymbol} at Value of Risk {valueOfRiskPercentage}% is {lossPercentage}% loss
+                </Text>
+                <Flex col>
+                  <Text textAlignCenter>Use the slider below to adjust the value of risk</Text>
+                  <StyledSlider
+                    value={rangeValue}
+                    onChange={(e) => {
+                      setRangeValue(parseInt(e.target.value))
+                    }}
+                    min={1}
+                    max={1000} // 10% of 10000 is 1000, so that we limit the slider for the user
+                  />
+                </Flex>
+              </Flex>
+            )}
+          </Flex>
+        </>
+      ) : canSeeTokenVolatilities == false ? (
+        <Text textAlignCenter t2>
+          This chart cannot be viewed at this time
+        </Text>
+      ) : (
+        <Loader />
+      )}
     </Flex>
   )
 }
