@@ -15,7 +15,7 @@ export const TokenPriceVolatilityHistogram = () => {
   const { isMobile } = useWindowDimensions()
   const { intrface, data } = useAnalyticsContext()
   const { canSeeTokenVolatilities } = intrface
-  const { tokenHistogramTickers, filteredSipMathLib, allDataPortfolio } = data
+  const { tokenHistogramTickers, fetchedSipMathLib, allDataPortfolio } = data
   const [tickerSymbol, setTickerSymbol] = useState('')
   const [displayVega, setDisplayVega] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -44,7 +44,7 @@ export const TokenPriceVolatilityHistogram = () => {
 
   const getVarBar = (p: any, tickerSymbolIn: string | undefined) => {
     //const p = [0.05] // TODO: make this dynamic value based on user input with a slider
-    const sips = filteredSipMathLib.data.sips
+    const sips = fetchedSipMathLib.data.sips
     // console.log('sips', sips, tickerSymbolIn)
     const tokenSip = sips.find((sip: any) => sip.name === tickerSymbolIn)
     // console.log('tokenSip', tokenSip)

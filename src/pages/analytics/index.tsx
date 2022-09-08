@@ -8,6 +8,7 @@ import { TokenPriceVolatilityHistogram } from './TokenPriceVolatilityHistogram'
 import { TokenPriceVolatilityCumm } from './TokenPriceVolatilityCumm'
 import { Accordion } from '../../components/atoms/Accordion'
 import { StyledHelpCircle } from '../../components/atoms/Icon'
+import { TokenTable } from './TokenTable'
 
 export default function Analytics(): JSX.Element {
   const [upvText, setUpvText] = useState<boolean>(false)
@@ -15,7 +16,13 @@ export default function Analytics(): JSX.Element {
 
   return (
     <AnalyticsManager>
-      <Flex col gap={20}>
+      <Flex col gap={20} py={20} px={10}>
+        <Flex col gap={10}>
+          <Text t2 semibold>
+            Token Table
+          </Text>
+          <TokenTable />
+        </Flex>
         <Flex col gap={10}>
           <Text t2 semibold>
             Underwriting Pool Composition (USD)
