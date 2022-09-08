@@ -15,8 +15,9 @@ type AnalyticsContextType = {
     trials: number
     portfolioVolatilityData: number[]
     priceHistory30D: any[]
-    filteredSipMathLib?: any
     allDataPortfolio: any[]
+    fetchedSipMathLib: any
+    fetchedUwpData: any
   }
 }
 
@@ -31,8 +32,9 @@ const AnalyticsContext = createContext<AnalyticsContextType>({
     trials: 0,
     portfolioVolatilityData: [],
     priceHistory30D: [],
-    filteredSipMathLib: undefined,
     allDataPortfolio: [],
+    fetchedSipMathLib: undefined,
+    fetchedUwpData: undefined,
   },
 })
 
@@ -42,7 +44,6 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const [tokenHistogramTickers, setTokenHistogramTickers] = useState<string[]>([])
   const [portfolioVolatilityData, setPortfolioVolatilityData] = useState<number[]>([])
   const [priceHistory30D, setPriceHistory30D] = useState<any[]>([])
-  const [filteredSipMathLib, setFilteredSipMathLib] = useState<any>(undefined)
   const [allDataPortfolio, setAllDataPortfolio] = useState<any[]>([])
 
   const [fetchedUwpData, setFetchedUwpData] = useState<any>(undefined)
@@ -64,6 +65,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
     const start = now - 60 * 60 * 24 * daysCutOffPoint // filter out data points by time
     const output = []
     const nonZeroBalanceMapping: { [key: string]: boolean } = {}
+    let allTokenKeys: string[] = []
 
     for (let i = 1; i < json.length; ++i) {
       const currData = json[i]
@@ -71,6 +73,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
       if (timestamp < start) continue
       const tokens = currData.tokens
       const tokenKeys = Object.keys(tokens)
+      allTokenKeys = tokenKeys.map((item) => item.toLowerCase())
       const usdArr = tokenKeys.map((key: string) => {
         const balance = tokens[key].balance - 0
         const price = tokens[key].price - 0
@@ -86,21 +89,19 @@ const AnalyticsManager: React.FC = ({ children }) => {
       })
       const inf = tokenKeys.filter((key) => newRow[key.toLowerCase()] == Infinity).length > 0
       if (!inf) output.push(newRow)
-      output.push(newRow)
     }
 
-    // sort by timestamp
-    output.sort((a: any, b: any) => a.timestamp - b.timestamp)
-
-    //only add tokens that had non-zero balances
-    const adjustedOutput = output.map((row) => {
-      const newRow: any = { timestamp: row.timestamp }
-      Object.keys(nonZeroBalanceMapping).forEach((key) => {
-        newRow[key.toLowerCase()] = row[key.toLowerCase()]
+    // sort by timestamp and only add tokens that had non-zero balances
+    const adjustedOutput = output
+      .sort((a: any, b: any) => a.timestamp - b.timestamp)
+      .map((oldRow) => {
+        const newerRow: any = { timestamp: oldRow.timestamp }
+        Object.keys(nonZeroBalanceMapping).forEach((key) => {
+          newerRow[key.toLowerCase()] = oldRow[key.toLowerCase()]
+        })
+        return newerRow
       })
-      return newRow
-    })
-    return { output: adjustedOutput, nonZeroBalanceMapping }
+    return { output: adjustedOutput, allTokenKeys }
   }, [])
 
   const getPortfolioVolatility = useCallback((weights: number[], simulatedVolatility: any[]): number[] => {
@@ -126,32 +127,26 @@ const AnalyticsManager: React.FC = ({ children }) => {
   }, [])
 
   const getPortfolioDetailData = useCallback(
-    (
-      json: any,
-      nonZeroBalanceMapping: { [key: string]: boolean },
-      simulatedReturns: { [key: string]: number[] }
-    ): MassUwpDataPortfolio[] => {
+    (json: any, simulatedReturns: { [key: string]: number[] }): MassUwpDataPortfolio[] => {
       if (!json || json.length == 0) return []
       const latestData = json[json.length - 1]
       const tokens = latestData.tokens
       const tokenKeys = Object.keys(tokens)
-      const tokenDetails = tokenKeys
-        .filter((key) => nonZeroBalanceMapping[key.toLowerCase()])
-        .map((key: string) => {
-          const symbol = key.toLowerCase()
-          const balance = tokens[symbol].balance - 0
-          const price = tokens[symbol].price - 0
-          const usd = balance * price
-          const _tokenDetails = {
-            symbol: symbol,
-            balance: balance,
-            price: price,
-            usdBalance: usd,
-            weight: 0,
-            simulation: simulatedReturns[symbol] ?? [],
-          }
-          return _tokenDetails
-        })
+      const tokenDetails = tokenKeys.map((key: string) => {
+        const symbol = key
+        const balance = tokens[symbol].balance - 0
+        const price = tokens[symbol].price - 0
+        const usd = balance * price
+        const _tokenDetails = {
+          symbol: symbol.toLowerCase(),
+          balance: balance,
+          price: price,
+          usdBalance: usd,
+          weight: 0,
+          simulation: simulatedReturns[symbol.toLowerCase()] ?? [],
+        }
+        return _tokenDetails
+      })
       return tokenDetails
     },
     []
@@ -204,34 +199,21 @@ const AnalyticsManager: React.FC = ({ children }) => {
     const getData = async () => {
       if (!fetchedUwpData || !fetchedUwpData.data[`${activeNetwork.chainId}`] || !fetchedSipMathLib) return
 
-      const { output: _priceHistory30D, nonZeroBalanceMapping } = reformatDataForAreaChart(
+      const { output: _priceHistory30D, allTokenKeys } = reformatDataForAreaChart(
         fetchedUwpData.data[`${activeNetwork.chainId}`]
       )
 
-      // all tokens that have non-zero balances
-      const whiteListedPortfolioNonZeroTokens = Object.keys(nonZeroBalanceMapping).map((item) => item.toLowerCase())
+      const numSips = listSIPs(fetchedSipMathLib.data).map((item) => item.toLowerCase())
 
-      // sipmathlib filtered to only include tokens that have non-zero balances
-      const filteredSipMathLib = {
-        ...fetchedSipMathLib,
-        data: {
-          ...fetchedSipMathLib.data,
-          data: {
-            ...fetchedSipMathLib.data.data,
-            sips: fetchedSipMathLib.data.data.sips.filter((sip: any) =>
-              whiteListedPortfolioNonZeroTokens.includes(sip.name.toLowerCase())
-            ),
-          },
-        },
-      }
-      const numSips = listSIPs(filteredSipMathLib.data.data).map((item) => item.toLowerCase())
+      const _simulatedReturns: { [key: string]: number[] } = hydrateLibrary(fetchedSipMathLib.data, TRIALS)
 
-      // if number of tokens with non-zero balances equals the number of sips, hydrate and get details, finally enable histogram charts
-      if (validateTokenArrays(whiteListedPortfolioNonZeroTokens, numSips)) {
-        const _simulatedReturns: any = hydrateLibrary(filteredSipMathLib.data.data, TRIALS)
+      setTokenHistogramTickers(fetchedSipMathLib.data.sips.map((item: any) => item.name.toLowerCase()))
+      setPortfolioHistogramTickers(allTokenKeys)
+      setPriceHistory30D(_priceHistory30D)
+
+      if (validateTokenArrays(allTokenKeys, numSips)) {
         const allDataPortfolio: MassUwpDataPortfolio[] = getPortfolioDetailData(
           fetchedUwpData.data[`${activeNetwork.chainId}`],
-          nonZeroBalanceMapping,
           _simulatedReturns
         )
         const tokenWeights = getWeightsFromBalances(
@@ -253,10 +235,6 @@ const AnalyticsManager: React.FC = ({ children }) => {
         setCanSeePortfolioVolatility(true)
         setCanSeeTokenVolatilities(true)
       }
-      setTokenHistogramTickers(fetchedSipMathLib.data.data.sips.map((item: any) => item.name.toLowerCase()))
-      setFilteredSipMathLib(filteredSipMathLib.data)
-      setPortfolioHistogramTickers(whiteListedPortfolioNonZeroTokens)
-      setPriceHistory30D(_priceHistory30D)
     }
     getData()
   }, [
@@ -282,8 +260,9 @@ const AnalyticsManager: React.FC = ({ children }) => {
         trials: TRIALS,
         portfolioVolatilityData,
         priceHistory30D,
-        filteredSipMathLib,
         allDataPortfolio,
+        fetchedUwpData,
+        fetchedSipMathLib,
       },
     }),
     [
@@ -291,10 +270,11 @@ const AnalyticsManager: React.FC = ({ children }) => {
       tokenHistogramTickers,
       portfolioVolatilityData,
       priceHistory30D,
-      filteredSipMathLib,
       allDataPortfolio,
       canSeeTokenVolatilities,
       canSeePortfolioVolatility,
+      fetchedUwpData,
+      fetchedSipMathLib,
     ]
   )
   return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>

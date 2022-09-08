@@ -13,7 +13,7 @@ export const TokenPriceVolatilityCumm = () => {
   const { appTheme } = useGeneral()
   const { isMobile } = useWindowDimensions()
   const { data } = useAnalyticsContext()
-  const { tokenHistogramTickers, filteredSipMathLib, allDataPortfolio } = data
+  const { tokenHistogramTickers, fetchedSipMathLib, allDataPortfolio } = data
   const [tickerSymbol, setTickerSymbol] = useState('')
   const [displayVega, setDisplayVega] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -85,7 +85,7 @@ export const TokenPriceVolatilityCumm = () => {
   useEffect(() => {
     if (!tickerSymbol) return
     const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
-    const result = filteredSipMathLib.data.sips.filter((obj: { name: any }) => {
+    const result = fetchedSipMathLib.data.sips.filter((obj: { name: any }) => {
       return obj.name === allDataPortfolio[chartDataIndex].symbol
     })
     const sipsAcoeffs = result[0].arguments.aCoefficients
@@ -107,7 +107,7 @@ export const TokenPriceVolatilityCumm = () => {
     () => {
       if (!tickerSymbol) return
       const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
-      const result = filteredSipMathLib.data.sips.filter((obj: { name: any }) => {
+      const result = fetchedSipMathLib.data.sips.filter((obj: { name: any }) => {
         return obj.name === allDataPortfolio[chartDataIndex].symbol
       })
       const sipsAcoeffs = result[0].arguments.aCoefficients
