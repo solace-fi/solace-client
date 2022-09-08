@@ -9,6 +9,7 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useAnalyticsContext } from './AnalyticsContext'
 import { q } from '@solace-fi/hydrate'
 import { StyledSlider } from '../../components/atoms/Input'
+import { Loader } from '../../components/atoms/Loader'
 
 export const TokenPriceVolatilityHistogram = () => {
   const { appTheme } = useGeneral()
@@ -198,10 +199,12 @@ export const TokenPriceVolatilityHistogram = () => {
             )}
           </Flex>
         </>
-      ) : (
+      ) : canSeeTokenVolatilities == false ? (
         <Text textAlignCenter t2>
           This chart cannot be viewed at this time
         </Text>
+      ) : (
+        <Loader />
       )}
     </Flex>
   )

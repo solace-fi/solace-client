@@ -8,6 +8,7 @@ import { calculateMonthlyTicks, xtickLabelFormatter } from '../../utils/chart'
 import { formatCurrency } from '../../utils/formatting'
 import { useAnalyticsContext } from './AnalyticsContext'
 import { Text } from '../../components/atoms/Typography'
+import { Loader } from '../../components/atoms/Loader'
 
 export const TokenPortfolioAreaChart = () => {
   const { width, isMobile } = useWindowDimensions()
@@ -65,10 +66,12 @@ export const TokenPortfolioAreaChart = () => {
             )
           })}
         </AreaChart>
-      ) : (
+      ) : canSeePortfolioAreaChart == false ? (
         <Text textAlignCenter t2>
           This chart cannot be viewed at this time
         </Text>
+      ) : (
+        <Loader />
       )}
     </>
   )

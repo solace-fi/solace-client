@@ -5,6 +5,7 @@ import vegaEmbed from 'vega-embed'
 import { useGeneral } from '../../context/GeneralManager'
 import { Text } from '../../components/atoms/Typography'
 import { StyledSlider } from '../../components/atoms/Input'
+import { Loader } from '../../components/atoms/Loader'
 
 export const TokenPortfolioHistogram = () => {
   const { appTheme } = useGeneral()
@@ -14,7 +15,7 @@ export const TokenPortfolioHistogram = () => {
 
   const [rangeValue, setRangeValue] = useState(995)
   const [varBar, setVarBar] = useState<number>(0)
-  const var4Bar = useMemo(() => [1 - (10000 - rangeValue) / 10000], [rangeValue]) // rangeValue can only be 1 - 9990
+  const var4Bar = useMemo(() => [1 - (10000 - rangeValue) / 10000], [rangeValue])
   const valueOfRiskPercentage = useMemo(() => ((var4Bar[0] - 1) * -100).toFixed(2), [var4Bar])
   const lossPercentage = useMemo(() => ((varBar - 1) * 100).toFixed(2), [varBar])
 
@@ -102,10 +103,10 @@ export const TokenPortfolioHistogram = () => {
         return sorted[base]
       }
     }
-    const varBar = quantile(portfolioVolatilityData.sort(), 0.01)
+    const varBar = quantile(portfolioVolatilityData.sort(), var4Bar[0])
     setVarBar(varBar)
     fetchVega(portfolioVolatilityData, appTheme, varBar)
-  }, [portfolioVolatilityData, appTheme, canSeePortfolioVolatility])
+  }, [portfolioVolatilityData, appTheme, canSeePortfolioVolatility, var4Bar])
 
   return (
     <Flex col>
@@ -129,10 +130,12 @@ export const TokenPortfolioHistogram = () => {
             </Flex>
           </Flex>
         </>
-      ) : (
+      ) : canSeePortfolioVolatility == false ? (
         <Text textAlignCenter t2>
           This chart cannot be viewed at this time
         </Text>
+      ) : (
+        <Loader />
       )}
     </Flex>
   )

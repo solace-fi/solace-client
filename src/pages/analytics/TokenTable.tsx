@@ -8,7 +8,7 @@ import { useAnalyticsContext } from './AnalyticsContext'
 
 export const TokenTable = () => {
   const { data } = useAnalyticsContext()
-  const { tokenPrices } = data
+  const { tokenDetails } = data
 
   return (
     <Scrollable style={{ padding: '0 10px 0 10px' }} maxDesktopHeight={'50vh'} maxMobileHeight={'50vh'}>
@@ -17,24 +17,30 @@ export const TokenTable = () => {
           <TableRow>
             <TableHeader>Token</TableHeader>
             <TableHeader>Price</TableHeader>
+            <TableHeader>Weight</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
-          {tokenPrices.map((info, i) => (
-            <TableRow key={i}>
-              <TableData>
-                <Flex gap={5} justifyCenter>
-                  <img src={`https://assets.solace.fi/${info.symbol.toLowerCase()}`} height={20} />
-                  <Text autoAlignVertical semibold>
-                    {info.symbol.toUpperCase()}
-                  </Text>
-                </Flex>
-              </TableData>
-              <TableData>
-                <Text autoAlignVertical>${truncateValue(info.price, 4)}</Text>
-              </TableData>
-            </TableRow>
-          ))}
+          {tokenDetails
+            .sort((a, b) => b.weight - a.weight)
+            .map((info, i) => (
+              <TableRow key={i}>
+                <TableData>
+                  <Flex gap={5} justifyCenter>
+                    <img src={`https://assets.solace.fi/${info.symbol.toLowerCase()}`} height={20} />
+                    <Text autoAlignVertical semibold>
+                      {info.symbol.toUpperCase()}
+                    </Text>
+                  </Flex>
+                </TableData>
+                <TableData>
+                  <Text autoAlignVertical>${truncateValue(info.price, 4)}</Text>
+                </TableData>
+                <TableData>
+                  <Text autoAlignVertical>{truncateValue(info.weight * 100, 2)}%</Text>
+                </TableData>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
     </Scrollable>
