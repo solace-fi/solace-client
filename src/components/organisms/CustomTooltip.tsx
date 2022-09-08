@@ -7,11 +7,12 @@ import { Flex } from '../atoms/Layout'
 import { Text } from '../atoms/Typography'
 
 export function CustomTooltip(props: any) {
-  const { acceptedTickers } = useAnalyticsContext()
+  const { data } = useAnalyticsContext()
+  const { portfolioHistogramTickers } = data
   const { active, payload, label, valuePrefix, valueDecimals, chartType } = props
   const [payload2, setPayload2] = useState<any[] | undefined>(undefined)
 
-  const colors = useDistributedColors(acceptedTickers.length)
+  const colors = useDistributedColors(portfolioHistogramTickers.length)
 
   useEffect(() => {
     if (!active || !payload || !payload.length) {

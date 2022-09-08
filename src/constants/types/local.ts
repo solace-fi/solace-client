@@ -46,3 +46,12 @@ export type LocalSolaceRiskProtocol = SolaceRiskProtocol & {
   index: number
   networks: string[]
 }
+
+export type MassUwpDataPortfolio = {
+  symbol: string
+  balance: number
+  price: number
+  usdBalance: number
+  weight: number
+  simulation: number[]
+}

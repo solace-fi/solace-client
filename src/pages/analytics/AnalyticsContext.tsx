@@ -1,75 +1,111 @@
-import { hydrateLibrary } from '@solace-fi/hydrate'
+import { hydrateLibrary, listSIPs } from '@solace-fi/hydrate'
 import axios from 'axios'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { WrappedTokenToMasterToken } from '@solace-fi/sdk-nightly'
+import { MassUwpDataPortfolio } from '../../constants/types'
+import { useNetwork } from '../../context/NetworkManager'
 
 type AnalyticsContextType = {
-  acceptedTickers: string[]
-  trials: number
-  portfolioVolatilityData: number[]
-  priceHistory30D: any[]
-  sipMathLib?: any
-  allDataPortfolio: any[]
+  intrface: {
+    canSeePortfolioVolatility: boolean
+    canSeeTokenVolatilities: boolean
+  }
+  data: {
+    portfolioHistogramTickers: string[]
+    tokenHistogramTickers: string[]
+    trials: number
+    portfolioVolatilityData: number[]
+    priceHistory30D: any[]
+    filteredSipMathLib?: any
+    allDataPortfolio: any[]
+  }
 }
 
 const AnalyticsContext = createContext<AnalyticsContextType>({
-  acceptedTickers: [],
-  trials: 0,
-  portfolioVolatilityData: [],
-  priceHistory30D: [],
-  sipMathLib: undefined,
-  allDataPortfolio: [],
+  intrface: {
+    canSeePortfolioVolatility: false,
+    canSeeTokenVolatilities: false,
+  },
+  data: {
+    portfolioHistogramTickers: [],
+    tokenHistogramTickers: [],
+    trials: 0,
+    portfolioVolatilityData: [],
+    priceHistory30D: [],
+    filteredSipMathLib: undefined,
+    allDataPortfolio: [],
+  },
 })
 
 const AnalyticsManager: React.FC = ({ children }) => {
-  const [acceptedTickers, setAcceptedTickers] = useState<any[]>([])
+  const { activeNetwork } = useNetwork()
+  const [portfolioHistogramTickers, setPortfolioHistogramTickers] = useState<string[]>([])
+  const [tokenHistogramTickers, setTokenHistogramTickers] = useState<string[]>([])
   const [portfolioVolatilityData, setPortfolioVolatilityData] = useState<number[]>([])
   const [priceHistory30D, setPriceHistory30D] = useState<any[]>([])
-  const [sipMathLib, setSipMathLib] = useState<any>(undefined)
+  const [filteredSipMathLib, setFilteredSipMathLib] = useState<any>(undefined)
   const [allDataPortfolio, setAllDataPortfolio] = useState<any[]>([])
-  const [simulatedReturns, setSimulatedReturns] = useState<any>(undefined)
+
+  const [fetchedUwpData, setFetchedUwpData] = useState<any>(undefined)
+  const [fetchedSipMathLib, setFetchedSipMathLib] = useState<any>(undefined)
+
+  const [canSeePortfolioVolatility, setCanSeePortfolioVolatility] = useState<boolean>(false)
+  const [canSeeTokenVolatilities, setCanSeeTokenVolatilities] = useState<boolean>(false)
 
   const TRIALS = 1000
 
-  const reformatDataForAreaChart = useCallback(
-    (json: any): any => {
-      if (!json || json.length == 0 || acceptedTickers.length == 0) return []
-      const now = Date.now() / 1000
-      const start = now - 60 * 60 * 24 * 90 // filter out data points > 3 months ago
-      const output = []
-      for (let i = 1; i < json.length; ++i) {
-        const currData = json[i]
-        const timestamp = currData.timestamp
-        if (timestamp < start) continue
-        const tokens = currData.tokens
-        const tokenKeys = Object.keys(tokens)
-        const usdArr = tokenKeys.map((key: string) => {
-          const balance = tokens[key].balance - 0
-          const price = tokens[key].price - 0
-          const usd = balance * price
-          return usd
-        })
-        const newRow: any = {
-          timestamp: parseInt(currData.timestamp),
-        }
-        acceptedTickers.forEach((key, i) => {
-          newRow[key] = usdArr[i]
-        })
-        const inf = acceptedTickers.filter((key) => newRow[key] == Infinity).length > 0
-        if (!inf) output.push(newRow)
-      }
-      output.sort((a: any, b: any) => a.timestamp - b.timestamp)
-      return output
-    },
-    [acceptedTickers]
-  )
+  const validateTokenArrays = useCallback((arrayA: string[], arrayB: string[]): boolean => {
+    return arrayA.length === arrayB.length && arrayA.every((value) => arrayB.includes(value))
+  }, [])
 
-  const getPortfolioVolatility = useCallback((weights: number[], volatility: any[]) => {
+  const reformatDataForAreaChart = useCallback((json: any): any => {
+    if (!json || json.length == 0) return []
+    const now = Date.now() / 1000
+    const daysCutOffPoint = 30
+    const start = now - 60 * 60 * 24 * daysCutOffPoint // filter out data points by time
+    const output = []
+    const nonZeroBalanceMapping: { [key: string]: boolean } = {}
+
+    for (let i = 1; i < json.length; ++i) {
+      const currData = json[i]
+      const timestamp = currData.timestamp
+      if (timestamp < start) continue
+      const tokens = currData.tokens
+      const tokenKeys = Object.keys(tokens)
+      const usdArr = tokenKeys.map((key: string) => {
+        const balance = tokens[key].balance - 0
+        const price = tokens[key].price - 0
+        const usd = balance * price
+        if (usd > 0) nonZeroBalanceMapping[key.toLowerCase()] = true
+        return usd
+      })
+      const newRow: any = {
+        timestamp: parseInt(currData.timestamp),
+      }
+      tokenKeys.forEach((key, i) => {
+        newRow[key] = usdArr[i]
+      })
+      const inf = tokenKeys.filter((key) => newRow[key] == Infinity).length > 0
+      if (!inf) output.push(newRow)
+      output.push(newRow)
+    }
+    output.sort((a: any, b: any) => a.timestamp - b.timestamp)
+    const adjustedOutput = output.map((row) => {
+      const newRow: any = { timestamp: row.timestamp }
+      Object.keys(nonZeroBalanceMapping).forEach((key) => {
+        newRow[key] = row[key.toUpperCase()]
+      })
+      return newRow
+    })
+    return { output: adjustedOutput, nonZeroBalanceMapping }
+  }, [])
+
+  const getPortfolioVolatility = useCallback((weights: number[], simulatedVolatility: any[]): number[] => {
     const result: number[] = Array(TRIALS).fill(0) // fixed array of length 1000 and initialized with zeroes
     for (let i = 0; i < TRIALS; i++) {
       let trialSum = 0
-      for (let j = 0; j < volatility.length; j++) {
-        const ticker = volatility[j]
+      for (let j = 0; j < simulatedVolatility.length; j++) {
+        const ticker = simulatedVolatility[j]
         const volatilityTrials = ticker // array of 1000 trials based on token ticker
         const weight = weights[j] // number less than 1
         const adjustedVolatility = volatilityTrials[i] * weight
@@ -87,17 +123,20 @@ const AnalyticsManager: React.FC = ({ children }) => {
   }, [])
 
   const getPortfolioDetailData = useCallback(
-    (json: any): any => {
-      if (!json || json.length == 0 || !simulatedReturns || acceptedTickers.length == 0) return []
+    (
+      json: any,
+      nonZeroBalanceMapping: { [key: string]: boolean },
+      simulatedReturns: { [key: string]: number[] }
+    ): MassUwpDataPortfolio[] => {
+      if (!json || json.length == 0) return []
       const latestData = json[json.length - 1]
       const tokens = latestData.tokens
       const tokenKeys = Object.keys(tokens)
       const tokenDetails = tokenKeys
         .filter(
           (key) =>
-            acceptedTickers.includes(key.toLowerCase()) ||
-            acceptedTickers.includes(simulatedReturns[key.toLowerCase()]) ||
-            acceptedTickers.includes(WrappedTokenToMasterToken[key.toLowerCase()])
+            nonZeroBalanceMapping[key.toLowerCase()] ||
+            nonZeroBalanceMapping[WrappedTokenToMasterToken[key.toLowerCase()]]
         )
         .map((key: string) => {
           const symbol = key.toLowerCase()
@@ -109,14 +148,14 @@ const AnalyticsManager: React.FC = ({ children }) => {
             balance: balance,
             price: price,
             usdBalance: usd,
-            simulation: simulatedReturns[symbol],
             weight: 0,
+            simulation: simulatedReturns[symbol],
           }
           return _tokenDetails
         })
       return tokenDetails
     },
-    [simulatedReturns, acceptedTickers]
+    []
   )
 
   // useEffect(() => {
@@ -153,48 +192,107 @@ const AnalyticsManager: React.FC = ({ children }) => {
   // }, [trials])
 
   useEffect(() => {
-    const hydrate = async () => {
+    const init = async () => {
+      const analytics = await axios.get('https://stats-cache.solace.fi/native_uwp/all.json')
       const sipMathLib: any = await axios.get(`https://stats-cache.solace.fi/volatility.json`)
-      const _simulatedReturns: any = hydrateLibrary(sipMathLib.data.data, TRIALS)
-      const _acceptedTickers: string[] = []
-      Object.keys(_simulatedReturns).map((key) => {
-        _acceptedTickers.push(key)
-      })
-      setSipMathLib(sipMathLib.data)
-      setAcceptedTickers(_acceptedTickers)
-      setSimulatedReturns(_simulatedReturns)
+      setFetchedUwpData(analytics)
+      setFetchedSipMathLib(sipMathLib)
     }
-    hydrate()
+    init()
   }, [])
 
   useEffect(() => {
     const getData = async () => {
-      const analytics = await axios.get('https://stats-cache.solace.fi/native_uwp/all.json')
-      const allDataPortfolio = getPortfolioDetailData(analytics.data['5']) // todo: 5 is gorli chainid
-      const tokenWeights = getWeightsFromBalances(allDataPortfolio.map((token: any) => token.usdBalance))
-      allDataPortfolio.map((token: { weight: number }, index: number) => (token.weight = tokenWeights[index]))
-      const _portfolioVolatilityData = getPortfolioVolatility(
-        tokenWeights,
-        allDataPortfolio.map((token: any) => token.simulation)
+      if (!fetchedUwpData.data[`${activeNetwork.chainId}`] || !fetchedUwpData || !fetchedSipMathLib) return
+
+      const { output: _priceHistory30D, nonZeroBalanceMapping } = reformatDataForAreaChart(
+        fetchedUwpData.data[`${activeNetwork.chainId}`]
       )
-      const _priceHistory30D = reformatDataForAreaChart(analytics.data['5'])
+
+      const whiteListedPortfolioNonZeroTokens = Object.keys(nonZeroBalanceMapping).map((item) => item.toLowerCase())
+      const filteredSipMathLib = {
+        ...fetchedSipMathLib,
+        data: {
+          ...fetchedSipMathLib.data,
+          data: {
+            ...fetchedSipMathLib.data.data,
+            sips: fetchedSipMathLib.data.data.sips.filter((sip: any) =>
+              whiteListedPortfolioNonZeroTokens.includes(sip.name.toLowerCase())
+            ),
+          },
+        },
+      }
+      const numSips = listSIPs(filteredSipMathLib.data.data).map((item) => item.toLowerCase())
+
+      if (validateTokenArrays(whiteListedPortfolioNonZeroTokens, numSips)) {
+        const _simulatedReturns: any = hydrateLibrary(filteredSipMathLib.data.data, TRIALS)
+        const allDataPortfolio: MassUwpDataPortfolio[] = getPortfolioDetailData(
+          fetchedUwpData.data[`${activeNetwork.chainId}`],
+          nonZeroBalanceMapping,
+          _simulatedReturns
+        )
+        const tokenWeights = getWeightsFromBalances(
+          allDataPortfolio.map((token: MassUwpDataPortfolio) => token.usdBalance)
+        )
+        const adjustedPortfolio: MassUwpDataPortfolio[] = allDataPortfolio.map((token: any, i: number) => {
+          return {
+            ...token,
+            weight: tokenWeights[i],
+          }
+        })
+
+        const _portfolioVolatilityData = getPortfolioVolatility(
+          tokenWeights,
+          adjustedPortfolio.map((token: MassUwpDataPortfolio) => token.simulation)
+        )
+        setPortfolioVolatilityData(_portfolioVolatilityData)
+        setAllDataPortfolio(adjustedPortfolio)
+        setCanSeePortfolioVolatility(true)
+        setCanSeeTokenVolatilities(true)
+      }
+      setTokenHistogramTickers(fetchedSipMathLib.data.data.sips.map((item: any) => item.name.toLowerCase()))
+      setFilteredSipMathLib(filteredSipMathLib.data)
+      setPortfolioHistogramTickers(whiteListedPortfolioNonZeroTokens)
       setPriceHistory30D(_priceHistory30D)
-      setPortfolioVolatilityData(_portfolioVolatilityData)
-      setAllDataPortfolio(allDataPortfolio)
     }
     getData()
-  }, [getPortfolioDetailData, getWeightsFromBalances, getPortfolioVolatility, reformatDataForAreaChart])
+  }, [
+    getPortfolioDetailData,
+    getWeightsFromBalances,
+    reformatDataForAreaChart,
+    getPortfolioVolatility,
+    validateTokenArrays,
+    activeNetwork,
+    fetchedUwpData,
+    fetchedSipMathLib,
+  ])
 
   const value = useMemo(
     () => ({
-      acceptedTickers,
-      trials: TRIALS,
+      intrface: {
+        canSeeTokenVolatilities,
+        canSeePortfolioVolatility,
+      },
+      data: {
+        portfolioHistogramTickers,
+        tokenHistogramTickers,
+        trials: TRIALS,
+        portfolioVolatilityData,
+        priceHistory30D,
+        filteredSipMathLib,
+        allDataPortfolio,
+      },
+    }),
+    [
+      portfolioHistogramTickers,
+      tokenHistogramTickers,
       portfolioVolatilityData,
       priceHistory30D,
-      sipMathLib,
+      filteredSipMathLib,
       allDataPortfolio,
-    }),
-    [acceptedTickers, portfolioVolatilityData, priceHistory30D, sipMathLib, allDataPortfolio]
+      canSeeTokenVolatilities,
+      canSeePortfolioVolatility,
+    ]
   )
   return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>
 }

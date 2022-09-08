@@ -58,12 +58,12 @@ export default function Analytics(): JSX.Element {
           </Accordion>
           <TokenPriceVolatilityHistogram />
         </Flex>
-        <Flex col gap={10}>
+        {/* <Flex col gap={10}>
           <Text t2 semibold>
             Token Price Volatility Cummulative
           </Text>
           <TokenPriceVolatilityCumm />
-        </Flex>
+        </Flex> */}
       </Flex>
     </AnalyticsManager>
   )

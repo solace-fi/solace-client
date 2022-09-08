@@ -12,17 +12,17 @@ import { q } from '@solace-fi/hydrate'
 export const TokenPriceVolatilityCumm = () => {
   const { appTheme } = useGeneral()
   const { isMobile } = useWindowDimensions()
-  const { acceptedTickers, sipMathLib, allDataPortfolio } = useAnalyticsContext()
+  const { data } = useAnalyticsContext()
+  const { tokenHistogramTickers, filteredSipMathLib, allDataPortfolio } = data
   const [tickerSymbol, setTickerSymbol] = useState('')
   const [displayVega, setDisplayVega] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const disabled = false
   const activeList = useMemo(
     // TODO: ticker symbols or project names? /vote is using names
     () =>
       (searchTerm
-        ? acceptedTickers.filter((item) => item.toLowerCase().includes(searchTerm.toLowerCase()))
-        : acceptedTickers
+        ? tokenHistogramTickers.filter((item) => item.toLowerCase().includes(searchTerm.toLowerCase()))
+        : tokenHistogramTickers
       ).map((ticker) => {
         return {
           label: ticker.toLowerCase(),
@@ -30,7 +30,7 @@ export const TokenPriceVolatilityCumm = () => {
           icon: <img src={`https://assets.solace.fi/${ticker.toLowerCase()}`} height={24} />,
         }
       }),
-    [searchTerm, acceptedTickers]
+    [searchTerm, tokenHistogramTickers]
   )
 
   const fetchVega = (dataIn: any, density: any[], theme: 'light' | 'dark', weight: any, symbol: string) => {
@@ -85,7 +85,7 @@ export const TokenPriceVolatilityCumm = () => {
   useEffect(() => {
     if (!tickerSymbol) return
     const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
-    const result = sipMathLib.data.sips.filter((obj: { name: any }) => {
+    const result = filteredSipMathLib.data.sips.filter((obj: { name: any }) => {
       return obj.name === allDataPortfolio[chartDataIndex].symbol
     })
     const sipsAcoeffs = result[0].arguments.aCoefficients
@@ -107,7 +107,7 @@ export const TokenPriceVolatilityCumm = () => {
     () => {
       if (!tickerSymbol) return
       const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
-      const result = sipMathLib.data.sips.filter((obj: { name: any }) => {
+      const result = filteredSipMathLib.data.sips.filter((obj: { name: any }) => {
         return obj.name === allDataPortfolio[chartDataIndex].symbol
       })
       const sipsAcoeffs = result[0].arguments.aCoefficients

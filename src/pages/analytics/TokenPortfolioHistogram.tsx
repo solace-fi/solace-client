@@ -7,7 +7,9 @@ import { Text } from '../../components/atoms/Typography'
 
 export const TokenPortfolioHistogram = () => {
   const { appTheme } = useGeneral()
-  const { portfolioVolatilityData } = useAnalyticsContext()
+  const { intrface, data } = useAnalyticsContext()
+  const { canSeePortfolioVolatility } = intrface
+  const { portfolioVolatilityData } = data
 
   function fetchVega(dataIn: any, theme: 'light' | 'dark', varBar: number) {
     vegaEmbed('#vis2', {
@@ -80,7 +82,7 @@ export const TokenPortfolioHistogram = () => {
   }
 
   useEffect(() => {
-    if (portfolioVolatilityData.length == 0) return
+    if (portfolioVolatilityData.length == 0 || !canSeePortfolioVolatility) return
     const quantile = (arr: number[], q: number) => {
       // const sorted = asc(arr); // CAUTION assumed array is sorted
       const sorted = arr
@@ -95,14 +97,22 @@ export const TokenPortfolioHistogram = () => {
     }
     const varBar = quantile(portfolioVolatilityData.sort(), 0.01)
     fetchVega(portfolioVolatilityData, appTheme, varBar)
-  }, [portfolioVolatilityData, appTheme])
+  }, [portfolioVolatilityData, appTheme, canSeePortfolioVolatility])
 
   return (
     <Flex col>
-      <Flex id="vis2" />
-      <Text textAlignCenter t2>
-        Portfolio VaR at 95% is 12% loss
-      </Text>
+      {canSeePortfolioVolatility ? (
+        <>
+          <Flex id="vis2" />
+          <Text textAlignCenter t2>
+            Portfolio VaR at 95% is 12% loss
+          </Text>
+        </>
+      ) : (
+        <Text textAlignCenter t2>
+          This chart cannot be viewed at this time
+        </Text>
+      )}
     </Flex>
   )
 }

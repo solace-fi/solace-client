@@ -10,18 +10,19 @@ import { useAnalyticsContext } from './AnalyticsContext'
 
 export const TokenPortfolioAreaChart = () => {
   const { width } = useWindowDimensions()
-  const { priceHistory30D, acceptedTickers } = useAnalyticsContext()
+  const { data } = useAnalyticsContext()
+  const { priceHistory30D, portfolioHistogramTickers } = data
   const xticks =
     priceHistory30D.length > 0
       ? calculateMonthlyTicks(priceHistory30D[0].timestamp, priceHistory30D[priceHistory30D.length - 1].timestamp)
       : []
 
-  const colors = useDistributedColors(acceptedTickers.length)
+  const colors = useDistributedColors(portfolioHistogramTickers.length)
 
   return (
     <AreaChart width={width * 0.75} height={300} data={priceHistory30D}>
       <defs>
-        {acceptedTickers.map((key, i) => (
+        {portfolioHistogramTickers.map((key, i) => (
           <linearGradient id={`color${capitalizeFirstLetter(key)}`} x1="0" y1="0" x2="0" y2="1" key={i}>
             <stop offset="5%" stopColor={colors[i]} stopOpacity={0.8} />
             <stop offset="95%" stopColor={colors[i]} stopOpacity={0} />
@@ -46,7 +47,7 @@ export const TokenPortfolioAreaChart = () => {
       />
       <CartesianGrid strokeDasharray="3 3" />
       <Tooltip content={<CustomTooltip valueDecimals={2} chartType={'stackedLine'} />} />
-      {acceptedTickers.map((key, i) => {
+      {portfolioHistogramTickers.map((key, i) => {
         return (
           <Area
             key={i}

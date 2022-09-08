@@ -13,7 +13,9 @@ import { StyledSlider } from '../../components/atoms/Input'
 export const TokenPriceVolatilityHistogram = () => {
   const { appTheme } = useGeneral()
   const { isMobile } = useWindowDimensions()
-  const { acceptedTickers, sipMathLib, allDataPortfolio } = useAnalyticsContext()
+  const { intrface, data } = useAnalyticsContext()
+  const { canSeeTokenVolatilities } = intrface
+  const { tokenHistogramTickers, filteredSipMathLib, allDataPortfolio } = data
   const [tickerSymbol, setTickerSymbol] = useState('')
   const [displayVega, setDisplayVega] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -28,8 +30,8 @@ export const TokenPriceVolatilityHistogram = () => {
     // TODO: ticker symbols or project names? /vote is using names
     () =>
       (searchTerm
-        ? acceptedTickers.filter((item) => item.toLowerCase().includes(searchTerm.toLowerCase()))
-        : acceptedTickers
+        ? tokenHistogramTickers.filter((item) => item.toLowerCase().includes(searchTerm.toLowerCase()))
+        : tokenHistogramTickers
       ).map((ticker) => {
         return {
           label: ticker.toLowerCase(),
@@ -37,12 +39,12 @@ export const TokenPriceVolatilityHistogram = () => {
           icon: <img src={`https://assets.solace.fi/${ticker.toLowerCase()}`} height={24} />,
         }
       }),
-    [searchTerm, acceptedTickers]
+    [searchTerm, tokenHistogramTickers]
   )
 
   const getVarBar = (p: any, tickerSymbolIn: string | undefined) => {
     //const p = [0.05] // TODO: make this dynamic value based on user input with a slider
-    const sips = sipMathLib.data.sips
+    const sips = filteredSipMathLib.data.sips
     // console.log('sips', sips, tickerSymbolIn)
     const tokenSip = sips.find((sip: any) => sip.name === tickerSymbolIn)
     // console.log('tokenSip', tokenSip)
@@ -141,58 +143,66 @@ export const TokenPriceVolatilityHistogram = () => {
   }
 
   useEffect(() => {
-    if (!tickerSymbol) return
+    if (!tickerSymbol || !canSeeTokenVolatilities) return
     const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
     const varBar = getVarBar(var4Bar, tickerSymbol)
     setVarBar(varBar)
     fetchVega(allDataPortfolio[chartDataIndex], appTheme, varBar)
     if (!displayVega) setDisplayVega(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio])
+  }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio, canSeeTokenVolatilities])
 
   return (
-    <Flex gap={10} col={isMobile}>
-      <Flex col>
-        <SmallerInputSection
-          placeholder={'Search'}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            width: '250px',
-            border: 'none',
-          }}
-        />
-        <DropdownOptionsUnique
-          isOpen={true}
-          searchedList={activeList}
-          comparingList={[tickerSymbol.toLowerCase()]}
-          onClick={(value: string) => setTickerSymbol(value)}
-          processName={false}
-        />
-      </Flex>
-      <Flex col widthP={100}>
-        <Flex id="vis" widthP={100} justifyCenter>
-          <Text autoAlign>Please select a token to view its volatility</Text>
-        </Flex>
-        {displayVega && (
-          <Flex col gap={10}>
-            <Text textAlignCenter t2>
-              {tickerSymbol} at Value of Risk {valueOfRiskPercentage}% is {lossPercentage}% loss
-            </Text>
-            <Flex col>
-              <Text textAlignCenter>Use the slider below to adjust the value of risk</Text>
-              <StyledSlider
-                value={rangeValue}
-                onChange={(e) => {
-                  setRangeValue(parseInt(e.target.value))
-                }}
-                min={1}
-                max={1000} // 10% of 10000 is 1000, so that we limit the slider for the user
-              />
-            </Flex>
+    <Flex gap={10} col={isMobile || !canSeeTokenVolatilities}>
+      {canSeeTokenVolatilities ? (
+        <>
+          <Flex col>
+            <SmallerInputSection
+              placeholder={'Search'}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '250px',
+                border: 'none',
+              }}
+            />
+            <DropdownOptionsUnique
+              isOpen={true}
+              searchedList={activeList}
+              comparingList={[tickerSymbol.toLowerCase()]}
+              onClick={(value: string) => setTickerSymbol(value)}
+              processName={false}
+            />
           </Flex>
-        )}
-      </Flex>
+          <Flex col widthP={100}>
+            <Flex id="vis" widthP={100} justifyCenter>
+              <Text autoAlign>Please select a token to view its volatility</Text>
+            </Flex>
+            {displayVega && (
+              <Flex col gap={10}>
+                <Text textAlignCenter t2>
+                  {tickerSymbol} at Value of Risk {valueOfRiskPercentage}% is {lossPercentage}% loss
+                </Text>
+                <Flex col>
+                  <Text textAlignCenter>Use the slider below to adjust the value of risk</Text>
+                  <StyledSlider
+                    value={rangeValue}
+                    onChange={(e) => {
+                      setRangeValue(parseInt(e.target.value))
+                    }}
+                    min={1}
+                    max={1000} // 10% of 10000 is 1000, so that we limit the slider for the user
+                  />
+                </Flex>
+              </Flex>
+            )}
+          </Flex>
+        </>
+      ) : (
+        <Text textAlignCenter t2>
+          This chart cannot be viewed at this time
+        </Text>
+      )}
     </Flex>
   )
 }
