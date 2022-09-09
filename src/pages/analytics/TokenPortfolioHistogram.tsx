@@ -13,7 +13,7 @@ export const TokenPortfolioHistogram = () => {
   const { canSeePortfolioVolatility } = intrface
   const { portfolioVolatilityData } = data
 
-  const [rangeValue, setRangeValue] = useState(995)
+  const [rangeValue, setRangeValue] = useState(1000)
   const [varBar, setVarBar] = useState<number>(0)
   const var4Bar = useMemo(() => [1 - (10000 - rangeValue) / 10000], [rangeValue])
   const valueOfRiskPercentage = useMemo(() => ((var4Bar[0] - 1) * -100).toFixed(2), [var4Bar])

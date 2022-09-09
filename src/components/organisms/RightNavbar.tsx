@@ -87,6 +87,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
             <Flex between pt={60} pl={30} pr={30} pb={30}>
               <ShadowDiv style={{ borderRadius: '28px' }}>
                 <AppButton nohover noborder secondary p={8} style={{ borderRadius: '28px' }}>
+                  a
                   <Flex between gap={5} itemsCenter>
                     {account ? (
                       <SolaceGradientCircle>
