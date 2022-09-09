@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
-import AnalyticsManager, { useAnalyticsContext } from './AnalyticsContext'
+import AnalyticsManager from './AnalyticsContext'
 import { TokenPortfolioAreaChart } from './TokenPortfolioAreaChart'
 import { TokenPortfolioHistogram } from './TokenPortfolioHistogram'
 import { TokenPriceVolatilityHistogram } from './TokenPriceVolatilityHistogram'
@@ -21,11 +21,6 @@ export default function Analytics(): JSX.Element {
 export function AnalyticsContent(): JSX.Element {
   const [upvText, setUpvText] = useState<boolean>(false)
   const [tpvText, setTpvText] = useState<boolean>(false)
-
-  const { data } = useAnalyticsContext()
-  const { fetchedSipMathLib } = data
-
-  setTimeout(() => console.log(fetchedSipMathLib), 3000)
 
   return (
     <Flex col gap={20} py={20} px={10}>

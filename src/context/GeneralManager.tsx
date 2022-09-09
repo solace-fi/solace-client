@@ -20,7 +20,6 @@ type GeneralContextType = {
   haveErrors: boolean
   leftSidebar: boolean
   rightSidebar: boolean
-  referralCode: string | undefined
   addNotices: (noticesToAdd: SystemNoticeData[]) => void
   removeNotices: (noticesToRemove: SystemNotice[]) => void
   addErrors: (errorsToAdd: ErrorData[]) => void
@@ -37,7 +36,6 @@ const GeneralContext = createContext<GeneralContextType>({
   haveErrors: false,
   leftSidebar: false,
   rightSidebar: false,
-  referralCode: undefined,
   addNotices: () => undefined,
   removeNotices: () => undefined,
   addErrors: () => undefined,
@@ -56,18 +54,6 @@ const GeneralProvider: React.FC = (props) => {
   )
   const appTheme: 'light' | 'dark' = selectedTheme ?? 'light'
   const theme = appTheme == 'light' ? lightTheme : darkTheme
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [referralCode, setReferralCode] = useSessionStorage<string | undefined>('sol_data_referral_code_v3')
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const referralCodeFromUrl = params.get('rc')
-    if (referralCodeFromUrl) {
-      history.pushState(null, '', location.href.split('?')[0])
-      setReferralCode(referralCodeFromUrl)
-      console.log('referralCodeFromUrl', referralCodeFromUrl)
-    }
-  }, [setReferralCode])
 
   const [notices, setNotices] = useState<string[]>([])
   const [errors, setErrors] = useState<string[]>([])
@@ -136,7 +122,6 @@ const GeneralProvider: React.FC = (props) => {
     haveErrors: haveErrors.current,
     leftSidebar,
     rightSidebar,
-    referralCode,
     addNotices,
     removeNotices,
     addErrors,
