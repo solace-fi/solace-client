@@ -39,7 +39,7 @@ export const TokenTable = () => {
       <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
         <TableHead sticky zIndex={Z_TABLE + 1}>
           <TableRow>
-            <TableHeader>
+            <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
               <Flex justifyCenter>
                 <TextSpan info autoAlignVertical onClick={() => setSelectedSort('TA')}>
                   <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
@@ -50,7 +50,7 @@ export const TokenTable = () => {
                 </TextSpan>
               </Flex>
             </TableHeader>
-            <TableHeader>
+            <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
               <Flex justifyCenter>
                 <TextSpan info autoAlignVertical onClick={() => setSelectedSort('PA')}>
                   <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
@@ -61,7 +61,7 @@ export const TokenTable = () => {
                 </TextSpan>
               </Flex>
             </TableHeader>
-            <TableHeader>
+            <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
               <Flex justifyCenter>
                 <TextSpan info autoAlignVertical onClick={() => setSelectedSort('WA')}>
                   <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
@@ -79,7 +79,7 @@ export const TokenTable = () => {
             .sort((a, b) => modifiedSort(a, b))
             .map((info, i) => (
               <TableRow key={i}>
-                <TableData>
+                <TableData style={{ padding: '14px 4px' }}>
                   <Flex gap={5} justifyCenter>
                     <img src={`https://assets.solace.fi/${info.symbol.toLowerCase()}`} height={20} />
                     <Text autoAlignVertical semibold>
@@ -87,10 +87,10 @@ export const TokenTable = () => {
                     </Text>
                   </Flex>
                 </TableData>
-                <TableData>
+                <TableData style={{ padding: '14px 4px' }}>
                   <Text autoAlignVertical>${truncateValue(info.price, 4)}</Text>
                 </TableData>
-                <TableData>
+                <TableData style={{ padding: '14px 4px' }}>
                   <Text autoAlignVertical>{truncateValue(info.weight * 100, 2)}%</Text>
                 </TableData>
               </TableRow>
