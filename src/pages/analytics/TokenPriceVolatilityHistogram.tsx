@@ -144,7 +144,14 @@ export const TokenPriceVolatilityHistogram = () => {
   }
 
   useEffect(() => {
-    if (!tickerSymbol || !canSeeTokenVolatilities) return
+    if (!tickerSymbol) {
+      // we must set tickerSymbol to the symbol with the highest weight in the portfolio
+      const highestWeightTicker = allDataPortfolio.length
+        ? allDataPortfolio.reduce((prev, current) => (prev.weight > current.weight ? prev : current))
+        : undefined
+      if (highestWeightTicker) setTickerSymbol(highestWeightTicker.symbol)
+    }
+    if (tickerSymbol.length === 0 || !canSeeTokenVolatilities) return
     const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
     const varBar = getVarBar(var4Bar, tickerSymbol)
     setVarBar(varBar)
@@ -169,10 +176,11 @@ export const TokenPriceVolatilityHistogram = () => {
             />
             <DropdownOptionsUnique
               isOpen={true}
-              searchedList={activeList}
-              comparingList={[tickerSymbol.toLowerCase()]}
+              searchedList={activeList.sort((a, b) => a.label.localeCompare(b.label))}
+              comparingList={[tickerSymbol]}
               onClick={(value: string) => setTickerSymbol(value)}
-              processName={false}
+              processName={true}
+              customProcessFunction={(value: string) => value.toUpperCase()}
             />
           </Flex>
           <Flex col widthP={100}>
@@ -180,9 +188,13 @@ export const TokenPriceVolatilityHistogram = () => {
               <Text autoAlign>Please select a token to view its volatility</Text>
             </Flex>
             {displayVega && (
-              <Flex col gap={10}>
+              <Flex col gap={10} mt={8}>
                 <Text textAlignCenter t2>
-                  {tickerSymbol} at Value of Risk {valueOfRiskPercentage}% is {lossPercentage}% loss
+                  Today there is a {(100 - Number(valueOfRiskPercentage)).toFixed(2)}% chance of{' '}
+                  <Text inline semibold info>
+                    {tickerSymbol.toUpperCase()}
+                  </Text>{' '}
+                  going down by {Math.abs(Number(lossPercentage))}%% or more.
                 </Text>
                 <Flex col>
                   <Text textAlignCenter>Use the slider below to adjust the value of risk</Text>

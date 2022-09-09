@@ -22,7 +22,7 @@ export const TokenPortfolioHistogram = () => {
   function fetchVega(dataIn: any, theme: 'light' | 'dark', varBar: number) {
     vegaEmbed('#vis2', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-      title: { text: 'Portfolio Volatility', color: theme == 'light' ? 'black' : 'white' },
+      title: { text: 'Portfolio Daily % Price Change', color: theme == 'light' ? 'black' : 'white' },
       config: {
         style: { cell: { stroke: 'transparent' } },
         axis: { labelColor: theme == 'light' ? 'black' : 'white' },
@@ -115,7 +115,8 @@ export const TokenPortfolioHistogram = () => {
           <Flex id="vis2" />
           <Flex col gap={10}>
             <Text textAlignCenter t2>
-              Portfolio at Value of Risk {valueOfRiskPercentage}% is {lossPercentage}% loss
+              Today there is a {(100 - Number(valueOfRiskPercentage)).toFixed(2)}% chance of the value going down by{' '}
+              {Math.abs(Number(lossPercentage))}% or more.
             </Text>
             <Flex col>
               <Text textAlignCenter>Use the slider below to adjust the value of risk</Text>

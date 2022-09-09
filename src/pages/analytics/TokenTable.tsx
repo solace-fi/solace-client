@@ -23,6 +23,7 @@ export const TokenTable = () => {
         <TableBody>
           {tokenDetails
             .sort((a, b) => b.weight - a.weight)
+            // .sort((a, b) => a.symbol.localeCompare(b.symbol))
             .map((info, i) => (
               <TableRow key={i}>
                 <TableData>
