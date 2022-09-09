@@ -6,9 +6,9 @@ import { useNetwork } from '../../context/NetworkManager'
 
 type AnalyticsContextType = {
   intrface: {
-    canSeePortfolioAreaChart: boolean
-    canSeePortfolioVolatility: boolean
-    canSeeTokenVolatilities: boolean
+    canSeePortfolioAreaChart?: boolean
+    canSeePortfolioVolatility?: boolean
+    canSeeTokenVolatilities?: boolean
   }
   data: {
     portfolioHistogramTickers: string[]
@@ -19,15 +19,15 @@ type AnalyticsContextType = {
     allDataPortfolio: any[]
     fetchedSipMathLib: any
     fetchedUwpData: any
-    tokenPrices: { symbol: string; price: number }[]
+    tokenDetails: { symbol: string; price: number; weight: number }[]
   }
 }
 
 const AnalyticsContext = createContext<AnalyticsContextType>({
   intrface: {
-    canSeePortfolioAreaChart: false,
-    canSeePortfolioVolatility: false,
-    canSeeTokenVolatilities: false,
+    canSeePortfolioAreaChart: undefined,
+    canSeePortfolioVolatility: undefined,
+    canSeeTokenVolatilities: undefined,
   },
   data: {
     portfolioHistogramTickers: [],
@@ -38,7 +38,7 @@ const AnalyticsContext = createContext<AnalyticsContextType>({
     allDataPortfolio: [],
     fetchedSipMathLib: undefined,
     fetchedUwpData: undefined,
-    tokenPrices: [],
+    tokenDetails: [],
   },
 })
 
@@ -49,14 +49,14 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const [portfolioVolatilityData, setPortfolioVolatilityData] = useState<number[]>([])
   const [priceHistory30D, setPriceHistory30D] = useState<any[]>([])
   const [allDataPortfolio, setAllDataPortfolio] = useState<any[]>([])
-  const [tokenPrices, setTokenPrices] = useState<{ symbol: string; price: number }[]>([])
+  const [tokenDetails, setTokenDetails] = useState<{ symbol: string; price: number; weight: number }[]>([])
 
   const [fetchedUwpData, setFetchedUwpData] = useState<any>(undefined)
   const [fetchedSipMathLib, setFetchedSipMathLib] = useState<any>(undefined)
 
-  const [canSeePortfolioAreaChart, setCanSeePortfolioAreaChart] = useState<boolean>(false)
-  const [canSeePortfolioVolatility, setCanSeePortfolioVolatility] = useState<boolean>(false)
-  const [canSeeTokenVolatilities, setCanSeeTokenVolatilities] = useState<boolean>(false)
+  const [canSeePortfolioAreaChart, setCanSeePortfolioAreaChart] = useState<boolean | undefined>(undefined)
+  const [canSeePortfolioVolatility, setCanSeePortfolioVolatility] = useState<boolean | undefined>(undefined)
+  const [canSeeTokenVolatilities, setCanSeeTokenVolatilities] = useState<boolean | undefined>(undefined)
 
   const TRIALS = 1000
 
@@ -72,20 +72,19 @@ const AnalyticsManager: React.FC = ({ children }) => {
     const output = []
     const nonZeroBalanceMapping: { [key: string]: boolean } = {}
     let allTokenKeys: string[] = []
-    const latestTokenPrices: { symbol: string; price: number }[] = []
 
     for (let i = 1; i < json.length; ++i) {
       const currData = json[i]
       const timestamp = currData.timestamp
       if (timestamp < start) continue
       const tokens = currData.tokens
-      const tokenKeys = Object.keys(tokens)
+      // todo: vwave is taken out for now
+      const tokenKeys = Object.keys(tokens).filter((key) => key.toLowerCase() !== 'vwave')
       allTokenKeys = tokenKeys.map((item) => item.toLowerCase())
       const usdArr = tokenKeys.map((key: string) => {
         const balance = tokens[key].balance - 0
         const price = tokens[key].price - 0
         const usd = balance * price
-        if (i === json.length - 1) latestTokenPrices.push({ symbol: key.toLowerCase(), price: price })
         if (usd > 0) nonZeroBalanceMapping[key.toLowerCase()] = true
         return usd
       })
@@ -109,7 +108,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
         })
         return newerRow
       })
-    return { output: adjustedOutput, allTokenKeys, latestTokenPrices }
+    return { output: adjustedOutput, allTokenKeys }
   }, [])
 
   const getPortfolioVolatility = useCallback((weights: number[], simulatedVolatility: any[]): number[] => {
@@ -135,14 +134,13 @@ const AnalyticsManager: React.FC = ({ children }) => {
   }, [])
 
   const getPortfolioDetailData = useCallback(
-    (json: any, simulatedReturns: { [key: string]: number[] }): MassUwpDataPortfolio[] => {
+    (json: any, simulatedReturns: { [key: string]: number[] }, tokenKeys: string[]): MassUwpDataPortfolio[] => {
       if (!json || json.length == 0) return []
       const latestData = json[json.length - 1]
       const tokens = latestData.tokens
-      const tokenKeys = Object.keys(tokens)
       const tokenDetails = tokenKeys.map((key: string) => {
-        const balance = tokens[key].balance - 0
-        const price = tokens[key].price - 0
+        const balance = tokens[key.toUpperCase()].balance - 0
+        const price = tokens[key.toUpperCase()].price - 0
         const usd = balance * price
         const _tokenDetails = {
           symbol: key.toLowerCase(),
@@ -166,27 +164,34 @@ const AnalyticsManager: React.FC = ({ children }) => {
       setFetchedUwpData(analytics)
       setFetchedSipMathLib(sipMathLib)
     }
-    init()
+    setTimeout(() => {
+      init()
+    }, 200)
   }, [])
 
   useEffect(() => {
     const getData = async () => {
-      if (!fetchedUwpData || !fetchedUwpData.data[`${activeNetwork.chainId}`] || !fetchedSipMathLib) {
+      if (!fetchedUwpData || !fetchedSipMathLib) {
+        setCanSeePortfolioAreaChart(undefined)
+        setCanSeePortfolioVolatility(undefined)
+        setCanSeeTokenVolatilities(undefined)
+        return
+      }
+
+      if (!fetchedUwpData.data[`${activeNetwork.chainId}`]) {
         setCanSeePortfolioAreaChart(false)
         setCanSeePortfolioVolatility(false)
         setCanSeeTokenVolatilities(false)
         return
       }
 
-      const { output: _priceHistory30D, allTokenKeys, latestTokenPrices } = reformatDataForAreaChart(
+      const { output: _priceHistory30D, allTokenKeys } = reformatDataForAreaChart(
         fetchedUwpData.data[`${activeNetwork.chainId}`]
       )
 
-      setTokenPrices(latestTokenPrices)
       setTokenHistogramTickers(fetchedSipMathLib.data.sips.map((item: any) => item.name.toLowerCase()))
       setPortfolioHistogramTickers(allTokenKeys)
       setPriceHistory30D(_priceHistory30D)
-      setCanSeePortfolioAreaChart(true)
 
       const numSips = listSIPs(fetchedSipMathLib.data).map((item) => item.toLowerCase())
 
@@ -195,7 +200,8 @@ const AnalyticsManager: React.FC = ({ children }) => {
       if (validateTokenArrays(allTokenKeys, numSips)) {
         const allDataPortfolio: MassUwpDataPortfolio[] = getPortfolioDetailData(
           fetchedUwpData.data[`${activeNetwork.chainId}`],
-          _simulatedReturns
+          _simulatedReturns,
+          allTokenKeys
         )
         const tokenWeights = getWeightsFromBalances(
           allDataPortfolio.map((token: MassUwpDataPortfolio) => token.usdBalance)
@@ -206,6 +212,15 @@ const AnalyticsManager: React.FC = ({ children }) => {
             weight: tokenWeights[i],
           }
         })
+        setTokenDetails(
+          adjustedPortfolio.map((token: MassUwpDataPortfolio) => {
+            return {
+              symbol: token.symbol,
+              weight: token.weight,
+              price: token.price,
+            }
+          })
+        )
 
         const _portfolioVolatilityData = getPortfolioVolatility(
           tokenWeights,
@@ -213,6 +228,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
         )
         setPortfolioVolatilityData(_portfolioVolatilityData)
         setAllDataPortfolio(adjustedPortfolio)
+        setCanSeePortfolioAreaChart(true)
         setCanSeePortfolioVolatility(true)
         setCanSeeTokenVolatilities(true)
       }
@@ -245,7 +261,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
         allDataPortfolio,
         fetchedUwpData,
         fetchedSipMathLib,
-        tokenPrices,
+        tokenDetails,
       },
     }),
     [
@@ -259,7 +275,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
       canSeePortfolioVolatility,
       fetchedUwpData,
       fetchedSipMathLib,
-      tokenPrices,
+      tokenDetails,
     ]
   )
   return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>

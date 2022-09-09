@@ -1,6 +1,7 @@
 import { BKPT_3 } from '../../../constants'
 import styled from 'styled-components'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
+import { ThinScrollbarCss } from '../Scrollbar/ThinScrollbar'
 
 interface ScrollableProps extends GeneralElementProps {
   maxDesktopHeight?: string
@@ -18,4 +19,5 @@ export const Scrollable = styled.div<ScrollableProps>`
   }
   border-radius: 10px;
   ${GeneralElementCss}
+  ${ThinScrollbarCss}
 `
