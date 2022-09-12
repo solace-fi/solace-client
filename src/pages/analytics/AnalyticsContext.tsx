@@ -19,6 +19,7 @@ type AnalyticsContextType = {
     allDataPortfolio: any[]
     fetchedSipMathLib: any
     fetchedUwpData: any
+    fetchedPremiums: any
     tokenDetails: { symbol: string; price: number; weight: number }[]
   }
 }
@@ -38,6 +39,7 @@ const AnalyticsContext = createContext<AnalyticsContextType>({
     allDataPortfolio: [],
     fetchedSipMathLib: undefined,
     fetchedUwpData: undefined,
+    fetchedPremiums: undefined,
     tokenDetails: [],
   },
 })
@@ -53,6 +55,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
 
   const [fetchedUwpData, setFetchedUwpData] = useState<any>(undefined)
   const [fetchedSipMathLib, setFetchedSipMathLib] = useState<any>(undefined)
+  const [fetchedPremiums, setFetchedPremiums] = useState<any>(undefined)
 
   const [canSeePortfolioAreaChart, setCanSeePortfolioAreaChart] = useState<boolean | undefined>(undefined)
   const [canSeePortfolioVolatility, setCanSeePortfolioVolatility] = useState<boolean | undefined>(undefined)
@@ -159,10 +162,14 @@ const AnalyticsManager: React.FC = ({ children }) => {
 
   useEffect(() => {
     const init = async () => {
-      const analytics = await axios.get('https://stats-cache.solace.fi/native_uwp/all.json')
-      const sipMathLib: any = await axios.get(`https://stats-cache.solace.fi/volatility.json`)
+      const [analytics, sipMathLib, premiums] = await Promise.all([
+        axios.get('https://stats-cache.solace.fi/native_uwp/all.json'),
+        axios.get(`https://stats-cache.solace.fi/volatility.json`),
+        axios.get('https://stats-cache.solace.fi/native_premiums/all.json'),
+      ])
       setFetchedUwpData(analytics)
       setFetchedSipMathLib(sipMathLib)
+      setFetchedPremiums(premiums)
     }
     setTimeout(() => {
       init()
@@ -260,6 +267,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
         priceHistory30D,
         allDataPortfolio,
         fetchedUwpData,
+        fetchedPremiums,
         fetchedSipMathLib,
         tokenDetails,
       },
@@ -275,6 +283,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
       canSeePortfolioVolatility,
       fetchedUwpData,
       fetchedSipMathLib,
+      fetchedPremiums,
       tokenDetails,
     ]
   )
