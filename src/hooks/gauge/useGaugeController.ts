@@ -215,7 +215,7 @@ export const useGaugeController = () => {
 }
 
 export const useGaugeControllerHelper = () => {
-  const { getAllGaugeWeights, getGaugeName, isGaugeActive } = useGaugeController()
+  const { getAllGaugeWeights, getGaugeName, isGaugeActive, getVoters } = useGaugeController()
   const { valueOfHolder } = useUwp()
   const { activeNetwork } = useNetwork()
   const { provider } = useProvider()
@@ -225,7 +225,8 @@ export const useGaugeControllerHelper = () => {
   const [loading, setLoading] = useState(false)
   const running = useRef(false)
 
-  const [gaugesData, setGaugesData] = useState<GaugeData[]>([])
+  const [currentGaugesData, setCurrentGaugesData] = useState<GaugeData[]>([])
+  const [nextGaugesData, setNextGaugesData] = useState<GaugeData[]>([])
   const [insuranceCapacity, setInsuranceCapacity] = useState<number>(0)
 
   const fetchGauges = useCallback(async () => {
@@ -259,44 +260,60 @@ export const useGaugeControllerHelper = () => {
 
       const mcProvider = new MulticallProvider(provider, activeNetwork.chainId)
       const gaugeControllerMC = new MulticallContract(gaugeController.address, gaugeControllerABI)
-      const blockTag = await provider.getBlockNumber()
       const nextEpochWeights: BigNumber[] = Array(adjustedGaugeWeights.length).fill(ZERO)
       const VOTING_CONTRACTS = [uwLockVoting.address]
       const VOTING_ABIS = [underwritingLockVotingABI]
 
       for (let i = 0; i < VOTING_CONTRACTS.length; ++i) {
-        const voters: string[] = await gaugeController.getVoters(VOTING_CONTRACTS[i], { blockTag })
+        const voters: string[] = await getVoters(VOTING_CONTRACTS[i])
         const voteContractMC = new MulticallContract(VOTING_CONTRACTS[i], VOTING_ABIS[i])
         const [votePowers, votes] = await Promise.all([
           multicallChunked(
             mcProvider,
-            voters.map((voter) => voteContractMC.getVotePower(voter, { blockTag: blockTag, gasLimit: 30000000 }))
+            voters.map((voter) => voteContractMC.getVotePower(voter))
           ),
           multicallChunked(
             mcProvider,
-            voters.map((voter) =>
-              gaugeControllerMC.getVotes(VOTING_CONTRACTS[i], voter, { blockTag: blockTag, gasLimit: 30000000 })
-            )
+            voters.map((voter) => gaugeControllerMC.getVotes(VOTING_CONTRACTS[i], voter))
           ),
         ])
         for (let j = 0; j < voters.length; ++j) {
-          const votePower = votePowers[j]
+          const votePower: BigNumber = votePowers[j]
           for (let k = 0; k < votes[j].length; ++k) {
-            const gaugeID = votes[j][k].gaugeID.toNumber()
+            const gaugeID: number = votes[j][k].gaugeID.toNumber()
             const votePowerBPS = votes[j][k].votePowerBPS
-            nextEpochWeights[gaugeID] = nextEpochWeights[gaugeID].add(votePower.mul(votePowerBPS).div(MAX_BPS))
+            nextEpochWeights[gaugeID - 1] = nextEpochWeights[gaugeID - 1].add(votePower.mul(votePowerBPS).div(MAX_BPS))
           }
         }
       }
 
-      console.log('nextEpochWeights', nextEpochWeights)
+      // console.log('nextEpochWeights', nextEpochWeights)
 
-      setGaugesData(_currentGaugesData)
+      const _nextGaugesData = nextEpochWeights.map((gaugeWeight, i) => {
+        return {
+          gaugeId: BigNumber.from(i).add(BigNumber.from(offset)),
+          gaugeName: gaugeNames[i],
+          gaugeWeight,
+          isActive: gaugesActive[i],
+        }
+      })
+
+      setCurrentGaugesData(_currentGaugesData)
+      setNextGaugesData(_nextGaugesData)
     } catch (error) {
       console.error('fetchGauges', error)
     }
     setLoading(false)
-  }, [getAllGaugeWeights, getGaugeName, isGaugeActive, gaugeController, uwLockVoting, activeNetwork.chainId, provider])
+  }, [
+    getAllGaugeWeights,
+    getGaugeName,
+    isGaugeActive,
+    getVoters,
+    gaugeController,
+    uwLockVoting,
+    activeNetwork.chainId,
+    provider,
+  ])
 
   useEffect(() => {
     const callFetchGauges = async () => {
@@ -321,5 +338,5 @@ export const useGaugeControllerHelper = () => {
     calculateInsuranceCapacity()
   }, [uwe, gaugeController, valueOfHolder])
 
-  return { loading, gaugesData, insuranceCapacity }
+  return { loading, currentGaugesData, nextGaugesData, insuranceCapacity }
 }
