@@ -3,6 +3,9 @@ import axios from 'axios'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { MassUwpDataPortfolio } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
+import { FetchedPremiums } from './types/FetchedPremiums'
+import { FetchedSipMathLib } from './types/SipMathLib'
+import { BlockData, FetchedUWPData } from './types/UWPData'
 
 type AnalyticsContextType = {
   intrface: {
@@ -53,7 +56,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const [allDataPortfolio, setAllDataPortfolio] = useState<any[]>([])
   const [tokenDetails, setTokenDetails] = useState<{ symbol: string; price: number; weight: number }[]>([])
 
-  const [fetchedUwpData, setFetchedUwpData] = useState<any>(undefined)
+  const [fetchedUwpData, setFetchedUwpData] = useState<FetchedUWPData | undefined>(undefined)
   const [fetchedSipMathLib, setFetchedSipMathLib] = useState<any>(undefined)
   const [fetchedPremiums, setFetchedPremiums] = useState<any>(undefined)
 
@@ -167,9 +170,9 @@ const AnalyticsManager: React.FC = ({ children }) => {
         axios.get(`https://stats-cache.solace.fi/volatility.json`),
         axios.get('https://stats-cache.solace.fi/native_premiums/all.json'),
       ])
-      setFetchedUwpData(analytics)
-      setFetchedSipMathLib(sipMathLib)
-      setFetchedPremiums(premiums)
+      setFetchedUwpData((analytics.data as unknown) as FetchedUWPData)
+      setFetchedSipMathLib((sipMathLib.data as unknown) as FetchedSipMathLib)
+      setFetchedPremiums((premiums.data as unknown) as FetchedPremiums)
     }
     setTimeout(() => {
       init()
@@ -185,7 +188,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
         return
       }
 
-      if (!fetchedUwpData.data[`${activeNetwork.chainId}`]) {
+      if (!(fetchedUwpData[activeNetwork.chainId.toString()] as BlockData[])) {
         setCanSeePortfolioAreaChart(false)
         setCanSeePortfolioVolatility(false)
         setCanSeeTokenVolatilities(false)
@@ -193,7 +196,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
       }
 
       const { output: _priceHistory30D, allTokenKeys } = reformatDataForAreaChart(
-        fetchedUwpData.data[`${activeNetwork.chainId}`]
+        fetchedUwpData[`${activeNetwork.chainId}`]
       )
 
       setTokenHistogramTickers(fetchedSipMathLib.data.sips.map((item: any) => item.name.toLowerCase()))
@@ -206,7 +209,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
 
       if (validateTokenArrays(allTokenKeys, numSips)) {
         const allDataPortfolio: MassUwpDataPortfolio[] = getPortfolioDetailData(
-          fetchedUwpData.data[`${activeNetwork.chainId}`],
+          fetchedUwpData[`${activeNetwork.chainId}`],
           _simulatedReturns,
           allTokenKeys
         )
