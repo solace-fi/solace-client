@@ -14,6 +14,8 @@ import { useNetwork } from '../../context/NetworkManager'
 import { truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { useVoteContext } from '../vote/VoteContext'
+import CardSectionValue from '../lock/components/CardSectionValue'
+import { PremiumsPaidByPeriodChart } from './PremiumsPaidByPeriodChart'
 
 export default function Analytics(): JSX.Element {
   return <AnalyticsContent />
@@ -39,9 +41,18 @@ export function AnalyticsContent(): JSX.Element {
   return (
     <Flex col gap={20} py={20} px={10}>
       <Flex evenly gap={10}>
-        <Card widthP={100}>${truncateValue(premiumsUSD, 2)}</Card>
-        <Card widthP={100}>${truncateValue(formatUnits(uwpValueUSD, 18), 2)}</Card>
-        <Card widthP={100}>{leverageFactor}</Card>
+        <Card widthP={100}>
+          <Text t4>Premiums</Text>
+          <CardSectionValue info>${truncateValue(premiumsUSD, 2)}</CardSectionValue>
+        </Card>
+        <Card widthP={100}>
+          <Text t4>Underwriting Pool Size</Text>
+          <CardSectionValue info>${truncateValue(formatUnits(uwpValueUSD, 18), 2)} </CardSectionValue>
+        </Card>
+        <Card widthP={100}>
+          <Text t4>Leverage Factor</Text>
+          <CardSectionValue info>{leverageFactor}</CardSectionValue>
+        </Card>
       </Flex>
       <Flex col gap={10}>
         <Text t2 semibold>
@@ -90,6 +101,12 @@ export function AnalyticsContent(): JSX.Element {
           </Text>
         </Accordion>
         <TokenPriceVolatilityHistogram />
+      </Flex>
+      <Flex col gap={10}>
+        <Text t2 semibold>
+          Premiums Paid By Period
+        </Text>
+        <PremiumsPaidByPeriodChart />
       </Flex>
       {/* <Flex col gap={10}>
           <Text t2 semibold>
