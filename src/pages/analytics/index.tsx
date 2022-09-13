@@ -26,9 +26,10 @@ export default function Analytics(): JSX.Element {
 }
 
 export function AnalyticsContent(): JSX.Element {
+  const [upVolatilityText, setUpVolatilityText] = useState<boolean>(false)
   const { activeNetwork } = useNetwork()
   const { data } = useAnalyticsContext()
-  const { fetchedPremiums } = data
+  const { fetchedPremiums, fetchedSipMathLib } = data
 
   const premiumsUSD = useMemo(() => {
     if (!fetchedPremiums || !fetchedPremiums?.data[activeNetwork.chainId]) return 0
