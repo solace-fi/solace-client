@@ -41,10 +41,10 @@ import { Wallet } from '@styled-icons/boxicons-solid/Wallet'
 import { Warning } from '@styled-icons/fluentui-system-regular/Warning'
 import { Work } from '@styled-icons/material/Work'
 import { LocalFireDepartment } from '@styled-icons/material/LocalFireDepartment'
-import { Multiselect } from '@styled-icons/fluentui-system-regular/Multiselect'
+import { MultiselectLtr } from '@styled-icons/fluentui-system-regular/MultiselectLtr'
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosForwardOutline'
 import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline'
-import { VoteYea } from '@styled-icons/fa-solid/VoteYea'
+import { Vote } from '@styled-icons/fluentui-system-regular/Vote'
 import { Tractor } from '@styled-icons/fa-solid/Tractor'
 import { FolderHistory } from '@styled-icons/remix-fill/FolderHistory'
 import { Export } from '@styled-icons/boxicons-regular/Export'
@@ -131,7 +131,7 @@ export const StyledSendPlane = styled(SendPlane)``
 
 export const StyledRefresh = styled(Refresh)``
 
-export const StyledMultiselect = styled(Multiselect)``
+export const StyledMultiselect = styled(MultiselectLtr)``
 
 export const StyledCopy = styled(Copy)``
 
@@ -171,7 +171,7 @@ export const StyledExpand = styled(Expand)``
 
 export const StyledExport = styled(Export)``
 
-export const StyledVoteYea = styled(VoteYea)``
+export const StyledVote = styled(Vote)``
 
 export const StyledFire = styled(LocalFireDepartment)`
   ${StyledIconCss}

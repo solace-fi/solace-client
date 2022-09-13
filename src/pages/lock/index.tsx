@@ -20,7 +20,7 @@ import {
   StyledMultiselect,
   StyledArrowIosBackOutline,
   StyledArrowIosForwardOutline,
-  StyledVoteYea,
+  StyledVote,
   StyledInfo,
 } from '../../components/atoms/Icon'
 import Safe from './sections/Safe/index'

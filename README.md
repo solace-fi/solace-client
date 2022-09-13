@@ -22,6 +22,8 @@ Note: This project was originally developed alongside the Hardhat framework.
 
 After you clone the core directory, you must clone this client directory inside because client is dependent on core.
 
+This codebase has been developed using Node v16.0.0 and Npm v7.10.0, if you are facing issues with the dependencies, try using these versions. Be mindful that these versions may change in the future.
+
 Install dependencies on both core and client directories
 
     npm install

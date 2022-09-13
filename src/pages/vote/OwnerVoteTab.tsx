@@ -13,7 +13,7 @@ import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { isAddress } from '../../utils'
 import { formatAmount, truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
-import { StyledVoteYea } from '../../components/atoms/Icon'
+import { StyledVote } from '../../components/atoms/Icon'
 import { useCachedData } from '../../context/CachedDataManager'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import useDebounce from '@rooks/use-debounce'
@@ -118,7 +118,7 @@ export const OwnerVoteTab = () => {
         </Text>
         <Flex gap={10}>
           <Button secondary info noborder onClick={() => handleDelegateModalOpen(true)}>
-            <StyledVoteYea size={20} style={{ marginRight: '5px' }} /> Delegate
+            <StyledVote size={20} style={{ marginRight: '5px' }} /> Delegate
           </Button>
         </Flex>
       </Flex>

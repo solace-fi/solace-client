@@ -18,7 +18,7 @@ export const GaugePieChart = () => {
   const { gauges, intrface } = useVoteContext()
   const { gaugesLoading } = intrface
   const { isMobile } = useWindowDimensions()
-  const { gaugesData, insuranceCapacity } = gauges
+  const { currentGaugesData, nextGaugesData, insuranceCapacity } = gauges
 
   const CHART_COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', 'rgb(95,93,249)', 'rgb(240,77,66)'], [])
   const LIGHT_COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', '#6493fa', 'rgb(240,77,66)'], [])
@@ -33,8 +33,8 @@ export const GaugePieChart = () => {
 
   const TOP_GAUGES = CHART_COLORS.length
 
-  const data = useMemo(() => {
-    return gaugesData
+  const currentData = useMemo(() => {
+    return currentGaugesData
       .map((g) => {
         const v = parseFloat(formatUnits(g.gaugeWeight, 14).split('.')[0])
         return {
@@ -46,18 +46,33 @@ export const GaugePieChart = () => {
         }
       })
       .sort((a, b) => b.value - a.value)
-  }, [gaugesData, insuranceCapacity])
+  }, [currentGaugesData, insuranceCapacity])
+
+  const nextData = useMemo(() => {
+    return nextGaugesData
+      .map((g) => {
+        const v = parseFloat(formatUnits(g.gaugeWeight, 14).split('.')[0])
+        return {
+          name: g.gaugeName,
+          value: v / 100,
+          usdValue: (v * insuranceCapacity) / 10000,
+          id: g.gaugeId,
+          isActive: g.isActive,
+        }
+      })
+      .sort((a, b) => b.value - a.value)
+  }, [nextGaugesData, insuranceCapacity])
 
   const summarizedData = useMemo(
     () => [
-      ...data.slice(0, TOP_GAUGES),
+      ...currentData.slice(0, TOP_GAUGES),
       {
         name: 'Other Protocols',
-        value: data.slice(TOP_GAUGES).reduce((acc, pv) => pv.value + acc, 0),
-        usdValue: data.slice(TOP_GAUGES).reduce((acc, pv) => pv.usdValue + acc, 0),
+        value: currentData.slice(TOP_GAUGES).reduce((acc, pv) => pv.value + acc, 0),
+        usdValue: currentData.slice(TOP_GAUGES).reduce((acc, pv) => pv.usdValue + acc, 0),
       },
     ],
-    [data, TOP_GAUGES]
+    [currentData, TOP_GAUGES]
   )
 
   const { width } = useWindowDimensions()
@@ -89,7 +104,8 @@ export const GaugePieChart = () => {
       <GaugeWeightsModal
         isOpen={openGaugeWeightsModal}
         handleClose={handleGaugeWeightsModal}
-        data={data}
+        currentWeightsData={currentData}
+        nextWeightsData={nextData}
         chartColors={CHART_COLORS}
         textColors={TEXT_COLORS}
         lightColors={LIGHT_COLORS}
