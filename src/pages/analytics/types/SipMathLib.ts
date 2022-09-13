@@ -118,17 +118,18 @@ export enum Source {
 }
 
 export interface TokenMap {
-	aurigami?:           string;
-	"aurora-near"?:      string;
-	"bastion-protocol"?: string;
-	bluebit?:            string;
-	dai?:                string;
-	frax?:               string;
-	near?:               string;
-	solace?:             string;
-	tether?:             string;
-	trisolaris?:         string;
-	"usd-coin"?:         string;
-	weth?:               string;
-	"wrapped-bitcoin"?:  string;
+	[key:string]: string;
+	// aurigami?:           string;
+	// "aurora-near"?:      string;
+	// "bastion-protocol"?: string;
+	// bluebit?:            string;
+	// dai?:                string;
+	// frax?:               string;
+	// near?:               string;
+	// solace?:             string;
+	// tether?:             string;
+	// trisolaris?:         string;
+	// "usd-coin"?:         string;
+	// weth?:               string;
+	// "wrapped-bitcoin"?:  string;
 }

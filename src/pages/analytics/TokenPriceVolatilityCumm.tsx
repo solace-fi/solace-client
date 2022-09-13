@@ -9,7 +9,7 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useAnalyticsContext } from './AnalyticsContext'
 import { q } from '@solace-fi/hydrate'
 
-export const TokenPriceVolatilityCumm = () => {
+export const TokenPriceVolatilityCumm = (): JSX.Element => {
   const { appTheme } = useGeneral()
   const { isMobile } = useWindowDimensions()
   const { data } = useAnalyticsContext()
@@ -85,10 +85,10 @@ export const TokenPriceVolatilityCumm = () => {
   useEffect(() => {
     if (!tickerSymbol) return
     const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
-    const result = fetchedSipMathLib.data.sips.filter((obj: { name: any }) => {
+    const result = fetchedSipMathLib?.sips.filter((obj: { name: any }) => {
       return obj.name === allDataPortfolio[chartDataIndex].symbol
     })
-    const sipsAcoeffs = result[0].arguments.aCoefficients
+    const sipsAcoeffs = result?.[0].arguments.aCoefficients
     const density = Array.from(Array(99).keys(), (n) => n / 100 + 0.01)
     console.log(density)
 
@@ -100,6 +100,7 @@ export const TokenPriceVolatilityCumm = () => {
       allDataPortfolio[chartDataIndex].symbol
     )
     setDisplayVega(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tickerSymbol])
 
   // Hmm twice? can we move appTheme up to [tickerSymbol,appTheme] ?
@@ -107,10 +108,10 @@ export const TokenPriceVolatilityCumm = () => {
     () => {
       if (!tickerSymbol) return
       const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
-      const result = fetchedSipMathLib.data.sips.filter((obj: { name: any }) => {
-        return obj.name === allDataPortfolio[chartDataIndex].symbol
-      })
-      const sipsAcoeffs = result[0].arguments.aCoefficients
+      // const result = fetchedSipMathLib?.sips.filter((obj: { name: any }) => {
+      //   return obj.name === allDataPortfolio[chartDataIndex].symbol
+      // })
+      // const sipsAcoeffs = result[0].arguments.aCoefficients
       const density = Array.from(Array(99).keys(), (n) => n / 100 + 0.01)
       console.log(density)
       fetchVega(
@@ -121,7 +122,8 @@ export const TokenPriceVolatilityCumm = () => {
         allDataPortfolio[chartDataIndex].symbol
       )
     },
-    [appTheme] // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [appTheme]
   )
 
   return (

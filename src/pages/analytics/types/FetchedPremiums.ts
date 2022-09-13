@@ -1,5 +1,5 @@
 export interface FetchedPremiums {
-	[key: string]: BlockPremiumData[]
+	[key: string]: BlockPremiumData
 }
 
 export interface BlockPremiumData {
