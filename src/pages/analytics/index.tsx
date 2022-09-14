@@ -16,6 +16,7 @@ import { ZERO } from '@solace-fi/sdk-nightly'
 import { BigNumber } from 'ethers'
 import { useUwp } from '../../hooks/lock/useUnderwritingHelper'
 import { formatUnits } from 'ethers/lib/utils'
+import { TokenRadialChart } from './TokenRadialChart'
 
 export default function Analytics(): JSX.Element {
   return (
