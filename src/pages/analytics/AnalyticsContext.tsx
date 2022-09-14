@@ -25,6 +25,7 @@ type AnalyticsContextType = {
     fetchedPremiums: any
     tokenDetails: { symbol: string; price: number; weight: number }[]
     uwpValueUSD: BigNumber
+    getPortfolioVolatility: (weights: number[], simulatedVolatility: any[]) => number[]
   }
 }
 
@@ -46,6 +47,7 @@ const AnalyticsContext = createContext<AnalyticsContextType>({
     fetchedPremiums: undefined,
     tokenDetails: [],
     uwpValueUSD: ZERO,
+    getPortfolioVolatility: () => [],
   },
 })
 
@@ -286,6 +288,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
         fetchedSipMathLib,
         tokenDetails,
         uwpValueUSD,
+        getPortfolioVolatility,
       },
     }),
     [
@@ -302,6 +305,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
       fetchedPremiums,
       tokenDetails,
       uwpValueUSD,
+      getPortfolioVolatility,
     ]
   )
   return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>
