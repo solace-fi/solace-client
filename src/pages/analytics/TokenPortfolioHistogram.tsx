@@ -6,9 +6,12 @@ import { useGeneral } from '../../context/GeneralManager'
 import { Text } from '../../components/atoms/Typography'
 import { StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
-import { formatAmount } from '../../utils/formatting'
+import { filterAmount, formatAmount } from '../../utils/formatting'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { PortfolioGaugeWeight } from './components/PortfolioGaugeWeightDisplay'
+import { SmallerInputSection } from '../../components/molecules/InputSection'
+import { Button } from '../../components/atoms/Button'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 
 export const TokenPortfolioHistogram = () => {
   const { appTheme } = useGeneral()
@@ -26,6 +29,11 @@ export const TokenPortfolioHistogram = () => {
   const [simPortfolioVolatilityData, setSimPortfolioVolatilityData] = useState<number[]>(portfolioVolatilityData)
   const [simWeights, setSimWeights] = useState<{ name: string; weight: number; sim: any[] }[]>([])
   const [editingItem, setEditingItem] = useState<string | undefined>(undefined)
+  const [commonPercentage, setCommonPercentage] = useState<string>('')
+
+  const simWeightTotal = useMemo(() => parseFloat(simWeights.reduce((acc, cur) => acc + cur.weight, 0).toFixed(1)), [
+    simWeights,
+  ])
 
   function fetchVega(dataIn: any, theme: 'light' | 'dark', varBar: number) {
     vegaEmbed('#vis2', {
@@ -97,6 +105,57 @@ export const TokenPortfolioHistogram = () => {
     })
   }
 
+  const getItemStyle = useCallback(
+    (isDragging: any, draggableStyle: any) => ({
+      // some basic styles to make the items look a bit nicer
+      userSelect: 'none',
+      padding: '2px',
+      margin: `0 0 ${2}px 0`,
+
+      // change background colour if dragging
+      background: isDragging ? 'lightgreen' : 'transparent',
+      borderRadius: '10px',
+
+      // styles we need to apply on draggables
+      ...draggableStyle,
+    }),
+    []
+  )
+
+  const getListStyle = useCallback(
+    (isDraggingOver: boolean) => ({
+      background: isDraggingOver ? 'grey' : 'transparent',
+      padding: 2,
+    }),
+    []
+  )
+
+  const reorderWeights = useCallback(
+    (startIndex: number, endIndex: number) => {
+      const result = Array.from(simWeights)
+      const [removed] = result.splice(startIndex, 1)
+      result.splice(endIndex, 0, removed)
+
+      return result
+    },
+    [simWeights]
+  )
+
+  const onDragStart = useCallback((initial: any) => {
+    if (!initial.source) return
+  }, [])
+
+  const onDragEnd = useCallback(
+    (result: any) => {
+      // dropped outside the list
+      if (!result.destination) return
+
+      const items = reorderWeights(result.source.index, result.destination.index)
+      setSimWeights(items)
+    },
+    [reorderWeights]
+  )
+
   const handleEditingItem = useCallback((name?: string) => {
     setEditingItem(name)
   }, [])
@@ -120,6 +179,14 @@ export const TokenPortfolioHistogram = () => {
     [simWeights]
   )
 
+  const handleCommonPercentage = useCallback(() => {
+    setSimWeights((prev) => {
+      return prev.map((item) => {
+        return { ...item, weight: parseFloat(formatAmount(commonPercentage)) / 100 }
+      })
+    })
+  }, [commonPercentage, simWeights, saveEditedItem])
+
   useEffect(() => {
     setSimWeights(
       allDataPortfolio.map((item: any) => {
@@ -137,7 +204,7 @@ export const TokenPortfolioHistogram = () => {
   }, [simWeights, getPortfolioVolatility])
 
   useEffect(() => {
-    if (simPortfolioVolatilityData.length == 0 || !canSeePortfolioVolatility) return
+    if (simPortfolioVolatilityData.length == 0 || !canSeePortfolioVolatility || simWeightTotal != 1) return
     const quantile = (arr: number[], q: number) => {
       // const sorted = asc(arr); // CAUTION assumed array is sorted
       const sorted = arr
@@ -153,58 +220,104 @@ export const TokenPortfolioHistogram = () => {
     const varBar = quantile(simPortfolioVolatilityData.sort(), var4Bar[0])
     setVarBar(varBar)
     fetchVega(simPortfolioVolatilityData, appTheme, varBar)
-  }, [simPortfolioVolatilityData, appTheme, canSeePortfolioVolatility, var4Bar])
+  }, [simPortfolioVolatilityData, appTheme, canSeePortfolioVolatility, var4Bar, simWeightTotal])
 
   return (
     <Flex gap={10} col={isMobile}>
       {canSeePortfolioVolatility ? (
         <>
-          <Flex
-            width={200}
-            col
-            thinScrollbar
-            gap={12}
-            pt={20}
-            px={14}
-            pb={10}
-            style={{
-              overflowY: 'auto',
-              height: '300px',
-            }}
-          >
-            {simWeights.map((item, i) => {
-              return (
-                <PortfolioGaugeWeight
-                  key={i}
-                  gaugeName={item.name}
-                  weight={item.weight}
-                  editingItem={editingItem}
-                  handleEditingItem={handleEditingItem}
-                  saveEditedItem={saveEditedItem}
-                  simWeights={simWeights}
-                />
-              )
-            })}
-          </Flex>
-          <Flex col widthP={100}>
-            <Flex id="vis2" />
-            <Flex col gap={10}>
-              <Text textAlignCenter t2>
-                Today there is a {(100 - Number(valueOfRiskPercentage)).toFixed(2)}% chance of the value going down by{' '}
-                {Math.abs(Number(lossPercentage))}% or more.
-              </Text>
-              <Flex col>
-                <Text textAlignCenter>Use the slider below to adjust the value of risk</Text>
-                <StyledSlider
-                  value={rangeValue}
-                  onChange={(e) => {
-                    setRangeValue(parseInt(e.target.value))
+          <Flex col gap={12}>
+            <Flex col gap={5}>
+              <Text t5s>Set all percentages</Text>
+              <Flex gap={5}>
+                <SmallerInputSection
+                  placeholder={'%'}
+                  value={commonPercentage}
+                  onChange={(e) => setCommonPercentage(filterAmount(e.target.value, commonPercentage))}
+                  style={{
+                    border: 'none',
                   }}
-                  min={1}
-                  max={1000} // 10% of 10000 is 1000, so that we limit the slider for the user
                 />
+                <Button onClick={handleCommonPercentage}>Set</Button>
               </Flex>
             </Flex>
+            <Flex
+              col
+              thinScrollbar
+              gap={12}
+              px={14}
+              style={{
+                overflowY: 'auto',
+                height: '300px',
+              }}
+            >
+              <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+                <Droppable droppableId="droppable">
+                  {(provided, snapshot) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      style={getListStyle(snapshot.isDraggingOver)}
+                    >
+                      {simWeights.map((item, i) => {
+                        return (
+                          <Draggable key={item.name} draggableId={item.name} index={i}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+                              >
+                                <PortfolioGaugeWeight
+                                  key={i}
+                                  gaugeName={item.name}
+                                  weight={item.weight}
+                                  editingItem={editingItem}
+                                  handleEditingItem={handleEditingItem}
+                                  saveEditedItem={saveEditedItem}
+                                  simWeights={simWeights}
+                                />
+                              </div>
+                            )}
+                          </Draggable>
+                        )
+                      })}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </Flex>
+          </Flex>
+          <Flex col widthP={isMobile ? 100 : 75}>
+            {simWeightTotal == 1 ? (
+              <>
+                <Flex id="vis2" />
+                <Flex col gap={10}>
+                  <Text textAlignCenter t2>
+                    Today there is a {(100 - Number(valueOfRiskPercentage)).toFixed(2)}% chance of the value going down
+                    by {Math.abs(Number(lossPercentage))}% or more.
+                  </Text>
+                  <Flex col>
+                    <Text textAlignCenter>Use the slider below to adjust the value of risk</Text>
+                    <StyledSlider
+                      value={rangeValue}
+                      onChange={(e) => {
+                        setRangeValue(parseInt(e.target.value))
+                      }}
+                      min={1}
+                      max={1000} // 10% of 10000 is 1000, so that we limit the slider for the user
+                    />
+                  </Flex>
+                </Flex>
+              </>
+            ) : (
+              <Text textAlignCenter t2>
+                Please make sure your weights add up to 100% ({simWeightTotal > 1 ? 'Remove' : 'Add'}{' '}
+                {Math.abs(simWeightTotal - 1) * 100}%)
+              </Text>
+            )}
           </Flex>
         </>
       ) : canSeePortfolioVolatility == false ? (

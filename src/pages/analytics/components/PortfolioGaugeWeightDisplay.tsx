@@ -19,7 +19,7 @@ export const PortfolioGaugeWeight: React.FC<{
   const [isEditing, setIsEditing] = useState(false)
 
   const handleSaveEditedItem = useCallback(() => {
-    const status = saveEditedItem(gaugeName, (parseFloat(enteredWeight) / 100).toString())
+    const status = saveEditedItem(gaugeName, (parseFloat(formatAmount(enteredWeight)) / 100).toString())
     if (status) handleEditingItem(undefined)
   }, [enteredWeight, gaugeName, saveEditedItem, handleEditingItem])
 
@@ -33,8 +33,8 @@ export const PortfolioGaugeWeight: React.FC<{
   }, [gaugeName])
 
   useEffect(() => {
-    if (!editingItem) setIsEditing(false)
-  }, [editingItem])
+    if (!editingItem || editingItem.toString() !== gaugeName.toString()) setIsEditing(false)
+  }, [editingItem, gaugeName])
 
   return (
     <TileCard
@@ -49,7 +49,7 @@ export const PortfolioGaugeWeight: React.FC<{
               }
             }
       }
-      style={{ position: 'relative', cursor: isEditing ? 'default' : 'pointer' }}
+      style={{ position: 'relative', cursor: isEditing ? 'default' : 'move' }}
     >
       <Flex col gap={8}>
         <Flex stretch between gap={10}>
@@ -59,11 +59,8 @@ export const PortfolioGaugeWeight: React.FC<{
                 ref={inputRef}
                 placeholder={'%'}
                 value={enteredWeight}
-                onChange={(e) => setEnteredWeight(filterAmount(formatAmount(e.target.value), enteredWeight))}
+                onChange={(e) => setEnteredWeight(filterAmount(e.target.value, enteredWeight))}
                 style={{
-                  maxWidth: '110px',
-                  width: '110px',
-                  minWidth: '110px',
                   maxHeight: '36px',
                 }}
                 asideBg
@@ -113,11 +110,6 @@ export const PortfolioGaugeWeight: React.FC<{
               handleSaveEditedItem()
             }}
             style={{ width: '100%', borderRadius: '8px' }}
-            disabled={
-              simWeights.filter((item) => item.name !== gaugeName).reduce((a, b) => a + b.weight, 0) +
-                parseFloat(enteredWeight) / 100 >
-              1
-            }
           >
             <Flex gap={4} itemsCenter>
               <Text t5s bold>

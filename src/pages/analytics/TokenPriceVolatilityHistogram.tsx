@@ -183,7 +183,7 @@ export const TokenPriceVolatilityHistogram = () => {
               customProcessFunction={(value: string) => value.toUpperCase()}
             />
           </Flex>
-          <Flex col widthP={100}>
+          <Flex col widthP={isMobile ? 100 : 75}>
             <Flex id="vis" widthP={100} justifyCenter>
               <Text autoAlign>Please select a token to view its volatility</Text>
             </Flex>
