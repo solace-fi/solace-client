@@ -20,9 +20,9 @@ type AnalyticsContextType = {
     portfolioVolatilityData: number[]
     priceHistory30D: any[]
     allDataPortfolio: any[]
-    fetchedSipMathLib: any
-    fetchedUwpData: any
-    fetchedPremiums: any
+    fetchedSipMathLib: FetchedSipMathLib | undefined
+    fetchedUwpData: FetchedUWPData | undefined
+    fetchedPremiums: FetchedPremiums | undefined
     tokenDetails: { symbol: string; price: number; weight: number }[]
   }
 }
@@ -57,8 +57,8 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const [tokenDetails, setTokenDetails] = useState<{ symbol: string; price: number; weight: number }[]>([])
 
   const [fetchedUwpData, setFetchedUwpData] = useState<FetchedUWPData | undefined>(undefined)
-  const [fetchedSipMathLib, setFetchedSipMathLib] = useState<any>(undefined)
-  const [fetchedPremiums, setFetchedPremiums] = useState<any>(undefined)
+  const [fetchedSipMathLib, setFetchedSipMathLib] = useState<FetchedSipMathLib | undefined>(undefined)
+  const [fetchedPremiums, setFetchedPremiums] = useState<FetchedPremiums | undefined>(undefined)
 
   const [canSeePortfolioAreaChart, setCanSeePortfolioAreaChart] = useState<boolean | undefined>(undefined)
   const [canSeePortfolioVolatility, setCanSeePortfolioVolatility] = useState<boolean | undefined>(undefined)
@@ -199,13 +199,13 @@ const AnalyticsManager: React.FC = ({ children }) => {
         fetchedUwpData[`${activeNetwork.chainId}`]
       )
 
-      setTokenHistogramTickers(fetchedSipMathLib.data.sips.map((item: any) => item.name.toLowerCase()))
+      setTokenHistogramTickers(fetchedSipMathLib.sips.map((item: any) => item.name.toLowerCase()))
       setPortfolioHistogramTickers(allTokenKeys)
       setPriceHistory30D(_priceHistory30D)
 
-      const numSips = listSIPs(fetchedSipMathLib.data).map((item) => item.toLowerCase())
+      const numSips = listSIPs(fetchedSipMathLib).map((item) => item.toLowerCase())
 
-      const _simulatedReturns: { [key: string]: number[] } = hydrateLibrary(fetchedSipMathLib.data, TRIALS)
+      const _simulatedReturns: { [key: string]: number[] } = hydrateLibrary(fetchedSipMathLib, TRIALS)
 
       if (validateTokenArrays(allTokenKeys, numSips)) {
         const allDataPortfolio: MassUwpDataPortfolio[] = getPortfolioDetailData(

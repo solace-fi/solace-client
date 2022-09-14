@@ -5,7 +5,7 @@ import AnalyticsManager, { useAnalyticsContext } from './AnalyticsContext'
 import { TokenPortfolioAreaChart } from './TokenPortfolioAreaChart'
 import { TokenPortfolioHistogram } from './TokenPortfolioHistogram'
 import { TokenPriceVolatilityHistogram } from './TokenPriceVolatilityHistogram'
-import { TokenPriceVolatilityCumm } from './TokenPriceVolatilityCumm'
+// import { TokenPriceVolatilityCumm } from './TokenPriceVolatilityCumm'
 import { Accordion } from '../../components/atoms/Accordion'
 import { StyledHelpCircle } from '../../components/atoms/Icon'
 import { TokenTable } from './TokenTable'
@@ -32,10 +32,10 @@ export function AnalyticsContent(): JSX.Element {
   const { fetchedPremiums, fetchedSipMathLib } = data
 
   const premiumsUSD = useMemo(() => {
-    if (!fetchedPremiums || !fetchedPremiums?.data[activeNetwork.chainId]) return 0
-    const premiumsByChainId = fetchedPremiums?.data[activeNetwork.chainId]
+    if (!fetchedPremiums || !fetchedPremiums?.[activeNetwork.chainId]) return 0
+    const premiumsByChainId = fetchedPremiums?.[activeNetwork.chainId]
     const latestEpoch = premiumsByChainId.history[premiumsByChainId.history.length - 1]
-    return latestEpoch.uweAmount * latestEpoch.uwpValuePerShare * latestEpoch.uwpPerUwe
+    return Number(latestEpoch.uweAmount) * Number(latestEpoch.uwpValuePerShare) * Number(latestEpoch.uwpPerUwe)
   }, [activeNetwork, fetchedPremiums])
 
   // const [upvText, setUpvText] = useState<boolean>(false)
@@ -122,8 +122,7 @@ export function AnalyticsContent(): JSX.Element {
         <Accordion isOpen={upVolatilityText} p={upVolatilityText ? 5 : 0} noScroll>
           <Flex p={8}>
             <Text>
-              Data from the last {fetchedSipMathLib?.data?.sips?.[0]?.metadata?.count} days was analyzed to build this
-              chart.
+              Data from the last {fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.
             </Text>
           </Flex>
         </Accordion>
@@ -147,8 +146,7 @@ export function AnalyticsContent(): JSX.Element {
         <Accordion isOpen={tpvText} p={tpvText ? 5 : 0} noScroll>
           <Flex p={8}>
             <Text>
-              Data from the last {fetchedSipMathLib?.data?.sips?.[0]?.metadata?.count} days was analyzed to build this
-              chart.
+              Data from the last {fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.
             </Text>
           </Flex>
         </Accordion>

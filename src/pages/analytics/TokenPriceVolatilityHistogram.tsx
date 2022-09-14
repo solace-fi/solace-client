@@ -45,9 +45,9 @@ export const TokenPriceVolatilityHistogram = () => {
 
   const getVarBar = (p: any, tickerSymbolIn: string | undefined) => {
     //const p = [0.05] // TODO: make this dynamic value based on user input with a slider
-    const sips = fetchedSipMathLib.data.sips
+    const sips = fetchedSipMathLib?.sips
     // console.log('sips', sips, tickerSymbolIn)
-    const tokenSip = sips.find((sip: any) => sip.name === tickerSymbolIn)
+    const tokenSip = sips?.find((sip: any) => sip.name === tickerSymbolIn)
     // console.log('tokenSip', tokenSip)
     if (!tokenSip) return 0.99
     const aCoefficients = tokenSip.arguments.aCoefficients
