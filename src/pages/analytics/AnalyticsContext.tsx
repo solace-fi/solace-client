@@ -6,6 +6,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { MassUwpDataPortfolio } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 import { useUwp } from '../../hooks/lock/useUnderwritingHelper'
+import { validateTokenArrays } from '../../utils'
 
 type AnalyticsContextType = {
   intrface: {
@@ -71,10 +72,6 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const [canSeeTokenVolatilities, setCanSeeTokenVolatilities] = useState<boolean | undefined>(undefined)
 
   const TRIALS = 1000
-
-  const validateTokenArrays = useCallback((arrayA: string[], arrayB: string[]): boolean => {
-    return arrayA.length === arrayB.length && arrayA.every((value) => arrayB.includes(value))
-  }, [])
 
   const reformatDataForAreaChart = useCallback((json: any): any => {
     if (!json || json.length == 0) return []
@@ -263,7 +260,6 @@ const AnalyticsManager: React.FC = ({ children }) => {
     getWeightsFromBalances,
     reformatDataForAreaChart,
     getPortfolioVolatility,
-    validateTokenArrays,
     activeNetwork,
     fetchedUwpData,
     fetchedSipMathLib,

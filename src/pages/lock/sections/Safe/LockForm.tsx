@@ -4,7 +4,7 @@ import { StyledSlider } from '../../../../components/atoms/Input'
 import InformationBox from '../../components/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
-import { BKPT_7, BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
+import { DAYS_PER_YEAR } from '../../../../constants'
 import { useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
 import { BigNumber } from 'ethers'
@@ -14,16 +14,14 @@ import { getDateStringWithMonthName } from '../../../../utils/time'
 import { StyledForm } from '../../atoms/StyledForm'
 import { Flex } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { useGeneral } from '../../../../context/GeneralManager'
 import { VoteLockData } from '../../../../constants/types'
 import { useUwLocker } from '../../../../hooks/lock/useUwLocker'
 
 export default function LockForm({ lock }: { lock: VoteLockData }): JSX.Element {
-  const { rightSidebar } = useGeneral()
   const { latestBlock } = useProvider()
   const { extendLock } = useUwLocker()
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { width } = useWindowDimensions()
+  const { isMobile } = useWindowDimensions()
   const [maxSelected, setMaxSelected] = useState(false)
   const MAX_DAYS = DAYS_PER_YEAR * 4
 
@@ -74,7 +72,7 @@ export default function LockForm({ lock }: { lock: VoteLockData }): JSX.Element 
         text="The maximum lockup period is 4 years. Note that you cannot withdraw during a lockup period."
       />
       <StyledForm>
-        <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
+        <Flex column={isMobile} gap={24}>
           <Flex column gap={24}>
             <InputSection
               tab={Tab.LOCK}
