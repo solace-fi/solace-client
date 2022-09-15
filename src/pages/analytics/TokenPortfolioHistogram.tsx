@@ -276,7 +276,6 @@ export const TokenPortfolioHistogram = () => {
                                   editingItem={editingItem}
                                   handleEditingItem={handleEditingItem}
                                   saveEditedItem={saveEditedItem}
-                                  simWeights={simWeights}
                                 />
                               </div>
                             )}

@@ -13,9 +13,8 @@ export const PortfolioGaugeWeight: React.FC<{
   editingItem: string | undefined
   handleEditingItem: (name?: string) => void
   saveEditedItem: (name: string, newWeight: string) => boolean
-  simWeights: { name: string; weight: number; sim: any[] }[]
-}> = ({ gaugeName, weight, editingItem, handleEditingItem, saveEditedItem, simWeights }) => {
-  const [enteredWeight, setEnteredWeight] = useState<string>((weight * 100).toString())
+}> = ({ gaugeName, weight, editingItem, handleEditingItem, saveEditedItem }) => {
+  const [enteredWeight, setEnteredWeight] = useState<string>('0')
   const [isEditing, setIsEditing] = useState(false)
 
   const handleSaveEditedItem = useCallback(() => {
@@ -35,6 +34,10 @@ export const PortfolioGaugeWeight: React.FC<{
   useEffect(() => {
     if (!editingItem || editingItem.toString() !== gaugeName.toString()) setIsEditing(false)
   }, [editingItem, gaugeName])
+
+  useEffect(() => {
+    setEnteredWeight((weight * 100).toString())
+  }, [weight])
 
   return (
     <TileCard
