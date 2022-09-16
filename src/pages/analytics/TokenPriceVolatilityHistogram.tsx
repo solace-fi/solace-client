@@ -194,7 +194,7 @@ export const TokenPriceVolatilityHistogram = () => {
                   <Text inline semibold info>
                     {tickerSymbol.toUpperCase()}
                   </Text>{' '}
-                  going down by {Math.abs(Number(lossPercentage))}%% or more.
+                  going down by {Math.abs(Number(lossPercentage))}% or more.
                 </Text>
                 <Flex col>
                   <Text textAlignCenter>Use the slider below to adjust the value of risk</Text>
