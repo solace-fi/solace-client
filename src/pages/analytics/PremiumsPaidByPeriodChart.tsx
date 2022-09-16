@@ -22,11 +22,11 @@ export const PremiumsPaidByPeriodChart = () => {
       : []
 
   useEffect(() => {
-    if (!fetchedPremiums || !fetchedPremiums?.data[activeNetwork.chainId]) {
+    if (!fetchedPremiums || !fetchedPremiums?.[activeNetwork.chainId]) {
       setPremiumHistory([])
       return
     }
-    const premiumsByChainId = fetchedPremiums?.data[activeNetwork.chainId]
+    const premiumsByChainId = fetchedPremiums?.[activeNetwork.chainId]
     const _premiumHistory = premiumsByChainId.history.map((epoch: any) => {
       return {
         timestamp: epoch.epochStartTimestamp,

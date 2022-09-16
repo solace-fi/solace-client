@@ -21,7 +21,7 @@ import { useSolaceBalance } from '../../hooks/balance/useBalance'
 import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
 import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
 import UserWhite from '../../resources/svg/user_white.svg'
-import { SOLACE_TOKEN } from '../../constants/mappings/token'
+// import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { useWeb3React } from '@web3-react/core'
 import { useENS } from '../../hooks/wallet/useENS'
 import { ThinScrollbarCss } from '../atoms/Scrollbar/ThinScrollbar'
@@ -50,7 +50,7 @@ const AppButton = styled(Button)`
   background: ${(props) => props.theme.box.bg_color_2};
 `
 
-export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: boolean) => void }) => {
+export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: boolean) => void }): JSX.Element => {
   const { appTheme, toggleTheme } = useGeneral()
   const { positiveVersion } = useCachedData()
   const { width, isMobile } = useWindowDimensions()
@@ -73,6 +73,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
     const staked = await totalStakedBalance(account)
     setStakedBalance(staked)
     fetching.current = false
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, activeNetwork])
 
   useEffect(() => {

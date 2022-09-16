@@ -11,7 +11,7 @@ import { q } from '@solace-fi/hydrate'
 import { StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
 
-export const TokenPriceVolatilityHistogram = () => {
+export const TokenPriceVolatilityHistogram = (): JSX.Element => {
   const { appTheme } = useGeneral()
   const { isMobile } = useWindowDimensions()
   const { intrface, data } = useAnalyticsContext()
@@ -21,7 +21,7 @@ export const TokenPriceVolatilityHistogram = () => {
   const [displayVega, setDisplayVega] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const [rangeValue, setRangeValue] = useState(995)
+  const [rangeValue, setRangeValue] = useState(1000)
   const [varBar, setVarBar] = useState<number>(0)
   const var4Bar = useMemo(() => [1 - (10000 - rangeValue) / 10000], [rangeValue]) // rangeValue can only be 1 - 9990
   const valueOfRiskPercentage = useMemo(() => ((var4Bar[0] - 1) * -100).toFixed(2), [var4Bar])
@@ -45,9 +45,9 @@ export const TokenPriceVolatilityHistogram = () => {
 
   const getVarBar = (p: any, tickerSymbolIn: string | undefined) => {
     //const p = [0.05] // TODO: make this dynamic value based on user input with a slider
-    const sips = fetchedSipMathLib.data.sips
+    const sips = fetchedSipMathLib?.sips
     // console.log('sips', sips, tickerSymbolIn)
-    const tokenSip = sips.find((sip: any) => sip.name === tickerSymbolIn)
+    const tokenSip = sips?.find((sip: any) => sip.name === tickerSymbolIn)
     // console.log('tokenSip', tokenSip)
     if (!tokenSip) return 0.99
     const aCoefficients = tokenSip.arguments.aCoefficients

@@ -5,6 +5,9 @@ import { BigNumber } from 'ethers'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { MassUwpDataPortfolio } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
+import { FetchedPremiums } from './types/FetchedPremiums'
+import { FetchedSipMathLib } from './types/SipMathLib'
+import { BlockData, FetchedUWPData } from './types/UWPData'
 import { useUwp } from '../../hooks/lock/useUnderwritingHelper'
 import { validateTokenArrays } from '../../utils'
 
@@ -21,9 +24,9 @@ type AnalyticsContextType = {
     portfolioVolatilityData: number[]
     priceHistory30D: any[]
     allDataPortfolio: any[]
-    fetchedSipMathLib: any
-    fetchedUwpData: any
-    fetchedPremiums: any
+    fetchedSipMathLib: FetchedSipMathLib | undefined
+    fetchedUwpData: FetchedUWPData | undefined
+    fetchedPremiums: FetchedPremiums | undefined
     tokenDetails: { symbol: string; price: number; weight: number }[]
     uwpValueUSD: BigNumber
     getPortfolioVolatility: (weights: number[], simulatedVolatility: any[]) => number[]
@@ -63,9 +66,9 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const [tokenDetails, setTokenDetails] = useState<{ symbol: string; price: number; weight: number }[]>([])
   const [uwpValueUSD, setUwpValueUSD] = useState<BigNumber>(ZERO)
 
-  const [fetchedUwpData, setFetchedUwpData] = useState<any>(undefined)
-  const [fetchedSipMathLib, setFetchedSipMathLib] = useState<any>(undefined)
-  const [fetchedPremiums, setFetchedPremiums] = useState<any>(undefined)
+  const [fetchedUwpData, setFetchedUwpData] = useState<FetchedUWPData | undefined>(undefined)
+  const [fetchedSipMathLib, setFetchedSipMathLib] = useState<FetchedSipMathLib | undefined>(undefined)
+  const [fetchedPremiums, setFetchedPremiums] = useState<FetchedPremiums | undefined>(undefined)
 
   const [canSeePortfolioAreaChart, setCanSeePortfolioAreaChart] = useState<boolean | undefined>(undefined)
   const [canSeePortfolioVolatility, setCanSeePortfolioVolatility] = useState<boolean | undefined>(undefined)
@@ -181,9 +184,9 @@ const AnalyticsManager: React.FC = ({ children }) => {
         axios.get(`https://stats-cache.solace.fi/volatility.json`),
         axios.get('https://stats-cache.solace.fi/native_premiums/all.json'),
       ])
-      setFetchedUwpData(analytics)
-      setFetchedSipMathLib(sipMathLib)
-      setFetchedPremiums(premiums)
+      setFetchedUwpData((analytics.data as unknown) as FetchedUWPData)
+      setFetchedSipMathLib((sipMathLib.data as unknown) as FetchedSipMathLib)
+      setFetchedPremiums((premiums.data as unknown) as FetchedPremiums)
     }
     setTimeout(() => {
       init()
@@ -199,7 +202,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
         return
       }
 
-      if (!fetchedUwpData.data[`${activeNetwork.chainId}`]) {
+      if (!(fetchedUwpData[activeNetwork.chainId.toString()] as BlockData[])) {
         setCanSeePortfolioAreaChart(false)
         setCanSeePortfolioVolatility(false)
         setCanSeeTokenVolatilities(false)
@@ -207,20 +210,20 @@ const AnalyticsManager: React.FC = ({ children }) => {
       }
 
       const { output: _priceHistory30D, allTokenKeys } = reformatDataForAreaChart(
-        fetchedUwpData.data[`${activeNetwork.chainId}`]
+        fetchedUwpData[`${activeNetwork.chainId}`]
       )
 
-      setTokenHistogramTickers(fetchedSipMathLib.data.sips.map((item: any) => item.name.toLowerCase()))
+      setTokenHistogramTickers(fetchedSipMathLib.sips.map((item: any) => item.name.toLowerCase()))
       setPortfolioHistogramTickers(allTokenKeys)
       setPriceHistory30D(_priceHistory30D)
 
-      const numSips = listSIPs(fetchedSipMathLib.data).map((item) => item.toLowerCase())
+      const numSips = listSIPs(fetchedSipMathLib).map((item) => item.toLowerCase())
 
-      const _simulatedReturns: { [key: string]: number[] } = hydrateLibrary(fetchedSipMathLib.data, TRIALS)
+      const _simulatedReturns: { [key: string]: number[] } = hydrateLibrary(fetchedSipMathLib, TRIALS)
 
       if (validateTokenArrays(allTokenKeys, numSips)) {
         const allDataPortfolio: MassUwpDataPortfolio[] = getPortfolioDetailData(
-          fetchedUwpData.data[`${activeNetwork.chainId}`],
+          fetchedUwpData[`${activeNetwork.chainId}`],
           _simulatedReturns,
           allTokenKeys
         )
