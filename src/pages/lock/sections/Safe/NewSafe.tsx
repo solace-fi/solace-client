@@ -42,8 +42,8 @@ const StyledForm = styled.div`
 `
 
 export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
-  const { appTheme, rightSidebar } = useGeneral()
-  const { width } = useWindowDimensions()
+  const { appTheme } = useGeneral()
+  const { isMobile } = useWindowDimensions()
   const { account } = useWeb3React()
   const { latestBlock, signer } = useProvider()
   const { intrface, paymentCoins, input, locker } = useLockContext()
@@ -177,7 +177,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
       <ShadowDiv ref={accordionRef} style={{ marginBottom: '20px' }}>
         <RaisedBox>
           <StyledForm>
-            <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} p={24} gap={30}>
+            <Flex column={isMobile} p={24} gap={30}>
               <Flex column gap={24}>
                 <Flex column gap={24}>
                   {tokensLoading ? (
@@ -258,18 +258,14 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                   )}
                 </Flex>
               </Flex>
-              <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
+              <Flex column stretch width={isMobile ? 300 : 521}>
                 <GrayBox>
                   <Flex stretch column>
                     <Flex column gap={10}>
                       <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                         Amount of UWE to be minted on deposit
                       </Text>
-                      <div
-                        style={(rightSidebar ? BKPT_7 : BKPT_5) > width ? { display: 'block' } : { display: 'none' }}
-                      >
-                        &nbsp;
-                      </div>
+                      <div style={isMobile ? { display: 'block' } : { display: 'none' }}>&nbsp;</div>
                       <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                         <Flex>{formatUnits(equivalentUwe, 18)} UWE</Flex>
                       </Text>
@@ -278,7 +274,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 </GrayBox>
               </Flex>
             </Flex>
-            <Flex pb={24} pl={24} width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 333 : undefined}>
+            <Flex pb={24} pl={24} width={isMobile ? 333 : undefined}>
               {depositApproval && selectedCoin && (
                 <Button
                   secondary

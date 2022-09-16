@@ -228,6 +228,7 @@ export const useGaugeControllerHelper = () => {
   const [currentGaugesData, setCurrentGaugesData] = useState<GaugeData[]>([])
   const [nextGaugesData, setNextGaugesData] = useState<GaugeData[]>([])
   const [insuranceCapacity, setInsuranceCapacity] = useState<number>(0)
+  const [leverageFactor, setLeverageFactor] = useState<number>(0)
 
   const fetchGauges = useCallback(async () => {
     if (!gaugeController || !uwLockVoting) return
@@ -282,12 +283,19 @@ export const useGaugeControllerHelper = () => {
           for (let k = 0; k < votes[j].length; ++k) {
             const gaugeID: number = votes[j][k].gaugeID.toNumber()
             const votePowerBPS = votes[j][k].votePowerBPS
-            nextEpochWeights[gaugeID - 1] = nextEpochWeights[gaugeID - 1].add(votePower.mul(votePowerBPS).div(MAX_BPS))
+            nextEpochWeights[gaugeID - offset] = nextEpochWeights[gaugeID - offset].add(
+              votePower.mul(votePowerBPS).div(MAX_BPS)
+            )
           }
         }
       }
 
-      // console.log('nextEpochWeights', nextEpochWeights)
+      const sumNextEpochWeights = nextEpochWeights.reduce((a, b) => a.add(b), ZERO)
+      if (sumNextEpochWeights.gt(ZERO)) {
+        nextEpochWeights.forEach((weight, i) => {
+          nextEpochWeights[i] = weight.mul(BigNumber.from(10).pow(18)).div(sumNextEpochWeights)
+        })
+      }
 
       const _nextGaugesData = nextEpochWeights.map((gaugeWeight, i) => {
         return {
@@ -333,10 +341,11 @@ export const useGaugeControllerHelper = () => {
       const convertedUf = formatUnits(uf, 18)
       const convertedL = formatUnits(l, 18)
       const sic = parseFloat(convertedUf) * parseFloat(convertedL)
+      setLeverageFactor(parseFloat(convertedL))
       setInsuranceCapacity(sic)
     }
     calculateInsuranceCapacity()
   }, [uwe, gaugeController, valueOfHolder])
 
-  return { loading, currentGaugesData, nextGaugesData, insuranceCapacity }
+  return { loading, currentGaugesData, nextGaugesData, insuranceCapacity, leverageFactor }
 }

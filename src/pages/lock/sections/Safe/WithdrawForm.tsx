@@ -18,7 +18,7 @@ import InformationBox from '../../components/InformationBox'
 import { StyledForm } from '../../atoms/StyledForm'
 import { Flex } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { BKPT_7, BKPT_5, ZERO } from '../../../../constants'
+import { ZERO } from '../../../../constants'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
 import { VoteLockData } from '../../../../constants/types'
@@ -32,13 +32,13 @@ import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { StyledFire } from '../../../../components/atoms/Icon'
 
 export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Element {
-  const { appTheme, rightSidebar } = useGeneral()
+  const { appTheme } = useGeneral()
+  const { isMobile } = useWindowDimensions()
   const { latestBlock } = useProvider()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { withdraw, withdrawInPart, getBurnOnWithdrawAmount, getBurnOnWithdrawInPartAmount } = useUwLocker()
   const { account } = useWeb3React()
-  const { width } = useWindowDimensions()
   const { uweToTokens } = useBalanceConversion()
   const { paymentCoins, input } = useLockContext()
   const { selectedCoin } = input
@@ -118,7 +118,7 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
       }}
     >
       <StyledForm>
-        <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
+        <Flex column={isMobile} gap={24}>
           <Flex column gap={24}>
             <InputSection value={inputValue} onChange={(e) => inputOnChange(e.target.value)} setMax={setMax} />
             <StyledSlider
@@ -128,7 +128,7 @@ export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Elem
               max={lock.amount.toString()}
             />
           </Flex>
-          <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
+          <Flex column stretch width={isMobile ? 300 : 521}>
             <GrayBox>
               <Flex column gap={15}>
                 <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>

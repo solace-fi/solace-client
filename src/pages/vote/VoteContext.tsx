@@ -20,6 +20,7 @@ type VoteContextType = {
     currentGaugesData: GaugeData[]
     nextGaugesData: GaugeData[]
     insuranceCapacity: number
+    leverageFactor: number
     handleGaugeSelectionModal: (index: number, delegator?: string) => void
   }
   delegateData: {
@@ -55,6 +56,7 @@ const VoteContext = createContext<VoteContextType>({
     currentGaugesData: [],
     nextGaugesData: [],
     insuranceCapacity: 0,
+    leverageFactor: 0,
     handleGaugeSelectionModal: () => undefined,
   },
   delegateData: {
@@ -99,7 +101,13 @@ const VoteContext = createContext<VoteContextType>({
 })
 
 const VoteManager: React.FC = (props) => {
-  const { loading: gaugesLoading, currentGaugesData, nextGaugesData, insuranceCapacity } = useGaugeControllerHelper()
+  const {
+    loading: gaugesLoading,
+    currentGaugesData,
+    nextGaugesData,
+    insuranceCapacity,
+    leverageFactor,
+  } = useGaugeControllerHelper()
   const { keyContracts } = useContracts()
   const { uwLockVoting } = keyContracts
 
@@ -451,6 +459,7 @@ const VoteManager: React.FC = (props) => {
         gaugesLoading,
       },
       gauges: {
+        leverageFactor,
         insuranceCapacity,
         currentGaugesData,
         nextGaugesData,
@@ -501,6 +510,7 @@ const VoteManager: React.FC = (props) => {
       handleDelegateModalOpen,
       insuranceCapacity,
       handleEditingVotesData,
+      leverageFactor,
     ]
   )
 

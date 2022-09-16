@@ -8,7 +8,7 @@ import { GaugePieChart } from './GaugePieChart'
 import { StatsBox } from './StatsBox'
 import { OwnerVoteTab } from './OwnerVoteTab'
 import { DelegatorVoteTab } from './DelegatorVoteTab'
-import VoteManager, { useVoteContext } from './VoteContext'
+import { useVoteContext } from './VoteContext'
 import { useNetwork } from '../../context/NetworkManager'
 import { StyledInfo } from '../../components/atoms/Icon'
 import { Card } from '../../components/atoms/Card'
@@ -21,9 +21,7 @@ function Vote(): JSX.Element {
   return (
     <>
       {canVote ? (
-        <VoteManager>
-          <VoteContent />
-        </VoteManager>
+        <VoteContent />
       ) : (
         <Content>
           <Card error pt={10} pb={10} pl={15} pr={15}>

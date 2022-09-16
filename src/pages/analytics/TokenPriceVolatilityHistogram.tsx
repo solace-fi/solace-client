@@ -183,7 +183,7 @@ export const TokenPriceVolatilityHistogram = (): JSX.Element => {
               customProcessFunction={(value: string) => value.toUpperCase()}
             />
           </Flex>
-          <Flex col widthP={100}>
+          <Flex col widthP={isMobile ? 100 : 75}>
             <Flex id="vis" widthP={100} justifyCenter>
               <Text autoAlign>Please select a token to view its volatility</Text>
             </Flex>
@@ -194,7 +194,7 @@ export const TokenPriceVolatilityHistogram = (): JSX.Element => {
                   <Text inline semibold info>
                     {tickerSymbol.toUpperCase()}
                   </Text>{' '}
-                  going down by {Math.abs(Number(lossPercentage))}%% or more.
+                  going down by {Math.abs(Number(lossPercentage))}% or more.
                 </Text>
                 <Flex col>
                   <Text textAlignCenter>Use the slider below to adjust the value of risk</Text>
