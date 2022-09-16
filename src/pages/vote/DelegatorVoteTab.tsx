@@ -10,7 +10,7 @@ import { Text } from '../../components/atoms/Typography'
 import { BigNumber, ZERO } from '@solace-fi/sdk-nightly'
 import { FunctionName } from '../../constants/enums'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
-import { floatUnits, formatAmount, shortenAddress, truncateValue } from '../../utils/formatting'
+import { filterAmount, floatUnits, formatAmount, shortenAddress, truncateValue } from '../../utils/formatting'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { useGeneral } from '../../context/GeneralManager'
 import { CopyButton } from '../../components/molecules/CopyButton'
@@ -143,7 +143,10 @@ export const DelegatorVoteTab = () => {
         return g.added && BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)).isZero()
       }).length > 0
 
-    return containsChangedOrAddedActiveGauges && !hasZeroAllocsForAdded
+    const hasUnselectedGauges =
+      editingDelegatorVotesData.localVoteAllocation.filter((g) => g.gaugeId.eq(ZERO)).length > 0
+
+    return containsChangedOrAddedActiveGauges && !hasZeroAllocsForAdded && !hasUnselectedGauges
   }, [editingDelegatorVotesData.localVoteAllocation])
 
   const callVoteMultiple = useCallback(async () => {
@@ -340,7 +343,7 @@ export const DelegatorVoteTab = () => {
                 <SmallerInputSection
                   placeholder={'%'}
                   value={commonPercentage}
-                  onChange={(e) => setCommonPercentage(e.target.value)}
+                  onChange={(e) => setCommonPercentage(filterAmount(e.target.value, commonPercentage))}
                   style={{
                     width: '100%',
                     border: 'none',

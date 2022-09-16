@@ -139,7 +139,6 @@ export const MultiExtendModal = ({
 
   useEffect(() => {
     if (isOpen) {
-      console.log('opened modal')
       setDurationTracker(
         selectedLocks.map((lock) => {
           const lockEnd = Math.max(lock.end.toNumber(), latestBlock?.timestamp ?? 0)
@@ -156,7 +155,6 @@ export const MultiExtendModal = ({
         })
       )
     } else {
-      console.log('closed modal')
       setDurationTracker([])
       setCommonDays('')
     }

@@ -17,8 +17,10 @@ type VoteContextType = {
     gaugesLoading: boolean
   }
   gauges: {
-    gaugesData: GaugeData[]
+    currentGaugesData: GaugeData[]
+    nextGaugesData: GaugeData[]
     insuranceCapacity: number
+    leverageFactor: number
     handleGaugeSelectionModal: (index: number, delegator?: string) => void
   }
   delegateData: {
@@ -51,8 +53,10 @@ const VoteContext = createContext<VoteContextType>({
     gaugesLoading: false,
   },
   gauges: {
-    gaugesData: [],
+    currentGaugesData: [],
+    nextGaugesData: [],
     insuranceCapacity: 0,
+    leverageFactor: 0,
     handleGaugeSelectionModal: () => undefined,
   },
   delegateData: {
@@ -97,7 +101,13 @@ const VoteContext = createContext<VoteContextType>({
 })
 
 const VoteManager: React.FC = (props) => {
-  const { loading: gaugesLoading, gaugesData, insuranceCapacity } = useGaugeControllerHelper()
+  const {
+    loading: gaugesLoading,
+    currentGaugesData,
+    nextGaugesData,
+    insuranceCapacity,
+    leverageFactor,
+  } = useGaugeControllerHelper()
   const { keyContracts } = useContracts()
   const { uwLockVoting } = keyContracts
 
@@ -267,7 +277,7 @@ const VoteManager: React.FC = (props) => {
                   gauge: gaugeName,
                   gaugeId: gaugeId,
                   changed: true,
-                  gaugeActive: gaugesData.find((item) => item.gaugeId.eq(gaugeId))?.isActive ?? false,
+                  gaugeActive: currentGaugesData.find((item) => item.gaugeId.eq(gaugeId))?.isActive ?? false,
                 }
               }
               return vote
@@ -286,7 +296,7 @@ const VoteManager: React.FC = (props) => {
                   gauge: gaugeName,
                   gaugeId: gaugeId,
                   changed: true,
-                  gaugeActive: gaugesData.find((item) => item.gaugeId.eq(gaugeId))?.isActive ?? false,
+                  gaugeActive: currentGaugesData.find((item) => item.gaugeId.eq(gaugeId))?.isActive ?? false,
                 }
               }
               return vote
@@ -295,7 +305,7 @@ const VoteManager: React.FC = (props) => {
         })
       }
     },
-    [gaugesData]
+    [currentGaugesData]
   )
 
   const handleGaugeSelectionModal = useCallback((index?: number, delegator?: string) => {
@@ -309,7 +319,7 @@ const VoteManager: React.FC = (props) => {
   // mounting fetch (account switch or activenetwork switch) and version
   useEffect(() => {
     const getUserVotesData = async () => {
-      if (!account || gaugesData.length == 0 || !uwLockVoting) {
+      if (!account || currentGaugesData.length == 0 || !uwLockVoting) {
         const res = {
           votePower: ZERO,
           usedVotePowerBPS: ZERO,
@@ -331,7 +341,7 @@ const VoteManager: React.FC = (props) => {
       for (let i = 0; i < delegatorsVotesData.length; i++) {
         const delegatorVoteInfo = delegatorsVotesData[i]
         const formattedDelegatorVotesDataItem = delegatorVoteInfo.votes.map((item) => {
-          const foundGauge = gaugesData.find((g) => g.gaugeId.eq(item.gaugeID))
+          const foundGauge = currentGaugesData.find((g) => g.gaugeId.eq(item.gaugeID))
           const name = foundGauge?.gaugeName ?? ''
           const active = foundGauge?.isActive ?? false
           return {
@@ -370,7 +380,7 @@ const VoteManager: React.FC = (props) => {
       )
 
       const formattedUserVotesData = userVoteInfo.votes.map((item) => {
-        const foundGauge = gaugesData.find((g) => g.gaugeId.eq(item.gaugeID))
+        const foundGauge = currentGaugesData.find((g) => g.gaugeId.eq(item.gaugeID))
         const name = foundGauge?.gaugeName ?? ''
         const isActive = foundGauge?.isActive ?? false
         const alloc: VoteAllocation = {
@@ -399,13 +409,13 @@ const VoteManager: React.FC = (props) => {
     }
     getUserVotesData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, gaugesData.length, activeNetwork, positiveVersion])
+  }, [account, currentGaugesData.length, activeNetwork, positiveVersion])
 
   // latestBlock fetch
   useEffect(() => {
     const updateActivenessOnEdit = async () => {
       const s = editingVotesData.localVoteAllocation.map((item) => {
-        const foundGauge = gaugesData.find((g) => g.gaugeId.eq(item.gaugeId))
+        const foundGauge = currentGaugesData.find((g) => g.gaugeId.eq(item.gaugeId))
         const isActive = foundGauge?.isActive ?? false
         return {
           ...item,
@@ -419,7 +429,7 @@ const VoteManager: React.FC = (props) => {
       }
       setEditingVotesData(newVotesData)
     }
-    if (gaugesData.length == 0) return
+    if (currentGaugesData.length == 0) return
     updateActivenessOnEdit()
   }, [latestBlock])
 
@@ -449,8 +459,10 @@ const VoteManager: React.FC = (props) => {
         gaugesLoading,
       },
       gauges: {
+        leverageFactor,
         insuranceCapacity,
-        gaugesData,
+        currentGaugesData,
+        nextGaugesData,
         handleGaugeSelectionModal,
       },
       delegateData: {
@@ -478,7 +490,8 @@ const VoteManager: React.FC = (props) => {
       },
     }),
     [
-      gaugesData,
+      currentGaugesData,
+      nextGaugesData,
       gaugesLoading,
       isVotingOpen,
       assign,
@@ -497,6 +510,7 @@ const VoteManager: React.FC = (props) => {
       handleDelegateModalOpen,
       insuranceCapacity,
       handleEditingVotesData,
+      leverageFactor,
     ]
   )
 
@@ -505,7 +519,7 @@ const VoteManager: React.FC = (props) => {
       <GaugeSelectionModal
         show={openGaugeSelectionModal}
         target={editingGaugeSelection}
-        gaugesData={gaugesData}
+        gaugesData={currentGaugesData}
         votesAllocationData={
           editingGaugeSelection.delegator !== undefined
             ? delegatorVotesData.find(

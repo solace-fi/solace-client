@@ -36,7 +36,7 @@ import { useTokenAllowance } from '../../../../hooks/contract/useToken'
 import { useDepositHelper } from '../../../../hooks/lock/useDepositHelper'
 
 export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Element {
-  const { appTheme, rightSidebar } = useGeneral()
+  const { appTheme } = useGeneral()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { account } = useWeb3React()
@@ -44,7 +44,7 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
   const { keyContracts } = useContracts()
   const { depositHelper } = keyContracts
 
-  const { width } = useWindowDimensions()
+  const { isMobile } = useWindowDimensions()
   const { depositIntoLock, calculateDeposit } = useDepositHelper()
   const { intrface, paymentCoins, input, locker } = useLockContext()
   const { tokensLoading } = intrface
@@ -144,7 +144,7 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
     >
       <InformationBox type={InfoBoxType.info} text="Deposit into this lock for voting power." />
       <StyledForm>
-        <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={30}>
+        <Flex column={isMobile} gap={30}>
           <Flex column gap={24}>
             <Flex col>
               {tokensLoading ? (
@@ -198,16 +198,14 @@ export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Eleme
               disabled={disabled}
             />
           </Flex>
-          <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
+          <Flex column stretch width={isMobile ? 300 : 521}>
             <GrayBox>
               <Flex stretch column>
                 <Flex column gap={10}>
                   <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                     Amount of UWE to be minted on deposit
                   </Text>
-                  <div style={(rightSidebar ? BKPT_7 : BKPT_5) > width ? { display: 'block' } : { display: 'none' }}>
-                    &nbsp;
-                  </div>
+                  <div style={isMobile ? { display: 'block' } : { display: 'none' }}>&nbsp;</div>
                   <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                     <Flex>{formatUnits(equivalentUwe, 18)} UWE</Flex>
                   </Text>

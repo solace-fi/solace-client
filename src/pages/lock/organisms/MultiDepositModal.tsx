@@ -43,8 +43,8 @@ export const MultiDepositModal = ({
     }[]
   >([])
 
-  const { appTheme, rightSidebar } = useGeneral()
-  const { width } = useWindowDimensions()
+  const { appTheme } = useGeneral()
+  const { isMobile } = useWindowDimensions()
   const { signer } = useProvider()
   const { keyContracts } = useContracts()
   const { uwLocker } = keyContracts
@@ -255,9 +255,7 @@ export const MultiDepositModal = ({
                 <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                   Amount of UWE to be minted on deposit
                 </Text>
-                <div style={(rightSidebar ? BKPT_7 : BKPT_5) > width ? { display: 'block' } : { display: 'none' }}>
-                  &nbsp;
-                </div>
+                <div style={isMobile ? { display: 'block' } : { display: 'none' }}>&nbsp;</div>
                 <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
                   <Flex>{formatUnits(equivalentUwe, 18)} UWE</Flex>
                 </Text>

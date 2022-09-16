@@ -1,26 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { ZERO } from '@solace-fi/sdk-nightly'
-import { BigNumber } from 'ethers'
+import React from 'react'
 import { formatUnits } from 'ethers/lib/utils'
 import { Flex } from '../../components/atoms/Layout'
 import { TileCard } from '../../components/molecules/TileCard'
-import { useUwp } from '../../hooks/lock/useUnderwritingHelper'
 import { truncateValue } from '../../utils/formatting'
 import { Text } from '../../components/atoms/Typography'
-import { useNetwork } from '../../context/NetworkManager'
+import { useAnalyticsContext } from '../analytics/AnalyticsContext'
 
 export const StatsBox = () => {
-  const [uwpValueUSD, setUwpValueUSD] = useState<BigNumber>(ZERO)
-  const { valueOfPool } = useUwp()
-  const { activeNetwork } = useNetwork()
-
-  useEffect(() => {
-    const init = async () => {
-      const _valueOfPool = await valueOfPool()
-      setUwpValueUSD(_valueOfPool)
-    }
-    init()
-  }, [activeNetwork])
+  const { data } = useAnalyticsContext()
+  const { uwpValueUSD } = data
 
   return (
     <TileCard gap={10}>

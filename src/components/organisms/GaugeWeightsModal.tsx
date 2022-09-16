@@ -33,7 +33,8 @@ export const CustomPieChartTooltip = ({ active, payload }: TooltipProps<number, 
 export const GaugeWeightsModal = ({
   isOpen,
   handleClose,
-  data,
+  currentWeightsData,
+  nextWeightsData,
   chartColors,
   textColors,
   lightColors,
@@ -41,7 +42,8 @@ export const GaugeWeightsModal = ({
 }: {
   isOpen: boolean
   handleClose: () => void
-  data: { name: string; value: number; usdValue: number }[]
+  currentWeightsData: { name: string; value: number; usdValue: number }[]
+  nextWeightsData: { name: string; value: number; usdValue: number }[]
   chartColors: string[]
   textColors: string[]
   lightColors: string[]
@@ -50,11 +52,12 @@ export const GaugeWeightsModal = ({
   const { isMobile } = useWindowDimensions()
   const [animate, setAnimate] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [viewCurrentData, setViewCurrentData] = useState<boolean>(true)
 
-  const searchedList = useMemo(
-    () => (searchTerm ? data.filter((item) => item.name.includes(searchTerm.toLowerCase())) : data),
-    [searchTerm, data]
-  )
+  const searchedList = useMemo(() => {
+    const dataToUse = viewCurrentData ? currentWeightsData : nextWeightsData
+    return searchTerm ? dataToUse.filter((item) => item.name.includes(searchTerm.toLowerCase())) : dataToUse
+  }, [searchTerm, currentWeightsData, nextWeightsData, viewCurrentData])
 
   const onAnimationStart = useCallback(() => {
     setTimeout(() => {
@@ -63,21 +66,67 @@ export const GaugeWeightsModal = ({
   }, [])
 
   return (
-    <Modal modalTitle="Current Gauge Weights" isOpen={isOpen} handleClose={handleClose}>
+    <Modal modalTitle="Gauge Weights" isOpen={isOpen} handleClose={handleClose}>
+      <Flex
+        stretch
+        bgTertiary
+        pt={1}
+        style={{
+          // rounded at the top only with 12px
+          borderTopLeftRadius: '12px',
+          borderTopRightRadius: '12px',
+        }}
+      >
+        <Flex
+          justifyCenter
+          py={8}
+          bgSecondary={viewCurrentData}
+          flex1
+          onClick={() => setViewCurrentData(true)}
+          style={{
+            userSelect: 'none',
+            cursor: 'pointer',
+            borderTopLeftRadius: viewCurrentData ? 12 : 0,
+            borderTopRightRadius: viewCurrentData ? 12 : 0,
+          }}
+        >
+          <Text semibold opposite={!viewCurrentData}>
+            Current
+          </Text>
+        </Flex>
+        <Flex
+          justifyCenter
+          py={8}
+          flex1
+          bgSecondary={!viewCurrentData}
+          onClick={() => setViewCurrentData(false)}
+          style={{
+            userSelect: 'none',
+            cursor: 'pointer',
+            // rounded only top right corner
+            borderTopRightRadius: !viewCurrentData ? 12 : 0,
+            borderTopLeftRadius: !viewCurrentData ? 12 : 0,
+          }}
+        >
+          <Text semibold opposite={viewCurrentData}>
+            Projected
+          </Text>
+        </Flex>
+      </Flex>
       <Flex col={isMobile} row={!isMobile} gap={10} bgSecondary rounded p={12}>
         <ResponsiveContainer width={!isMobile ? '60%' : '100%'} height={300}>
           <PieChart width={50}>
             <Pie
               isAnimationActive={animate}
               onAnimationStart={onAnimationStart}
-              data={data}
+              data={viewCurrentData ? currentWeightsData : nextWeightsData}
               cx="50%"
               cy="50%"
               outerRadius={'100%'}
               fill="#8884d8"
               dataKey="value"
             >
-              {data.map((entry, index) => (
+              {(viewCurrentData ? currentWeightsData : nextWeightsData).map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={index < chartColors.length ? chartColors[index] : darkColors[index % darkColors.length]}
@@ -88,8 +137,6 @@ export const GaugeWeightsModal = ({
           </PieChart>
         </ResponsiveContainer>
         <Flex col gap={10}>
-          {' '}
-          {/**bgSecondary p={12} rounded */}
           <SmallerInputSection
             placeholder={'Search'}
             value={searchTerm}

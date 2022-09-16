@@ -51,3 +51,7 @@ export const hasApproval = (tokenAllowance: string, amountToApprove: string): bo
   }
   return false
 }
+
+export const validateTokenArrays = (arrayA: string[], arrayB: string[]): boolean => {
+  return arrayA.length === arrayB.length && arrayA.every((value) => arrayB.includes(value))
+}

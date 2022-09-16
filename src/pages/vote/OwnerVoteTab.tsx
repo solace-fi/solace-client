@@ -7,13 +7,13 @@ import { Text } from '../../components/atoms/Typography'
 import { OwnerVoteGauge } from './organisms/OwnerVoteGauge'
 import { useUwLockVoting } from '../../hooks/lock/useUwLockVoting'
 import { useVoteContext } from './VoteContext'
-import { BigNumber } from '@solace-fi/sdk-nightly'
+import { BigNumber, ZERO } from '@solace-fi/sdk-nightly'
 import { FunctionName } from '../../constants/enums'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { isAddress } from '../../utils'
-import { formatAmount, truncateValue } from '../../utils/formatting'
+import { filterAmount, formatAmount, truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
-import { StyledVoteYea } from '../../components/atoms/Icon'
+import { StyledVote } from '../../components/atoms/Icon'
 import { useCachedData } from '../../context/CachedDataManager'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import useDebounce from '@rooks/use-debounce'
@@ -47,7 +47,9 @@ export const OwnerVoteTab = () => {
         return g.added && BigNumber.from(Math.floor(parseFloat(formatAmount(g.votePowerPercentage)) * 100)).isZero()
       }).length > 0
 
-    return containsChangedOrAddedActiveGauges && !hasZeroAllocsForAdded
+    const hasUnselectedGauges = editingVotesData.localVoteAllocation.filter((g) => g.gaugeId.eq(ZERO)).length > 0
+
+    return containsChangedOrAddedActiveGauges && !hasZeroAllocsForAdded && !hasUnselectedGauges
   }, [editingVotesData.localVoteAllocation])
 
   const callVoteMultiple = useCallback(async () => {
@@ -118,7 +120,7 @@ export const OwnerVoteTab = () => {
         </Text>
         <Flex gap={10}>
           <Button secondary info noborder onClick={() => handleDelegateModalOpen(true)}>
-            <StyledVoteYea size={20} style={{ marginRight: '5px' }} /> Delegate
+            <StyledVote size={20} style={{ marginRight: '5px' }} /> Delegate
           </Button>
         </Flex>
       </Flex>
@@ -157,7 +159,7 @@ export const OwnerVoteTab = () => {
             <SmallerInputSection
               placeholder={'%'}
               value={commonPercentage}
-              onChange={(e) => setCommonPercentage(e.target.value)}
+              onChange={(e) => setCommonPercentage(filterAmount(e.target.value, commonPercentage))}
               style={{
                 width: '100%',
                 border: 'none',

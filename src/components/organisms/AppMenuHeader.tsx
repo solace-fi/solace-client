@@ -58,6 +58,7 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
           position: 'fixed',
           right: rightSidebar ? '425px' : '50px',
           opacity: rightSidebar ? '0' : '1',
+          zIndex: 100,
         }}
       >
         <Button
