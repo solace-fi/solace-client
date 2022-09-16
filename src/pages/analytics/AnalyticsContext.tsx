@@ -1,11 +1,14 @@
 import { hydrateLibrary, listSIPs } from '@solace-fi/hydrate'
+import { ZERO } from '@solace-fi/sdk-nightly'
 import axios from 'axios'
+import { BigNumber } from 'ethers'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { MassUwpDataPortfolio } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 import { FetchedPremiums } from './types/FetchedPremiums'
 import { FetchedSipMathLib } from './types/SipMathLib'
 import { BlockData, FetchedUWPData } from './types/UWPData'
+import { useUwp } from '../../hooks/lock/useUnderwritingHelper'
 
 type AnalyticsContextType = {
   intrface: {
@@ -24,6 +27,8 @@ type AnalyticsContextType = {
     fetchedUwpData: FetchedUWPData | undefined
     fetchedPremiums: FetchedPremiums | undefined
     tokenDetails: { symbol: string; price: number; weight: number }[]
+    uwpValueUSD: BigNumber
+    getPortfolioVolatility: (weights: number[], simulatedVolatility: any[]) => number[]
   }
 }
 
@@ -44,17 +49,21 @@ const AnalyticsContext = createContext<AnalyticsContextType>({
     fetchedUwpData: undefined,
     fetchedPremiums: undefined,
     tokenDetails: [],
+    uwpValueUSD: ZERO,
+    getPortfolioVolatility: () => [],
   },
 })
 
 const AnalyticsManager: React.FC = ({ children }) => {
   const { activeNetwork } = useNetwork()
+  const { valueOfPool } = useUwp()
   const [portfolioHistogramTickers, setPortfolioHistogramTickers] = useState<string[]>([])
   const [tokenHistogramTickers, setTokenHistogramTickers] = useState<string[]>([])
   const [portfolioVolatilityData, setPortfolioVolatilityData] = useState<number[]>([])
   const [priceHistory30D, setPriceHistory30D] = useState<any[]>([])
   const [allDataPortfolio, setAllDataPortfolio] = useState<any[]>([])
   const [tokenDetails, setTokenDetails] = useState<{ symbol: string; price: number; weight: number }[]>([])
+  const [uwpValueUSD, setUwpValueUSD] = useState<BigNumber>(ZERO)
 
   const [fetchedUwpData, setFetchedUwpData] = useState<FetchedUWPData | undefined>(undefined)
   const [fetchedSipMathLib, setFetchedSipMathLib] = useState<FetchedSipMathLib | undefined>(undefined)
@@ -162,6 +171,14 @@ const AnalyticsManager: React.FC = ({ children }) => {
     },
     []
   )
+
+  useEffect(() => {
+    const init = async () => {
+      const _valueOfPool = await valueOfPool()
+      setUwpValueUSD(_valueOfPool)
+    }
+    init()
+  }, [activeNetwork, valueOfPool])
 
   useEffect(() => {
     const init = async () => {
@@ -273,6 +290,8 @@ const AnalyticsManager: React.FC = ({ children }) => {
         fetchedPremiums,
         fetchedSipMathLib,
         tokenDetails,
+        uwpValueUSD,
+        getPortfolioVolatility,
       },
     }),
     [
@@ -288,6 +307,8 @@ const AnalyticsManager: React.FC = ({ children }) => {
       fetchedSipMathLib,
       fetchedPremiums,
       tokenDetails,
+      uwpValueUSD,
+      getPortfolioVolatility,
     ]
   )
   return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>

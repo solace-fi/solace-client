@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
-import AnalyticsManager, { useAnalyticsContext } from './AnalyticsContext'
+import { useAnalyticsContext } from './AnalyticsContext'
 import { TokenPortfolioAreaChart } from './TokenPortfolioAreaChart'
 import { TokenPortfolioHistogram } from './TokenPortfolioHistogram'
 import { TokenPriceVolatilityHistogram } from './TokenPriceVolatilityHistogram'
@@ -12,25 +12,24 @@ import { TokenTable } from './TokenTable'
 import { Card } from '../../components/atoms/Card'
 import { useNetwork } from '../../context/NetworkManager'
 import { truncateValue } from '../../utils/formatting'
-import { ZERO } from '@solace-fi/sdk-nightly'
-import { BigNumber } from 'ethers'
-import { useUwp } from '../../hooks/lock/useUnderwritingHelper'
 import { formatUnits } from 'ethers/lib/utils'
 import { TokenRadialChart } from './TokenRadialChart'
+import { useVoteContext } from '../vote/VoteContext'
+import CardSectionValue from '../lock/components/CardSectionValue'
+import { PremiumsPaidByPeriodChart } from './PremiumsPaidByPeriodChart'
+import { PortfolioAreaChart2 } from './PortfolioAreaChart2'
 
 export default function Analytics(): JSX.Element {
-  return (
-    <AnalyticsManager>
-      <AnalyticsContent />
-    </AnalyticsManager>
-  )
+  return <AnalyticsContent />
 }
 
 export function AnalyticsContent(): JSX.Element {
   const [upVolatilityText, setUpVolatilityText] = useState<boolean>(false)
   const { activeNetwork } = useNetwork()
   const { data } = useAnalyticsContext()
-  const { fetchedPremiums, fetchedSipMathLib } = data
+  const { gauges } = useVoteContext()
+  const { leverageFactor } = gauges
+  const { fetchedPremiums, uwpValueUSD, fetchedSipMathLib } = data
 
   const premiumsUSD = useMemo(() => {
     if (!fetchedPremiums || !fetchedPremiums?.[activeNetwork.chainId]) return 0
@@ -44,22 +43,21 @@ export function AnalyticsContent(): JSX.Element {
   const [upcText, setUpcText] = useState<boolean>(false)
   const [upValueText, setUpValueText] = useState<boolean>(false)
 
-  const [uwpValueUSD, setUwpValueUSD] = useState<BigNumber>(ZERO)
-  const { valueOfPool } = useUwp()
-
-  useEffect(() => {
-    const init = async () => {
-      const _valueOfPool = await valueOfPool()
-      setUwpValueUSD(_valueOfPool)
-    }
-    init()
-  }, [activeNetwork, valueOfPool])
-
   return (
     <Flex col gap={20} py={20} px={10}>
       <Flex evenly gap={10}>
-        <Card widthP={100}>${truncateValue(premiumsUSD, 2)}</Card>
-        <Card widthP={100}>${truncateValue(formatUnits(uwpValueUSD, 18), 2)}</Card>
+        <Card widthP={100}>
+          <Text t4>Premiums</Text>
+          <CardSectionValue info>${truncateValue(premiumsUSD, 2)}</CardSectionValue>
+        </Card>
+        <Card widthP={100}>
+          <Text t4>Underwriting Pool Size</Text>
+          <CardSectionValue info>${truncateValue(formatUnits(uwpValueUSD, 18), 2)} </CardSectionValue>
+        </Card>
+        <Card widthP={100}>
+          <Text t4>Leverage Factor</Text>
+          <CardSectionValue info>{leverageFactor}</CardSectionValue>
+        </Card>
       </Flex>
       <Flex col gap={10}>
         <Flex itemsCenter gap={10}>
@@ -104,6 +102,7 @@ export function AnalyticsContent(): JSX.Element {
           </Flex>
         </Accordion>
         <TokenPortfolioAreaChart />
+        <PortfolioAreaChart2 />
       </Flex>
       <Flex col gap={10}>
         <Flex gap={10}>
@@ -152,6 +151,12 @@ export function AnalyticsContent(): JSX.Element {
           </Flex>
         </Accordion>
         <TokenPriceVolatilityHistogram />
+      </Flex>
+      <Flex col gap={10}>
+        <Text t2 semibold>
+          Premiums Paid By Period
+        </Text>
+        <PremiumsPaidByPeriodChart />
       </Flex>
       {/* <Flex col gap={10}>
           <Text t2 semibold>

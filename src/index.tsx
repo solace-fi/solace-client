@@ -13,6 +13,8 @@ import ProviderManager from './context/ProviderManager'
 import CachedDataManager from './context/CachedDataManager'
 import NetworkManager from './context/NetworkManager'
 import GeneralManager from './context/GeneralManager'
+import VoteManager from './pages/vote/VoteContext'
+import AnalyticsManager from './pages/analytics/AnalyticsContext'
 
 /*
 
@@ -41,9 +43,13 @@ ReactDOM.render(
               <ContractsManager>
                 <CachedDataManager>
                   <NotificationsManager>
-                    <BrowserRouter>
-                      <App />
-                    </BrowserRouter>
+                    <VoteManager>
+                      <AnalyticsManager>
+                        <BrowserRouter>
+                          <App />
+                        </BrowserRouter>
+                      </AnalyticsManager>
+                    </VoteManager>
                   </NotificationsManager>
                 </CachedDataManager>
               </ContractsManager>

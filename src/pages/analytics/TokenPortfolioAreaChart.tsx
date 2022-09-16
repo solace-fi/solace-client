@@ -1,7 +1,7 @@
 import React from 'react'
 import { capitalizeFirstLetter } from '../../utils/formatting'
 import { AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, Area } from 'recharts'
-import { CustomTooltip } from '../../components/organisms/CustomTooltip'
+import { UwpCustomTooltip } from '../../components/organisms/CustomTooltip'
 import { useDistributedColors } from '../../hooks/internal/useDistributedColors'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { calculateMonthlyTicks, xtickLabelFormatter } from '../../utils/chart'
@@ -19,6 +19,9 @@ export const TokenPortfolioAreaChart = () => {
     priceHistory30D.length > 0
       ? calculateMonthlyTicks(priceHistory30D[0].timestamp, priceHistory30D[priceHistory30D.length - 1].timestamp)
       : []
+  // if (priceHistory30D) {
+  //   console.log(JSON.stringify(priceHistory30D))
+  // }
 
   const colors = useDistributedColors(portfolioHistogramTickers.length)
 
@@ -51,7 +54,7 @@ export const TokenPortfolioAreaChart = () => {
             stroke="#c0c2c3"
           />
           <CartesianGrid strokeDasharray="3 3" />
-          <Tooltip content={<CustomTooltip valueDecimals={2} chartType={'stackedLine'} />} />
+          <Tooltip content={<UwpCustomTooltip valueDecimals={2} chartType={'stackedLine'} colors={colors} />} />
           {portfolioHistogramTickers.map((key, i) => {
             return (
               <Area
