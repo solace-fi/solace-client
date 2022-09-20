@@ -44,22 +44,33 @@ export const PortfolioAreaChart2 = () => {
         resize: true,
       },
       data: { values: dataIn },
-      mark: { type: 'area' },
+      mark: { type: 'area', tooltip: true },
       encoding: {
         x: {
           timeUnit: 'yearmonthdate',
           field: 'timestamp',
-          title: '',
+          title: 'Date',
+          axis: { title: '', grid: false },
           //   axis: { format: '%Y %M %D' },
         },
         y: {
           aggregate: 'sum',
           field: 'y',
-          axis: { format: '$,.0f', title: 'Portfolio Value' },
+          axis: {
+            format: '$,.0f',
+            title: '',
+            // title: 'Portfolio Value',
+            titleColor: theme == 'light' ? 'black' : 'white',
+            grid: false,
+          },
         },
         color: {
           field: 'ticker',
           scale: { scheme: 'category20b' },
+          legend: {
+            titleColor: theme == 'light' ? 'black' : 'white',
+            labelColor: theme == 'light' ? 'black' : 'white',
+          },
         },
       },
     })
@@ -80,7 +91,7 @@ export const PortfolioAreaChart2 = () => {
             tempy = value
           }
           if (tempticker !== '') {
-            reformatedData1.push({ timestamp: temptimestamp, ticker: tempticker, y: tempy })
+            reformatedData1.push({ timestamp: temptimestamp, ticker: tempticker.toUpperCase(), y: tempy })
           }
         }
         // reformatedData2.push(reformatedData1[item])
@@ -89,16 +100,16 @@ export const PortfolioAreaChart2 = () => {
     console.log({ reformatedData1 })
     fetchVega(reformatedData1, appTheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allDataPortfolio])
+  }, [allDataPortfolio, appTheme])
 
   // Hmm twice? can we move appTheme up to [tickerSymbol,appTheme] ?
-  useEffect(
-    () => {
-      fetchVega(priceHistory30D, appTheme)
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [appTheme]
-  )
+  // useEffect(
+  //   () => {
+  //     fetchVega(priceHistory30D, appTheme)
+  //   },
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [appTheme]
+  // )
 
   return (
     <Flex gap={10} col={isMobile}>

@@ -114,7 +114,14 @@ failed schema attempt:
 
 */
 
-  const fetchVega = (dataIn: any, theme: 'light' | 'dark') => {
+  const fetchVega = (
+    dataIn: {
+      ticker: string
+      y: number
+      timestamp: number
+    }[],
+    theme: 'light' | 'dark'
+  ) => {
     vegaEmbed('#token-weights-1', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
       title: { text: 'Token Weigths, Last 30 Days', color: theme == 'light' ? 'black' : 'white' },
@@ -132,23 +139,31 @@ failed schema attempt:
         resize: true,
       },
       // data: { values: { dataIn } },
-      data: { values: sampleWeightData },
-      mark: { type: 'area' },
+      data: { values: dataIn },
+      mark: { type: 'area', tooltip: true },
       encoding: {
         x: {
           timeUnit: 'yearmonthdate',
           field: 'timestamp',
-          axis: { domain: false },
-          title: null,
+          title: 'Date',
+          axis: { title: '', grid: false },
         },
         y: {
           aggregate: 'sum',
-          field: 'weight',
-          axis: null,
+          field: 'y',
+          // axis: null,
           stack: 'normalize',
           title: '% Weight',
+          axis: { format: '.0%', title: '% Weight', titleColor: theme == 'light' ? 'black' : 'white', grid: false },
         },
-        color: { field: 'ticker', scale: { scheme: 'category20b' } },
+        color: {
+          field: 'ticker',
+          scale: { scheme: 'category20b' },
+          legend: {
+            titleColor: theme == 'light' ? 'black' : 'white',
+            labelColor: theme == 'light' ? 'black' : 'white',
+          },
+        },
         /*         x: {
           timeUnit: 'yearmonthdate',
           field: 'timestamp',
@@ -166,18 +181,20 @@ failed schema attempt:
     })
   }
   useEffect(() => {
-    const vegaStylizedWeightsAndDates = weightsAndDates.map((wad) => {
-      const { timestamp, weights } = wad
-      const vegaStylizedWeights = weights.map((w) => {
-        const ticker = Object.keys(w)[0]
-        const weight = w[ticker]
-        return { ticker, y: weight, timestamp: timestamp * 1000 }
+    const vegaStylizedWeightsAndDates = weightsAndDates
+      .map((wad) => {
+        const { timestamp, weights } = wad
+        const vegaStylizedWeights = weights.map((w) => {
+          const ticker = Object.keys(w)[0]
+          const weight = w[ticker]
+          return { ticker, y: weight, timestamp: timestamp * 1000 }
+        })
+        return vegaStylizedWeights
       })
-      return vegaStylizedWeights
-    })
+      .flat()
     console.log('vegaStylizedWeightsAndDates', vegaStylizedWeightsAndDates)
     fetchVega(vegaStylizedWeightsAndDates, appTheme)
-  }, [fetchedUwpData, appTheme])
+  }, [weightsAndDates, appTheme])
 
   //   // const reformatedData2: any = []
   //   if (weightsAndDates.length > 0) {
