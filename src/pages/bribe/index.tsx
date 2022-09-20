@@ -9,34 +9,89 @@ import { useProvider } from '../../context/ProviderManager'
 import { useGaugeController } from '../../hooks/gauge/useGaugeController'
 import { getTimesFromMillis } from '../../utils/time'
 import { BribeList } from './components/BribesList'
+import { useGeneral } from '../../context/GeneralManager'
+import { BigNumber } from 'ethers'
 
 export default function Bribe(): JSX.Element {
   return <BribeContent />
 }
 
 export function BribeContent(): JSX.Element {
-  const [isBribeChaser, setIsBribeChaser] = useState<boolean>(false)
+  const { appTheme } = useGeneral()
+  const [isBribeChaser, setIsBribeChaser] = useState<boolean>(true)
 
-  const { latestBlock } = useProvider()
   const { getEpochEndTimestamp } = useGaugeController()
 
   const [remainingTime, setRemainingTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+  const [epochEndTimestamp, setEpochEndTimestamp] = useState<BigNumber | undefined>(undefined)
 
   useEffect(() => {
-    const getTimes = async () => {
-      if (!latestBlock) return
+    const init = async () => {
       const endTime = await getEpochEndTimestamp()
-      const blockTime = latestBlock.timestamp
+      setEpochEndTimestamp(endTime)
+    }
+    init()
+  }, [getEpochEndTimestamp])
 
-      setRemainingTime(getTimesFromMillis(endTime.toNumber() * 1000 - blockTime * 1000))
+  useEffect(() => {
+    const getTimes = () => {
+      if (!epochEndTimestamp || epochEndTimestamp.isZero()) return
+      setInterval(() => {
+        const times = getTimesFromMillis(epochEndTimestamp.toNumber() * 1000 - Date.now())
+        setRemainingTime(times)
+      }, 1000)
     }
     getTimes()
-  }, [latestBlock, getEpochEndTimestamp])
+  }, [epochEndTimestamp])
 
   return (
     <Flex col gap={16}>
+      <Flex
+        bgSecondary
+        style={{
+          gridTemplateColumns: '1fr 1fr',
+          display: 'grid',
+          position: 'relative',
+          borderRadius: '16px',
+          padding: '8px',
+          gap: '8px',
+        }}
+      >
+        <TileCard
+          padding={8}
+          noShadow
+          onClick={() => setIsBribeChaser(true)}
+          style={{
+            cursor: 'pointer',
+            borderRadius: '12px',
+          }}
+          bgSecondary={!isBribeChaser}
+          bgTechy={isBribeChaser && appTheme == 'light'}
+          bgWarm={isBribeChaser && appTheme == 'dark'}
+        >
+          <Text textAlignCenter t5s bold light={isBribeChaser}>
+            Chase Bribe
+          </Text>
+        </TileCard>
+        <TileCard
+          padding={8}
+          noShadow
+          onClick={() => setIsBribeChaser(false)}
+          style={{
+            cursor: 'pointer',
+            borderRadius: '12px',
+          }}
+          bgSecondary={isBribeChaser}
+          bgTechy={!isBribeChaser && appTheme == 'light'}
+          bgWarm={!isBribeChaser && appTheme == 'dark'}
+        >
+          <Text textAlignCenter t5s bold light={!isBribeChaser}>
+            Provide Bribe
+          </Text>
+        </TileCard>
+      </Flex>
       <Flex wrapped gap={16}>
-        <TileCard bgSecondary>
+        {/* <TileCard bgSecondary>
           <Flex col gap={16}>
             <Flex col itemsCenter gap={8}>
               <Text bold t6s>
@@ -57,7 +112,7 @@ export function BribeContent(): JSX.Element {
               />
             </Flex>
           </Flex>
-        </TileCard>
+        </TileCard> */}
         <TileCard bgSecondary>
           <Flex col gap={25}>
             <Flex col itemsCenter gap={8}>
@@ -128,7 +183,7 @@ export function BribeContent(): JSX.Element {
           </Flex>
         </TileCard>
       </Flex>
-      <BribeList />
+      <BribeList isBribeChaser={isBribeChaser} />
     </Flex>
   )
 }
