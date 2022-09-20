@@ -19,6 +19,9 @@ export const TokenPortfolioAreaChart = () => {
     priceHistory30D.length > 0
       ? calculateMonthlyTicks(priceHistory30D[0].timestamp, priceHistory30D[priceHistory30D.length - 1].timestamp)
       : []
+  // if (priceHistory30D) {
+  //   console.log(JSON.stringify(priceHistory30D))
+  // }
 
   const colors = useDistributedColors(portfolioHistogramTickers.length)
 

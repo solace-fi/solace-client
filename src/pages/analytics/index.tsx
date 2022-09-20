@@ -13,9 +13,11 @@ import { Card } from '../../components/atoms/Card'
 import { useNetwork } from '../../context/NetworkManager'
 import { truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
+import { TokenRadialChart } from './TokenRadialChart'
 import { useVoteContext } from '../vote/VoteContext'
 import CardSectionValue from '../lock/components/CardSectionValue'
 import { PremiumsPaidByPeriodChart } from './PremiumsPaidByPeriodChart'
+import { PortfolioAreaChart2 } from './PortfolioAreaChart2'
 
 export default function Analytics(): JSX.Element {
   return <AnalyticsContent />
@@ -100,6 +102,7 @@ export function AnalyticsContent(): JSX.Element {
           </Flex>
         </Accordion>
         <TokenPortfolioAreaChart />
+        <PortfolioAreaChart2 />
       </Flex>
       <Flex col gap={10}>
         <Flex gap={10}>
