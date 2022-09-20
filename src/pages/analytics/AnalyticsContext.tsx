@@ -23,7 +23,7 @@ type AnalyticsContextType = {
     trials: number
     portfolioVolatilityData: number[]
     priceHistory30D: any[]
-    allDataPortfolio: any[]
+    allDataPortfolio: MassUwpDataPortfolio[]
     fetchedSipMathLib: FetchedSipMathLib | undefined
     fetchedUwpData: FetchedUWPData | undefined
     fetchedPremiums: FetchedPremiums | undefined
@@ -55,6 +55,12 @@ const AnalyticsContext = createContext<AnalyticsContextType>({
   },
 })
 
+export const getWeightsFromBalances = (balances: number[]): number[] => {
+  const sum = balances.reduce((a: number, b: number) => a + b, 0)
+  const weights = balances.map((balance) => balance / sum)
+  return weights
+}
+
 const AnalyticsManager: React.FC = ({ children }) => {
   const { activeNetwork } = useNetwork()
   const { valueOfPool } = useUwp()
@@ -62,7 +68,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const [tokenHistogramTickers, setTokenHistogramTickers] = useState<string[]>([])
   const [portfolioVolatilityData, setPortfolioVolatilityData] = useState<number[]>([])
   const [priceHistory30D, setPriceHistory30D] = useState<any[]>([])
-  const [allDataPortfolio, setAllDataPortfolio] = useState<any[]>([])
+  const [allDataPortfolio, setAllDataPortfolio] = useState<MassUwpDataPortfolio[]>([])
   const [tokenDetails, setTokenDetails] = useState<{ symbol: string; price: number; weight: number }[]>([])
   const [uwpValueUSD, setUwpValueUSD] = useState<BigNumber>(ZERO)
 
@@ -137,12 +143,6 @@ const AnalyticsManager: React.FC = ({ children }) => {
       result[i] = trialSum // add to the result array
     }
     return result
-  }, [])
-
-  const getWeightsFromBalances = useCallback((balances: number[]): number[] => {
-    const sum = balances.reduce((a: number, b: number) => a + b, 0)
-    const weights = balances.map((balance) => balance / sum)
-    return weights
   }, [])
 
   const getPortfolioDetailData = useCallback(

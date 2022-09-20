@@ -18,6 +18,7 @@ import { useVoteContext } from '../vote/VoteContext'
 import CardSectionValue from '../lock/components/CardSectionValue'
 import { PremiumsPaidByPeriodChart } from './PremiumsPaidByPeriodChart'
 import { PortfolioAreaChart2 } from './PortfolioAreaChart2'
+import { TokenWeights1 } from './TokenWeights1'
 
 export default function Analytics(): JSX.Element {
   return <AnalyticsContent />
@@ -103,6 +104,7 @@ export function AnalyticsContent(): JSX.Element {
         </Accordion>
         <TokenPortfolioAreaChart />
         <PortfolioAreaChart2 />
+        <TokenWeights1 />
       </Flex>
       <Flex col gap={10}>
         <Flex gap={10}>
