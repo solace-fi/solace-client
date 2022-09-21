@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
-import ToggleSwitch from '../../components/atoms/ToggleSwitch'
 import { TileCard } from '../../components/molecules/TileCard'
 import { truncateValue } from '../../utils/formatting'
 import { Button } from '../../components/atoms/Button'
@@ -91,28 +90,6 @@ export function BribeContent(): JSX.Element {
         </TileCard>
       </Flex>
       <Flex wrapped gap={16}>
-        {/* <TileCard bgSecondary>
-          <Flex col gap={16}>
-            <Flex col itemsCenter gap={8}>
-              <Text bold t6s>
-                Mode
-              </Text>
-              <Text t3s bold info>
-                {isBribeChaser ? 'Bribe Chaser' : 'Bribe Provider'}
-              </Text>
-            </Flex>
-            <Flex col itemsCenter>
-              <ToggleSwitch
-                id="bribe-chaser"
-                toggled={isBribeChaser}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIsBribeChaser(e.target.checked)}
-                height={31}
-                width={58}
-                buttonSize={31}
-              />
-            </Flex>
-          </Flex>
-        </TileCard> */}
         <TileCard bgSecondary>
           <Flex col gap={25}>
             <Flex col itemsCenter gap={8}>
