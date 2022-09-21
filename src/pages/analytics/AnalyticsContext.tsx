@@ -11,6 +11,15 @@ import { BlockData, FetchedUWPData } from './types/UWPData'
 import { useUwp } from '../../hooks/lock/useUnderwritingHelper'
 import { validateTokenArrays } from '../../utils'
 
+export type TimestampedTokenNumberValues = {
+  timestamp: number
+  [key: string]: number
+}
+export type ReformattedData = {
+  output: TimestampedTokenNumberValues[]
+  allTokenKeys: string[]
+}
+
 type AnalyticsContextType = {
   intrface: {
     canSeePortfolioAreaChart?: boolean
@@ -22,14 +31,14 @@ type AnalyticsContextType = {
     tokenHistogramTickers: string[]
     trials: number
     portfolioVolatilityData: number[]
-    priceHistory30D: any[]
+    priceHistory30D: TimestampedTokenNumberValues[]
     allDataPortfolio: MassUwpDataPortfolio[]
     fetchedSipMathLib: FetchedSipMathLib | undefined
     fetchedUwpData: FetchedUWPData | undefined
     fetchedPremiums: FetchedPremiums | undefined
     tokenDetails: { symbol: string; price: number; weight: number }[]
     uwpValueUSD: BigNumber
-    getPortfolioVolatility: (weights: number[], simulatedVolatility: any[]) => number[]
+    getPortfolioVolatility: (weights: number[], simulatedVolatility: number[][]) => number[]
   }
 }
 
@@ -67,7 +76,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const [portfolioHistogramTickers, setPortfolioHistogramTickers] = useState<string[]>([])
   const [tokenHistogramTickers, setTokenHistogramTickers] = useState<string[]>([])
   const [portfolioVolatilityData, setPortfolioVolatilityData] = useState<number[]>([])
-  const [priceHistory30D, setPriceHistory30D] = useState<any[]>([])
+  const [priceHistory30D, setPriceHistory30D] = useState<TimestampedTokenNumberValues[]>([])
   const [allDataPortfolio, setAllDataPortfolio] = useState<MassUwpDataPortfolio[]>([])
   const [tokenDetails, setTokenDetails] = useState<{ symbol: string; price: number; weight: number }[]>([])
   const [uwpValueUSD, setUwpValueUSD] = useState<BigNumber>(ZERO)
@@ -82,8 +91,10 @@ const AnalyticsManager: React.FC = ({ children }) => {
 
   const TRIALS = 1000
 
-  const reformatDataForAreaChart = useCallback((json: any): any => {
-    if (!json || json.length == 0) return []
+  const reformatDataForAreaChart = useCallback(function reformatDataForAreaChart(
+    blockDataArr: BlockData[]
+  ): ReformattedData {
+    if (!blockDataArr || blockDataArr.length == 0) return { output: [], allTokenKeys: [] }
     const now = Date.now() / 1000
     const daysCutOffPoint = 30
     const start = now - 60 * 60 * 24 * daysCutOffPoint // filter out data points by time
@@ -91,8 +102,8 @@ const AnalyticsManager: React.FC = ({ children }) => {
     const nonZeroBalanceMapping: { [key: string]: boolean } = {}
     let allTokenKeys: string[] = []
 
-    for (let i = 1; i < json.length; ++i) {
-      const currData = json[i]
+    for (let i = 1; i < blockDataArr.length; ++i) {
+      const currData = blockDataArr[i]
       const timestamp = currData.timestamp
       if (timestamp < start) continue
       const tokens = currData.tokens
@@ -100,14 +111,14 @@ const AnalyticsManager: React.FC = ({ children }) => {
       const tokenKeys = Object.keys(tokens).filter((key) => key.toLowerCase() !== 'vwave')
       allTokenKeys = tokenKeys.map((item) => item.toLowerCase())
       const usdArr = tokenKeys.map((key: string) => {
-        const balance = tokens[key].balance - 0
-        const price = tokens[key].price - 0
+        const balance = Number(tokens[key].balance) - 0
+        const price = Number(tokens[key].price) - 0
         const usd = balance * price
         if (usd > 0) nonZeroBalanceMapping[key.toLowerCase()] = true
         return usd
       })
-      const newRow: any = {
-        timestamp: parseInt(currData.timestamp),
+      const newRow: TimestampedTokenNumberValues = {
+        timestamp: parseInt(currData.timestamp.toString()),
       }
       tokenKeys.forEach((key, i) => {
         newRow[key.toLowerCase()] = usdArr[i]
@@ -118,18 +129,20 @@ const AnalyticsManager: React.FC = ({ children }) => {
 
     // sort by timestamp and only add tokens that had non-zero balances
     const adjustedOutput = output
-      .sort((a: any, b: any) => a.timestamp - b.timestamp)
+      .sort((a: TimestampedTokenNumberValues, b: TimestampedTokenNumberValues) => a.timestamp - b.timestamp)
       .map((oldRow) => {
-        const newerRow: any = { timestamp: oldRow.timestamp }
+        const newerRow: TimestampedTokenNumberValues = { timestamp: oldRow.timestamp }
         Object.keys(nonZeroBalanceMapping).forEach((key) => {
           newerRow[key.toLowerCase()] = oldRow[key.toLowerCase()]
         })
         return newerRow
       })
-    return { output: adjustedOutput, allTokenKeys }
-  }, [])
+    const formattedData = { output: adjustedOutput, allTokenKeys }
+    return formattedData
+  },
+  [])
 
-  const getPortfolioVolatility = useCallback((weights: number[], simulatedVolatility: any[]): number[] => {
+  const getPortfolioVolatility = useCallback((weights: number[], simulatedVolatility: number[][]): number[] => {
     const result: number[] = Array(TRIALS).fill(0) // fixed array of length 1000 and initialized with zeroes
     for (let i = 0; i < TRIALS; i++) {
       let trialSum = 0
@@ -146,13 +159,13 @@ const AnalyticsManager: React.FC = ({ children }) => {
   }, [])
 
   const getPortfolioDetailData = useCallback(
-    (json: any, simulatedReturns: { [key: string]: number[] }, tokenKeys: string[]): MassUwpDataPortfolio[] => {
+    (json: BlockData[], simulatedReturns: { [key: string]: number[] }, tokenKeys: string[]): MassUwpDataPortfolio[] => {
       if (!json || json.length == 0) return []
       const latestData = json[json.length - 1]
       const tokens = latestData.tokens
       const tokenDetails = tokenKeys.map((key: string) => {
-        const balance = tokens[key.toUpperCase()].balance - 0
-        const price = tokens[key.toUpperCase()].price - 0
+        const balance = Number(tokens[key.toUpperCase()].balance) - 0
+        const price = Number(tokens[key.toUpperCase()].price) - 0
         const usd = balance * price
         const _tokenDetails = {
           symbol: key.toLowerCase(),
@@ -213,7 +226,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
         fetchedUwpData[`${activeNetwork.chainId}`]
       )
 
-      setTokenHistogramTickers(fetchedSipMathLib.sips.map((item: any) => item.name.toLowerCase()))
+      setTokenHistogramTickers(fetchedSipMathLib.sips.map((item) => item.name.toLowerCase()))
       setPortfolioHistogramTickers(allTokenKeys)
       setPriceHistory30D(_priceHistory30D)
 
@@ -230,7 +243,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
         const tokenWeights = getWeightsFromBalances(
           allDataPortfolio.map((token: MassUwpDataPortfolio) => token.usdBalance)
         )
-        const adjustedPortfolio: MassUwpDataPortfolio[] = allDataPortfolio.map((token: any, i: number) => {
+        const adjustedPortfolio: MassUwpDataPortfolio[] = allDataPortfolio.map((token, i: number) => {
           return {
             ...token,
             weight: tokenWeights[i],

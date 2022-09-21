@@ -162,6 +162,7 @@ failed schema attempt:
           legend: {
             titleColor: theme == 'light' ? 'black' : 'white',
             labelColor: theme == 'light' ? 'black' : 'white',
+            title: 'Token Portfolio',
           },
         },
         /*         x: {
