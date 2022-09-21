@@ -31,7 +31,7 @@ export const TokenPortfolioHistogram = () => {
   const [editingItem, setEditingItem] = useState<string | undefined>(undefined)
   const [commonPercentage, setCommonPercentage] = useState<string>('')
 
-  const simWeightTotal = useMemo(() => parseFloat(simWeights.reduce((acc, cur) => acc + cur.weight, 0).toFixed(1)), [
+  const simWeightTotal = useMemo(() => parseFloat(simWeights.reduce((acc, cur) => acc + cur.weight, 0).toFixed(2)), [
     simWeights,
   ])
 
@@ -314,7 +314,7 @@ export const TokenPortfolioHistogram = () => {
             ) : (
               <Text textAlignCenter t2>
                 Please make sure your weights add up to 100% ({simWeightTotal > 1 ? 'Remove' : 'Add'}{' '}
-                {Math.abs(simWeightTotal - 1) * 100}%)
+                {(Math.abs(simWeightTotal - 1) * 100).toFixed(2)}%)
               </Text>
             )}
           </Flex>
