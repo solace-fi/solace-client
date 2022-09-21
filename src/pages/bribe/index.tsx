@@ -4,7 +4,6 @@ import { Text } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
 import { truncateValue } from '../../utils/formatting'
 import { Button } from '../../components/atoms/Button'
-import { useProvider } from '../../context/ProviderManager'
 import { useGaugeController } from '../../hooks/gauge/useGaugeController'
 import { getTimesFromMillis } from '../../utils/time'
 import { BribeList } from './components/BribesList'
@@ -26,11 +25,13 @@ export function BribeContent(): JSX.Element {
 
   useEffect(() => {
     const init = async () => {
-      const endTime = await getEpochEndTimestamp()
-      setEpochEndTimestamp(endTime)
+      if (remainingTime.days + remainingTime.hours + remainingTime.minutes + remainingTime.seconds === 0) {
+        const endTime = await getEpochEndTimestamp()
+        setEpochEndTimestamp(endTime)
+      }
     }
     init()
-  }, [getEpochEndTimestamp])
+  }, [getEpochEndTimestamp, remainingTime])
 
   useEffect(() => {
     const getTimes = () => {
@@ -121,7 +122,7 @@ export function BribeContent(): JSX.Element {
         <TileCard bgSecondary>
           <Flex col itemsCenter gap={16}>
             <Text bold t6s>
-              Remaining Time
+              Remaining Epoch Time
             </Text>
             <Flex gap={8}>
               <TileCard padding={8}>
