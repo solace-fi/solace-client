@@ -4,7 +4,13 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import { useSolaceBalance } from '../../../../hooks/balance/useBalance'
-import { accurateMultiply, convertSciNotaToPrecise, filterAmount, truncateValue } from '../../../../utils/formatting'
+import {
+  accurateMultiply,
+  convertSciNotaToPrecise,
+  filterAmount,
+  formatAmount,
+  truncateValue,
+} from '../../../../utils/formatting'
 import InformationBox from '../../components/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
@@ -33,9 +39,9 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
   const { account } = useWeb3React()
   const { width } = useWindowDimensions()
 
-  const [disabled, setDisabled] = React.useState(false)
+  const disabled = false
 
-  const [inputValue, setInputValue] = React.useState('0')
+  const [inputValue, setInputValue] = React.useState('')
   const [rangeValue, setRangeValue] = React.useState('0')
 
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
@@ -45,13 +51,13 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
 
   const callIncreaseLockAmount = async () => {
     if (!account) return
-    await increaseLockAmount(account, lock.xsLockID, parseUnits(inputValue, 18))
+    await increaseLockAmount(account, lock.xsLockID, parseUnits(formatAmount(inputValue), 18))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callIncreaseLockAmount', err, FunctionName.INCREASE_LOCK_AMOUNT))
   }
 
   const inputOnChange = (value: string) => {
-    const filtered = filterAmount(value, inputValue)
+    const filtered = filterAmount(value, formatAmount(inputValue))
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
     setRangeValue(accurateMultiply(filtered, 18))
     setInputValue(filtered)
@@ -151,7 +157,7 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
           secondary
           info
           noborder
-          disabled={!isAppropriateAmount(inputValue, 18, parseUnits(solaceBalance, 18))}
+          disabled={!isAppropriateAmount(formatAmount(inputValue), 18, parseUnits(solaceBalance, 18))}
           onClick={callIncreaseLockAmount}
         >
           Stake

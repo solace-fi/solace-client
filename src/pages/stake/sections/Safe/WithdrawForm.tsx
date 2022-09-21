@@ -36,7 +36,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
   const { account } = useWeb3React()
   const { width } = useWindowDimensions()
 
-  const [inputValue, setInputValue] = React.useState('0')
+  const [inputValue, setInputValue] = React.useState('')
   const [rangeValue, setRangeValue] = React.useState('0')
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     convertSciNotaToPrecise((parseFloat(lock.unboostedAmount.toString()) - parseFloat(rangeValue)).toString()),
@@ -46,17 +46,17 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
   const callWithdrawFromLock = async () => {
     if (!account) return
     let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
-    const isMax = parseUnits(inputValue, 18).eq(lock.unboostedAmount)
+    const isMax = parseUnits(formatAmount(inputValue), 18).eq(lock.unboostedAmount)
     if (isMax) {
       type = FunctionName.WITHDRAW_FROM_LOCK
     }
-    await withdrawFromLock(account, [lock.xsLockID], isMax ? undefined : parseUnits(inputValue, 18))
+    await withdrawFromLock(account, [lock.xsLockID], isMax ? undefined : parseUnits(formatAmount(inputValue), 18))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callWithdrawFromLock', err, type))
   }
 
   const inputOnChange = (value: string) => {
-    const filtered = filterAmount(value, inputValue)
+    const filtered = filterAmount(value, formatAmount(inputValue))
     const formatted = formatAmount(filtered)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
 
@@ -153,7 +153,9 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
           secondary
           info
           noborder
-          disabled={!isAppropriateAmount(inputValue, 18, lock.unboostedAmount) || lock.timeLeft.toNumber() > 0}
+          disabled={
+            !isAppropriateAmount(formatAmount(inputValue), 18, lock.unboostedAmount) || lock.timeLeft.toNumber() > 0
+          }
           onClick={callWithdrawFromLock}
         >
           Withdraw
