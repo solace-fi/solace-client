@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Button } from '../../../components/atoms/Button'
-import { StyledArrowDropDown } from '../../../components/atoms/Icon'
 import { Flex } from '../../../components/atoms/Layout'
 import { Modal } from '../../../components/molecules/Modal'
 import { BalanceDropdownOptions, DropdownInputSection } from '../../../components/organisms/Dropdown'
@@ -28,7 +27,8 @@ export const BribeProviderModal = ({
             isOpen={coinsOpen}
             onClick={() => setCoinsOpen(!coinsOpen)}
             value={enteredAmount}
-            text={selectedCoin?.symbol}
+            icon={<img src={`https://assets.solace.fi/btc`} height={20} />}
+            text={'BTC'}
             onChange={(e) => setEnteredAmount(e.target.value)}
             placeholder={'Amount'}
           />

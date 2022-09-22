@@ -9,6 +9,7 @@ import { getTimesFromMillis } from '../../utils/time'
 import { BribeList } from './components/BribesList'
 import { useGeneral } from '../../context/GeneralManager'
 import { BigNumber } from 'ethers'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 export default function Bribe(): JSX.Element {
   return <BribeContent />
@@ -19,6 +20,7 @@ export function BribeContent(): JSX.Element {
   const [isBribeChaser, setIsBribeChaser] = useState<boolean>(true)
 
   const { getEpochEndTimestamp } = useGaugeController()
+  const { isSmallerMobile } = useWindowDimensions()
 
   const [remainingTime, setRemainingTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [epochEndTimestamp, setEpochEndTimestamp] = useState<BigNumber | undefined>(undefined)
@@ -90,35 +92,37 @@ export function BribeContent(): JSX.Element {
           </Text>
         </TileCard>
       </Flex>
-      <Flex wrapped gap={16}>
-        <TileCard bgSecondary>
-          <Flex col gap={25}>
-            <Flex col itemsCenter gap={8}>
-              <Text bold t6s>
-                Available Votes
-              </Text>
-              <Text t3s bold>
-                420
-              </Text>
-            </Flex>
-            <Text t3s bold success>
-              Voting Open
-            </Text>
-          </Flex>
-        </TileCard>
-        <TileCard bgSecondary>
-          <Flex col gap={25}>
-            <Flex col itemsCenter gap={8}>
-              <Text bold t6s>
-                Total Rewards
-              </Text>
-              <Text t3s bold>
-                $420
+      <Flex col={isSmallerMobile} gap={16}>
+        <Flex gap={16}>
+          <TileCard bgSecondary style={{ width: isSmallerMobile ? '100%' : undefined }}>
+            <Flex col gap={25}>
+              <Flex col itemsCenter gap={8}>
+                <Text bold t6s>
+                  Available Votes
+                </Text>
+                <Text t3s bold>
+                  420
+                </Text>
+              </Flex>
+              <Text t3s bold success textAlignCenter>
+                Voting Open
               </Text>
             </Flex>
-            <Button info>Claim</Button>
-          </Flex>
-        </TileCard>
+          </TileCard>
+          <TileCard bgSecondary style={{ width: isSmallerMobile ? '100%' : undefined }}>
+            <Flex col gap={25}>
+              <Flex col itemsCenter gap={8}>
+                <Text bold t6s>
+                  Total Rewards
+                </Text>
+                <Text t3s bold>
+                  $420
+                </Text>
+              </Flex>
+              <Button info>Claim</Button>
+            </Flex>
+          </TileCard>
+        </Flex>
         <TileCard bgSecondary>
           <Flex col itemsCenter gap={16}>
             <Text bold t6s>

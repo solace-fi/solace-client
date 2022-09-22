@@ -71,6 +71,10 @@ export const GoerliNetwork: NetworkConfig = {
         addr: KEY_ADDRS.FLUX_MEGA_ORACLE,
         abi: fluxMegaOracleABI,
       },
+      bribeController: {
+        addr: KEY_ADDRS.BRIBE_CONTROLLER,
+        abi: [],
+      },
     },
     generalFeatures: { native: true },
     specialFeatures: {},
