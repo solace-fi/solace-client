@@ -14,6 +14,7 @@ import underwritingLockerABI from '../constants/abi/UnderwritingLocker.json'
 import underwritingEquityABI from '../constants/abi/UnderwritingEquity.json'
 import depositHelperABI from '../constants/abi/DepositHelper.json'
 import fluxMegaOracleABI from '../constants/abi/FluxMegaOracle.json'
+import solaceMegaOracleABI from '../constants/abi/SolaceMegaOracle.json'
 import underwritingLockVotingABI from '../constants/abi/UnderwritingLockVoting.json'
 
 const chainId = 5
@@ -70,6 +71,10 @@ export const GoerliNetwork: NetworkConfig = {
       fluxMegaOracle: {
         addr: KEY_ADDRS.FLUX_MEGA_ORACLE,
         abi: fluxMegaOracleABI,
+      },
+      solaceMegaOracle: {
+        addr: KEY_ADDRS.SOLACE_MEGA_ORACLE,
+        abi: solaceMegaOracleABI,
       },
       bribeController: {
         addr: KEY_ADDRS.BRIBE_CONTROLLER,

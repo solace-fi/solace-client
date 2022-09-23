@@ -1,10 +1,18 @@
-import { ZERO } from '@solace-fi/sdk-nightly'
-import { BigNumber } from 'ethers'
-import { useCallback, useMemo } from 'react'
+import { ERC20_ABI, MulticallContract, MulticallProvider, ZERO } from '@solace-fi/sdk-nightly'
+import { useWeb3React } from '@web3-react/core'
+import { BigNumber, Contract } from 'ethers'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { Bribe, LocalTx, Vote, VoteForGauge } from '../../constants/types'
+import { Bribe, GaugeBribeInfo, LocalTx, ReadToken, TokenInfo, Vote, VoteForGauge } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
+import { useNetwork } from '../../context/NetworkManager'
+import { useProvider } from '../../context/ProviderManager'
+import { useVoteContext } from '../../pages/vote/VoteContext'
 import { useGetFunctionGas } from '../provider/useGas'
+import underwritingPoolABI from '../../constants/abi/UnderwritingPool.json'
+import solaceMegaOracleABI from '../../constants/abi/SolaceMegaOracle.json'
+import { multicallChunked } from '../../utils/contract'
+import { formatUnits } from 'ethers/lib/utils'
 
 export const useBribeController = () => {
   const { keyContracts } = useContracts()
@@ -316,4 +324,89 @@ export const useBribeController = () => {
     removeVoteForBribeForMultipleVoters,
     claimBribes,
   }
+}
+
+export const useBribeControllerHelper = () => {
+  const { account } = useWeb3React()
+  const { getProvidedBribesForGauge, getVotesForGauge, getBribeTokenWhitelist } = useBribeController()
+  const { activeNetwork } = useNetwork()
+  const { provider } = useProvider()
+  const { keyContracts } = useContracts()
+  const { bribeController, uwp } = keyContracts
+  const { gauges } = useVoteContext()
+  const { currentGaugesData } = gauges
+
+  const [bribeTokens, setBribeTokens] = useState<TokenInfo[]>([])
+  const [gaugeBribeInfo, setGaugeBribeInfo] = useState<GaugeBribeInfo[]>([])
+
+  useEffect(() => {
+    const getBribesForGauges = async () => {
+      if (currentGaugesData.length == 0 || !bribeController) return
+      const bribes = await Promise.all(currentGaugesData.map((gauge) => getProvidedBribesForGauge(gauge.gaugeId)))
+      const votes = await Promise.all(currentGaugesData.map((gauge) => getVotesForGauge(gauge.gaugeId)))
+      const _gaugeBribeInfo: GaugeBribeInfo[] = currentGaugesData.map((gauge, index) => {
+        return {
+          gaugeID: gauge.gaugeId,
+          bribes: bribes[index],
+          votes: votes[index],
+        }
+      })
+      setGaugeBribeInfo(_gaugeBribeInfo)
+    }
+    getBribesForGauges()
+  }, [currentGaugesData, bribeController, getProvidedBribesForGauge, getVotesForGauge])
+
+  useEffect(() => {
+    const getBribeTokensAndUserBalances = async () => {
+      if (!bribeController || !uwp) return
+      const _bribeTokens = await getBribeTokenWhitelist()
+      const tokenMetadata: TokenInfo[] = []
+      for (let i = 0; i < _bribeTokens.length; i++) {
+        const token = new Contract(_bribeTokens[i], ERC20_ABI, provider)
+        const metadata = await Promise.all([
+          token.name() as string,
+          token.symbol() as string,
+          (account ? token.balanceOf(account) : ZERO) as BigNumber,
+        ])
+        tokenMetadata.push({
+          name: metadata[0],
+          symbol: metadata[1],
+          balance: metadata[2],
+          decimals: 0,
+          price: 0,
+          address: _bribeTokens[i],
+        })
+      }
+
+      const mcProvider = new MulticallProvider(provider, activeNetwork.chainId)
+      const uwpMc = new MulticallContract(uwp.address, underwritingPoolABI)
+      const requests1 = tokenMetadata.map((token) => uwpMc.tokenData(token.address))
+      const tokenData = await multicallChunked(mcProvider, requests1, 50)
+
+      const requests2 = tokenMetadata.map((token, index) => {
+        const oracleMC = new MulticallContract(tokenData[index].oracle, solaceMegaOracleABI)
+        return oracleMC.priceFeedForToken(token.address)
+      })
+
+      const prices: {
+        latestPrice: BigNumber
+        token: string
+        tokenDecimals: number
+        priceFeedDecimals: number
+      }[] = await multicallChunked(mcProvider, requests2, 50)
+
+      const adjustedTokenMetadata = tokenMetadata.map((token, index) => {
+        return {
+          ...token,
+          decimals: prices[index].tokenDecimals,
+          price: parseFloat(formatUnits(prices[index].latestPrice, prices[index].priceFeedDecimals)),
+        }
+      })
+
+      setBribeTokens(adjustedTokenMetadata)
+    }
+    getBribeTokensAndUserBalances()
+  }, [activeNetwork, bribeController, uwp, provider, account, getBribeTokenWhitelist])
+
+  return { bribeTokens, gaugeBribeInfo }
 }

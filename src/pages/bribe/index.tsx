@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
@@ -10,6 +10,9 @@ import { BribeList } from './components/BribesList'
 import { useGeneral } from '../../context/GeneralManager'
 import { BigNumber } from 'ethers'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
+import { useBribeController } from '../../hooks/bribe/useBribeController'
+import { FunctionName } from '../../constants/enums'
+import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 
 export default function Bribe(): JSX.Element {
   return <BribeContent />
@@ -20,10 +23,18 @@ export function BribeContent(): JSX.Element {
   const [isBribeChaser, setIsBribeChaser] = useState<boolean>(true)
 
   const { getEpochEndTimestamp } = useGaugeController()
+  const { claimBribes } = useBribeController()
   const { isSmallerMobile } = useWindowDimensions()
+  const { handleContractCallError, handleToast } = useTransactionExecution()
 
   const [remainingTime, setRemainingTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [epochEndTimestamp, setEpochEndTimestamp] = useState<BigNumber | undefined>(undefined)
+
+  const callClaim = useCallback(async () => {
+    await claimBribes()
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callClaim', err, FunctionName.BRIBE_CLAIM))
+  }, [claimBribes])
 
   useEffect(() => {
     const init = async () => {
@@ -119,7 +130,9 @@ export function BribeContent(): JSX.Element {
                   $420
                 </Text>
               </Flex>
-              <Button info>Claim</Button>
+              <Button info onClick={callClaim}>
+                Claim
+              </Button>
             </Flex>
           </TileCard>
         </Flex>
