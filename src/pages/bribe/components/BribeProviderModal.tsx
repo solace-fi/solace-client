@@ -23,7 +23,7 @@ export const BribeProviderModal = ({
   const { gauges } = useVoteContext()
   const { currentGaugesData } = gauges
   const { provideBribes } = useBribeController()
-  const { bribeTokens } = useBribeControllerHelper()
+  const { bribeTokens, gaugeBribeInfo } = useBribeControllerHelper()
   const { handleContractCallError, handleToast } = useTransactionExecution()
 
   const [coinsOpen, setCoinsOpen] = useState<boolean>(false)
@@ -68,46 +68,53 @@ export const BribeProviderModal = ({
     [setStagingBribes]
   )
 
+  const changeBribeToken = useCallback(
+    (index: number, tokenAddress: string) => {
+      const foundToken = bribeTokens.find((bribe) => bribe.address === tokenAddress)
+      if (!foundToken) return
+      setStagingBribes((prev) => {
+        const newBribes = [...prev]
+        newBribes[index].name = foundToken.name
+        newBribes[index].address = foundToken.address
+        newBribes[index].decimals = foundToken.decimals
+        newBribes[index].symbol = foundToken.symbol
+        return newBribes
+      })
+    },
+    [setStagingBribes, bribeTokens]
+  )
+
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={selectedGauge}>
       <Flex col gap={16}>
         <Flex col gap={5}>
           {stagingBribes.map((stagingBribe, index) => (
-            <DropdownInputSection
-              key={index}
-              hasArrow
-              isOpen={coinsOpen}
-              onClick={() => setCoinsOpen(!coinsOpen)}
-              value={stagingBribe.enteredAmount}
-              icon={
-                stagingBribe.name ? (
-                  <img src={`https://assets.solace.fi/${stagingBribe.name.toLowerCase()}`} height={20} />
-                ) : undefined
-              }
-              text={stagingBribe.symbol}
-              onChange={(e) => changeBribeAmount(index, e.target.value)}
-              placeholder={'Amount'}
-            />
+            <Flex col key={index}>
+              <DropdownInputSection
+                hasArrow
+                isOpen={coinsOpen}
+                onClick={() => setCoinsOpen(!coinsOpen)}
+                value={stagingBribe.enteredAmount}
+                icon={
+                  stagingBribe.name ? (
+                    <img src={`https://assets.solace.fi/${stagingBribe.name.toLowerCase()}`} height={20} />
+                  ) : undefined
+                }
+                text={stagingBribe.symbol}
+                onChange={(e) => changeBribeAmount(index, e.target.value)}
+                placeholder={'Amount'}
+              />
+              <BalanceDropdownOptions
+                searchedList={bribeTokens}
+                isOpen={true}
+                onClick={(value: string) => {
+                  changeBribeToken(index, value)
+                  handleClose()
+                }}
+              />
+            </Flex>
           ))}
-          {/* <DropdownInputSection
-            hasArrow
-            isOpen={coinsOpen}
-            onClick={() => setCoinsOpen(!coinsOpen)}
-            value={enteredAmount}
-            icon={<img src={`https://assets.solace.fi/btc`} height={20} />}
-            text={selectedCoin?.symbol}
-            onChange={(e) => setEnteredAmount(e.target.value)}
-            placeholder={'Amount'}
-          /> */}
         </Flex>
-        {/* <BalanceDropdownOptions
-          searchedList={balanceData}
-          isOpen={true}
-          onClick={(value: string) => {
-            setSelectedCoin(value)
-            handleClose()
-          }}
-        /> */}
         <Button onClick={addNewBribe} noborder disabled={bribeTokens.length == 0}>
           <Text
             underline
@@ -122,7 +129,9 @@ export const BribeProviderModal = ({
             + Add Bribe
           </Text>
         </Button>
-        <Button info>Provide Bribe</Button>
+        <Button info onClick={callProvideBribes}>
+          Provide Bribe
+        </Button>
       </Flex>
     </Modal>
   )
