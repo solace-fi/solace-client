@@ -15,21 +15,22 @@ import { useBribeContext } from '../BribeContext'
 import { formatUnits } from 'ethers/lib/utils'
 import { useVoteContext } from '../../vote/VoteContext'
 import { Loader } from '../../../components/atoms/Loader'
+import { BigNumber, ZERO } from '@solace-fi/sdk-nightly'
 
 export const BribeList = ({ isBribeChaser }: { isBribeChaser: boolean }): JSX.Element => {
   const { isMobile } = useWindowDimensions()
   const { intrface } = useBribeContext()
   const { bribeTokensLoading, gaugeBribeInfoLoading } = intrface
   const [openModal, setOpenModal] = useState<boolean>(false)
-  const [selectedGauge, setSelectedGauge] = useState<string>('')
+  const [selectedGaugeId, setSelectedGaugeId] = useState<BigNumber>(ZERO)
   const [searchTerm, setSearchTerm] = useState<string>('')
   const handleOpenModal = useCallback((value: boolean) => {
     setOpenModal(value)
   }, [])
 
   const handleSelectBribe = useCallback(
-    (gaugeName: string) => {
-      setSelectedGauge(gaugeName)
+    (id: BigNumber) => {
+      setSelectedGaugeId(id)
       handleOpenModal(true)
     },
     [handleOpenModal]
@@ -39,12 +40,12 @@ export const BribeList = ({ isBribeChaser }: { isBribeChaser: boolean }): JSX.El
     <TileCard gap={16} bgSecondary>
       <BribeProviderModal
         isOpen={openModal && !isBribeChaser}
-        selectedGauge={selectedGauge}
+        selectedGaugeId={selectedGaugeId}
         handleClose={() => handleOpenModal(false)}
       />
       <BribeChaserModal
         isOpen={openModal && isBribeChaser}
-        selectedGauge={selectedGauge}
+        selectedGaugeId={selectedGaugeId}
         handleClose={() => handleOpenModal(false)}
       />
       <Text t3s bold>
@@ -73,7 +74,7 @@ const BribeTable = ({
   searchTerm,
 }: {
   isBribeChaser: boolean
-  handleSelectBribe: (gaugeName: string) => void
+  handleSelectBribe: (id: BigNumber) => void
   searchTerm: string
 }): JSX.Element => {
   const { voteOwner } = useVoteContext()
@@ -173,7 +174,7 @@ const BribeTable = ({
                           )
                           return (
                             <Flex gap={5} justifyCenter key={index}>
-                              <img src={`https://assets.solace.fi/${token?.name}`} height={20} />
+                              <img src={`https://assets.solace.fi/${token?.name.toLowerCase()}`} height={20} />
                               <Text autoAlignVertical semibold>
                                 {token?.symbol}
                               </Text>
@@ -183,7 +184,7 @@ const BribeTable = ({
                       </Flex>
                     </TableData>
                     <TableData>
-                      <Button info onClick={() => handleSelectBribe(gauge.gaugeName)}>
+                      <Button info onClick={() => handleSelectBribe(gauge.gaugeID)}>
                         {isBribeChaser ? 'Vote' : 'Bribe'}
                       </Button>
                     </TableData>
@@ -203,7 +204,7 @@ const BribeCardContainer = ({
   searchTerm,
 }: {
   isBribeChaser: boolean
-  handleSelectBribe: (gaugeName: string) => void
+  handleSelectBribe: (id: BigNumber) => void
   searchTerm: string
 }): JSX.Element => {
   const { voteOwner } = useVoteContext()
@@ -275,12 +276,14 @@ const BribeCardContainer = ({
                         const token = bribeTokens.find(
                           (token) => token.address.toLowerCase() === bribe.bribeToken.toLowerCase()
                         )
-                        return <img key={index} src={`https://assets.solace.fi/${token?.name}`} height={20} />
+                        return (
+                          <img key={index} src={`https://assets.solace.fi/${token?.name.toLowerCase()}`} height={20} />
+                        )
                       })}
                     </Flex>
                   </Flex>
                 </Flex>
-                <Button info onClick={() => handleSelectBribe(gauge.gaugeName)}>
+                <Button info onClick={() => handleSelectBribe(gauge.gaugeID)}>
                   {isBribeChaser ? 'Vote' : 'Bribe'}
                 </Button>
               </Flex>

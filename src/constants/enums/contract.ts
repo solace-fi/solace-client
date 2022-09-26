@@ -24,12 +24,12 @@ export enum FunctionName {
   DEPOSIT_INTO_LOCK = 'DepositIntoLock',
 
   // Bribes
-  BRIBE_PROVIDE = 'provideBribes',
-  BRIBE_VOTE = 'voteForBribe',
-  BRIBE_VOTE_MULTIPLE_BRIBES = 'voteForMultipleBribes',
-  BRIBE_VOTE_MULTIPLE_VOTERS = 'voteForBribeForMultipleVoters',
-  BRIBE_REMOVE_VOTE = 'removeVoteForBribe',
-  BRIBE_REMOVE_VOTES_MULTIPLE_BRIBES = 'removeVotesForMultipleBribes',
-  BRIBE_REMOVE_VOTES_MULTIPLE_VOTERS = 'removeVotesForBribeForMultipleVoters',
-  BRIBE_CLAIM = 'claimBribes',
+  BRIBE_PROVIDE = 'ProvideBribes',
+  BRIBE_VOTE = 'VoteForBribe',
+  BRIBE_VOTE_MULTIPLE_BRIBES = 'VoteForMultipleBribes',
+  BRIBE_VOTE_MULTIPLE_VOTERS = 'VoteForBribeForMultipleVoters',
+  BRIBE_REMOVE_VOTE = 'RemoveVoteForBribe',
+  BRIBE_REMOVE_VOTES_MULTIPLE_BRIBES = 'RemoveVotesForMultipleBribes',
+  BRIBE_REMOVE_VOTES_MULTIPLE_VOTERS = 'RemoveVotesForBribeForMultipleVoters',
+  BRIBE_CLAIM = 'ClaimBribes',
 }

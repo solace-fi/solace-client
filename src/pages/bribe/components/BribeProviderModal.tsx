@@ -6,49 +6,51 @@ import { Modal } from '../../../components/molecules/Modal'
 import { BalanceDropdownOptions, DropdownInputSection } from '../../../components/organisms/Dropdown'
 import { FunctionName } from '../../../constants/enums'
 import { ReadToken } from '../../../constants/types'
-import { useBribeController, useBribeControllerHelper } from '../../../hooks/bribe/useBribeController'
+import { useBribeController } from '../../../hooks/bribe/useBribeController'
 import { useTransactionExecution } from '../../../hooks/internal/useInputAmount'
 import { useVoteContext } from '../../vote/VoteContext'
 import { Text } from '../../../components/atoms/Typography'
-import { formatAmount } from '../../../utils/formatting'
+import { filterAmount, fixed, formatAmount } from '../../../utils/formatting'
 import { useTokenAllowance, useTokenApprove } from '../../../hooks/contract/useToken'
 import { ERC20_ABI } from '../../../constants/abi'
 import { useProvider } from '../../../context/ProviderManager'
-import { Contract } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { useContracts } from '../../../context/ContractsManager'
-import { Loader } from '../../../components/atoms/Loader'
 import { useBribeContext } from '../BribeContext'
 
 export const BribeProviderModal = ({
   isOpen,
   handleClose,
-  selectedGauge,
+  selectedGaugeId,
 }: {
   isOpen: boolean
   handleClose: () => void
-  selectedGauge: string
+  selectedGaugeId: BigNumber
 }): JSX.Element => {
   const { gauges } = useVoteContext()
   const { currentGaugesData } = gauges
   const { provideBribes } = useBribeController()
-  const { intrface, bribes } = useBribeContext()
-  const { bribeTokens, gaugeBribeInfo } = bribes
+  const { bribes } = useBribeContext()
+  const { bribeTokens } = bribes
   const { handleContractCallError, handleToast } = useTransactionExecution()
+
+  const foundName = useMemo(
+    () => currentGaugesData.find((gauge) => gauge.gaugeId.eq(selectedGaugeId))?.gaugeName ?? 'Unknown Gauge',
+    [currentGaugesData, selectedGaugeId]
+  )
 
   const [coinsOpen, setCoinsOpen] = useState<number | undefined>(undefined)
   const [stagingBribes, setStagingBribes] = useState<(ReadToken & { enteredAmount: string; approved: boolean })[]>([])
 
   const callProvideBribes = useCallback(async () => {
-    const foundGaugeId = currentGaugesData.find((gauge) => gauge.gaugeName === selectedGauge)?.gaugeId
-    if (!foundGaugeId) return
     await provideBribes(
       stagingBribes.map((coin) => coin.address),
       stagingBribes.map((coin) => parseUnits(formatAmount(coin.enteredAmount), coin.decimals)),
-      foundGaugeId
+      selectedGaugeId
     )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callClaim', err, FunctionName.BRIBE_CLAIM))
-  }, [provideBribes, stagingBribes, selectedGauge, currentGaugesData])
+  }, [provideBribes, stagingBribes, selectedGaugeId, currentGaugesData])
 
   const addNewBribe = useCallback(() => {
     const initialBribe = bribeTokens.filter(
@@ -68,7 +70,9 @@ export const BribeProviderModal = ({
   }, [bribeTokens, stagingBribes])
 
   const changeBribeAmount = useCallback(
-    (index: number, amount: string) => {
+    (stagingBribe: ReadToken & { enteredAmount: string }, index: number, amount: string) => {
+      const filtered = filterAmount(amount, formatAmount(stagingBribe.enteredAmount))
+      if (filtered.includes('.') && filtered.split('.')[1]?.length > (stagingBribe?.decimals ?? 18)) return
       setStagingBribes((prev) => {
         const newBribes = [...prev]
         newBribes[index].enteredAmount = amount
@@ -88,6 +92,12 @@ export const BribeProviderModal = ({
         newBribes[index].address = foundToken.address
         newBribes[index].decimals = foundToken.decimals
         newBribes[index].symbol = foundToken.symbol
+        if (parseFloat(formatAmount(newBribes[index].enteredAmount)) > 0) {
+          newBribes[index].enteredAmount = fixed(
+            formatAmount(newBribes[index].enteredAmount),
+            foundToken.decimals
+          ).toString()
+        }
         return newBribes
       })
     },
@@ -117,9 +127,14 @@ export const BribeProviderModal = ({
     })
   }, [])
 
+  const _handleClose = useCallback(() => {
+    setStagingBribes([])
+    handleClose()
+  }, [handleClose])
+
   return (
-    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={selectedGauge}>
-      <Flex col gap={16} width={350}>
+    <Modal isOpen={isOpen} handleClose={_handleClose} modalTitle={foundName}>
+      <Flex col gap={16} style={{ minWidth: '350px' }}>
         <Flex col gap={5}>
           {stagingBribes.map((stagingBribe, index) => (
             <Flex col key={index} gap={5}>
@@ -139,6 +154,7 @@ export const BribeProviderModal = ({
                   changeBribeToken(index, value)
                   setCoinsOpen(undefined)
                 }}
+                ignorePrice
               />
             </Flex>
           ))}
@@ -184,7 +200,7 @@ export const ProvidedBribe = ({
   coinsOpen: number | undefined
   index: number
   handleCoinsOpen: (index: number | undefined) => void
-  changeBribeAmount: (index: number, amount: string) => void
+  changeBribeAmount: (stagingBribe: ReadToken & { enteredAmount: string }, index: number, amount: string) => void
   deleteBribe: (index: number) => void
   handleBribeApproval: (index: number, approval: boolean) => void
 }): JSX.Element => {
@@ -192,17 +208,28 @@ export const ProvidedBribe = ({
   const { bribeController } = keyContracts
   const { signer } = useProvider()
   const { approve } = useTokenApprove()
-  const selectedCoinContract = useMemo(
-    () => (stagingBribe ? new Contract(stagingBribe.address, ERC20_ABI, signer) : undefined),
-    [stagingBribe, signer]
-  )
+
+  const selectedCoinContract = useMemo(() => new Contract(stagingBribe.address, ERC20_ABI, signer), [
+    stagingBribe.address,
+    signer,
+  ])
+
   const approval = useTokenAllowance(
-    selectedCoinContract ?? null,
+    selectedCoinContract,
     bribeController?.address ?? null,
     stagingBribe.enteredAmount && stagingBribe.enteredAmount != '.'
       ? parseUnits(stagingBribe.enteredAmount, stagingBribe?.decimals ?? 18).toString()
       : '0'
   )
+
+  const callApprove = useCallback(async () => {
+    await approve(
+      stagingBribe.address,
+      ERC20_ABI,
+      bribeController?.address ?? '',
+      parseUnits(stagingBribe.enteredAmount, stagingBribe.decimals)
+    )
+  }, [approve, stagingBribe, bribeController])
 
   useEffect(() => {
     handleBribeApproval(index, approval)
@@ -222,7 +249,7 @@ export const ProvidedBribe = ({
             ) : undefined
           }
           text={stagingBribe.symbol}
-          onChange={(e) => changeBribeAmount(index, e.target.value)}
+          onChange={(e) => changeBribeAmount(stagingBribe, index, e.target.value)}
           placeholder={'Amount'}
         />
         <ShadowDiv>
@@ -232,7 +259,7 @@ export const ProvidedBribe = ({
         </ShadowDiv>
       </Flex>
       {!approval && parseFloat(formatAmount(stagingBribe.enteredAmount)) > 0 && (
-        <Button onClick={approve} info secondary>
+        <Button onClick={callApprove} info secondary>
           Approve Entered {stagingBribe.symbol}
         </Button>
       )}

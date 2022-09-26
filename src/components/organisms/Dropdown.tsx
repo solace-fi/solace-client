@@ -290,11 +290,13 @@ export const BalanceDropdownOptions = ({
   searchedList,
   isOpen,
   noneText,
+  ignorePrice,
   onClick,
 }: {
   searchedList: TokenInfo[]
   isOpen: boolean
   noneText?: string
+  ignorePrice?: boolean
   onClick: (value: string) => void
 }): JSX.Element => {
   const { appTheme } = useGeneral()
@@ -323,7 +325,7 @@ export const BalanceDropdownOptions = ({
                 <Text {...gradientStyle}>{item.symbol}</Text>
               </Flex>
               <Text autoAlignVertical>
-                {item.price > 0
+                {item.price > 0 && !ignorePrice
                   ? `~$${truncateValue(parseFloat(formatUnits(item.balance, item.decimals)) * item.price, 2)}`
                   : `${truncateValue(formatUnits(item.balance, item.decimals), 2)}`}
               </Text>

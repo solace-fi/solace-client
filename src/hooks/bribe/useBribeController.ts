@@ -14,7 +14,7 @@ import underwritingPoolABI from '../../constants/abi/UnderwritingPool.json'
 import solaceMegaOracleABI from '../../constants/abi/SolaceMegaOracle.json'
 import { multicallChunked, MulticallProvider } from '../../utils/contract'
 import { formatUnits } from 'ethers/lib/utils'
-import { useUwLockVoting, useUwLockVotingHelper } from '../lock/useUwLockVoting'
+import { useCachedData } from '../../context/CachedDataManager'
 
 export const useBribeController = () => {
   const { keyContracts } = useContracts()
@@ -393,7 +393,8 @@ export const useBribeControllerHelper = () => {
     getClaimableBribes,
   } = useBribeController()
   const { activeNetwork } = useNetwork()
-  const { provider } = useProvider()
+  const { positiveVersion } = useCachedData()
+  const { provider, latestBlock } = useProvider()
   const { keyContracts } = useContracts()
   const { bribeController, uwp } = keyContracts
   const { gauges } = useVoteContext()
@@ -424,7 +425,7 @@ export const useBribeControllerHelper = () => {
       setGaugeBribeInfo(_gaugeBribeInfo)
     }
     getBribesForGauges()
-  }, [currentGaugesData, bribeController, getProvidedBribesForGauge, getVotesForGauge])
+  }, [currentGaugesData, bribeController, positiveVersion, getProvidedBribesForGauge, getVotesForGauge])
 
   useEffect(() => {
     const getBribeTokensAndUserBalances = async () => {
@@ -477,7 +478,7 @@ export const useBribeControllerHelper = () => {
       setBribeTokens(adjustedTokenMetadata)
     }
     getBribeTokensAndUserBalances()
-  }, [activeNetwork, bribeController, uwp, provider, account, getBribeTokenWhitelist])
+  }, [activeNetwork, bribeController, uwp, provider, account, positiveVersion, getBribeTokenWhitelist])
 
   useEffect(() => {
     const _getClaimableBribes = async () => {
@@ -486,7 +487,7 @@ export const useBribeControllerHelper = () => {
       setClaimableBribes(_claimableBribes)
     }
     _getClaimableBribes()
-  }, [account, bribeController, getClaimableBribes])
+  }, [account, bribeController, latestBlock, getClaimableBribes])
 
   return { bribeTokens, gaugeBribeInfo, bribeTokensLoading, gaugeBribeInfoLoading, claimableBribes }
 }
