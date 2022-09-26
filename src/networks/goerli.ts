@@ -16,6 +16,7 @@ import depositHelperABI from '../constants/abi/DepositHelper.json'
 import fluxMegaOracleABI from '../constants/abi/FluxMegaOracle.json'
 import solaceMegaOracleABI from '../constants/abi/SolaceMegaOracle.json'
 import underwritingLockVotingABI from '../constants/abi/UnderwritingLockVoting.json'
+import bribeControllerABI from '../constants/abi/BribeController.json'
 
 const chainId = 5
 
@@ -78,7 +79,7 @@ export const GoerliNetwork: NetworkConfig = {
       },
       bribeController: {
         addr: KEY_ADDRS.BRIBE_CONTROLLER,
-        abi: [],
+        abi: bribeControllerABI,
       },
     },
     generalFeatures: { native: true },

@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { Flex } from '../../components/atoms/Layout'
-import { Text } from '../../components/atoms/Typography'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Content, Flex } from '../../components/atoms/Layout'
+import { Text, TextSpan } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
 import { truncateValue } from '../../utils/formatting'
 import { Button } from '../../components/atoms/Button'
 import { useGaugeController } from '../../hooks/gauge/useGaugeController'
-import { getTimesFromMillis } from '../../utils/time'
+import { getDateStringWithMonthName, getTimeFromMillis, getTimesFromMillis } from '../../utils/time'
 import { BribeList } from './components/BribesList'
 import { useGeneral } from '../../context/GeneralManager'
 import { BigNumber } from 'ethers'
@@ -13,22 +13,70 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useBribeController } from '../../hooks/bribe/useBribeController'
 import { FunctionName } from '../../constants/enums'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
+import { useNetwork } from '../../context/NetworkManager'
+import BribeManager, { useBribeContext } from './BribeContext'
+import { Card } from '../../components/atoms/Card'
+import { StyledInfo } from '../../components/atoms/Icon'
+import { formatUnits } from 'ethers/lib/utils'
+import { useVoteContext } from '../vote/VoteContext'
 
 export default function Bribe(): JSX.Element {
-  return <BribeContent />
+  const { activeNetwork } = useNetwork()
+  const canBribe = useMemo(() => activeNetwork.config.generalFeatures.native, [
+    activeNetwork.config.generalFeatures.native,
+  ])
+  return (
+    <>
+      {canBribe ? (
+        <BribeManager>
+          <BribeContent />
+        </BribeManager>
+      ) : (
+        <Content>
+          <Card error pt={10} pb={10} pl={15} pr={15}>
+            <Flex>
+              <TextSpan light textAlignLeft>
+                <StyledInfo size={30} />
+              </TextSpan>
+              <Text light bold autoAlign>
+                Bribes are not available on this network.
+              </Text>
+            </Flex>
+          </Card>
+        </Content>
+      )}
+    </>
+  )
 }
 
 export function BribeContent(): JSX.Element {
   const { appTheme } = useGeneral()
-  const [isBribeChaser, setIsBribeChaser] = useState<boolean>(true)
-
   const { getEpochEndTimestamp } = useGaugeController()
   const { claimBribes } = useBribeController()
   const { isSmallerMobile } = useWindowDimensions()
+  const { bribes } = useBribeContext()
+  const { claimableBribes, bribeTokens } = bribes
   const { handleContractCallError, handleToast } = useTransactionExecution()
+  const { voteGeneral, voteOwner } = useVoteContext()
+  const { isVotingOpen } = voteGeneral
+  const { votesData } = voteOwner
 
   const [remainingTime, setRemainingTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [epochEndTimestamp, setEpochEndTimestamp] = useState<BigNumber | undefined>(undefined)
+
+  const [isBribeChaser, setIsBribeChaser] = useState<boolean>(true)
+
+  const claimableUSD = useMemo(() => {
+    let totalUSD = 0
+    for (let i = 0; i < claimableBribes.length; i++) {
+      const bribe = claimableBribes[i]
+      const token = bribeTokens.find((token) => token.address.toLowerCase() === bribe.bribeToken.toLowerCase())
+      if (token) {
+        totalUSD += token.price * parseFloat(formatUnits(bribe.bribeAmount, token.decimals))
+      }
+    }
+    return totalUSD
+  }, [bribeTokens, claimableBribes])
 
   const callClaim = useCallback(async () => {
     await claimBribes()
@@ -111,13 +159,10 @@ export function BribeContent(): JSX.Element {
                 <Text bold t6s>
                   Available Votes
                 </Text>
-                <Text t3s bold>
-                  420
+                <Text t2 bold>
+                  {truncateValue(formatUnits(votesData.votePower, 18), 2)}
                 </Text>
               </Flex>
-              <Text t3s bold success textAlignCenter>
-                Voting Open
-              </Text>
             </Flex>
           </TileCard>
           <TileCard bgSecondary style={{ width: isSmallerMobile ? '100%' : undefined }}>
@@ -127,10 +172,10 @@ export function BribeContent(): JSX.Element {
                   Total Rewards
                 </Text>
                 <Text t3s bold>
-                  $420
+                  ${truncateValue(claimableUSD, 2)}
                 </Text>
               </Flex>
-              <Button info onClick={callClaim}>
+              <Button info onClick={callClaim} disabled={claimableUSD == 0}>
                 Claim
               </Button>
             </Flex>
@@ -139,7 +184,8 @@ export function BribeContent(): JSX.Element {
         <TileCard bgSecondary>
           <Flex col itemsCenter gap={16}>
             <Text bold t6s>
-              Remaining Epoch Time
+              {epochEndTimestamp &&
+                `Epoch ends ${getDateStringWithMonthName(new Date(epochEndTimestamp.toNumber() * 1000))}`}
             </Text>
             <Flex gap={8}>
               <TileCard padding={8}>

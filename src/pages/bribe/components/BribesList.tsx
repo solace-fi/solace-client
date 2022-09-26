@@ -11,12 +11,18 @@ import { Search } from '../../../components/atoms/Input'
 import { TileCard } from '../../../components/molecules/TileCard'
 import { BribeProviderModal } from './BribeProviderModal'
 import { BribeChaserModal } from './BribeChaserModal'
+import { useBribeContext } from '../BribeContext'
+import { formatUnits } from 'ethers/lib/utils'
+import { useVoteContext } from '../../vote/VoteContext'
+import { Loader } from '../../../components/atoms/Loader'
 
 export const BribeList = ({ isBribeChaser }: { isBribeChaser: boolean }): JSX.Element => {
   const { isMobile } = useWindowDimensions()
+  const { intrface } = useBribeContext()
+  const { bribeTokensLoading, gaugeBribeInfoLoading } = intrface
   const [openModal, setOpenModal] = useState<boolean>(false)
   const [selectedGauge, setSelectedGauge] = useState<string>('')
-
+  const [searchTerm, setSearchTerm] = useState<string>('')
   const handleOpenModal = useCallback((value: boolean) => {
     setOpenModal(value)
   }, [])
@@ -44,12 +50,19 @@ export const BribeList = ({ isBribeChaser }: { isBribeChaser: boolean }): JSX.El
       <Text t3s bold>
         Bribe Market
       </Text>
-      <Search placeholder={'Search Bribes'} />
-      {isMobile ? (
-        <BribeCardContainer isBribeChaser={isBribeChaser} handleSelectBribe={handleSelectBribe} />
-      ) : (
-        <BribeTable isBribeChaser={isBribeChaser} handleSelectBribe={handleSelectBribe} />
-      )}
+      <Search placeholder={'Search Bribes'} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+      {!bribeTokensLoading &&
+        !gaugeBribeInfoLoading &&
+        (isMobile ? (
+          <BribeCardContainer
+            isBribeChaser={isBribeChaser}
+            handleSelectBribe={handleSelectBribe}
+            searchTerm={searchTerm}
+          />
+        ) : (
+          <BribeTable isBribeChaser={isBribeChaser} handleSelectBribe={handleSelectBribe} searchTerm={searchTerm} />
+        ))}
+      {(bribeTokensLoading || gaugeBribeInfoLoading) && <Loader />}
     </TileCard>
   )
 }
@@ -57,10 +70,17 @@ export const BribeList = ({ isBribeChaser }: { isBribeChaser: boolean }): JSX.El
 const BribeTable = ({
   isBribeChaser,
   handleSelectBribe,
+  searchTerm,
 }: {
   isBribeChaser: boolean
   handleSelectBribe: (gaugeName: string) => void
+  searchTerm: string
 }): JSX.Element => {
+  const { voteOwner } = useVoteContext()
+  const { votesData } = voteOwner
+  const { bribes } = useBribeContext()
+  const { gaugeBribeInfo, bribeTokens } = bribes
+
   return (
     <>
       <Scrollable style={{ padding: '0 10px 0 10px' }} maxDesktopHeight={'50vh'} maxMobileHeight={'50vh'}>
@@ -69,7 +89,7 @@ const BribeTable = ({
             <TableRow>
               <TableHeader style={{ padding: '4px' }}>
                 <Text t5s medium>
-                  Gauge Name
+                  Gauge
                 </Text>
               </TableHeader>
               <TableHeader style={{ padding: '4px' }}>
@@ -79,40 +99,97 @@ const BribeTable = ({
               </TableHeader>
               <TableHeader style={{ padding: '4px' }}>
                 <Text t5s medium>
-                  Reward per Vote
+                  My Reward per Vote
                 </Text>
               </TableHeader>
               <TableHeader style={{ padding: '4px' }}>
                 <Text t5s medium>
-                  Reward Tokens(s)
+                  Reward Token(s)
                 </Text>
               </TableHeader>
               <TableHeader style={{ padding: '4px' }}></TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow>
-              <TableData style={{ padding: '14px 4px' }}>BTC</TableData>
-              <TableData style={{ padding: '14px 4px' }}>
-                <Text autoAlignVertical>$</Text>
-              </TableData>
-              <TableData style={{ padding: '14px 4px' }}>
-                <Text autoAlignVertical>2</Text>
-              </TableData>
-              <TableData>
-                <Flex gap={5} justifyCenter>
-                  <img src={`https://assets.solace.fi/btc`} height={20} />
-                  <Text autoAlignVertical semibold>
-                    BTC
-                  </Text>
-                </Flex>
-              </TableData>
-              <TableData>
-                <Button info onClick={() => handleSelectBribe('BTC')}>
-                  {isBribeChaser ? 'Vote' : 'Bribe'}
-                </Button>
-              </TableData>
-            </TableRow>
+            {gaugeBribeInfo
+              .filter((gauge) => {
+                if (searchTerm == '') return gauge
+                return (
+                  gauge.gaugeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  gauge.bribes
+                    .map(
+                      (bribe) =>
+                        bribeTokens.find((token) => token.address.toLowerCase() === bribe.bribeToken.toLowerCase())
+                          ?.symbol
+                    )
+                    .includes(searchTerm.toLowerCase()) ||
+                  gauge.bribes
+                    .map(
+                      (bribe) =>
+                        bribeTokens.find((token) => token.address.toLowerCase() === bribe.bribeToken.toLowerCase())
+                          ?.name
+                    )
+                    .includes(searchTerm.toLowerCase())
+                )
+              })
+              .filter((gauge) => {
+                if (isBribeChaser) return gauge.bribes.length > 0
+                return gauge
+              })
+              .map((gauge, index) => {
+                const totalTokensUSD = truncateValue(
+                  gauge.bribes.reduce((acc, bribe) => {
+                    let totalTokenUSD = 0
+                    const token = bribeTokens.find(
+                      (token) => token.address.toLowerCase() === bribe.bribeToken.toLowerCase()
+                    )
+                    if (token) {
+                      totalTokenUSD += token.price * parseFloat(formatUnits(bribe.bribeAmount, token.decimals))
+                    }
+                    return acc + totalTokenUSD
+                  }, 0)
+                )
+                return (
+                  <TableRow key={index}>
+                    <TableData style={{ padding: '14px 4px' }}>{gauge.gaugeName}</TableData>
+                    <TableData style={{ padding: '14px 4px' }}>
+                      <Text autoAlignVertical>${totalTokensUSD}</Text>
+                    </TableData>
+                    <TableData style={{ padding: '14px 4px' }}>
+                      <Text autoAlignVertical>
+                        $
+                        {votesData.votePower.isZero()
+                          ? 0
+                          : truncateValue(
+                              parseFloat(totalTokensUSD) / parseFloat(formatUnits(votesData.votePower, 18))
+                            )}
+                      </Text>
+                    </TableData>
+                    <TableData>
+                      <Flex col gap={2}>
+                        {gauge.bribes.map((bribe, index) => {
+                          const token = bribeTokens.find(
+                            (token) => token.address.toLowerCase() === bribe.bribeToken.toLowerCase()
+                          )
+                          return (
+                            <Flex gap={5} justifyCenter key={index}>
+                              <img src={`https://assets.solace.fi/${token?.name}`} height={20} />
+                              <Text autoAlignVertical semibold>
+                                {token?.symbol}
+                              </Text>
+                            </Flex>
+                          )
+                        })}
+                      </Flex>
+                    </TableData>
+                    <TableData>
+                      <Button info onClick={() => handleSelectBribe(gauge.gaugeName)}>
+                        {isBribeChaser ? 'Vote' : 'Bribe'}
+                      </Button>
+                    </TableData>
+                  </TableRow>
+                )
+              })}
           </TableBody>
         </Table>
       </Scrollable>
@@ -123,41 +200,93 @@ const BribeTable = ({
 const BribeCardContainer = ({
   isBribeChaser,
   handleSelectBribe,
+  searchTerm,
 }: {
   isBribeChaser: boolean
   handleSelectBribe: (gaugeName: string) => void
+  searchTerm: string
 }): JSX.Element => {
+  const { voteOwner } = useVoteContext()
+  const { votesData } = voteOwner
+  const { bribes } = useBribeContext()
+  const { gaugeBribeInfo, bribeTokens } = bribes
+
   return (
     <CardContainer cardsPerRow={1}>
-      <TileCard>
-        <Flex col gap={16}>
-          <Flex col gap={8}>
-            <Text bold t4s>
-              BTC
-            </Text>
-            <Flex between>
-              <Text>Total Rewards</Text>
-              <Text bold>$0.0013</Text>
-            </Flex>
-            <Flex between>
-              <Text>Reward per Vote</Text>
-              <Text bold>$0.0013</Text>
-            </Flex>
-            <Flex between>
-              <Text>Reward Token(s)</Text>
-              <Flex gap={5} justifyCenter>
-                <img src={`https://assets.solace.fi/btc`} height={20} />
-                <Text autoAlignVertical semibold>
-                  BTC
-                </Text>
+      {gaugeBribeInfo
+        .filter((gauge) => {
+          if (searchTerm == '') return gauge
+          return (
+            gauge.gaugeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            gauge.bribes
+              .map(
+                (bribe) =>
+                  bribeTokens.find((token) => token.address.toLowerCase() === bribe.bribeToken.toLowerCase())?.symbol
+              )
+              .includes(searchTerm.toLowerCase()) ||
+            gauge.bribes
+              .map(
+                (bribe) =>
+                  bribeTokens.find((token) => token.address.toLowerCase() === bribe.bribeToken.toLowerCase())?.name
+              )
+              .includes(searchTerm.toLowerCase())
+          )
+        })
+        .filter((gauge) => {
+          if (isBribeChaser) return gauge.bribes.length > 0
+          return gauge
+        })
+        .map((gauge, index) => {
+          const totalTokensUSD = truncateValue(
+            gauge.bribes.reduce((acc, bribe) => {
+              let totalTokenUSD = 0
+              const token = bribeTokens.find((token) => token.address.toLowerCase() === bribe.bribeToken.toLowerCase())
+              if (token) {
+                totalTokenUSD += token.price * parseFloat(formatUnits(bribe.bribeAmount, token.decimals))
+              }
+              return acc + totalTokenUSD
+            }, 0)
+          )
+          return (
+            <TileCard key={index}>
+              <Flex col gap={16}>
+                <Flex col gap={8}>
+                  <Text bold t4s>
+                    {gauge.gaugeName}
+                  </Text>
+                  <Flex between>
+                    <Text>Total Rewards</Text>
+                    <Text bold>${totalTokensUSD}</Text>
+                  </Flex>
+                  <Flex between>
+                    <Text>My Reward per Vote</Text>
+                    <Text bold>
+                      {' '}
+                      $
+                      {votesData.votePower.isZero()
+                        ? 0
+                        : truncateValue(parseFloat(totalTokensUSD) / parseFloat(formatUnits(votesData.votePower, 18)))}
+                    </Text>
+                  </Flex>
+                  <Flex between>
+                    <Text>Reward Token(s)</Text>
+                    <Flex gap={5} justifyCenter>
+                      {gauge.bribes.map((bribe, index) => {
+                        const token = bribeTokens.find(
+                          (token) => token.address.toLowerCase() === bribe.bribeToken.toLowerCase()
+                        )
+                        return <img key={index} src={`https://assets.solace.fi/${token?.name}`} height={20} />
+                      })}
+                    </Flex>
+                  </Flex>
+                </Flex>
+                <Button info onClick={() => handleSelectBribe(gauge.gaugeName)}>
+                  {isBribeChaser ? 'Vote' : 'Bribe'}
+                </Button>
               </Flex>
-            </Flex>
-          </Flex>
-          <Button info onClick={() => handleSelectBribe('BTC')}>
-            {isBribeChaser ? 'Vote' : 'Bribe'}
-          </Button>
-        </Flex>
-      </TileCard>
+            </TileCard>
+          )
+        })}
     </CardContainer>
   )
 }

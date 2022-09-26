@@ -8,6 +8,7 @@ export type Bribe = {
 
 export type GaugeBribeInfo = {
   gaugeID: BigNumber
+  gaugeName: string
   bribes: Bribe[]
   votes: VoteForGauge[]
 }

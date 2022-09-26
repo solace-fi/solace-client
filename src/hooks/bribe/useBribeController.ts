@@ -1,4 +1,5 @@
-import { ERC20_ABI, MulticallContract, MulticallProvider, ZERO } from '@solace-fi/sdk-nightly'
+import { ERC20_ABI, ZERO } from '@solace-fi/sdk-nightly'
+import { Contract as MulticallContract } from 'ethers-multicall'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber, Contract } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -11,14 +12,19 @@ import { useVoteContext } from '../../pages/vote/VoteContext'
 import { useGetFunctionGas } from '../provider/useGas'
 import underwritingPoolABI from '../../constants/abi/UnderwritingPool.json'
 import solaceMegaOracleABI from '../../constants/abi/SolaceMegaOracle.json'
-import { multicallChunked } from '../../utils/contract'
+import { multicallChunked, MulticallProvider } from '../../utils/contract'
 import { formatUnits } from 'ethers/lib/utils'
+import { useUwLockVoting, useUwLockVotingHelper } from '../lock/useUwLockVoting'
 
 export const useBribeController = () => {
   const { keyContracts } = useContracts()
   const { bribeController } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
 
+  /**
+   * @notice Get timestamp for the start of the current epoch.
+   * @return timestamp
+   */
   const getEpochStartTimestamp = useCallback(async (): Promise<BigNumber> => {
     if (!bribeController) return ZERO
     try {
@@ -30,6 +36,10 @@ export const useBribeController = () => {
     }
   }, [bribeController])
 
+  /**
+   * @notice Get timestamp for end of the current epoch.
+   * @return timestamp
+   */
   const getEpochEndTimestamp = useCallback(async (): Promise<BigNumber> => {
     if (!bribeController) return ZERO
     try {
@@ -41,6 +51,11 @@ export const useBribeController = () => {
     }
   }, [bribeController])
 
+  /**
+   * @notice Get unused votePowerBPS for a voter.
+   * @param voter The address of the voter to query for.
+   * @return unusedVotePowerBPS
+   */
   const getUnusedVotePowerBPS = useCallback(
     async (voter: string): Promise<BigNumber> => {
       if (!bribeController) return ZERO
@@ -55,6 +70,11 @@ export const useBribeController = () => {
     [bribeController]
   )
 
+  /**
+   * @notice Get votePowerBPS available for voteForBribes.
+   * @param voter The address of the voter to query for.
+   * @return availableVotePowerBPS
+   */
   const getAvailableVotePowerBPS = useCallback(
     async (voter: string): Promise<BigNumber> => {
       if (!bribeController) return ZERO
@@ -69,6 +89,10 @@ export const useBribeController = () => {
     [bribeController]
   )
 
+  /**
+   * @notice Get list of whitelisted bribe tokens.
+   * @return whitelist
+   */
   const getBribeTokenWhitelist = useCallback(async (): Promise<string[]> => {
     if (!bribeController) return []
     try {
@@ -80,6 +104,11 @@ export const useBribeController = () => {
     }
   }, [bribeController])
 
+  /**
+   * @notice Get claimable bribes for a given voter.
+   * @param voter Voter to query for.
+   * @return bribes Array of claimable bribes.
+   */
   const getClaimableBribes = useCallback(
     async (voter: string): Promise<Bribe[]> => {
       if (!bribeController) return []
@@ -94,6 +123,10 @@ export const useBribeController = () => {
     [bribeController]
   )
 
+  /**
+   * @notice Get all gaugeIDs with bribe/s offered in the present epoch.
+   * @return gauges Array of gaugeIDs with current bribe.
+   */
   const getAllGaugesWithBribe = useCallback(async (): Promise<BigNumber[]> => {
     if (!bribeController) return []
     try {
@@ -105,6 +138,11 @@ export const useBribeController = () => {
     }
   }, [bribeController])
 
+  /**
+   * @notice Get all bribes which have been offered for a given gauge.
+   * @param gaugeID GaugeID to query for.
+   * @return bribes Array of provided bribes.
+   */
   const getProvidedBribesForGauge = useCallback(
     async (gaugeID: BigNumber): Promise<Bribe[]> => {
       if (!bribeController) return []
@@ -119,6 +157,11 @@ export const useBribeController = () => {
     [bribeController]
   )
 
+  /**
+   * @notice Get lifetime provided bribes for a given briber.
+   * @param briber Briber to query for.
+   * @return bribes Array of lifetime provided bribes.
+   */
   const getLifetimeProvidedBribes = useCallback(
     async (briber: string): Promise<Bribe[]> => {
       if (!bribeController) return []
@@ -133,6 +176,12 @@ export const useBribeController = () => {
     [bribeController]
   )
 
+  /**
+   * @notice Get all current voteForBribes for a given voter.
+   * @dev Inefficient implementation to avoid
+   * @param voter Voter to query for.
+   * @return votes Array of Votes {uint256 gaugeID, uint256 votePowerBPS}.
+   */
   const getVotesForVoter = useCallback(
     async (voter: string): Promise<Vote[]> => {
       if (!bribeController) return []
@@ -147,6 +196,11 @@ export const useBribeController = () => {
     [bribeController]
   )
 
+  /**
+   * @notice Get all current voteForBribes for a given gaugeID.
+   * @param gaugeID GaugeID to query for.
+   * @return votes Array of VoteForGauge {address voter, uint256 votePowerBPS}.
+   */
   const getVotesForGauge = useCallback(
     async (gaugeID: BigNumber): Promise<VoteForGauge[]> => {
       if (!bribeController) return []
@@ -161,6 +215,10 @@ export const useBribeController = () => {
     [bribeController]
   )
 
+  /**
+   * @notice Query whether bribing is currently open.
+   * @return True if bribing is open for this epoch, false otherwise.
+   */
   const isBribingOpen = useCallback(async (): Promise<boolean> => {
     if (!bribeController) return false
     try {
@@ -328,7 +386,12 @@ export const useBribeController = () => {
 
 export const useBribeControllerHelper = () => {
   const { account } = useWeb3React()
-  const { getProvidedBribesForGauge, getVotesForGauge, getBribeTokenWhitelist } = useBribeController()
+  const {
+    getProvidedBribesForGauge,
+    getVotesForGauge,
+    getBribeTokenWhitelist,
+    getClaimableBribes,
+  } = useBribeController()
   const { activeNetwork } = useNetwork()
   const { provider } = useProvider()
   const { keyContracts } = useContracts()
@@ -338,19 +401,26 @@ export const useBribeControllerHelper = () => {
 
   const [bribeTokens, setBribeTokens] = useState<TokenInfo[]>([])
   const [gaugeBribeInfo, setGaugeBribeInfo] = useState<GaugeBribeInfo[]>([])
+  const [claimableBribes, setClaimableBribes] = useState<Bribe[]>([])
+
+  const [bribeTokensLoading, setBribeTokensLoading] = useState<boolean>(false)
+  const [gaugeBribeInfoLoading, setGaugeBribeInfoLoading] = useState<boolean>(false)
 
   useEffect(() => {
     const getBribesForGauges = async () => {
       if (currentGaugesData.length == 0 || !bribeController) return
+      setGaugeBribeInfoLoading(true)
       const bribes = await Promise.all(currentGaugesData.map((gauge) => getProvidedBribesForGauge(gauge.gaugeId)))
       const votes = await Promise.all(currentGaugesData.map((gauge) => getVotesForGauge(gauge.gaugeId)))
       const _gaugeBribeInfo: GaugeBribeInfo[] = currentGaugesData.map((gauge, index) => {
         return {
           gaugeID: gauge.gaugeId,
+          gaugeName: gauge.gaugeName,
           bribes: bribes[index],
           votes: votes[index],
         }
       })
+      setGaugeBribeInfoLoading(false)
       setGaugeBribeInfo(_gaugeBribeInfo)
     }
     getBribesForGauges()
@@ -359,6 +429,7 @@ export const useBribeControllerHelper = () => {
   useEffect(() => {
     const getBribeTokensAndUserBalances = async () => {
       if (!bribeController || !uwp) return
+      setBribeTokensLoading(true)
       const _bribeTokens = await getBribeTokenWhitelist()
       const tokenMetadata: TokenInfo[] = []
       for (let i = 0; i < _bribeTokens.length; i++) {
@@ -402,11 +473,20 @@ export const useBribeControllerHelper = () => {
           price: parseFloat(formatUnits(prices[index].latestPrice, prices[index].priceFeedDecimals)),
         }
       })
-
+      setBribeTokensLoading(false)
       setBribeTokens(adjustedTokenMetadata)
     }
     getBribeTokensAndUserBalances()
   }, [activeNetwork, bribeController, uwp, provider, account, getBribeTokenWhitelist])
 
-  return { bribeTokens, gaugeBribeInfo }
+  useEffect(() => {
+    const _getClaimableBribes = async () => {
+      if (!bribeController || !account) return
+      const _claimableBribes = await getClaimableBribes(account)
+      setClaimableBribes(_claimableBribes)
+    }
+    _getClaimableBribes()
+  }, [account, bribeController, getClaimableBribes])
+
+  return { bribeTokens, gaugeBribeInfo, bribeTokensLoading, gaugeBribeInfoLoading, claimableBribes }
 }
