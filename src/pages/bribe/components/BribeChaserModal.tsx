@@ -47,10 +47,11 @@ export const BribeChaserModal = ({
   }, [gaugeBribeInfo, selectedGaugeId, account])
 
   const canAllocate = useMemo(() => {
+    const initialAllocCheck = BigNumber.from(rangeInputBPS).isZero() && currentVoterBPS.isZero()
     const difference = BigNumber.from(rangeInputBPS).gt(currentVoterBPS)
       ? BigNumber.from(rangeInputBPS).sub(currentVoterBPS)
       : ZERO
-    return BigNumber.from(userAvailableVotePowerBPS).gte(difference) && isVotingOpen
+    return BigNumber.from(userAvailableVotePowerBPS).gte(difference) && isVotingOpen && !initialAllocCheck
   }, [isVotingOpen, userAvailableVotePowerBPS, rangeInputBPS, currentVoterBPS])
 
   const gaugeName = useMemo(
@@ -106,7 +107,7 @@ export const BribeChaserModal = ({
         <Flex gap={16}>
           <TileCard>
             <Text t6s bold textAlignCenter>
-              Total Votes
+              Total Vote Points
             </Text>
             <Text bold textAlignCenter>
               {truncateValue(formatUnits(votesData.votePower, 18), 2)}
@@ -123,6 +124,9 @@ export const BribeChaserModal = ({
         </Flex>
         <Button info onClick={handleVote} disabled={!canAllocate}>
           Allocate votes
+        </Button>
+        <Button error onClick={callRemoveVoteForBribe} disabled={currentVoterBPS.isZero()}>
+          Remove Votes
         </Button>
       </Flex>
     </Modal>

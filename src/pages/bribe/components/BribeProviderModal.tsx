@@ -149,6 +149,7 @@ export const BribeProviderModal = ({
               />
               <BalanceDropdownOptions
                 searchedList={bribeTokens}
+                comparingList={stagingBribes.map((token) => token.address.toLowerCase())}
                 isOpen={coinsOpen == index}
                 onClick={(value: string) => {
                   changeBribeToken(index, value)

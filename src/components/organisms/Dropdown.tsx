@@ -292,11 +292,13 @@ export const BalanceDropdownOptions = ({
   noneText,
   ignorePrice,
   onClick,
+  comparingList,
 }: {
   searchedList: TokenInfo[]
   isOpen: boolean
   noneText?: string
   ignorePrice?: boolean
+  comparingList?: string[]
   onClick: (value: string) => void
 }): JSX.Element => {
   const { appTheme } = useGeneral()
@@ -318,6 +320,7 @@ export const BalanceDropdownOptions = ({
             secondary
             noborder
             onClick={() => onClick(item.address)}
+            disabled={comparingList ? comparingList.includes(item.address.toLowerCase()) : false}
           >
             <Flex stretch between pl={16} pr={16}>
               <Flex gap={8} itemsCenter>
