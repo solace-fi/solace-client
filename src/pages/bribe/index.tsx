@@ -19,6 +19,7 @@ import { Card } from '../../components/atoms/Card'
 import { StyledInfo } from '../../components/atoms/Icon'
 import { formatUnits } from 'ethers/lib/utils'
 import { useVoteContext } from '../vote/VoteContext'
+import { useWeb3React } from '@web3-react/core'
 
 export default function Bribe(): JSX.Element {
   const { activeNetwork } = useNetwork()
@@ -50,12 +51,13 @@ export default function Bribe(): JSX.Element {
 }
 
 export function BribeContent(): JSX.Element {
+  const { account } = useWeb3React()
   const { appTheme } = useGeneral()
   const { getEpochEndTimestamp } = useGaugeController()
-  const { claimBribes } = useBribeController()
+  const { claimBribes, removeVotesForMultipleBribes, getVotesForVoter } = useBribeController()
   const { isSmallerMobile } = useWindowDimensions()
   const { bribes } = useBribeContext()
-  const { claimableBribes, bribeTokens } = bribes
+  const { claimableBribes, bribeTokens, userAvailableVotePowerBPS } = bribes
   const { handleContractCallError, handleToast } = useTransactionExecution()
   const { voteGeneral, voteOwner } = useVoteContext()
   const { isVotingOpen } = voteGeneral
@@ -77,6 +79,18 @@ export function BribeContent(): JSX.Element {
     }
     return totalUSD
   }, [bribeTokens, claimableBribes])
+
+  const callRemoveVotes = useCallback(async () => {
+    if (!account) return
+    const votesOfVoter = await getVotesForVoter(account)
+    const votesToRemove = votesOfVoter.filter((vote) => !vote.votePowerBPS.isZero())
+    if (votesToRemove.length == 0) return
+    const gaugeIds = votesToRemove.map((vote) => vote.gaugeID)
+    console.log(gaugeIds)
+    await removeVotesForMultipleBribes(account, gaugeIds)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callRemoveVotes', err, FunctionName.BRIBE_REMOVE_VOTES_MULTIPLE_BRIBES))
+  }, [account, getVotesForVoter, removeVotesForMultipleBribes])
 
   const callClaim = useCallback(async () => {
     await claimBribes()
@@ -155,14 +169,27 @@ export function BribeContent(): JSX.Element {
         <Flex gap={16}>
           <TileCard bgSecondary style={{ width: isSmallerMobile ? '100%' : undefined }}>
             <Flex col gap={25}>
-              <Flex col itemsCenter gap={8}>
-                <Text bold t6s>
-                  Available Votes
-                </Text>
-                <Text t2 bold>
-                  {truncateValue(formatUnits(votesData.votePower, 18), 2)}
-                </Text>
+              <Flex gap={25} around>
+                <Flex col itemsCenter gap={8}>
+                  <Text bold t6s>
+                    Total Vote Points
+                  </Text>
+                  <Text t2 bold>
+                    {truncateValue(formatUnits(votesData.votePower, 18), 2)}
+                  </Text>
+                </Flex>
+                <Flex col itemsCenter gap={8}>
+                  <Text bold t6s textAlignCenter>
+                    Total Used Percentage
+                  </Text>
+                  <Text t2 info>
+                    {(10000 - userAvailableVotePowerBPS.toNumber()) / 100}%
+                  </Text>
+                </Flex>
               </Flex>
+              <Button disabled={userAvailableVotePowerBPS.toNumber() == 10000} onClick={callRemoveVotes}>
+                Remove All Votes
+              </Button>
             </Flex>
           </TileCard>
           <TileCard bgSecondary style={{ width: isSmallerMobile ? '100%' : undefined }}>
@@ -171,9 +198,7 @@ export function BribeContent(): JSX.Element {
                 <Text bold t6s>
                   Total Rewards
                 </Text>
-                <Text t3s bold>
-                  ${truncateValue(claimableUSD, 2)}
-                </Text>
+                <Text t2>${truncateValue(claimableUSD, 2)}</Text>
               </Flex>
               <Button info onClick={callClaim} disabled={claimableUSD == 0}>
                 Claim
@@ -183,10 +208,12 @@ export function BribeContent(): JSX.Element {
         </Flex>
         <TileCard bgSecondary>
           <Flex col itemsCenter gap={16}>
-            <Text bold t6s>
-              {epochEndTimestamp &&
-                `Epoch ends ${getDateStringWithMonthName(new Date(epochEndTimestamp.toNumber() * 1000))}`}
-            </Text>
+            {epochEndTimestamp && (
+              <Text bold t6s>
+                Epoch ends{' '}
+                {<TextSpan info>{getDateStringWithMonthName(new Date(epochEndTimestamp.toNumber() * 1000))}</TextSpan>}
+              </Text>
+            )}
             <Flex gap={8}>
               <TileCard padding={8}>
                 <Text t3s bold textAlignCenter>
@@ -221,6 +248,9 @@ export function BribeContent(): JSX.Element {
                 </Text>
               </TileCard>
             </Flex>
+            <Text success={isVotingOpen} error={!isVotingOpen} t5s bold>
+              {isVotingOpen ? 'Bribes Open' : 'Bribes Closed'}
+            </Text>
           </Flex>
         </TileCard>
       </Flex>

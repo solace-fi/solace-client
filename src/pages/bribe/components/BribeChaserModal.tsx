@@ -33,14 +33,9 @@ export const BribeChaserModal = ({
   const { votesData } = voteOwner
 
   const { bribes } = useBribeContext()
-  const { gaugeBribeInfo } = bribes
+  const { gaugeBribeInfo, userAvailableVotePowerBPS } = bribes
 
   const [rangeInputBPS, setRangeInputBPS] = useState<number>(0)
-
-  const gaugeName = useMemo(
-    () => gaugeBribeInfo.find((gauge) => gauge.gaugeID.eq(selectedGaugeId))?.gaugeName ?? 'Unknown Gauge',
-    [selectedGaugeId, gaugeBribeInfo]
-  )
 
   const currentVoterBPS = useMemo(() => {
     if (!account) return ZERO
@@ -50,6 +45,18 @@ export const BribeChaserModal = ({
         ?.votes.find((vote) => vote.voter.toLowerCase() == account.toLowerCase())?.votePowerBPS ?? ZERO
     )
   }, [gaugeBribeInfo, selectedGaugeId, account])
+
+  const canAllocate = useMemo(() => {
+    const difference = BigNumber.from(rangeInputBPS).gt(currentVoterBPS)
+      ? BigNumber.from(rangeInputBPS).sub(currentVoterBPS)
+      : ZERO
+    return BigNumber.from(userAvailableVotePowerBPS).gte(difference) && isVotingOpen
+  }, [isVotingOpen, userAvailableVotePowerBPS, rangeInputBPS, currentVoterBPS])
+
+  const gaugeName = useMemo(
+    () => gaugeBribeInfo.find((gauge) => gauge.gaugeID.eq(selectedGaugeId))?.gaugeName ?? 'Unknown Gauge',
+    [selectedGaugeId, gaugeBribeInfo]
+  )
 
   const callVoteForBribe = useCallback(async () => {
     if (!account) return
@@ -80,9 +87,14 @@ export const BribeChaserModal = ({
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={gaugeName}>
       <Flex col gap={16}>
-        <Text info textAlignCenter>
-          {(rangeInputBPS / 100).toString()}%
-        </Text>
+        <Flex>
+          <Text info textAlignCenter autoAlign>
+            {(rangeInputBPS / 100).toString()}%
+          </Text>
+          <Button onClick={() => setRangeInputBPS(currentVoterBPS.toNumber() + userAvailableVotePowerBPS.toNumber())}>
+            MAX
+          </Button>
+        </Flex>
         <StyledSlider
           value={rangeInputBPS}
           onChange={(e) => {
@@ -94,7 +106,7 @@ export const BribeChaserModal = ({
         <Flex gap={16}>
           <TileCard>
             <Text t6s bold textAlignCenter>
-              Available Votes
+              Total Votes
             </Text>
             <Text bold textAlignCenter>
               {truncateValue(formatUnits(votesData.votePower, 18), 2)}
@@ -109,7 +121,7 @@ export const BribeChaserModal = ({
             </Text>
           </TileCard>
         </Flex>
-        <Button info onClick={handleVote}>
+        <Button info onClick={handleVote} disabled={!canAllocate}>
           Allocate votes
         </Button>
       </Flex>

@@ -1,4 +1,6 @@
+import { BigNumber } from 'ethers'
 import React, { createContext, useContext, useMemo } from 'react'
+import { ZERO } from '../../constants'
 import { Bribe, GaugeBribeInfo, TokenInfo } from '../../constants/types'
 import { useBribeControllerHelper } from '../../hooks/bribe/useBribeController'
 
@@ -11,6 +13,7 @@ type BribeContextType = {
     claimableBribes: Bribe[]
     bribeTokens: TokenInfo[]
     gaugeBribeInfo: GaugeBribeInfo[]
+    userAvailableVotePowerBPS: BigNumber
   }
 }
 
@@ -23,6 +26,7 @@ const BribeContext = createContext<BribeContextType>({
     claimableBribes: [],
     bribeTokens: [],
     gaugeBribeInfo: [],
+    userAvailableVotePowerBPS: ZERO,
   },
 })
 
@@ -33,6 +37,7 @@ const BribeManager: React.FC = (props) => {
     bribeTokensLoading,
     gaugeBribeInfoLoading,
     claimableBribes,
+    availableVotePowerBPS,
   } = useBribeControllerHelper()
 
   const value = useMemo<BribeContextType>(
@@ -45,9 +50,10 @@ const BribeManager: React.FC = (props) => {
         claimableBribes,
         bribeTokens,
         gaugeBribeInfo,
+        userAvailableVotePowerBPS: availableVotePowerBPS,
       },
     }),
-    [bribeTokens, gaugeBribeInfo, bribeTokensLoading, gaugeBribeInfoLoading, claimableBribes]
+    [bribeTokens, gaugeBribeInfo, bribeTokensLoading, gaugeBribeInfoLoading, claimableBribes, availableVotePowerBPS]
   )
 
   return <BribeContext.Provider value={value}>{props.children}</BribeContext.Provider>
