@@ -47,11 +47,11 @@ export const PortfolioAreaChart2 = () => {
       mark: { type: 'area', tooltip: true },
       encoding: {
         x: {
-          timeUnit: 'yearmonthdate',
+          timeUnit: 'yearmonthdatehoursminutes',
           field: 'timestamp',
           title: 'Date',
-          axis: { title: '', grid: false },
-          //   axis: { format: '%Y %M %D' },
+          // axis: { title: '', grid: false },
+          axis: { format: '%Y-%m-%d', title: '', grid: false, tickCount: 6, labelAngle: 0 },
         },
         y: {
           aggregate: 'sum',
