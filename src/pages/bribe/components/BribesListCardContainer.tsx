@@ -22,7 +22,7 @@ export const BribeCardContainer = ({
   const { voteOwner } = useVoteContext()
   const { votesData } = voteOwner
   const { bribes } = useBribeContext()
-  const { gaugeBribeInfo, bribeTokens } = bribes
+  const { gaugeBribeInfo, bribeTokens, userVotes } = bribes
 
   return (
     <CardContainer cardsPerRow={1}>
@@ -96,6 +96,15 @@ export const BribeCardContainer = ({
                       })}
                     </Flex>
                   </Flex>
+                  {isBribeChaser && userVotes.length > 0 && (
+                    <Flex between>
+                      <Text>Used Percentage</Text>
+                      <Text bold>
+                        {(userVotes.find((vote) => vote.gaugeID.eq(gauge.gaugeID))?.votePowerBPS.toNumber() ?? 0) / 100}
+                        %
+                      </Text>
+                    </Flex>
+                  )}
                 </Flex>
                 <Button info onClick={() => handleSelectBribe(gauge.gaugeID)}>
                   {isBribeChaser ? 'Vote' : 'Bribe'}

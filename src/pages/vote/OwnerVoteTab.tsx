@@ -17,12 +17,13 @@ import { StyledVote } from '../../components/atoms/Icon'
 import { useCachedData } from '../../context/CachedDataManager'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import useDebounce from '@rooks/use-debounce'
-import { EpochTimer } from './organisms/EpochTimer'
 
 export const OwnerVoteTab = () => {
   const { voteGeneral, voteOwner, delegateData } = useVoteContext()
   const { handleDelegateModalOpen } = delegateData
-  const { isVotingOpen, addEmptyVote, onVoteInput } = voteGeneral
+  const { isVotingOpen, addEmptyVote, onVoteInput, epochEnd } = voteGeneral
+  const { remainingTime } = epochEnd
+
   const { votesData, editingVotesData, handleEditingVotesData } = voteOwner
 
   const { positiveVersion } = useCachedData()
@@ -113,7 +114,16 @@ export const OwnerVoteTab = () => {
 
   return (
     <>
-      {isVotingOpen && <EpochTimer />}
+      {isVotingOpen && (
+        <Flex col gap={5}>
+          <Text t4s textAlignCenter>
+            Time until voting closes
+          </Text>
+          <Text t2 textAlignCenter info>
+            {remainingTime.days}d {remainingTime.hours}h {remainingTime.minutes}m {remainingTime.seconds}s
+          </Text>
+        </Flex>
+      )}
       <Flex between>
         <Text semibold t2>
           My Gauge Votes

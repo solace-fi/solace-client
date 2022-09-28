@@ -1,14 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Content, Flex } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
 import { truncateValue } from '../../utils/formatting'
 import { Button } from '../../components/atoms/Button'
-import { useGaugeController } from '../../hooks/gauge/useGaugeController'
-import { getDateStringWithMonthName, getTimeFromMillis, getTimesFromMillis } from '../../utils/time'
+import { getDateStringWithMonthName } from '../../utils/time'
 import { BribeList } from './components/BribesList'
 import { useGeneral } from '../../context/GeneralManager'
-import { BigNumber } from 'ethers'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useBribeController } from '../../hooks/bribe/useBribeController'
 import { FunctionName } from '../../constants/enums'
@@ -53,18 +51,15 @@ export default function Bribe(): JSX.Element {
 export function BribeContent(): JSX.Element {
   const { account } = useWeb3React()
   const { appTheme } = useGeneral()
-  const { getEpochEndTimestamp } = useGaugeController()
-  const { claimBribes, removeVotesForMultipleBribes, getVotesForVoter } = useBribeController()
+  const { claimBribes, removeVotesForMultipleBribes } = useBribeController()
   const { isSmallerMobile } = useWindowDimensions()
   const { bribes } = useBribeContext()
-  const { claimableBribes, bribeTokens, userAvailableVotePowerBPS } = bribes
+  const { claimableBribes, bribeTokens, userAvailableVotePowerBPS, userVotes } = bribes
   const { handleContractCallError, handleToast } = useTransactionExecution()
   const { voteGeneral, voteOwner } = useVoteContext()
-  const { isVotingOpen } = voteGeneral
+  const { isVotingOpen, epochEnd } = voteGeneral
+  const { remainingTime, epochEndTimestamp } = epochEnd
   const { votesData } = voteOwner
-
-  const [remainingTime, setRemainingTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-  const [epochEndTimestamp, setEpochEndTimestamp] = useState<BigNumber | undefined>(undefined)
 
   const [isBribeChaser, setIsBribeChaser] = useState<boolean>(true)
 
@@ -82,42 +77,19 @@ export function BribeContent(): JSX.Element {
 
   const callRemoveVotes = useCallback(async () => {
     if (!account) return
-    const votesOfVoter = await getVotesForVoter(account)
-    const votesToRemove = votesOfVoter.filter((vote) => !vote.votePowerBPS.isZero())
+    const votesToRemove = userVotes.filter((vote) => !vote.votePowerBPS.isZero())
     if (votesToRemove.length == 0) return
     const gaugeIds = votesToRemove.map((vote) => vote.gaugeID)
-    console.log(gaugeIds)
     await removeVotesForMultipleBribes(account, gaugeIds)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callRemoveVotes', err, FunctionName.BRIBE_REMOVE_VOTES_MULTIPLE_BRIBES))
-  }, [account, getVotesForVoter, removeVotesForMultipleBribes])
+  }, [account, userVotes, removeVotesForMultipleBribes])
 
   const callClaim = useCallback(async () => {
     await claimBribes()
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callClaim', err, FunctionName.BRIBE_CLAIM))
   }, [claimBribes])
-
-  useEffect(() => {
-    const init = async () => {
-      if (remainingTime.days + remainingTime.hours + remainingTime.minutes + remainingTime.seconds === 0) {
-        const endTime = await getEpochEndTimestamp()
-        setEpochEndTimestamp(endTime)
-      }
-    }
-    init()
-  }, [getEpochEndTimestamp, remainingTime])
-
-  useEffect(() => {
-    const getTimes = () => {
-      if (!epochEndTimestamp || epochEndTimestamp.isZero()) return
-      setInterval(() => {
-        const times = getTimesFromMillis(epochEndTimestamp.toNumber() * 1000 - Date.now())
-        setRemainingTime(times)
-      }, 1000)
-    }
-    getTimes()
-  }, [epochEndTimestamp])
 
   return (
     <Flex col gap={16}>

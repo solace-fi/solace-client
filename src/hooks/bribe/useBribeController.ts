@@ -392,6 +392,7 @@ export const useBribeControllerHelper = () => {
     getBribeTokenWhitelist,
     getClaimableBribes,
     getAvailableVotePowerBPS,
+    getVotesForVoter,
   } = useBribeController()
   const { activeNetwork } = useNetwork()
   const { positiveVersion } = useCachedData()
@@ -404,6 +405,7 @@ export const useBribeControllerHelper = () => {
   const [bribeTokens, setBribeTokens] = useState<TokenInfo[]>([])
   const [gaugeBribeInfo, setGaugeBribeInfo] = useState<GaugeBribeInfo[]>([])
   const [claimableBribes, setClaimableBribes] = useState<Bribe[]>([])
+  const [userVotes, setUserVotes] = useState<Vote[]>([])
   const [availableVotePowerBPS, setAvailableVotePowerBPS] = useState<BigNumber>(ZERO)
 
   const [bribeTokensLoading, setBribeTokensLoading] = useState<boolean>(false)
@@ -500,6 +502,15 @@ export const useBribeControllerHelper = () => {
     _getAvailableVotePowerBPS()
   }, [account, bribeController, positiveVersion, getAvailableVotePowerBPS])
 
+  useEffect(() => {
+    const _getVotesForVoter = async () => {
+      if (!bribeController || !account) return
+      const _votes = await getVotesForVoter(account)
+      setUserVotes(_votes)
+    }
+    _getVotesForVoter()
+  }, [account, bribeController, positiveVersion, getVotesForVoter])
+
   return {
     bribeTokens,
     gaugeBribeInfo,
@@ -507,5 +518,6 @@ export const useBribeControllerHelper = () => {
     gaugeBribeInfoLoading,
     claimableBribes,
     availableVotePowerBPS,
+    userVotes,
   }
 }

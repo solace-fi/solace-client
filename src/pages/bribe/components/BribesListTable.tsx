@@ -22,7 +22,7 @@ export const BribeTable = ({
   const { voteOwner } = useVoteContext()
   const { votesData } = voteOwner
   const { bribes } = useBribeContext()
-  const { gaugeBribeInfo, bribeTokens } = bribes
+  const { gaugeBribeInfo, bribeTokens, userVotes } = bribes
 
   return (
     <>
@@ -50,6 +50,13 @@ export const BribeTable = ({
                   Reward Token(s)
                 </Text>
               </TableHeader>
+              {isBribeChaser && userVotes.length > 0 && (
+                <TableHeader style={{ padding: '4px' }}>
+                  <Text t5s medium>
+                    Used Percentage
+                  </Text>
+                </TableHeader>
+              )}
               <TableHeader style={{ padding: '4px' }}></TableHeader>
             </TableRow>
           </TableHead>
@@ -125,6 +132,12 @@ export const BribeTable = ({
                         })}
                       </Flex>
                     </TableData>
+                    {isBribeChaser && userVotes.length > 0 && (
+                      <TableData>
+                        {(userVotes.find((vote) => vote.gaugeID.eq(gauge.gaugeID))?.votePowerBPS.toNumber() ?? 0) / 100}
+                        %
+                      </TableData>
+                    )}
                     <TableData>
                       <Button info onClick={() => handleSelectBribe(gauge.gaugeID)}>
                         {isBribeChaser ? 'Vote' : 'Bribe'}

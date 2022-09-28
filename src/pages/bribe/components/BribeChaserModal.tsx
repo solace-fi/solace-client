@@ -92,7 +92,11 @@ export const BribeChaserModal = ({
           <Text info textAlignCenter autoAlign>
             {(rangeInputBPS / 100).toString()}%
           </Text>
-          <Button onClick={() => setRangeInputBPS(currentVoterBPS.toNumber() + userAvailableVotePowerBPS.toNumber())}>
+          <Button
+            onClick={() =>
+              setRangeInputBPS(Math.min(currentVoterBPS.toNumber() + userAvailableVotePowerBPS.toNumber(), 10000))
+            }
+          >
             MAX
           </Button>
         </Flex>
