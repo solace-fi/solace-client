@@ -160,7 +160,11 @@ export const BribeProviderModal = ({
             </Flex>
           ))}
         </Flex>
-        <Button onClick={addNewBribe} noborder disabled={bribeTokens.length == 0}>
+        <Button
+          onClick={addNewBribe}
+          noborder
+          disabled={bribeTokens.length == 0 || stagingBribes.length == bribeTokens.length}
+        >
           <Text
             underline
             semibold

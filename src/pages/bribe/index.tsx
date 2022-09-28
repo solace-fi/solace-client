@@ -12,7 +12,7 @@ import { useBribeController } from '../../hooks/bribe/useBribeController'
 import { FunctionName } from '../../constants/enums'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useNetwork } from '../../context/NetworkManager'
-import BribeManager, { useBribeContext } from './BribeContext'
+import { useBribeContext } from './BribeContext'
 import { Card } from '../../components/atoms/Card'
 import { StyledInfo } from '../../components/atoms/Icon'
 import { formatUnits } from 'ethers/lib/utils'
@@ -27,9 +27,7 @@ export default function Bribe(): JSX.Element {
   return (
     <>
       {canBribe ? (
-        <BribeManager>
-          <BribeContent />
-        </BribeManager>
+        <BribeContent />
       ) : (
         <Content>
           <Card error pt={10} pb={10} pl={15} pr={15}>
