@@ -7,12 +7,13 @@ import { Button } from '../../../components/atoms/Button'
 import { StyledSlider } from '../../../components/atoms/Input'
 import { Flex } from '../../../components/atoms/Layout'
 import { Text } from '../../../components/atoms/Typography'
+import { SmallerInputSection } from '../../../components/molecules/InputSection'
 import { Modal } from '../../../components/molecules/Modal'
 import { TileCard } from '../../../components/molecules/TileCard'
 import { FunctionName } from '../../../constants/enums'
 import { useBribeController } from '../../../hooks/bribe/useBribeController'
 import { useTransactionExecution } from '../../../hooks/internal/useInputAmount'
-import { truncateValue } from '../../../utils/formatting'
+import { filterAmount, formatAmount, truncateValue } from '../../../utils/formatting'
 import { useVoteContext } from '../../vote/VoteContext'
 import { useBribeContext } from '../BribeContext'
 
@@ -33,8 +34,9 @@ export const BribeChaserModal = ({
   const { votesData } = voteOwner
 
   const { bribes } = useBribeContext()
-  const { gaugeBribeInfo, userAvailableVotePowerBPS } = bribes
+  const { gaugeBribeInfo, bribeTokens, userAvailableVotePowerBPS } = bribes
 
+  const [rangeInputValue, setRangeInputValue] = useState<string>('')
   const [rangeInputBPS, setRangeInputBPS] = useState<number>(0)
 
   const currentVoterBPS = useMemo(() => {
@@ -59,6 +61,23 @@ export const BribeChaserModal = ({
     [selectedGaugeId, gaugeBribeInfo]
   )
 
+  const projectedReward = useMemo(() => {
+    if (votesData.votePower.isZero()) return 0
+    const gaugeBribe = gaugeBribeInfo.find((info) => info.gaugeID.eq(selectedGaugeId))
+    if (!gaugeBribe) return 0
+    const totalBribeUSD = gaugeBribe.bribes.reduce((acc, bribe) => {
+      let totalTokenUSD = 0
+      const token = bribeTokens.find((token) => token.address.toLowerCase() === bribe.bribeToken.toLowerCase())
+      if (token) {
+        totalTokenUSD += token.price * parseFloat(formatUnits(bribe.bribeAmount, token.decimals))
+      }
+      return acc + totalTokenUSD
+    }, 0)
+    const partitionedVotePower = parseFloat(formatUnits(votesData.votePower, 18))
+    if (partitionedVotePower === 0) return 0
+    return truncateValue((totalBribeUSD * (rangeInputBPS / 100)) / partitionedVotePower)
+  }, [votesData.votePower, gaugeBribeInfo, selectedGaugeId, bribeTokens, rangeInputBPS])
+
   const callVoteForBribe = useCallback(async () => {
     if (!account) return
     await voteForBribe(account, selectedGaugeId, BigNumber.from(rangeInputBPS))
@@ -81,33 +100,38 @@ export const BribeChaserModal = ({
     }
   }, [rangeInputBPS, currentVoterBPS, callVoteForBribe, callRemoveVoteForBribe])
 
+  const handleRangeInputValue = useCallback(
+    (input: string) => {
+      const filtered = filterAmount(input, rangeInputValue)
+      const formatted = formatAmount(filtered)
+      if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) return
+      if (parseFloat(formatted) > 100) return
+      setRangeInputValue(filtered)
+      setRangeInputBPS(parseFloat(formatted) * 100)
+    },
+    [rangeInputValue]
+  )
+
+  const handleRangeInputBPS = useCallback((bps: number) => {
+    setRangeInputBPS(bps)
+    setRangeInputValue((bps / 100).toString())
+  }, [])
+
+  const setMax = useCallback(() => {
+    const max = Math.min(currentVoterBPS.toNumber() + userAvailableVotePowerBPS.toNumber(), 10000)
+    setRangeInputValue((max / 100).toString())
+    setRangeInputBPS(max)
+  }, [currentVoterBPS, userAvailableVotePowerBPS])
+
   useEffect(() => {
-    setRangeInputBPS(parseInt(currentVoterBPS.toString()))
+    const voterInt = parseInt(currentVoterBPS.toString())
+    setRangeInputBPS(voterInt)
+    setRangeInputValue(voterInt == 0 ? '' : (voterInt / 100).toString())
   }, [currentVoterBPS, isOpen])
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={gaugeName}>
       <Flex col gap={16}>
-        <Flex>
-          <Text info textAlignCenter autoAlign>
-            {(rangeInputBPS / 100).toString()}%
-          </Text>
-          <Button
-            onClick={() =>
-              setRangeInputBPS(Math.min(currentVoterBPS.toNumber() + userAvailableVotePowerBPS.toNumber(), 10000))
-            }
-          >
-            MAX
-          </Button>
-        </Flex>
-        <StyledSlider
-          value={rangeInputBPS}
-          onChange={(e) => {
-            setRangeInputBPS(parseInt(e.target.value))
-          }}
-          min={0}
-          max={10000}
-        />
         <Flex gap={16}>
           <TileCard>
             <Text t6s bold textAlignCenter>
@@ -126,6 +150,30 @@ export const BribeChaserModal = ({
             </Text>
           </TileCard>
         </Flex>
+        <Flex gap={5}>
+          <SmallerInputSection
+            placeholder={'%'}
+            value={rangeInputValue}
+            onChange={(e) => handleRangeInputValue(e.target.value)}
+          />
+          <Button onClick={setMax}>MAX</Button>
+        </Flex>
+        <StyledSlider
+          value={rangeInputBPS}
+          onChange={(e) => {
+            handleRangeInputBPS(parseInt(e.target.value))
+          }}
+          min={0}
+          max={10000}
+        />
+        <TileCard>
+          <Text t6s bold textAlignCenter>
+            Projected Reward
+          </Text>
+          <Text bold textAlignCenter>
+            ${projectedReward}
+          </Text>
+        </TileCard>
         <Button info onClick={handleVote} disabled={!canAllocate}>
           Allocate votes
         </Button>

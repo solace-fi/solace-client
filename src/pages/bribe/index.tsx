@@ -18,6 +18,8 @@ import { StyledInfo } from '../../components/atoms/Icon'
 import { formatUnits } from 'ethers/lib/utils'
 import { useVoteContext } from '../vote/VoteContext'
 import { useWeb3React } from '@web3-react/core'
+import { Modal } from '../../components/molecules/Modal'
+import { BalanceDropdownOptions } from '../../components/organisms/Dropdown'
 
 export default function Bribe(): JSX.Element {
   const { activeNetwork } = useNetwork()
@@ -60,17 +62,20 @@ export function BribeContent(): JSX.Element {
   const { votesData } = voteOwner
 
   const [isBribeChaser, setIsBribeChaser] = useState<boolean>(true)
+  const [showClaimableTokens, setShowClaimableTokens] = useState<boolean>(false)
 
-  const claimableUSD = useMemo(() => {
+  const claimableInfo = useMemo(() => {
     let totalUSD = 0
+    const tokens = []
     for (let i = 0; i < claimableBribes.length; i++) {
       const bribe = claimableBribes[i]
       const token = bribeTokens.find((token) => token.address.toLowerCase() === bribe.bribeToken.toLowerCase())
       if (token) {
+        tokens.push({ ...token, bribeAmount: bribe.bribeAmount })
         totalUSD += token.price * parseFloat(formatUnits(bribe.bribeAmount, token.decimals))
       }
     }
-    return totalUSD
+    return { claimableUSD: totalUSD, claimableTokens: tokens }
   }, [bribeTokens, claimableBribes])
 
   const callRemoveVotes = useCallback(async () => {
@@ -89,8 +94,25 @@ export function BribeContent(): JSX.Element {
       .catch((err) => handleContractCallError('callClaim', err, FunctionName.BRIBE_CLAIM))
   }, [claimBribes])
 
+  const handleShowClaimableTokens = useCallback((toggle: boolean) => {
+    setShowClaimableTokens(toggle)
+  }, [])
+
   return (
     <Flex col gap={16}>
+      <Modal
+        isOpen={showClaimableTokens}
+        handleClose={() => handleShowClaimableTokens(false)}
+        modalTitle={'Reward Details'}
+      >
+        <BalanceDropdownOptions
+          searchedList={claimableInfo.claimableTokens.map((token) => {
+            return { ...token, balance: token.bribeAmount }
+          })}
+          isOpen={true}
+          noneText={'No rewards available'}
+        />
+      </Modal>
       <Flex
         bgSecondary
         style={{
@@ -168,11 +190,20 @@ export function BribeContent(): JSX.Element {
                 <Text bold t6s>
                   Total Rewards
                 </Text>
-                <Text t2>${truncateValue(claimableUSD, 2)}</Text>
+                <Text t2>${truncateValue(claimableInfo.claimableUSD, 2)}</Text>
               </Flex>
-              <Button info onClick={callClaim} disabled={claimableUSD == 0}>
-                Claim
-              </Button>
+              <Flex center>
+                <Button
+                  widthP={100}
+                  onClick={() => handleShowClaimableTokens(true)}
+                  disabled={claimableInfo.claimableUSD == 0}
+                >
+                  Details
+                </Button>
+                <Button widthP={100} info onClick={callClaim} disabled={claimableInfo.claimableUSD == 0}>
+                  Claim
+                </Button>
+              </Flex>
             </Flex>
           </TileCard>
         </Flex>

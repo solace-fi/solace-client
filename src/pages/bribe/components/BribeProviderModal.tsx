@@ -135,31 +135,33 @@ export const BribeProviderModal = ({
   return (
     <Modal isOpen={isOpen} handleClose={_handleClose} modalTitle={foundName}>
       <Flex col gap={16} style={{ minWidth: '350px' }}>
-        <Flex col gap={5}>
-          {stagingBribes.map((stagingBribe, index) => (
-            <Flex col key={index} gap={5}>
-              <ProvidedBribe
-                stagingBribe={stagingBribe}
-                coinsOpen={coinsOpen}
-                index={index}
-                handleCoinsOpen={handleCoinsOpen}
-                changeBribeAmount={changeBribeAmount}
-                deleteBribe={deleteBribe}
-                handleBribeApproval={handleBribeApproval}
-              />
-              <BalanceDropdownOptions
-                searchedList={bribeTokens}
-                comparingList={stagingBribes.map((token) => token.address.toLowerCase())}
-                isOpen={coinsOpen == index}
-                onClick={(value: string) => {
-                  changeBribeToken(index, value)
-                  setCoinsOpen(undefined)
-                }}
-                ignorePrice
-              />
-            </Flex>
-          ))}
-        </Flex>
+        {stagingBribes.length > 0 && (
+          <Flex col gap={5}>
+            {stagingBribes.map((stagingBribe, index) => (
+              <Flex col key={index} gap={5}>
+                <ProvidedBribe
+                  stagingBribe={stagingBribe}
+                  coinsOpen={coinsOpen}
+                  index={index}
+                  handleCoinsOpen={handleCoinsOpen}
+                  changeBribeAmount={changeBribeAmount}
+                  deleteBribe={deleteBribe}
+                  handleBribeApproval={handleBribeApproval}
+                />
+                <BalanceDropdownOptions
+                  searchedList={bribeTokens}
+                  comparingList={stagingBribes.map((token) => token.address.toLowerCase())}
+                  isOpen={coinsOpen == index}
+                  onClick={(value: string) => {
+                    changeBribeToken(index, value)
+                    setCoinsOpen(undefined)
+                  }}
+                  ignorePrice
+                />
+              </Flex>
+            ))}
+          </Flex>
+        )}
         <Button
           onClick={addNewBribe}
           noborder

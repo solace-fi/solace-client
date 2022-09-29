@@ -299,7 +299,7 @@ export const BalanceDropdownOptions = ({
   noneText?: string
   ignorePrice?: boolean
   comparingList?: string[]
-  onClick: (value: string) => void
+  onClick?: (value: string) => void
 }): JSX.Element => {
   const { appTheme } = useGeneral()
   const gradientStyle = useMemo(
@@ -319,7 +319,7 @@ export const BalanceDropdownOptions = ({
             matchBg
             secondary
             noborder
-            onClick={() => onClick(item.address)}
+            onClick={() => (onClick ? onClick(item.address) : undefined)}
             disabled={comparingList ? comparingList.includes(item.address.toLowerCase()) : false}
           >
             <Flex stretch between pl={16} pr={16}>
