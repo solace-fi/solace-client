@@ -17,6 +17,7 @@ import { useProvider } from '../../../context/ProviderManager'
 import { BigNumber, Contract } from 'ethers'
 import { useContracts } from '../../../context/ContractsManager'
 import { useBribeContext } from '../BribeContext'
+import { Loader } from '../../../components/atoms/Loader'
 
 export const BribeProviderModal = ({
   isOpen,
@@ -30,7 +31,8 @@ export const BribeProviderModal = ({
   const { gauges } = useVoteContext()
   const { currentGaugesData } = gauges
   const { provideBribes } = useBribeController()
-  const { bribes } = useBribeContext()
+  const { intrface, bribes } = useBribeContext()
+  const { bribeTokensLoading } = intrface
   const { bribeTokens } = bribes
   const { handleContractCallError, handleToast } = useTransactionExecution()
 
@@ -162,24 +164,24 @@ export const BribeProviderModal = ({
             ))}
           </Flex>
         )}
-        <Button
-          onClick={addNewBribe}
-          noborder
-          disabled={bribeTokens.length == 0 || stagingBribes.length == bribeTokens.length}
-        >
-          <Text
-            underline
-            semibold
-            style={{
-              // underline width is 2 pixels
-              textDecorationWidth: '3px',
-              // separated by 3 pixels from the text
-              textUnderlineOffset: '5px',
-            }}
-          >
-            + Add Bribe
-          </Text>
-        </Button>
+        {bribeTokens.length > 0 && !bribeTokensLoading && (
+          <Button onClick={addNewBribe} noborder disabled={stagingBribes.length == bribeTokens.length}>
+            <Text
+              underline
+              semibold
+              style={{
+                // underline width is 2 pixels
+                textDecorationWidth: '3px',
+                // separated by 3 pixels from the text
+                textUnderlineOffset: '5px',
+              }}
+            >
+              + Add Bribe
+            </Text>
+          </Button>
+        )}
+        {bribeTokens.length == 0 && !bribeTokensLoading && <Text textAlignCenter>No Bribe Tokens Available</Text>}
+        {bribeTokensLoading && <Loader />}
         <Button
           info
           onClick={callProvideBribes}
