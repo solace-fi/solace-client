@@ -17,6 +17,7 @@ import { StyledVote } from '../../components/atoms/Icon'
 import { useCachedData } from '../../context/CachedDataManager'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import useDebounce from '@rooks/use-debounce'
+import { useUwLocker } from '../../hooks/lock/useUwLocker'
 
 export const OwnerVoteTab = () => {
   const { voteGeneral, voteOwner, delegateData } = useVoteContext()
@@ -29,10 +30,12 @@ export const OwnerVoteTab = () => {
   const { positiveVersion } = useCachedData()
 
   const { vote, removeVote, voteMultiple, removeVoteMultiple } = useUwLockVoting()
+  const { getAllLockIDsOf } = useUwLocker()
   const { account } = useWeb3React()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [isEditing, setIsEditing] = useState(false)
   const [commonPercentage, setCommonPercentage] = useState<string>('')
+  const [numLocks, setNumLocks] = useState<number>(0)
 
   /**  can call vote multiple if all added or changed gauges are active,
    * the allocated vote power is not zero if added, and if there are changed or added votes
@@ -112,12 +115,24 @@ export const OwnerVoteTab = () => {
     if (!isEditing) handleEditingVotesData(votesData)
   }, [isEditing])
 
+  useEffect(() => {
+    const getLocks = async () => {
+      if (!account || !isAddress(account)) {
+        setNumLocks(0)
+        return
+      }
+      const lockIDs = await getAllLockIDsOf(account)
+      setNumLocks(lockIDs.length)
+    }
+    getLocks()
+  }, [account, getAllLockIDsOf])
+
   return (
     <>
       {isVotingOpen && (
         <Flex col gap={5}>
           <Text t4s textAlignCenter>
-            Time until voting closes
+            Epoch time remaining
           </Text>
           <Text t2 textAlignCenter info>
             {remainingTime.days}d {remainingTime.hours}h {remainingTime.minutes}m {remainingTime.seconds}s
@@ -158,7 +173,7 @@ export const OwnerVoteTab = () => {
             </Button>
           </Flex>
         </ShadowDiv>
-        {editingVotesData.localVoteAllocation.length === 0 && (
+        {editingVotesData.localVoteAllocation.length === 0 && numLocks > 0 && (
           <Flex col gap={10}>
             <Text>No votes found</Text>
           </Flex>
@@ -186,47 +201,49 @@ export const OwnerVoteTab = () => {
             </Flex>
           </Accordion>
         )}
-        {isVotingOpen ? (
-          isEditing ? (
-            <>
-              <Button onClick={() => addEmptyVote(true)} noborder>
-                <Text
-                  underline
-                  semibold
-                  style={{
-                    // underline width is 2 pixels
-                    textDecorationWidth: '3px',
-                    // separated by 3 pixels from the text
-                    textUnderlineOffset: '5px',
-                  }}
-                >
-                  + Add Gauge Vote
-                </Text>
-              </Button>
-              <Button
-                techygradient
-                secondary
-                noborder
-                widthP={100}
-                disabled={
-                  !canCallVoteMultiple ||
-                  editingVotesData.localVoteAllocation.filter((item) => item.changed).length == 0 ||
-                  editingVotesData.localVoteAllocationPercentageTotal > 100
-                }
-                onClick={callVoteMultiple}
-              >
-                <Text t3>Save Votes</Text>
-              </Button>
-              {editingVotesData.localVoteAllocation.filter((item) => !item.added).length > 0 && (
-                <Button error widthP={100} onClick={callRemoveVoteMultiple}>
-                  <Text t3>Remove all votes</Text>
-                </Button>
-              )}
-            </>
-          ) : null
-        ) : (
-          <Text t4s>Voting is closed</Text>
+        {numLocks == 0 && (
+          <Text t4s warning>
+            You must have locks in order to vote
+          </Text>
         )}
+        {isVotingOpen && numLocks > 0 && isEditing && (
+          <>
+            <Button onClick={() => addEmptyVote(true)} noborder>
+              <Text
+                underline
+                semibold
+                style={{
+                  // underline width is 2 pixels
+                  textDecorationWidth: '3px',
+                  // separated by 3 pixels from the text
+                  textUnderlineOffset: '5px',
+                }}
+              >
+                + Add Gauge Vote
+              </Text>
+            </Button>
+            <Button
+              techygradient
+              secondary
+              noborder
+              widthP={100}
+              disabled={
+                !canCallVoteMultiple ||
+                editingVotesData.localVoteAllocation.filter((item) => item.changed).length == 0 ||
+                editingVotesData.localVoteAllocationPercentageTotal > 100
+              }
+              onClick={callVoteMultiple}
+            >
+              <Text t3>Save Votes</Text>
+            </Button>
+            {editingVotesData.localVoteAllocation.filter((item) => !item.added).length > 0 && (
+              <Button error widthP={100} onClick={callRemoveVoteMultiple}>
+                <Text t3>Remove all votes</Text>
+              </Button>
+            )}
+          </>
+        )}
+        {!isVotingOpen && numLocks > 0 && <Text t4s>Voting is closed</Text>}
       </Flex>
     </>
   )

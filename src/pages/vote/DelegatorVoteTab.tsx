@@ -223,7 +223,7 @@ export const DelegatorVoteTab = () => {
       {isVotingOpen && (
         <Flex col gap={5}>
           <Text t4s textAlignCenter>
-            Time until voting closes
+            Epoch time remaining
           </Text>
           <Text t2 textAlignCenter info>
             {remainingTime.days}d {remainingTime.hours}h {remainingTime.minutes}m {remainingTime.seconds}s

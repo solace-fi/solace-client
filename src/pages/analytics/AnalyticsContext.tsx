@@ -195,7 +195,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
 
   useEffect(() => {
     const getData = async () => {
-      if (!fetchedUwpData || !fetchedSipMathLib) {
+      if (!fetchedUwpData || !fetchedSipMathLib || !fetchedSipMathLib.sips) {
         setCanSeePortfolioAreaChart(undefined)
         setCanSeePortfolioVolatility(undefined)
         setCanSeeTokenVolatilities(undefined)
