@@ -141,13 +141,22 @@ export const BribeProviderModal = ({
     })
   }, [])
 
-  const _handleClose = useCallback(() => {
-    setStagingBribes([])
-    handleClose()
-  }, [handleClose])
+  useEffect(() => {
+    if (!isOpen) return
+    setStagingBribes([
+      {
+        name: bribeTokens[0].name,
+        address: bribeTokens[0].address,
+        enteredAmount: '',
+        decimals: bribeTokens[0].decimals,
+        symbol: bribeTokens[0].symbol,
+        approved: false,
+      },
+    ])
+  }, [isOpen, bribeTokens])
 
   return (
-    <Modal isOpen={isOpen} handleClose={_handleClose} modalTitle={foundName}>
+    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={foundName}>
       <Flex col gap={16}>
         {stagingBribes.length > 0 && (
           <Flex col gap={5}>
