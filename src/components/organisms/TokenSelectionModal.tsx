@@ -30,7 +30,7 @@ export const TokenSelectionModal = ({
         }}
       />
       <BalanceDropdownOptions
-        searchedList={balanceData}
+        searchedList={balanceData.filter((coin) => coin.symbol.toLowerCase().includes(searchTerm.toLowerCase()))}
         isOpen={true}
         onClick={(value: string) => {
           handleSelectedCoin(value)

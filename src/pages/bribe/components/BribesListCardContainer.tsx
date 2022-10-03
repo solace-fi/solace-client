@@ -107,7 +107,7 @@ export const BribeCardContainer = ({
                   )}
                 </Flex>
                 <Button info onClick={() => handleSelectBribe(gauge.gaugeID)}>
-                  {isBribeChaser ? 'Vote' : 'Bribe'}
+                  {isBribeChaser ? 'Accept Bribe' : 'Bribe'}
                 </Button>
               </Flex>
             </TileCard>

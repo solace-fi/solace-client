@@ -140,7 +140,7 @@ export const BribeTable = ({
                     )}
                     <TableData>
                       <Button info onClick={() => handleSelectBribe(gauge.gaugeID)}>
-                        {isBribeChaser ? 'Vote' : 'Bribe'}
+                        {isBribeChaser ? 'Accept Bribe' : 'Bribe'}
                       </Button>
                     </TableData>
                   </TableRow>

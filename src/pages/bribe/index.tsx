@@ -163,7 +163,7 @@ export function BribeContent(): JSX.Element {
             <Flex col gap={25}>
               <Flex gap={25} around>
                 <Flex col itemsCenter gap={8}>
-                  <Text bold t6s>
+                  <Text bold t6s textAlignCenter>
                     Total Vote Points
                   </Text>
                   <Text t2 bold>
@@ -180,7 +180,7 @@ export function BribeContent(): JSX.Element {
                 </Flex>
               </Flex>
               <Button disabled={userAvailableVotePowerBPS.toNumber() == 10000} onClick={callRemoveVotes}>
-                Remove All Votes
+                Remove all Votes from Bribes
               </Button>
             </Flex>
           </TileCard>
@@ -192,7 +192,7 @@ export function BribeContent(): JSX.Element {
                 </Text>
                 <Text t2>${truncateValue(claimableInfo.claimableUSD, 2)}</Text>
               </Flex>
-              <Flex center>
+              <Flex center col={isSmallerMobile}>
                 <Button
                   widthP={100}
                   onClick={() => handleShowClaimableTokens(true)}

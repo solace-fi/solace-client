@@ -64,7 +64,8 @@ export const DropdownInputSection = ({
   isOpen,
   value,
   onChange,
-  onClick,
+  onClickDropdown,
+  onClickMax,
   disabled,
   w,
   style,
@@ -74,7 +75,8 @@ export const DropdownInputSection = ({
   hasArrow?: boolean
   value: string | undefined
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  onClick?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onClickDropdown?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onClickMax?: (e: React.ChangeEvent<HTMLInputElement>) => void
   icon?: JSX.Element
   text?: string
   isOpen?: boolean
@@ -115,7 +117,7 @@ export const DropdownInputSection = ({
             height: '32px',
             backgroundColor: appTheme === 'light' ? '#FFFFFF' : '#2a2f3b',
           }}
-          onClick={onClick ?? undefined}
+          onClick={onClickDropdown ?? undefined}
         >
           <Flex center gap={4}>
             {icon && <Text autoAlignVertical>{icon}</Text>}
@@ -146,20 +148,31 @@ export const DropdownInputSection = ({
         }}
         disabled={disabled}
       />
+      {onClickMax && (
+        <Button mr={12} onClick={onClickMax}>
+          MAX
+        </Button>
+      )}
     </InputSectionWrapper>
   )
 }
 
 export const DropdownOptions = ({
+  comparingList,
   searchedList,
   isOpen,
   noneText,
   onClick,
+  processName = true,
+  customProcessFunction,
 }: {
+  comparingList?: string[]
   searchedList: { label: string; value: string; icon?: JSX.Element }[]
   isOpen: boolean
   noneText?: string
   onClick: (value: string) => void
+  processName?: boolean
+  customProcessFunction?: (value: string) => string
 }): JSX.Element => {
   const { appTheme } = useGeneral()
   const gradientStyle = useMemo(
@@ -188,83 +201,12 @@ export const DropdownOptions = ({
             pl={12}
             pr={12}
             onClick={() => onClick(item.value)}
+            disabled={comparingList ? comparingList.includes(item.label) : false}
             style={{ borderRadius: '8px' }}
           >
             <Flex stretch gap={12}>
               <Flex gap={8} itemsCenter>
                 {item.icon ?? <Text {...gradientStyle}>{item.label}</Text>}
-              </Flex>
-              <Text autoAlignVertical t5s bold>
-                {processProtocolName(item.value)}
-              </Text>
-            </Flex>
-          </ButtonAppearance>
-        ))}
-        {searchedList.length === 0 && (
-          <Text t3 textAlignCenter bold>
-            {noneText ?? 'No results found'}
-          </Text>
-        )}
-      </Flex>
-    </Accordion>
-  )
-}
-
-export const DropdownOptionsUnique = ({
-  comparingList,
-  searchedList,
-  isOpen,
-  noneText,
-  onClick,
-  processName = true,
-  customProcessFunction,
-}: {
-  comparingList: string[]
-  searchedList: { label: string; value: string; icon?: JSX.Element }[]
-  isOpen: boolean
-  noneText?: string
-  onClick: (value: string) => void
-  processName?: boolean
-  customProcessFunction?: (value: string) => string
-}): JSX.Element => {
-  const { appTheme } = useGeneral()
-  const gradientStyle = useMemo(
-    () =>
-      appTheme == 'light' ? { techygradient: true, warmgradient: false } : { techygradient: false, warmgradient: true },
-    [appTheme]
-  )
-
-  return (
-    <Accordion
-      isOpen={isOpen}
-      style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }}
-      customHeight={'280px'}
-      noBackgroundColor
-      thinScrollbar
-    >
-      <Flex col gap={8} px={12}>
-        {searchedList.map((item, i) => (
-          <ButtonAppearance
-            key={i}
-            matchBg
-            secondary
-            noborder
-            height={37}
-            pt={10.5}
-            pb={10.5}
-            pl={12}
-            pr={12}
-            onClick={() => onClick(item.value)}
-            disabled={comparingList.includes(item.label)}
-            style={{ borderRadius: '8px' }}
-          >
-            <Flex stretch gap={12}>
-              <Flex gap={8} itemsCenter>
-                {item.icon ?? (
-                  <Text {...gradientStyle} bold>
-                    {item.label}
-                  </Text>
-                )}
               </Flex>
               <Text autoAlignVertical t5s bold>
                 {processName
