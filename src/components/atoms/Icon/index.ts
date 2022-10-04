@@ -24,6 +24,7 @@ import { GraphDown } from '@styled-icons/bootstrap/GraphDown'
 import { History } from '@styled-icons/boxicons-regular/History'
 import { Info } from '@styled-icons/fluentui-system-regular/Info'
 import { Options } from '@styled-icons/fluentui-system-regular/Options'
+import { ArrowDownload } from '@styled-icons/fluentui-system-regular/ArrowDownload'
 import { Calculator } from '@styled-icons/fluentui-system-regular/Calculator'
 import { Expand } from '@styled-icons/boxicons-regular/Expand'
 import { LinkExternal } from '@styled-icons/boxicons-regular/LinkExternal'
@@ -178,3 +179,5 @@ export const StyledFire = styled(LocalFireDepartment)`
 `
 
 export const StyledAnalytics = styled(Analytics)``
+
+export const StyledDownload = styled(ArrowDownload)``

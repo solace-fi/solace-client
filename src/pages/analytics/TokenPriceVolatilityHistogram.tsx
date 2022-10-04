@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import vegaEmbed from 'vega-embed'
 import { Flex } from '../../components/atoms/Layout'
 import { useGeneral } from '../../context/GeneralManager'
@@ -10,6 +10,8 @@ import { useAnalyticsContext } from './AnalyticsContext'
 import { q } from '@solace-fi/hydrate'
 import { StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
+import { Button } from '../../components/atoms/Button'
+import { StyledDownload } from '../../components/atoms/Icon'
 
 export const TokenPriceVolatilityHistogram = (): JSX.Element => {
   const { appTheme } = useGeneral()
@@ -143,6 +145,36 @@ export const TokenPriceVolatilityHistogram = (): JSX.Element => {
     })
   }
 
+  const downloadFile = ({ data, fileName, fileType }: { data: string; fileName: string; fileType: string }) => {
+    // Create a blob with the data we want to download as a file
+    const blob = new Blob([data], { type: fileType })
+    // Create an anchor element and dispatch a click event on it
+    // to trigger a download
+    const a = document.createElement('a')
+    a.download = fileName
+    a.href = window.URL.createObjectURL(blob)
+    const clickEvt = new MouseEvent('click', {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    })
+    a.dispatchEvent(clickEvt)
+    a.remove()
+  }
+
+  const downloadLibrary = useCallback(
+    (e) => {
+      if (!fetchedSipMathLib || !fetchedSipMathLib.sips) return
+      e.preventDefault()
+      downloadFile({
+        data: JSON.stringify(fetchedSipMathLib),
+        fileName: 'singleVariableLibrary.json',
+        fileType: 'text/json',
+      })
+    },
+    [fetchedSipMathLib]
+  )
+
   useEffect(() => {
     if (!tickerSymbol) {
       // we must set tickerSymbol to the symbol with the highest weight in the portfolio
@@ -182,6 +214,12 @@ export const TokenPriceVolatilityHistogram = (): JSX.Element => {
               processName={true}
               customProcessFunction={(value: string) => value.toUpperCase()}
             />
+            <Flex between gap={5} mt={10}>
+              <Text autoAlignVertical>Download Library</Text>
+              <Button width={40} disabled={!fetchedSipMathLib || !fetchedSipMathLib.sips} onClick={downloadLibrary}>
+                <StyledDownload width={20} />
+              </Button>
+            </Flex>
           </Flex>
           <Flex col widthP={isMobile ? 100 : 75}>
             <Flex id="vis" widthP={100} justifyCenter>
