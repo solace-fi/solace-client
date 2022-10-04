@@ -82,10 +82,18 @@ export const DelegateModal = ({
             value={stagingDelegate}
             onChange={(e) => inputOnChange(e.target.value)}
           />
-          <Text t5s warning width={200}>
-            You can delegate your voting power to another address outside of your own. They can vote on your behalf, but
-            they cannot withdraw your tokens. Ensure that your delegate is someone you can trust.
-          </Text>
+          <Flex col gap={2}>
+            <Text t5s textAlignCenter>
+              You can delegate your voting power to another user.
+            </Text>
+            <Text t5s textAlignCenter>
+              They can vote on your behalf, but they cannot withdraw your tokens.
+            </Text>
+            <Text t5s warning textAlignCenter>
+              Ensure that your delegate is someone you can trust.
+            </Text>
+          </Flex>
+
           <Flex gap={10}>
             <Button
               error

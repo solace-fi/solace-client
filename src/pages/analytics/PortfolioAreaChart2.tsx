@@ -26,7 +26,7 @@ export const PortfolioAreaChart2 = () => {
   // }, [priceHistory30D])
 
   // console.log('priceHistory30D', priceHistory30D)
-  const fetchVega = (dataIn: any, theme: 'light' | 'dark') => {
+  const fetchVega = (dataIn: any, theme: 'light' | 'dark', isMobile: boolean) => {
     vegaEmbed('#area-chart-2', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
       title: { text: 'Portfolio Value, Last 30 Days', color: theme == 'light' ? 'black' : 'white' },
@@ -37,7 +37,7 @@ export const PortfolioAreaChart2 = () => {
       },
       background: 'transparent',
       width: 'container',
-      height: 300,
+      height: isMobile ? 600 : 300,
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -71,6 +71,8 @@ export const PortfolioAreaChart2 = () => {
             titleColor: theme == 'light' ? 'black' : 'white',
             labelColor: theme == 'light' ? 'black' : 'white',
             title: 'Token Portfolio',
+            orient: isMobile ? 'bottom' : 'right',
+            direction: 'vertical',
           },
         },
       },
@@ -98,10 +100,9 @@ export const PortfolioAreaChart2 = () => {
         // reformatedData2.push(reformatedData1[item])
       })
     }
-    console.log({ reformatedData1 })
-    fetchVega(reformatedData1, appTheme)
+    fetchVega(reformatedData1, appTheme, isMobile)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allDataPortfolio, appTheme])
+  }, [allDataPortfolio, appTheme, isMobile])
 
   // Hmm twice? can we move appTheme up to [tickerSymbol,appTheme] ?
   // useEffect(

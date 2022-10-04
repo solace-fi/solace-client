@@ -14,16 +14,18 @@ export default function AnalyticsCard({
   clarification,
   children,
   width,
+  height,
 }: {
   title: string
   clarification?: string
   children: React.ReactNode
   width?: number
+  height?: number
 }): JSX.Element {
   const [open, setOpen] = useState<boolean>(false)
 
   return (
-    <Card shadow width={width}>
+    <Card shadow width={width} height={height}>
       <Flex gap={8} col>
         <Flex between gap={8}>
           <Text t3s semibold style={{ whiteSpace: 'nowrap' }}>
@@ -32,7 +34,6 @@ export default function AnalyticsCard({
           {clarification && (
             <Flex gap={4} itemsCenter>
               <GraySquareButton
-                actuallySquare
                 actuallyWhite
                 noborder
                 shadow

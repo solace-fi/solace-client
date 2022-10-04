@@ -9,7 +9,7 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { PremiumsCustomTooltip } from '../../components/organisms/CustomTooltip'
 
 export const PremiumsPaidByPeriodChart = () => {
-  const { width, isMobile } = useWindowDimensions()
+  const { width, isSmallerMobile } = useWindowDimensions()
   const { activeNetwork } = useNetwork()
   const { data } = useAnalyticsContext()
   const { fetchedPremiums } = data
@@ -39,7 +39,7 @@ export const PremiumsPaidByPeriodChart = () => {
   return (
     <>
       {premiumHistory.length > 0 ? (
-        <AreaChart width={isMobile ? width : width * 0.75} height={300} data={premiumHistory}>
+        <AreaChart width={isSmallerMobile ? width * 0.95 : width * 0.75} height={300} data={premiumHistory}>
           <defs>
             <linearGradient id={`colorPremium`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor={'#13a4e8'} stopOpacity={0.8} />

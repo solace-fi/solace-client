@@ -263,27 +263,10 @@ export const GraySquareButton = styled(Button)<{
   theme: Theme
   darkText?: boolean
   actuallyWhite?: boolean
-  actuallySquare?: boolean
   size?: number
   shadow?: boolean
   radius?: number
 }>`
-  /* ${({ actuallySquare, size }) => {
-    const _size = size || 36
-    // default width: 36px
-    // default height: no height
-    // if square, both equal
-    if (actuallySquare) {
-      return css`
-        width: ${_size}px;
-        height: ${_size}px;
-      `
-    }
-    return css`
-      width: ${_size}px;
-    `
-  }} */
-  /* width: ${({ actuallySquare, size }) => (actuallySquare ? size + 'px' : '36px')}; */
   border-radius: ${({ radius }) => (radius ? radius + 'px' : '10px')};
   background-color: ${({ theme, actuallyWhite }: { theme: Theme; actuallyWhite?: boolean }) =>
     actuallyWhite ? theme.v2.raised : theme.body.bg_color};
