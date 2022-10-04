@@ -13,9 +13,13 @@ import { Card } from '../../components/atoms/Card'
 import { useNetwork } from '../../context/NetworkManager'
 import { truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
+import { TokenRadialChart } from './TokenRadialChart'
 import { useVoteContext } from '../vote/VoteContext'
 import CardSectionValue from '../lock/components/CardSectionValue'
 import { PremiumsPaidByPeriodChart } from './PremiumsPaidByPeriodChart'
+import { PortfolioAreaChart2 } from './PortfolioAreaChart2'
+import { TokenWeights1 } from './TokenWeights1'
+import AnalyticsCard from './components/AnalyticsCard'
 
 export default function Analytics(): JSX.Element {
   return <AnalyticsContent />
@@ -42,22 +46,63 @@ export function AnalyticsContent(): JSX.Element {
   const [upValueText, setUpValueText] = useState<boolean>(false)
 
   return (
-    <Flex col gap={20} py={20} px={10}>
-      <Flex evenly gap={10}>
-        <Card widthP={100}>
-          <Text t4>Premiums</Text>
-          <CardSectionValue info>${truncateValue(premiumsUSD, 2)}</CardSectionValue>
-        </Card>
-        <Card widthP={100}>
-          <Text t4>Underwriting Pool Size</Text>
-          <CardSectionValue info>${truncateValue(formatUnits(uwpValueUSD, 18), 2)} </CardSectionValue>
-        </Card>
-        <Card widthP={100}>
-          <Text t4>Leverage Factor</Text>
-          <CardSectionValue info>{leverageFactor}</CardSectionValue>
-        </Card>
+    <Flex col gap={16} py={16} px={10}>
+      <Flex>
+        <Flex
+          gap={16}
+          // style={{
+          //   width: 'max-content',
+          // }}
+        >
+          {/* to make every card the same horizontal size, we follow this advice: https://stackoverflow.com/a/61209164/7148525 */}
+          <Card shadow style={{ flex: '1 0 50%' }}>
+            <Flex gap={8} col>
+              <Text t6s semibold contrast style={{ whiteSpace: 'nowrap' }}>
+                Premiums
+              </Text>
+              <CardSectionValue info>${truncateValue(premiumsUSD, 2)}</CardSectionValue>
+            </Flex>
+          </Card>
+          <Card shadow style={{ flex: '1 0 50%' }}>
+            <Flex gap={8} col>
+              <Text t6s semibold contrast style={{ whiteSpace: 'nowrap' }}>
+                Underwriting Pool Size
+              </Text>
+              <CardSectionValue info>${truncateValue(formatUnits(uwpValueUSD, 18), 2)} </CardSectionValue>
+            </Flex>
+          </Card>
+          <Card shadow style={{ flex: '1 0 50%' }}>
+            <Flex gap={8} col>
+              <Text t6s semibold contrast style={{ whiteSpace: 'nowrap' }}>
+                Leverage Factor
+              </Text>
+              <CardSectionValue info>{leverageFactor}</CardSectionValue>
+            </Flex>
+          </Card>
+        </Flex>
       </Flex>
-      <Flex col gap={10}>
+      <Flex col gap={16}>
+        <AnalyticsCard title="Underwriting Pool Composition" clarification="Data is delayed by up to 1 hour.">
+          <TokenTable />
+        </AnalyticsCard>
+        <AnalyticsCard title="Portfolio Value" clarification="Data is delayed by up to 1 hour.">
+          <PortfolioAreaChart2 />
+        </AnalyticsCard>
+        <AnalyticsCard
+          title="Underwriting Pool Volatility"
+          clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
+        >
+          <TokenPortfolioHistogram />
+        </AnalyticsCard>
+        <AnalyticsCard
+          title="Token Price Volatility"
+          clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
+        >
+          <TokenPriceVolatilityHistogram />
+        </AnalyticsCard>
+        {/* <AnalyticsCard /> */}
+      </Flex>
+      {/* <Flex col gap={10}>
         <Flex itemsCenter gap={10}>
           <Text t2 semibold>
             Underwriting Pool Composition
@@ -78,8 +123,8 @@ export function AnalyticsContent(): JSX.Element {
           </Flex>
         </Accordion>
         <TokenTable />
-      </Flex>
-      <Flex col gap={10}>
+      </Flex> */}
+      {/* <Flex col gap={10}>
         <Flex itemsCenter gap={10}>
           <Text t2 semibold>
             Underwriting Pool Value (USD)
@@ -100,11 +145,13 @@ export function AnalyticsContent(): JSX.Element {
           </Flex>
         </Accordion>
         <TokenPortfolioAreaChart />
-      </Flex>
-      <Flex col gap={10}>
+        <PortfolioAreaChart2 />
+        <TokenWeights1 />
+      </Flex> */}
+      {/* <Flex col gap={10}>
         <Flex gap={10}>
           <Text t2 semibold>
-            Underwriting Pool Volatility {/* (Daily % change) */}
+            Underwriting Pool Volatility
           </Text>
           <Text autoAlignVertical>
             <StyledHelpCircle
@@ -148,7 +195,7 @@ export function AnalyticsContent(): JSX.Element {
           </Flex>
         </Accordion>
         <TokenPriceVolatilityHistogram />
-      </Flex>
+      </Flex> */}
       <Flex col gap={10}>
         <Text t2 semibold>
           Premiums Paid By Period

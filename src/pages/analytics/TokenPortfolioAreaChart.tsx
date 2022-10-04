@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { capitalizeFirstLetter } from '../../utils/formatting'
 import { AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, Area } from 'recharts'
 import { UwpCustomTooltip } from '../../components/organisms/CustomTooltip'
@@ -15,10 +15,13 @@ export const TokenPortfolioAreaChart = () => {
   const { intrface, data } = useAnalyticsContext()
   const { canSeePortfolioAreaChart } = intrface
   const { priceHistory30D, portfolioHistogramTickers } = data
-  const xticks =
-    priceHistory30D.length > 0
-      ? calculateMonthlyTicks(priceHistory30D[0].timestamp, priceHistory30D[priceHistory30D.length - 1].timestamp)
-      : []
+  const xticks = useMemo(
+    () =>
+      priceHistory30D.length > 0
+        ? calculateMonthlyTicks(priceHistory30D[0].timestamp, priceHistory30D[priceHistory30D.length - 1].timestamp)
+        : [],
+    [priceHistory30D]
+  )
 
   const colors = useDistributedColors(portfolioHistogramTickers.length)
 

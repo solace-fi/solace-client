@@ -35,10 +35,10 @@ export const TokenTable = () => {
   )
 
   return (
-    <Scrollable style={{ padding: '0 10px 0 10px' }} maxDesktopHeight={'50vh'} maxMobileHeight={'50vh'}>
+    <Scrollable style={{ padding: '0 10px 0 10px' }} maxDesktopHeight={'50vh'} maxMobileHeight={'50vh'} raised={true}>
       <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
         <TableHead sticky zIndex={Z_TABLE + 1}>
-          <TableRow>
+          <TableRow inheritBg>
             <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
               <Flex justifyCenter>
                 <TextSpan info autoAlignVertical onClick={() => setSelectedSort('TA')}>
@@ -78,7 +78,7 @@ export const TokenTable = () => {
           {tokenDetails
             .sort((a, b) => modifiedSort(a, b))
             .map((info, i) => (
-              <TableRow key={i}>
+              <TableRow key={i} raised={true}>
                 <TableData style={{ padding: '14px 4px' }}>
                   <Flex gap={5} justifyCenter>
                     <img src={`https://assets.solace.fi/${info.symbol.toLowerCase()}`} height={20} />

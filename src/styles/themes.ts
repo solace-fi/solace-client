@@ -46,7 +46,7 @@ export const lightTheme = {
     glow: '0 0 7px #fff',
   },
   card: {
-    bg_color_0: 'rgb(242, 242, 242)',
+    bg_color_0: 'rgb(250, 250, 250)',
     bg_color_1: 'linear-gradient(145.04deg, #F3D37E 0%, #F04D42 100%)',
     bg_color_2: 'linear-gradient(145.04deg, #D478D8 0%, #5F5DF9 100%)',
     fade: 'rgb(64, 80, 128)',
