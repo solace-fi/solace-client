@@ -225,7 +225,6 @@ const AnalyticsManager: React.FC = ({ children }) => {
       const { output: _priceHistory30D, allTokenKeys } = reformatDataForAreaChart(
         fetchedUwpData[`${activeNetwork.chainId}`]
       )
-      console.log({ _priceHistory30D })
       setTokenHistogramTickers(fetchedSipMathLib.sips.map((item) => item.name.toLowerCase()))
       setPortfolioHistogramTickers(allTokenKeys)
       setPriceHistory30D(_priceHistory30D)
@@ -273,7 +272,6 @@ const AnalyticsManager: React.FC = ({ children }) => {
     getData()
   }, [
     getPortfolioDetailData,
-    getWeightsFromBalances,
     reformatDataForAreaChart,
     getPortfolioVolatility,
     activeNetwork,

@@ -90,13 +90,13 @@ export function AnalyticsContent(): JSX.Element {
         </AnalyticsCard>
         <AnalyticsCard
           title="Underwriting Pool Volatility"
-          clarification={`Data from the last {fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
+          clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
         >
           <TokenPortfolioHistogram />
         </AnalyticsCard>
         <AnalyticsCard
           title="Token Price Volatility"
-          clarification={`Data from the last {fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
+          clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
         >
           <TokenPriceVolatilityHistogram />
         </AnalyticsCard>

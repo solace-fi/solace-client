@@ -39,16 +39,18 @@ export default function AnalyticsCard({
                 width={28}
                 height={28}
                 radius={8}
-                onClick={() => setOpen(true)}
+                onClick={() => setOpen(!open)}
               >
                 <StyledHelpCircle size={16} />
               </GraySquareButton>
             </Flex>
           )}
-          <Text t3s hidden={!open}>
-            {clarification}
-          </Text>
         </Flex>
+        <Accordion isOpen={open} p={open ? 5 : 0} noScroll>
+          <Flex p={8}>
+            <Text t3s>{clarification}</Text>
+          </Flex>
+        </Accordion>
         {children}
       </Flex>
     </Card>
