@@ -38,6 +38,8 @@ export interface FlexProps {
   bgSecondary?: boolean
   bgTechy?: boolean
   bgWarm?: boolean
+  bgLight?: boolean
+  bgDark?: boolean
   bgInfo?: boolean
   bgSuccess?: boolean
   bgError?: boolean
@@ -87,6 +89,8 @@ export const Flex = styled.div<FlexProps & ButtonProps & GeneralElementProps>`
   ${(props)             => props.bgSecondary           ? css`background-color: ${(props.theme as Theme).body.bg_color};` : ""}
   ${(props)             => props.bgTechy               ? css`background-image: linear-gradient(to bottom right, ${(props.theme as Theme).typography.techyGradientA}, ${(props.theme as Theme).typography.techyGradientB});` : ""}
   ${(props)             => props.bgWarm                ? css`background-image: linear-gradient(to bottom right, ${(props.theme as Theme).typography.warmGradientA}, ${(props.theme as Theme).typography.warmGradientB});` : ""}
+  ${(props)             => props.bgLight               ? css`background-color: ${(props.theme as Theme).typography.lightText};` : ""}
+  ${(props)             => props.bgDark                ? css`background-color: ${(props.theme as Theme).typography.darkText};` : ""}
   ${(props)             => props.bgInfo                ? css`background-color: ${(props.theme as Theme).typography.infoText};` : ""}
   ${(props)             => props.bgError               ? css`background-color: ${(props.theme as Theme).typography.errorText};` : ""}
   ${(props)             => props.bgSuccess             ? css`background-color: ${(props.theme as Theme).typography.successText};` : ""}

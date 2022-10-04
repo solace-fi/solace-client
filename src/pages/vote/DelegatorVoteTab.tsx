@@ -17,7 +17,6 @@ import { CopyButton } from '../../components/molecules/CopyButton'
 import { StyledArrowIosBackOutline } from '../../components/atoms/Icon'
 import { useCachedData } from '../../context/CachedDataManager'
 import useDebounce from '@rooks/use-debounce'
-import { EpochTimer } from './organisms/EpochTimer'
 
 const TextDropdownOptions = ({
   searchedList,
@@ -81,11 +80,11 @@ const TextDropdownOptions = ({
 
 export const DelegatorVoteTab = () => {
   const { voteGeneral, voteDelegators } = useVoteContext()
-  const { isVotingOpen, addEmptyVote, onVoteInput } = voteGeneral
+  const { isVotingOpen, epochEnd, addEmptyVote, onVoteInput } = voteGeneral
+  const { remainingTime } = epochEnd
   const { delegatorVotesData, editingDelegatorVotesData, handleEditingDelegatorVotesData } = voteDelegators
 
   const { positiveVersion } = useCachedData()
-
   const { vote, removeVote, voteMultiple, removeVoteMultiple } = useUwLockVoting()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
@@ -221,7 +220,16 @@ export const DelegatorVoteTab = () => {
 
   return (
     <>
-      {isVotingOpen && <EpochTimer />}
+      {isVotingOpen && (
+        <Flex col gap={5}>
+          <Text t4s textAlignCenter>
+            Epoch time remaining
+          </Text>
+          <Text t2 textAlignCenter info>
+            {remainingTime.days}d {remainingTime.hours}h {remainingTime.minutes}m {remainingTime.seconds}s
+          </Text>
+        </Flex>
+      )}
       {showDelegatorSelection &&
         (delegatorVotesData.length > 0 ? (
           <>

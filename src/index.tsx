@@ -15,6 +15,7 @@ import NetworkManager from './context/NetworkManager'
 import GeneralManager from './context/GeneralManager'
 import VoteManager from './pages/vote/VoteContext'
 import AnalyticsManager from './pages/analytics/AnalyticsContext'
+import BribeManager from './pages/bribe/BribeContext'
 
 /*
 
@@ -44,11 +45,13 @@ ReactDOM.render(
                 <CachedDataManager>
                   <NotificationsManager>
                     <VoteManager>
-                      <AnalyticsManager>
-                        <BrowserRouter>
-                          <App />
-                        </BrowserRouter>
-                      </AnalyticsManager>
+                      <BribeManager>
+                        <AnalyticsManager>
+                          <BrowserRouter>
+                            <App />
+                          </BrowserRouter>
+                        </AnalyticsManager>
+                      </BribeManager>
                     </VoteManager>
                   </NotificationsManager>
                 </CachedDataManager>

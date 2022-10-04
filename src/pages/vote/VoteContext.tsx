@@ -11,6 +11,7 @@ import { useUwLockVoting, useUwLockVotingHelper } from '../../hooks/lock/useUwLo
 import { filterAmount, formatAmount } from '../../utils/formatting'
 import { useContracts } from '../../context/ContractsManager'
 import { DelegateModal } from './organisms/DelegateModal'
+import { useEpochTimer } from '../../hooks/native/useEpochTimer'
 
 type VoteContextType = {
   intrface: {
@@ -34,6 +35,15 @@ type VoteContextType = {
     deleteVote: (index: number, isOwner: boolean) => void
     addEmptyVote: (isOwner: boolean) => void
     assign: (gaugeName: string, gaugeId: BigNumber, index: number, isOwner: boolean) => void
+    epochEnd: {
+      epochEndTimestamp?: BigNumber
+      remainingTime: {
+        days: number
+        hours: number
+        minutes: number
+        seconds: number
+      }
+    }
   }
   voteOwner: {
     votesData: VotesData
@@ -70,6 +80,15 @@ const VoteContext = createContext<VoteContextType>({
     deleteVote: () => undefined,
     addEmptyVote: () => undefined,
     assign: () => undefined,
+    epochEnd: {
+      epochEndTimestamp: undefined,
+      remainingTime: {
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+      },
+    },
   },
   voteOwner: {
     votesData: {
@@ -113,6 +132,7 @@ const VoteManager: React.FC = (props) => {
 
   const { isVotingOpen: checkIfVotingIsOpen, delegateOf, getVotingDelegatorsOf: getDelegators } = useUwLockVoting()
   const { getVoteInformation } = useUwLockVotingHelper()
+  const { remainingTime, epochEndTimestamp } = useEpochTimer()
   const { positiveVersion } = useCachedData()
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
@@ -476,6 +496,10 @@ const VoteManager: React.FC = (props) => {
         addEmptyVote,
         onVoteInput,
         deleteVote,
+        epochEnd: {
+          epochEndTimestamp,
+          remainingTime,
+        },
       },
       voteOwner: {
         votesData,
@@ -511,6 +535,8 @@ const VoteManager: React.FC = (props) => {
       insuranceCapacity,
       handleEditingVotesData,
       leverageFactor,
+      epochEndTimestamp,
+      remainingTime,
     ]
   )
 

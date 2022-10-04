@@ -33,26 +33,29 @@ export const CustomPieChartTooltip = ({ active, payload }: TooltipProps<number, 
 export const GaugeWeightsModal = ({
   isOpen,
   handleClose,
+  handleViewCurrentData,
   currentWeightsData,
   nextWeightsData,
   chartColors,
   textColors,
   lightColors,
   darkColors,
+  viewCurrentData,
 }: {
   isOpen: boolean
   handleClose: () => void
+  handleViewCurrentData: (toggle: boolean) => void
   currentWeightsData: { name: string; value: number; usdValue: number }[]
   nextWeightsData: { name: string; value: number; usdValue: number }[]
   chartColors: string[]
   textColors: string[]
   lightColors: string[]
   darkColors: string[]
+  viewCurrentData: boolean
 }): JSX.Element => {
   const { isMobile } = useWindowDimensions()
   const [animate, setAnimate] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [viewCurrentData, setViewCurrentData] = useState<boolean>(true)
 
   const searchedList = useMemo(() => {
     const dataToUse = viewCurrentData ? currentWeightsData : nextWeightsData
@@ -82,7 +85,7 @@ export const GaugeWeightsModal = ({
           py={8}
           bgSecondary={viewCurrentData}
           flex1
-          onClick={() => setViewCurrentData(true)}
+          onClick={() => handleViewCurrentData(true)}
           style={{
             userSelect: 'none',
             cursor: 'pointer',
@@ -99,7 +102,7 @@ export const GaugeWeightsModal = ({
           py={8}
           flex1
           bgSecondary={!viewCurrentData}
-          onClick={() => setViewCurrentData(false)}
+          onClick={() => handleViewCurrentData(false)}
           style={{
             userSelect: 'none',
             cursor: 'pointer',

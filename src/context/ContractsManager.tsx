@@ -22,6 +22,8 @@ type Contracts = {
     uwp?: Contract | null
     uwe?: Contract | null
     fluxMegaOracle?: Contract | null
+    solaceMegaOracle?: Contract | null
+    bribeController?: Contract | null
   }
   contractSources: ContractSources[]
 }
@@ -36,6 +38,8 @@ const ContractsContext = createContext<Contracts>({
     uwp: undefined,
     uwe: undefined,
     fluxMegaOracle: undefined,
+    solaceMegaOracle: undefined,
+    bribeController: undefined,
   },
   contractSources: [],
 })
@@ -53,6 +57,8 @@ const ContractsProvider: React.FC = (props) => {
   const uwp = useGetContract(keyContracts.uwp)
   const uwe = useGetContract(keyContracts.uwe)
   const fluxMegaOracle = useGetContract(keyContracts.fluxMegaOracle)
+  const solaceMegaOracle = useGetContract(keyContracts.solaceMegaOracle)
+  const bribeController = useGetContract(keyContracts.bribeController)
 
   const value = useMemo<Contracts>(
     () => ({
@@ -65,10 +71,24 @@ const ContractsProvider: React.FC = (props) => {
         uwp,
         uwe,
         fluxMegaOracle,
+        solaceMegaOracle,
+        bribeController,
       },
       contractSources,
     }),
-    [solace, depositHelper, gaugeController, uwLockVoting, uwLocker, uwp, uwe, fluxMegaOracle, contractSources]
+    [
+      solace,
+      depositHelper,
+      gaugeController,
+      uwLockVoting,
+      uwLocker,
+      uwp,
+      uwe,
+      fluxMegaOracle,
+      bribeController,
+      solaceMegaOracle,
+      contractSources,
+    ]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>

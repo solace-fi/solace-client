@@ -1,6 +1,6 @@
 import { ZERO } from '@solace-fi/sdk-nightly'
-import { BigNumber } from 'ethers'
 import { Contract as MulticallContract } from 'ethers-multicall'
+import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { GaugeData, Vote } from '../../constants/types'

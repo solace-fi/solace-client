@@ -60,7 +60,7 @@ export const lightTheme = {
   },
   input: {
     color: 'rgb(94, 94, 94)',
-    border_color: 'rgb(94, 94, 94)',
+    border_color: '#E3E4E6',
     bg_color: 'rgba(0, 0, 0, 0)',
     slider_color: 'rgb(95, 93, 249)',
     slider_node_color: 'rgb(95, 93, 249)',
@@ -79,8 +79,8 @@ export const lightTheme = {
   table: {
     highlight_bg_color: 'rgb(95, 93, 249)',
     hover_color: 'rgb(231, 231, 231)',
-    cell_bg_color: 'rgb(242, 242, 242)',
-    head_bg_color: 'rgb(227, 227, 227)',
+    cell_bg_color: '#ffffff',
+    head_bg_color: '#fafafa',
   },
   progress: {
     step_color: 'rgb(94, 94, 94)',

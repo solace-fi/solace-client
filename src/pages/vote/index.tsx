@@ -55,8 +55,8 @@ export const VoteContent = () => {
     <div style={{ margin: 'auto' }}>
       <Flex col={isMobile} row={!isMobile}>
         <Flex col widthP={!isMobile ? 60 : undefined} p={10} gap={20}>
-          <GaugePieChart />
           <StatsBox />
+          <GaugePieChart />
         </Flex>
         <Flex col widthP={!isMobile ? 40 : undefined} p={10}>
           <TileCard gap={15} bgSecondary noPadding>

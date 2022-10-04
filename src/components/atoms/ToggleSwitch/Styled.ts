@@ -29,7 +29,6 @@ export const SwitchLabel = styled.label<{
 export const SwitchButton = styled.span<{ buttonSize?: number }>`
   content: '';
   position: absolute;
-  top: 2px;
   left: 2px;
   width: ${({ buttonSize }) => `${ifUndefined(buttonSize, 18)}px`};
   height: ${({ buttonSize }) => `${ifUndefined(buttonSize, 18)}px`};

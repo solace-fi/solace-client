@@ -3,7 +3,7 @@ import vegaEmbed from 'vega-embed'
 import { Flex } from '../../components/atoms/Layout'
 import { useGeneral } from '../../context/GeneralManager'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
-import { DropdownOptionsUnique } from '../../components/organisms/Dropdown'
+import { DropdownOptions } from '../../components/organisms/Dropdown'
 import { Text } from '../../components/atoms/Typography'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useAnalyticsContext } from './AnalyticsContext'
@@ -137,7 +137,7 @@ export const TokenPriceVolatilityCumm = (): JSX.Element => {
             border: 'none',
           }}
         />
-        <DropdownOptionsUnique
+        <DropdownOptions
           isOpen={true}
           searchedList={activeList}
           comparingList={[tickerSymbol.toLowerCase()]}

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { DropdownOptionsUnique } from './Dropdown'
+import { DropdownOptions } from './Dropdown'
 import { SmallerInputSection } from '../molecules/InputSection'
 import { Modal } from '../molecules/Modal'
 import { BigNumber } from '@solace-fi/sdk-nightly'
@@ -54,7 +54,7 @@ export const GaugeSelectionModal = ({
           border: 'none',
         }}
       />
-      <DropdownOptionsUnique
+      <DropdownOptions
         isOpen={true}
         searchedList={activeList}
         comparingList={votesAllocationData.map((voteData) => voteData.gauge)}
