@@ -83,8 +83,8 @@ export const DelegateModal = ({
             onChange={(e) => inputOnChange(e.target.value)}
           />
           <Text t5s warning width={200}>
-            Both you and your delegate will have the same level of control over your votes. Ensure that your delegate is
-            someone you can trust.
+            You can delegate your voting power to another address outside of your own. They can vote on your behalf, but
+            they cannot withdraw your tokens. Ensure that your delegate is someone you can trust.
           </Text>
           <Flex gap={10}>
             <Button

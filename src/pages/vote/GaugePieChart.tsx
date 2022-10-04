@@ -20,6 +20,13 @@ export const GaugePieChart = () => {
   const { isMobile } = useWindowDimensions()
   const { currentGaugesData, nextGaugesData, insuranceCapacity } = gauges
 
+  const { width } = useWindowDimensions()
+
+  const [openGaugeWeightsModal, setOpenGaugeWeightsModal] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [animate, setAnimate] = useState(true)
+  const [viewCurrentData, setViewCurrentData] = useState<boolean>(true)
+
   const CHART_COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', 'rgb(95,93,249)', 'rgb(240,77,66)'], [])
   const LIGHT_COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', '#6493fa', 'rgb(240,77,66)'], [])
   const DARK_COLORS = useMemo(() => ['rgb(182, 104, 185)', 'rgb(187, 136, 0)', 'rgb(95,93,249)', '#b83c33'], [])
@@ -63,23 +70,17 @@ export const GaugePieChart = () => {
       .sort((a, b) => b.value - a.value)
   }, [nextGaugesData, insuranceCapacity])
 
-  const summarizedData = useMemo(
-    () => [
-      ...currentData.slice(0, TOP_GAUGES),
+  const summarizedData = useMemo(() => {
+    const dataToUse = viewCurrentData ? currentData : nextData
+    return [
+      ...dataToUse.slice(0, TOP_GAUGES),
       {
         name: 'Other Protocols',
-        value: currentData.slice(TOP_GAUGES).reduce((acc, pv) => pv.value + acc, 0),
-        usdValue: currentData.slice(TOP_GAUGES).reduce((acc, pv) => pv.usdValue + acc, 0),
+        value: dataToUse.slice(TOP_GAUGES).reduce((acc, pv) => pv.value + acc, 0),
+        usdValue: dataToUse.slice(TOP_GAUGES).reduce((acc, pv) => pv.usdValue + acc, 0),
       },
-    ],
-    [currentData, TOP_GAUGES]
-  )
-
-  const { width } = useWindowDimensions()
-
-  const [openGaugeWeightsModal, setOpenGaugeWeightsModal] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [animate, setAnimate] = useState(true)
+    ]
+  }, [currentData, nextData, TOP_GAUGES, viewCurrentData])
 
   const handleGaugeWeightsModal = useCallback(() => {
     setOpenGaugeWeightsModal(!openGaugeWeightsModal)
@@ -99,25 +100,77 @@ export const GaugePieChart = () => {
     }, 2000)
   }, [])
 
+  const handleViewCurrentData = useCallback((toggle: boolean) => {
+    setViewCurrentData(toggle)
+  }, [])
+
   return (
     <TileCard gap={20}>
       <GaugeWeightsModal
         isOpen={openGaugeWeightsModal}
         handleClose={handleGaugeWeightsModal}
+        handleViewCurrentData={handleViewCurrentData}
         currentWeightsData={currentData}
         nextWeightsData={nextData}
         chartColors={CHART_COLORS}
         textColors={TEXT_COLORS}
         lightColors={LIGHT_COLORS}
         darkColors={DARK_COLORS}
+        viewCurrentData={viewCurrentData}
       />
       <Flex between itemsCenter>
         <Text semibold t2_5>
-          Current Gauge Weights
+          Gauge Weights
         </Text>
         <Button secondary techygradient noborder onClick={handleGaugeWeightsModal} disabled={loading} width={100}>
           See More
         </Button>
+      </Flex>
+      <Flex
+        stretch
+        bgTertiary
+        pt={1}
+        style={{
+          // rounded at the top only with 12px
+          borderTopLeftRadius: '12px',
+          borderTopRightRadius: '12px',
+        }}
+      >
+        <Flex
+          justifyCenter
+          py={8}
+          bgRaised={viewCurrentData}
+          flex1
+          onClick={() => setViewCurrentData(true)}
+          style={{
+            userSelect: 'none',
+            cursor: 'pointer',
+            borderTopLeftRadius: viewCurrentData ? 12 : 0,
+            borderTopRightRadius: viewCurrentData ? 12 : 0,
+          }}
+        >
+          <Text semibold opposite={!viewCurrentData}>
+            Current
+          </Text>
+        </Flex>
+        <Flex
+          justifyCenter
+          py={8}
+          flex1
+          bgRaised={!viewCurrentData}
+          onClick={() => setViewCurrentData(false)}
+          style={{
+            userSelect: 'none',
+            cursor: 'pointer',
+            // rounded only top right corner
+            borderTopRightRadius: !viewCurrentData ? 12 : 0,
+            borderTopLeftRadius: !viewCurrentData ? 12 : 0,
+          }}
+        >
+          <Text semibold opposite={viewCurrentData}>
+            Projected
+          </Text>
+        </Flex>
       </Flex>
       <Flex justifyCenter>
         {loading ? (

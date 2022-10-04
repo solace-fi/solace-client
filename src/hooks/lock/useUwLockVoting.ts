@@ -1,5 +1,4 @@
 import { ZERO, ZERO_ADDRESS } from '@solace-fi/sdk-nightly'
-import axios, { AxiosResponse } from 'axios'
 import { BigNumber } from 'ethers'
 import { useCallback, useMemo } from 'react'
 import { FunctionName, TransactionCondition } from '../../constants/enums'

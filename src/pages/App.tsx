@@ -39,6 +39,7 @@ import { AppMenu } from '../components/organisms/RightNavbar'
 import { InfoSideNavbar, MobileInfoSideNavbar } from '../components/organisms/LeftNavbar'
 import { AppMenuHeader } from '../components/organisms/AppMenuHeader'
 import { useGeneral } from '../context/GeneralManager'
+import Bribe from './bribe'
 
 export default function App(): any {
   const { leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar } = useGeneral()
@@ -57,6 +58,12 @@ export default function App(): any {
       title: 'My Locking',
       to: '/lock',
       component: Lock,
+    },
+    {
+      name: 'Bribe',
+      title: 'Native Bribes',
+      to: '/bribe',
+      component: Bribe,
     },
     {
       name: 'Analytics',

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Flex } from '../atoms/Layout'
+import { Flex, FlexProps } from '../atoms/Layout'
 
 export function TileCard({
   children,
@@ -36,7 +36,7 @@ export function TileCard({
   gap?: number
   padding?: number
   onClick?: () => void
-}): JSX.Element {
+} & FlexProps): JSX.Element {
   const defaultStyle = style ?? {}
   // thinner is 0.8, bigger is 1.2
   const customStyle = {

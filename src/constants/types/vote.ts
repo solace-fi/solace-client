@@ -5,6 +5,11 @@ export type Vote = {
   votePowerBPS: BigNumber
 }
 
+export type VoteForGauge = {
+  voter: string
+  votePowerBPS: BigNumber
+}
+
 export type VotesData = {
   votePower: BigNumber
   usedVotePowerBPS: BigNumber

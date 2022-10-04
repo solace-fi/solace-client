@@ -22,4 +22,14 @@ export enum FunctionName {
   // DepositHelper
   DEPOSIT_AND_LOCK = 'DepositAndLock',
   DEPOSIT_INTO_LOCK = 'DepositIntoLock',
+
+  // Bribes
+  BRIBE_PROVIDE = 'ProvideBribes',
+  BRIBE_VOTE = 'VoteForBribe',
+  BRIBE_VOTE_MULTIPLE_BRIBES = 'VoteForMultipleBribes',
+  BRIBE_VOTE_MULTIPLE_VOTERS = 'VoteForBribeForMultipleVoters',
+  BRIBE_REMOVE_VOTE = 'RemoveVoteForBribe',
+  BRIBE_REMOVE_VOTES_MULTIPLE_BRIBES = 'RemoveVotesForMultipleBribes',
+  BRIBE_REMOVE_VOTES_MULTIPLE_VOTERS = 'RemoveVotesForBribeForMultipleVoters',
+  BRIBE_CLAIM = 'ClaimBribes',
 }
