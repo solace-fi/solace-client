@@ -81,28 +81,22 @@ export function AnalyticsContent(): JSX.Element {
           </Card>
         </Flex>
       </Flex>
-      <Flex wrapped gap={16}>
-        <AnalyticsCard
-          title="Underwriting Pool Composition"
-          clarification="Data is delayed by up to 1 hour."
-          width={500}
-        >
+      <Flex col gap={16}>
+        <AnalyticsCard title="Underwriting Pool Composition" clarification="Data is delayed by up to 1 hour.">
           <TokenTable />
         </AnalyticsCard>
-        <AnalyticsCard title="Portfolio Value" clarification="Data is delayed by up to 1 hour." width={500}>
+        <AnalyticsCard title="Portfolio Value" clarification="Data is delayed by up to 1 hour.">
           <PortfolioAreaChart2 />
         </AnalyticsCard>
         <AnalyticsCard
           title="Underwriting Pool Volatility"
           clarification={`Data from the last {fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
-          width={500}
         >
           <TokenPortfolioHistogram />
         </AnalyticsCard>
         <AnalyticsCard
           title="Token Price Volatility"
           clarification={`Data from the last {fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
-          width={500}
         >
           <TokenPriceVolatilityHistogram />
         </AnalyticsCard>

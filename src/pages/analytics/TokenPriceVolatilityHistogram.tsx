@@ -12,6 +12,7 @@ import { StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
 import { Button } from '../../components/atoms/Button'
 import { StyledDownload } from '../../components/atoms/Icon'
+import sipMath3 from '../../resources/svg/sipmath3.svg'
 
 export const TokenPriceVolatilityHistogram = (): JSX.Element => {
   const { appTheme } = useGeneral()
@@ -168,7 +169,7 @@ export const TokenPriceVolatilityHistogram = (): JSX.Element => {
       e.preventDefault()
       downloadFile({
         data: JSON.stringify(fetchedSipMathLib),
-        fileName: 'singleVariableLibrary.json',
+        fileName: 'volatility.json',
         fileType: 'text/json',
       })
     },
@@ -226,7 +227,12 @@ export const TokenPriceVolatilityHistogram = (): JSX.Element => {
               <Text autoAlign>Please select a token to view its volatility</Text>
             </Flex>
             {displayVega && (
-              <Flex col gap={10} mt={8}>
+              <Flex col gap={10} mt={8} style={{ position: 'relative' }}>
+                <img
+                  width={40}
+                  src={sipMath3}
+                  style={{ filter: appTheme == 'dark' ? 'brightness(200%)' : undefined, position: 'absolute' }}
+                />
                 <Text textAlignCenter t2>
                   Today there is a {(100 - Number(valueOfRiskPercentage)).toFixed(2)}% chance of{' '}
                   <Text inline semibold info>

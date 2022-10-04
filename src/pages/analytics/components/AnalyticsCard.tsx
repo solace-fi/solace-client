@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Accordion } from '../../../components/atoms/Accordion'
 import { GraySquareButton } from '../../../components/atoms/Button'
 import { Card } from '../../../components/atoms/Card'
@@ -20,6 +20,8 @@ export default function AnalyticsCard({
   children: React.ReactNode
   width?: number
 }): JSX.Element {
+  const [open, setOpen] = useState<boolean>(false)
+
   return (
     <Card shadow width={width}>
       <Flex gap={8} col>
@@ -29,14 +31,23 @@ export default function AnalyticsCard({
           </Text>
           {clarification && (
             <Flex gap={4} itemsCenter>
-              <GraySquareButton actuallySquare actuallyWhite noborder shadow width={28} height={28} radius={8}>
+              <GraySquareButton
+                actuallySquare
+                actuallyWhite
+                noborder
+                shadow
+                width={28}
+                height={28}
+                radius={8}
+                onClick={() => setOpen(true)}
+              >
                 <StyledHelpCircle size={16} />
               </GraySquareButton>
-              <Text t3s hidden>
-                {clarification}
-              </Text>
             </Flex>
           )}
+          <Text t3s hidden={!open}>
+            {clarification}
+          </Text>
         </Flex>
         {children}
       </Flex>
