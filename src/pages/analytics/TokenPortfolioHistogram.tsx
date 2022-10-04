@@ -320,9 +320,10 @@ export const TokenPortfolioHistogram = () => {
                 </Droppable>
               </DragDropContext>
             </Flex>
-            <Flex between gap={5} mt={10}>
-              <Text autoAlignVertical>Download Library</Text>
-              <Button width={40} disabled={!fetchedSipMathLib || !fetchedSipMathLib.sips} onClick={downloadLibrary}>
+            <Flex around gap={5} mt={10}>
+              <img width={40} src={sipMath3} style={{ filter: appTheme == 'dark' ? 'brightness(200%)' : undefined }} />
+              <Button disabled={!fetchedSipMathLib || !fetchedSipMathLib.sips} onClick={downloadLibrary}>
+                <Text autoAlignVertical>Download Library</Text>
                 <StyledDownload width={20} />
               </Button>
             </Flex>
@@ -331,12 +332,7 @@ export const TokenPortfolioHistogram = () => {
             {simWeightTotal == 1 ? (
               <>
                 <Flex id="vis2" />
-                <Flex col gap={10} style={{ position: 'relative' }}>
-                  <img
-                    width={40}
-                    src={sipMath3}
-                    style={{ filter: appTheme == 'dark' ? 'brightness(200%)' : undefined, position: 'absolute' }}
-                  />
+                <Flex col gap={10}>
                   <Text textAlignCenter t2>
                     Today there is a {(100 - Number(valueOfRiskPercentage)).toFixed(2)}% chance of the value going down
                     by {Math.abs(Number(lossPercentage))}% or more.

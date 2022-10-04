@@ -215,9 +215,10 @@ export const TokenPriceVolatilityHistogram = (): JSX.Element => {
               processName={true}
               customProcessFunction={(value: string) => value.toUpperCase()}
             />
-            <Flex between gap={5} mt={10}>
-              <Text autoAlignVertical>Download Library</Text>
-              <Button width={40} disabled={!fetchedSipMathLib || !fetchedSipMathLib.sips} onClick={downloadLibrary}>
+            <Flex around gap={5} mt={10}>
+              <img width={40} src={sipMath3} style={{ filter: appTheme == 'dark' ? 'brightness(200%)' : undefined }} />
+              <Button disabled={!fetchedSipMathLib || !fetchedSipMathLib.sips} onClick={downloadLibrary}>
+                <Text autoAlignVertical>Download Library</Text>
                 <StyledDownload width={20} />
               </Button>
             </Flex>
@@ -227,12 +228,7 @@ export const TokenPriceVolatilityHistogram = (): JSX.Element => {
               <Text autoAlign>Please select a token to view its volatility</Text>
             </Flex>
             {displayVega && (
-              <Flex col gap={10} mt={8} style={{ position: 'relative' }}>
-                <img
-                  width={40}
-                  src={sipMath3}
-                  style={{ filter: appTheme == 'dark' ? 'brightness(200%)' : undefined, position: 'absolute' }}
-                />
+              <Flex col gap={10} mt={8}>
                 <Text textAlignCenter t2>
                   Today there is a {(100 - Number(valueOfRiskPercentage)).toFixed(2)}% chance of{' '}
                   <Text inline semibold info>
