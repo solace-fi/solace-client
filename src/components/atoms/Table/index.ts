@@ -89,7 +89,7 @@ export const TableHead = styled.thead<TableHeadProps>`
     position: sticky;
     transform: translateY(-${props.translation ?? 7}px);
     top: ${props.translation ?? 7}px;
-    background-color: inherit;
+    background-color: ${props.theme.table.head_bg_color};
     z-index: ${props.zIndex ? props.zIndex : `${Z_TABLE}`};
     th {
       padding-top: 20px;
@@ -111,7 +111,7 @@ export const TableHeader = styled.th<TableProps>`
 
 export const TableData = styled.td<TableProps>`
   ${(props) => props.width && `max-width: ${props.width}px !important`};
-  background-color: inherit; // ${({ theme }) => theme.table.cell_bg_color};
+  background-color: ${({ theme }) => theme.table.cell_bg_color};
   padding: 14px 18px;
   &:first-child {
     border-radius: 10px 0 0 10px;
