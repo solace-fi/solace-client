@@ -12,13 +12,15 @@ import { PortfolioGaugeWeight } from './components/PortfolioGaugeWeightDisplay'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { Button } from '../../components/atoms/Button'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { StyledDownload } from '../../components/atoms/Icon'
+import sipMath3 from '../../resources/svg/sipmath3.svg'
 
 export const TokenPortfolioHistogram = () => {
   const { appTheme } = useGeneral()
   const { isMobile } = useWindowDimensions()
   const { intrface, data } = useAnalyticsContext()
   const { canSeePortfolioVolatility } = intrface
-  const { getPortfolioVolatility, allDataPortfolio, portfolioVolatilityData } = data
+  const { getPortfolioVolatility, allDataPortfolio, portfolioVolatilityData, fetchedSipMathLib } = data
 
   const [rangeValue, setRangeValue] = useState(1000)
   const [varBar, setVarBar] = useState<number>(0)
@@ -187,6 +189,36 @@ export const TokenPortfolioHistogram = () => {
     })
   }, [commonPercentage, simWeights, saveEditedItem])
 
+  const downloadFile = ({ data, fileName, fileType }: { data: string; fileName: string; fileType: string }) => {
+    // Create a blob with the data we want to download as a file
+    const blob = new Blob([data], { type: fileType })
+    // Create an anchor element and dispatch a click event on it
+    // to trigger a download
+    const a = document.createElement('a')
+    a.download = fileName
+    a.href = window.URL.createObjectURL(blob)
+    const clickEvt = new MouseEvent('click', {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    })
+    a.dispatchEvent(clickEvt)
+    a.remove()
+  }
+
+  const downloadLibrary = useCallback(
+    (e) => {
+      if (!fetchedSipMathLib || !fetchedSipMathLib.sips) return
+      e.preventDefault()
+      downloadFile({
+        data: JSON.stringify(fetchedSipMathLib),
+        fileName: 'volatility.json',
+        fileType: 'text/json',
+      })
+    },
+    [fetchedSipMathLib]
+  )
+
   useEffect(() => {
     setSimWeights(
       allDataPortfolio.map((item: any) => {
@@ -287,6 +319,13 @@ export const TokenPortfolioHistogram = () => {
                   )}
                 </Droppable>
               </DragDropContext>
+            </Flex>
+            <Flex around gap={5} mt={10}>
+              <img width={40} src={sipMath3} style={{ filter: appTheme == 'dark' ? 'brightness(200%)' : undefined }} />
+              <Button disabled={!fetchedSipMathLib || !fetchedSipMathLib.sips} onClick={downloadLibrary}>
+                <Text autoAlignVertical>Download Library</Text>
+                <StyledDownload width={20} />
+              </Button>
             </Flex>
           </Flex>
           <Flex col widthP={isMobile ? 100 : 75}>

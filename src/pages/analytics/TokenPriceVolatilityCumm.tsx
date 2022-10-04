@@ -111,7 +111,6 @@ export const TokenPriceVolatilityCumm = (): JSX.Element => {
       // const result = fetchedSipMathLib?.sips.filter((obj: { name: any }) => {
       //   return obj.name === allDataPortfolio[chartDataIndex].symbol
       // })
-      // const sipsAcoeffs = result[0].arguments.aCoefficients
       const density = Array.from(Array(99).keys(), (n) => n / 100 + 0.01)
       console.log(density)
       fetchVega(

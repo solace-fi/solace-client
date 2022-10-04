@@ -1,14 +1,17 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 import { GeneralTextProps, GeneralTextCss, Text3Css } from '../Typography'
 import { Z_TABLE } from '../../../constants/'
+import Theme from '../../../styles/themes'
 
 interface TableProps extends GeneralTextProps, GeneralElementProps {
   isHighlight?: boolean
   canHover?: boolean
   headers?: string[]
   fade?: boolean
+  raised?: boolean
+  inheritBg?: boolean
 }
 
 interface TableHeadProps {
@@ -24,22 +27,57 @@ export const Table = styled.table<TableProps>`
   td {
     ${GeneralTextCss}
   }
-  ${(props) => props.isHighlight && `td {background-color: ${props.theme.table.highlight_bg_color};}`}
+  ${(props) => props.isHighlight && `td {background-color: ${(props.theme as Theme).table.highlight_bg_color};}`}
   ${(props) =>
     props.canHover &&
-    `tr { &:hover { td { background-color: ${props.theme.table.hover_color}; transition: background-color 200ms linear;} } }`}
+    `tr { &:hover { td { background-color: ${
+      (props.theme as Theme).table.hover_color
+    }; transition: background-color 200ms linear;} } }`}
     ${(props) => props.fade && `opacity: 0.5;`}
     ${GeneralElementCss}
 `
 
 export const TableRow = styled.tr<TableProps>`
-  ${(props) =>
-    props.isHighlight &&
-    `background-color: ${props.theme.table.highlight_bg_color}; td { background-color: ${props.theme.table.highlight_bg_color}; }`}
-  th,
+  ${(props) => {
+    let stuff = css``
+    if (props.isHighlight) {
+      stuff = css`
+        background-color: ${(props.theme as Theme).table.highlight_bg_color};
+        td {
+          background-color: ${(props.theme as Theme).table.highlight_bg_color};
+        }
+      `
+    } else if (props.raised) {
+      stuff = css`
+        background-color: ${(props.theme as Theme).body.bg_color};
+        td {
+          background-color: ${(props.theme as Theme).body.bg_color};
+        }
+      `
+    } else if (props.inheritBg) {
+      stuff = css`
+        background-color: inherit;
+        td {
+          background-color: inherit;
+        }
+      `
+    } else {
+      stuff = css`
+        background-color: ${(props.theme as Theme).table.cell_bg_color};
+        td {
+          background-color: ${(props.theme as Theme).table.cell_bg_color};
+        }
+      `
+    }
+
+    return css`
+      ${stuff}
+      th,
   td {
-    ${GeneralTextCss}
-  }
+        ${GeneralTextCss}
+      }
+    `
+  }}
 `
 
 export const TableBody = styled.tbody``
