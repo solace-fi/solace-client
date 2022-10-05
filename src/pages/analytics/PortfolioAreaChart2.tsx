@@ -37,7 +37,7 @@ export const PortfolioAreaChart2 = () => {
       },
       background: 'transparent',
       width: 'container',
-      height: isMobile ? 600 : 300,
+      height: isMobile ? 600 : 350,
       autosize: {
         type: 'fit',
         contains: 'padding',
