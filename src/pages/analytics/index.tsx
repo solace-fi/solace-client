@@ -26,7 +26,6 @@ export default function Analytics(): JSX.Element {
 }
 
 export function AnalyticsContent(): JSX.Element {
-  const [upVolatilityText, setUpVolatilityText] = useState<boolean>(false)
   const { activeNetwork } = useNetwork()
   const { data } = useAnalyticsContext()
   const { gauges } = useVoteContext()
@@ -40,22 +39,11 @@ export function AnalyticsContent(): JSX.Element {
     return Number(latestEpoch.uweAmount) * Number(latestEpoch.uwpValuePerShare) * Number(latestEpoch.uwpPerUwe)
   }, [activeNetwork, fetchedPremiums])
 
-  // const [upvText, setUpvText] = useState<boolean>(false)
-  const [tpvText, setTpvText] = useState<boolean>(false)
-  const [upcText, setUpcText] = useState<boolean>(false)
-  const [upValueText, setUpValueText] = useState<boolean>(false)
-
   return (
     <Flex col gap={16} py={16} px={10}>
       <Flex>
-        <Flex
-          gap={16}
-          // style={{
-          //   width: 'max-content',
-          // }}
-        >
-          {/* to make every card the same horizontal size, we follow this advice: https://stackoverflow.com/a/61209164/7148525 */}
-          <Card shadow style={{ flex: '1 0 50%' }}>
+        <Flex gap={16}>
+          <Card shadow widthP={100}>
             <Flex gap={8} col>
               <Text t6s semibold contrast style={{ whiteSpace: 'nowrap' }}>
                 Premiums
@@ -63,7 +51,7 @@ export function AnalyticsContent(): JSX.Element {
               <CardSectionValue info>${truncateValue(premiumsUSD, 2)}</CardSectionValue>
             </Flex>
           </Card>
-          <Card shadow style={{ flex: '1 0 50%' }}>
+          <Card shadow widthP={100}>
             <Flex gap={8} col>
               <Text t6s semibold contrast style={{ whiteSpace: 'nowrap' }}>
                 Underwriting Pool Size
@@ -71,7 +59,7 @@ export function AnalyticsContent(): JSX.Element {
               <CardSectionValue info>${truncateValue(formatUnits(uwpValueUSD, 18), 2)} </CardSectionValue>
             </Flex>
           </Card>
-          <Card shadow style={{ flex: '1 0 50%' }}>
+          <Card shadow widthP={100}>
             <Flex gap={8} col>
               <Text t6s semibold contrast style={{ whiteSpace: 'nowrap' }}>
                 Leverage Factor
