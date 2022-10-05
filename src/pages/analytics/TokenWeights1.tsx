@@ -123,7 +123,7 @@ failed schema attempt:
   ) => {
     vegaEmbed('#token-weights-1', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-      title: { text: 'Token Weigths, Last 30 Days', color: theme == 'light' ? 'black' : 'white' },
+      title: { text: 'Token Weights, Last 30 Days', color: theme == 'light' ? 'black' : 'white' },
       config: {
         style: { cell: { stroke: 'transparent' } },
         axis: { labelColor: theme == 'light' ? 'black' : 'white' },

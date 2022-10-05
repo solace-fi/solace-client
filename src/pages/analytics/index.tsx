@@ -73,6 +73,12 @@ export function AnalyticsContent(): JSX.Element {
         <AnalyticsCard title="Underwriting Pool Composition" clarification="Data is delayed by up to 1 hour.">
           <TokenTable />
         </AnalyticsCard>
+        <AnalyticsCard title="Token Radial Chart" clarification="Data is delayed by up to 1 hour.">
+          <TokenRadialChart />
+        </AnalyticsCard>
+        <AnalyticsCard title="Token Weights Chart" clarification={'Data is delayed by up to 1 hour'}>
+          <TokenWeights1 />
+        </AnalyticsCard>
         <AnalyticsCard title="Portfolio Value" clarification="Data is delayed by up to 1 hour.">
           <PortfolioAreaChart2 />
         </AnalyticsCard>
