@@ -14,7 +14,13 @@ import { Button } from '../../components/atoms/Button'
 import { StyledDownload } from '../../components/atoms/Icon'
 import sipMath3 from '../../resources/svg/sipmath3.svg'
 
-export const TokenPriceVolatilityHistogram = (): JSX.Element => {
+export const TokenPriceVolatilityHistogram = ({
+  chosenWidth,
+  chosenHeight,
+}: {
+  chosenWidth: number
+  chosenHeight: number
+}): JSX.Element => {
   const { appTheme } = useGeneral()
   const { isMobile } = useWindowDimensions()
   const { intrface, data } = useAnalyticsContext()
@@ -74,7 +80,7 @@ export const TokenPriceVolatilityHistogram = (): JSX.Element => {
       },
       background: 'transparent',
       width: 'container',
-      height: 300,
+      height: chosenHeight - (chosenWidth > 4 ? 80 : 120),
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -191,7 +197,7 @@ export const TokenPriceVolatilityHistogram = (): JSX.Element => {
     fetchVega(allDataPortfolio[chartDataIndex], appTheme, varBar)
     if (!displayVega) setDisplayVega(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio, canSeeTokenVolatilities])
+  }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio, canSeeTokenVolatilities, chosenWidth, chosenHeight])
 
   return (
     <Flex gap={10} col={isMobile || !canSeeTokenVolatilities}>
@@ -214,6 +220,7 @@ export const TokenPriceVolatilityHistogram = (): JSX.Element => {
               onClick={(value: string) => setTickerSymbol(value)}
               processName={true}
               customProcessFunction={(value: string) => value.toUpperCase()}
+              customHeight={chosenHeight - 80}
             />
             <Flex around gap={5} mt={10}>
               <img width={40} src={sipMath3} style={{ filter: appTheme == 'dark' ? 'brightness(200%)' : undefined }} />
@@ -229,7 +236,7 @@ export const TokenPriceVolatilityHistogram = (): JSX.Element => {
             </Flex>
             {displayVega && (
               <Flex col gap={10} mt={8}>
-                <Text textAlignCenter t2>
+                <Text textAlignCenter t2={chosenWidth > 6}>
                   Today there is a {(100 - Number(valueOfRiskPercentage)).toFixed(2)}% chance of{' '}
                   <Text inline semibold info>
                     {tickerSymbol.toUpperCase()}

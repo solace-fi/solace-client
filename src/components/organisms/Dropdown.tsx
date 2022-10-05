@@ -165,6 +165,7 @@ export const DropdownOptions = ({
   onClick,
   processName = true,
   customProcessFunction,
+  customHeight,
 }: {
   comparingList?: string[]
   searchedList: { label: string; value: string; icon?: JSX.Element }[]
@@ -173,6 +174,7 @@ export const DropdownOptions = ({
   onClick: (value: string) => void
   processName?: boolean
   customProcessFunction?: (value: string) => string
+  customHeight?: number
 }): JSX.Element => {
   const { appTheme } = useGeneral()
   const gradientStyle = useMemo(
@@ -184,7 +186,7 @@ export const DropdownOptions = ({
     <Accordion
       isOpen={isOpen}
       style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }}
-      customHeight={'380px'}
+      customHeight={`${customHeight ?? 380}px`}
       noBackgroundColor
       thinScrollbar
     >

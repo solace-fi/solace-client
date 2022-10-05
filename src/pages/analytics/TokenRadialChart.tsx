@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { useAnalyticsContext } from './AnalyticsContext'
 import vegaEmbed from 'vega-embed'
@@ -7,12 +7,16 @@ import { Text } from '../../components/atoms/Typography'
 import { StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
 
-export const TokenRadialChart = () => {
+export const TokenRadialChart = ({
+  chosenWidth,
+  chosenHeight,
+}: {
+  chosenWidth: number
+  chosenHeight: number
+}): JSX.Element => {
   const { appTheme } = useGeneral()
-  const { intrface, data } = useAnalyticsContext()
-  const { canSeePortfolioVolatility } = intrface
+  const { data } = useAnalyticsContext()
   const { allDataPortfolio } = data
-  const [displayVega, setDisplayVega] = useState(false)
 
   function fetchVega(dataIn: any, theme: 'light' | 'dark') {
     vegaEmbed('#token-radial-chart', {
@@ -24,7 +28,7 @@ export const TokenRadialChart = () => {
       },
       background: 'transparent',
       width: 'container',
-      height: 300,
+      height: chosenHeight,
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -43,26 +47,30 @@ export const TokenRadialChart = () => {
         {
           mark: { type: 'arc', innerRadius: 20, stroke: '#fff' },
         },
-        {
-          mark: { type: 'text', radiusOffset: 10 },
-          encoding: {
-            text: { field: 'symbol' },
-          },
-        },
       ],
       encoding: {
         theta: { field: 'weight', type: 'quantitative', stack: true },
         radius: { field: 'weight', scale: { type: 'sqrt', zero: true, rangeMin: 20 } },
-        color: { field: 'weight', type: 'nominal', legend: null },
+        color: {
+          field: 'symbol',
+          type: 'nominal',
+          legend: {
+            titleColor: theme == 'light' ? 'black' : 'white',
+            labelColor: theme == 'light' ? 'black' : 'white',
+            title: 'Token Portfolio',
+            direction: 'vertical',
+          },
+          sort: { field: 'weight', order: 'descending' },
+        },
+        order: { field: 'weight', type: 'quantitative', sort: 'ascending' },
       },
     })
   }
 
   useEffect(() => {
-    setDisplayVega(true) //TODO ???
     fetchVega(allDataPortfolio, appTheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allDataPortfolio])
+  }, [allDataPortfolio, chosenHeight, chosenWidth, appTheme])
 
   return (
     <Flex gap={10}>

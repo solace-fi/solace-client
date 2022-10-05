@@ -15,7 +15,13 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { StyledDownload } from '../../components/atoms/Icon'
 import sipMath3 from '../../resources/svg/sipmath3.svg'
 
-export const TokenPortfolioHistogram = () => {
+export const TokenPortfolioHistogram = ({
+  chosenWidth,
+  chosenHeight,
+}: {
+  chosenWidth: number
+  chosenHeight: number
+}): JSX.Element => {
   const { appTheme } = useGeneral()
   const { isMobile } = useWindowDimensions()
   const { intrface, data } = useAnalyticsContext()
@@ -23,10 +29,9 @@ export const TokenPortfolioHistogram = () => {
   const { getPortfolioVolatility, allDataPortfolio, portfolioVolatilityData, fetchedSipMathLib } = data
 
   const [rangeValue, setRangeValue] = useState(1000)
-  const [varBar, setVarBar] = useState<number>(0)
+  // const [varBar, setVarBar] = useState<number>(0)
   const var4Bar = useMemo(() => [1 - (10000 - rangeValue) / 10000], [rangeValue])
   const valueOfRiskPercentage = useMemo(() => ((var4Bar[0] - 1) * -100).toFixed(2), [var4Bar])
-  const lossPercentage = useMemo(() => ((varBar - 1) * 100).toFixed(2), [varBar])
 
   const [simPortfolioVolatilityData, setSimPortfolioVolatilityData] = useState<number[]>(portfolioVolatilityData)
   const [simWeights, setSimWeights] = useState<{ name: string; weight: number; sim: any[] }[]>([])
@@ -36,6 +41,25 @@ export const TokenPortfolioHistogram = () => {
   const simWeightTotal = useMemo(() => parseFloat(simWeights.reduce((acc, cur) => acc + cur.weight, 0).toFixed(2)), [
     simWeights,
   ])
+
+  const varBar = useMemo(() => {
+    if (simPortfolioVolatilityData.length == 0) return 0
+    const quantile = (arr: number[], q: number) => {
+      // const sorted = asc(arr); // CAUTION assumed array is sorted
+      const sorted = arr
+      const pos = (sorted.length - 1) * q
+      const base = Math.floor(pos)
+      const rest = pos - base
+      if (sorted[base + 1] !== undefined) {
+        return sorted[base] + rest * (sorted[base + 1] - sorted[base])
+      } else {
+        return sorted[base]
+      }
+    }
+    return quantile(simPortfolioVolatilityData.sort(), var4Bar[0])
+  }, [simPortfolioVolatilityData, var4Bar])
+
+  const lossPercentage = useMemo(() => ((varBar - 1) * 100).toFixed(2), [varBar])
 
   function fetchVega(dataIn: any, theme: 'light' | 'dark', varBar: number) {
     vegaEmbed('#vis2', {
@@ -47,7 +71,7 @@ export const TokenPortfolioHistogram = () => {
       },
       background: 'transparent',
       width: 'container',
-      height: 300,
+      height: chosenHeight - (chosenWidth > 4 ? 80 : 120),
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -237,22 +261,30 @@ export const TokenPortfolioHistogram = () => {
 
   useEffect(() => {
     if (simPortfolioVolatilityData.length == 0 || !canSeePortfolioVolatility || simWeightTotal != 1) return
-    const quantile = (arr: number[], q: number) => {
-      // const sorted = asc(arr); // CAUTION assumed array is sorted
-      const sorted = arr
-      const pos = (sorted.length - 1) * q
-      const base = Math.floor(pos)
-      const rest = pos - base
-      if (sorted[base + 1] !== undefined) {
-        return sorted[base] + rest * (sorted[base + 1] - sorted[base])
-      } else {
-        return sorted[base]
-      }
-    }
-    const varBar = quantile(simPortfolioVolatilityData.sort(), var4Bar[0])
-    setVarBar(varBar)
+    // const quantile = (arr: number[], q: number) => {
+    //   // const sorted = asc(arr); // CAUTION assumed array is sorted
+    //   const sorted = arr
+    //   const pos = (sorted.length - 1) * q
+    //   const base = Math.floor(pos)
+    //   const rest = pos - base
+    //   if (sorted[base + 1] !== undefined) {
+    //     return sorted[base] + rest * (sorted[base + 1] - sorted[base])
+    //   } else {
+    //     return sorted[base]
+    //   }
+    // }
+    // const varBar = quantile(simPortfolioVolatilityData.sort(), var4Bar[0])
+    // setVarBar(varBar)
     fetchVega(simPortfolioVolatilityData, appTheme, varBar)
-  }, [simPortfolioVolatilityData, appTheme, canSeePortfolioVolatility, var4Bar, simWeightTotal])
+  }, [
+    simPortfolioVolatilityData,
+    appTheme,
+    canSeePortfolioVolatility,
+    varBar,
+    simWeightTotal,
+    chosenWidth,
+    chosenHeight,
+  ])
 
   return (
     <Flex gap={10} col={isMobile}>
@@ -280,7 +312,7 @@ export const TokenPortfolioHistogram = () => {
               px={14}
               style={{
                 overflowY: 'auto',
-                height: '300px',
+                height: chosenHeight - 120,
               }}
             >
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
@@ -333,7 +365,7 @@ export const TokenPortfolioHistogram = () => {
               <>
                 <Flex id="vis2" />
                 <Flex col gap={10}>
-                  <Text textAlignCenter t2>
+                  <Text textAlignCenter t2={chosenWidth > 6}>
                     Today there is a {(100 - Number(valueOfRiskPercentage)).toFixed(2)}% chance of the value going down
                     by {Math.abs(Number(lossPercentage))}% or more.
                   </Text>

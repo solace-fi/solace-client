@@ -5,9 +5,9 @@ import { Card } from '../../../components/atoms/Card'
 import { StyledHelpCircle } from '../../../components/atoms/Icon'
 import { Flex, ShadowDiv } from '../../../components/atoms/Layout'
 import { Text } from '../../../components/atoms/Typography'
-import { PortfolioAreaChart2 } from '../PortfolioAreaChart2'
+import { PortfolioAreaChartVega } from '../PortfolioAreaChartVega'
 import { TokenPortfolioAreaChart } from '../TokenPortfolioAreaChart'
-import { TokenWeights1 } from '../TokenWeights1'
+import { TokenWeights } from '../TokenWeights'
 
 export default function AnalyticsCard({
   title,
@@ -27,7 +27,7 @@ export default function AnalyticsCard({
   return (
     <Card shadow width={width} height={height}>
       <Flex gap={8} col>
-        <Flex between gap={8}>
+        <Flex between gap={8} className="dragHandle">
           <Text t3s semibold style={{ whiteSpace: 'nowrap' }}>
             {title}
           </Text>
