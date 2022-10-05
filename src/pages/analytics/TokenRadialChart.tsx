@@ -6,6 +6,7 @@ import { useGeneral } from '../../context/GeneralManager'
 import { Text } from '../../components/atoms/Typography'
 import { StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 export const TokenRadialChart = ({
   chosenWidth,
@@ -15,6 +16,7 @@ export const TokenRadialChart = ({
   chosenHeight: number
 }): JSX.Element => {
   const { appTheme } = useGeneral()
+  const { width } = useWindowDimensions()
   const { data } = useAnalyticsContext()
   const { allDataPortfolio } = data
 
@@ -25,6 +27,7 @@ export const TokenRadialChart = ({
       config: {
         style: { cell: { stroke: 'transparent' } },
         axis: { labelColor: theme == 'light' ? 'black' : 'white' },
+        font: 'Montserrat',
       },
       background: 'transparent',
       width: 'container',
@@ -70,7 +73,7 @@ export const TokenRadialChart = ({
   useEffect(() => {
     fetchVega(allDataPortfolio, appTheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allDataPortfolio, chosenHeight, chosenWidth, appTheme])
+  }, [allDataPortfolio, chosenHeight, chosenWidth, appTheme, width])
 
   return (
     <Flex gap={10}>

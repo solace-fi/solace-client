@@ -22,8 +22,8 @@ export const TokenPortfolioHistogram = ({
   chosenWidth: number
   chosenHeight: number
 }): JSX.Element => {
+  const { width } = useWindowDimensions()
   const { appTheme } = useGeneral()
-  const { isMobile } = useWindowDimensions()
   const { intrface, data } = useAnalyticsContext()
   const { canSeePortfolioVolatility } = intrface
   const { getPortfolioVolatility, allDataPortfolio, portfolioVolatilityData, fetchedSipMathLib } = data
@@ -71,7 +71,7 @@ export const TokenPortfolioHistogram = ({
       },
       background: 'transparent',
       width: 'container',
-      height: chosenHeight - (chosenWidth > 4 ? 80 : 120),
+      height: chosenHeight - (chosenWidth > 4 ? 80 : chosenHeight * 0.7),
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -261,20 +261,7 @@ export const TokenPortfolioHistogram = ({
 
   useEffect(() => {
     if (simPortfolioVolatilityData.length == 0 || !canSeePortfolioVolatility || simWeightTotal != 1) return
-    // const quantile = (arr: number[], q: number) => {
-    //   // const sorted = asc(arr); // CAUTION assumed array is sorted
-    //   const sorted = arr
-    //   const pos = (sorted.length - 1) * q
-    //   const base = Math.floor(pos)
-    //   const rest = pos - base
-    //   if (sorted[base + 1] !== undefined) {
-    //     return sorted[base] + rest * (sorted[base + 1] - sorted[base])
-    //   } else {
-    //     return sorted[base]
-    //   }
-    // }
-    // const varBar = quantile(simPortfolioVolatilityData.sort(), var4Bar[0])
-    // setVarBar(varBar)
+
     fetchVega(simPortfolioVolatilityData, appTheme, varBar)
   }, [
     simPortfolioVolatilityData,
@@ -284,10 +271,11 @@ export const TokenPortfolioHistogram = ({
     simWeightTotal,
     chosenWidth,
     chosenHeight,
+    width,
   ])
 
   return (
-    <Flex gap={10} col={isMobile}>
+    <Flex gap={10} col={4 > chosenWidth}>
       {canSeePortfolioVolatility ? (
         <>
           <Flex col gap={12}>
@@ -312,7 +300,7 @@ export const TokenPortfolioHistogram = ({
               px={14}
               style={{
                 overflowY: 'auto',
-                height: chosenHeight - 120,
+                height: chosenHeight - (chosenWidth > 4 ? 120 : chosenHeight * 0.7),
               }}
             >
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
@@ -360,7 +348,7 @@ export const TokenPortfolioHistogram = ({
               </Button>
             </Flex>
           </Flex>
-          <Flex col widthP={isMobile ? 100 : 75}>
+          <Flex col widthP={chosenWidth < 4 ? 100 : 75}>
             {simWeightTotal == 1 ? (
               <>
                 <Flex id="vis2" />

@@ -32,7 +32,6 @@ export const PremiumsPaidByPeriodChart = ({
   //     : []
 
   const fetchVega = (dataIn: any, theme: 'light' | 'dark') => {
-    console.log(dataIn)
     vegaEmbed('#vis_ppbp', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
       title: { text: 'Premiums Paid By Period', color: theme == 'light' ? 'black' : 'white' },

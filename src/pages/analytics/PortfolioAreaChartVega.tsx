@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react'
 import vegaEmbed from 'vega-embed'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
-import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useAnalyticsContext } from './AnalyticsContext'
 import { calculateMonthlyTicks, xtickLabelFormatter } from '../../utils/chart'
 import { useGeneral } from '../../context/GeneralManager'
@@ -15,7 +14,6 @@ export const PortfolioAreaChartVega = ({
   chosenWidth: number
   chosenHeight: number
 }) => {
-  const { isMobile } = useWindowDimensions()
   const { data } = useAnalyticsContext()
   const { priceHistory30D } = data
   const { appTheme } = useGeneral()
@@ -43,7 +41,7 @@ export const PortfolioAreaChartVega = ({
     return res
   }, [priceHistory30D])
 
-  const fetchVega = (dataIn: any, theme: 'light' | 'dark', isMobile: boolean) => {
+  const fetchVega = (dataIn: any, theme: 'light' | 'dark') => {
     vegaEmbed('#area-chart-2', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
       title: { text: 'Portfolio Value, Last 30 Days', color: theme == 'light' ? 'black' : 'white' },
@@ -54,7 +52,7 @@ export const PortfolioAreaChartVega = ({
       },
       background: 'transparent',
       width: 'container',
-      height: isMobile ? 600 : chosenHeight,
+      height: chosenHeight,
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -87,7 +85,7 @@ export const PortfolioAreaChartVega = ({
             titleColor: theme == 'light' ? 'black' : 'white',
             labelColor: theme == 'light' ? 'black' : 'white',
             title: 'Token Portfolio',
-            orient: isMobile ? 'bottom' : 'right',
+            orient: chosenWidth < 3 ? 'bottom' : 'right',
             direction: 'vertical',
           },
         },
@@ -95,12 +93,12 @@ export const PortfolioAreaChartVega = ({
     })
   }
   useEffect(() => {
-    fetchVega(reformattedData, appTheme, isMobile)
+    fetchVega(reformattedData, appTheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allDataPortfolio, appTheme, isMobile, chosenHeight, chosenWidth, reformattedData])
+  }, [allDataPortfolio, appTheme, chosenHeight, chosenWidth, reformattedData])
 
   return (
-    <Flex col={isMobile}>
+    <Flex>
       <Flex id="area-chart-2" widthP={100} justifyCenter>
         <Text autoAlign>data not available</Text>
       </Flex>

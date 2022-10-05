@@ -21,8 +21,8 @@ export const TokenPriceVolatilityHistogram = ({
   chosenWidth: number
   chosenHeight: number
 }): JSX.Element => {
+  const { width } = useWindowDimensions()
   const { appTheme } = useGeneral()
-  const { isMobile } = useWindowDimensions()
   const { intrface, data } = useAnalyticsContext()
   const { canSeeTokenVolatilities } = intrface
   const { tokenHistogramTickers, fetchedSipMathLib, allDataPortfolio } = data
@@ -80,7 +80,7 @@ export const TokenPriceVolatilityHistogram = ({
       },
       background: 'transparent',
       width: 'container',
-      height: chosenHeight - (chosenWidth > 4 ? 80 : 120),
+      height: chosenHeight - (chosenWidth > 4 ? 80 : chosenHeight * 0.7),
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -197,10 +197,10 @@ export const TokenPriceVolatilityHistogram = ({
     fetchVega(allDataPortfolio[chartDataIndex], appTheme, varBar)
     if (!displayVega) setDisplayVega(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio, canSeeTokenVolatilities, chosenWidth, chosenHeight])
+  }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio, canSeeTokenVolatilities, chosenWidth, chosenHeight, width])
 
   return (
-    <Flex gap={10} col={isMobile || !canSeeTokenVolatilities}>
+    <Flex gap={10} col={chosenWidth < 3 || !canSeeTokenVolatilities}>
       {canSeeTokenVolatilities ? (
         <>
           <Flex col>
@@ -220,7 +220,7 @@ export const TokenPriceVolatilityHistogram = ({
               onClick={(value: string) => setTickerSymbol(value)}
               processName={true}
               customProcessFunction={(value: string) => value.toUpperCase()}
-              customHeight={chosenHeight - 80}
+              customHeight={chosenHeight - (chosenWidth > 4 ? 80 : chosenHeight * 0.6)}
             />
             <Flex around gap={5} mt={10}>
               <img width={40} src={sipMath3} style={{ filter: appTheme == 'dark' ? 'brightness(200%)' : undefined }} />
@@ -230,7 +230,7 @@ export const TokenPriceVolatilityHistogram = ({
               </Button>
             </Flex>
           </Flex>
-          <Flex col widthP={isMobile ? 100 : 75}>
+          <Flex col widthP={chosenWidth < 3 ? 100 : 75}>
             <Flex id="vis" widthP={100} justifyCenter>
               <Text autoAlign>Please select a token to view its volatility</Text>
             </Flex>

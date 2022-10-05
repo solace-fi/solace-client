@@ -182,6 +182,8 @@ failed schema attempt:
             titleColor: theme == 'light' ? 'black' : 'white',
             labelColor: theme == 'light' ? 'black' : 'white',
             title: 'Token Portfolio',
+            orient: chosenWidth < 3 ? 'bottom' : 'right',
+            direction: 'vertical',
           },
         },
       },
