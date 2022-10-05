@@ -6,8 +6,6 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { getWeightsFromBalances, useAnalyticsContext } from './AnalyticsContext'
 // import { calculateMonthlyTicks, xtickLabelFormatter } from '../../utils/chart'
 import { useGeneral } from '../../context/GeneralManager'
-import { TokenSelectionModal } from '../../components/organisms/TokenSelectionModal'
-import { UWP_ADDRESS } from '@solace-fi/sdk-nightly'
 const log = function <T>(v: T): T {
   return console.log(v), v
 }
