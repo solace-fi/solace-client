@@ -45,8 +45,8 @@ export const TokenWeights = ({
   chosenWidth: number
   chosenHeight: number
 }): JSX.Element => {
-  const { width, isMobile } = useWindowDimensions()
-  const { intrface, data } = useAnalyticsContext()
+  const { isMobile } = useWindowDimensions()
+  const { data } = useAnalyticsContext()
   const { fetchedUwpData } = data
   const [weightsAndDates, setWeightsAndDates] = useState<WeightsAndDates>([])
   // TODO: GET CURRENT CHAIN ID AND ONLY DISPLAY / PROCESS THIS ONE

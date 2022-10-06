@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { useAnalyticsContext } from './AnalyticsContext'
@@ -22,7 +22,6 @@ import { TokenWeights } from './TokenWeights'
 import AnalyticsCard from './components/AnalyticsCard'
 
 import { Layout, Responsive, WidthProvider } from 'react-grid-layout'
-import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { BKPT_5, BKPT_4, BKPT_2, BKPT_1 } from '../../constants'
 
 const ResponsiveGridLayout = WidthProvider(Responsive)
@@ -33,7 +32,6 @@ export default function Analytics(): JSX.Element {
 
 export function AnalyticsContent(): JSX.Element {
   const { activeNetwork } = useNetwork()
-  const { width } = useWindowDimensions()
   const { data } = useAnalyticsContext()
   const { gauges } = useVoteContext()
   const { leverageFactor } = gauges
@@ -46,6 +44,7 @@ export function AnalyticsContent(): JSX.Element {
     return Number(latestEpoch.uweAmount) * Number(latestEpoch.uwpValuePerShare) * Number(latestEpoch.uwpPerUwe)
   }, [activeNetwork, fetchedPremiums])
 
+  const ref = useRef<HTMLHeadingElement>(null)
   const rowHeight = 100
   const margin = 10
   const cardPadding = 32
@@ -94,19 +93,19 @@ export function AnalyticsContent(): JSX.Element {
     { i: 'premiums', x: 0, y: 0, w: 1, h: 1, isResizeable: false },
     { i: 'uwpSize', x: 0, y: 1, w: 1, h: 1, isResizeable: false },
     { i: 'leverageFactor', x: 0, y: 2, w: 1, h: 1, isResizeable: false },
-    { i: 'tokenTable', x: 2, y: 1, w: 3, h: 3, minH: 3, maxH: 6, minW: 3, maxW: 4 },
+    { i: 'tokenTable', x: 1, y: 1, w: 3, h: 3, minH: 3, maxH: 6, minW: 3, maxW: 4 },
     { i: 'portfolioAreaChart', x: 4, y: 1, w: 4, h: 4, minH: 4, maxH: 10, minW: 3, maxW: 4 },
-    { i: 'portfolioHistogram', x: 0, y: 6, w: 4, h: 5, minH: 4, maxH: 10, minW: 4, maxW: 4 },
-    { i: 'tokenPriceVolatilityHistogram', x: 0, y: 11, w: 4, h: 5, minH: 4, maxH: 10, minW: 4, maxW: 4 },
+    { i: 'portfolioHistogram', x: 0, y: 6, w: 4, h: 8, minH: 8, maxH: 10, minW: 4, maxW: 4 },
+    { i: 'tokenPriceVolatilityHistogram', x: 0, y: 11, w: 4, h: 8, minH: 8, maxH: 10, minW: 4, maxW: 4 },
     { i: 'tokenRadial', x: 0, y: 16, w: 4, h: 4, minH: 4, maxH: 6, minW: 3, maxW: 4 },
     { i: 'tokenWeights', x: 0, y: 20, w: 4, h: 4, minW: 3, minH: 4, maxH: 10, maxW: 4 },
     { i: 'premiumsChart', x: 0, y: 24, w: 4, h: 4, minW: 2, minH: 2, maxH: 10, maxW: 4 },
   ]
 
   const layoutXXS = [
-    { i: 'premiums', x: 0, y: 0, w: 1, h: 1, isResizeable: false },
-    { i: 'uwpSize', x: 1, y: 0, w: 1, h: 1, isResizeable: false },
-    { i: 'leverageFactor', x: 0, y: 1, w: 1, h: 1, isResizeable: false },
+    { i: 'premiums', x: 0, y: 1, w: 1, h: 1, isResizeable: false },
+    { i: 'uwpSize', x: 0, y: 0, w: 2, h: 1, isResizeable: false },
+    { i: 'leverageFactor', x: 1, y: 1, w: 1, h: 1, isResizeable: false },
     { i: 'tokenTable', x: 2, y: 1, w: 3, h: 5, minH: 3, maxH: 6, minW: 2, maxW: 2 },
     { i: 'portfolioAreaChart', x: 4, y: 1, w: 2, h: 7, minH: 7, maxH: 10, minW: 2, maxW: 2 },
     { i: 'portfolioHistogram', x: 0, y: 6, w: 2, h: 8, minH: 8, maxH: 10, minW: 2, maxW: 2 },
@@ -118,16 +117,18 @@ export function AnalyticsContent(): JSX.Element {
 
   // original { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }
   const breakpointsObj = { lg: BKPT_5, md: BKPT_4, sm: BKPT_2, xs: BKPT_1, xxs: 0 }
+  const gridCols = { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }
 
-  const [currLayouts, setCurrLayouts] = useState<Layout[]>(layoutLG)
+  // const [currLayouts, setCurrLayouts] = useState<Layout[]>(layoutLG)
+  const currLayouts = useRef<Layout[]>(layoutLG)
 
   const handleLayoutChange = useCallback((layout) => {
-    setCurrLayouts(layout)
+    currLayouts.current = layout
   }, [])
 
   const currLayoutsAt = useCallback(
     (i: string) => {
-      const layout = currLayouts.find((l) => l.i === i)
+      const layout = currLayouts.current.find((l) => l.i === i)
       return (
         layout ?? {
           x: 0,
@@ -141,24 +142,6 @@ export function AnalyticsContent(): JSX.Element {
     },
     [currLayouts]
   )
-
-  useEffect(() => {
-    if (width > breakpointsObj.lg) {
-      setCurrLayouts(layoutLG)
-      return
-    } else if (width > breakpointsObj.md) {
-      setCurrLayouts(layoutMD)
-      return
-    } else if (width > breakpointsObj.sm) {
-      setCurrLayouts(layoutSM)
-      return
-    } else if (width > breakpointsObj.xs) {
-      setCurrLayouts(layoutSM)
-      return
-    } else {
-      setCurrLayouts(layoutXXS)
-    }
-  }, [width])
 
   return (
     // <Flex col gap={16} py={16} px={10}>
@@ -217,155 +200,157 @@ export function AnalyticsContent(): JSX.Element {
     //     <PremiumsPaidByPeriodChart />
     //   </Flex>
     // </Flex>
-    <ResponsiveGridLayout
-      className="layout"
-      draggableHandle=".dragHandle"
-      layouts={{ lg: layoutLG, md: layoutMD, sm: layoutSM, xs: layoutXS, xxs: layoutXXS }}
-      breakpoints={breakpointsObj}
-      cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
-      margin={[margin, margin]}
-      resizeHandles={['se']}
-      rowHeight={rowHeight}
-      onLayoutChange={handleLayoutChange}
-    >
-      <div key={'premiums'}>
-        <Card shadow height={currLayoutsAt('premiums').h * rowHeight - cardPadding} className="dragHandle">
-          <Flex gap={8} col>
-            <Text t6s semibold contrast style={{ whiteSpace: 'nowrap' }}>
-              Premiums
-            </Text>
-            <CardSectionValue info>${truncateValue(premiumsUSD, 2)}</CardSectionValue>
-          </Flex>
-        </Card>
-      </div>
-      <div key={'uwpSize'}>
-        <Card shadow height={currLayoutsAt('uwpSize').h * rowHeight - cardPadding} className="dragHandle">
-          <Flex gap={8} col>
-            <Text t6s semibold contrast style={{ whiteSpace: 'nowrap' }}>
-              Underwriting Pool Size
-            </Text>
-            <CardSectionValue info>${truncateValue(formatUnits(uwpValueUSD, 18), 2)} </CardSectionValue>
-          </Flex>
-        </Card>
-      </div>
-      <div key={'leverageFactor'}>
-        <Card shadow height={currLayoutsAt('leverageFactor').h * rowHeight - cardPadding} className="dragHandle">
-          <Flex gap={8} col>
-            <Text t6s semibold contrast style={{ whiteSpace: 'nowrap' }}>
-              Leverage Factor
-            </Text>
-            <CardSectionValue info>{leverageFactor}</CardSectionValue>
-          </Flex>
-        </Card>
-      </div>
-      <div key={'tokenTable'}>
-        <AnalyticsCard
-          title="Underwriting Pool Composition"
-          clarification="Data is delayed by up to 1 hour."
-          height={rowHeight + (currLayoutsAt('tokenTable').h - 1) * (rowHeight + margin) - cardPadding}
-        >
-          <TokenTable
-            chosenHeight={
-              rowHeight + (currLayoutsAt('tokenTable').h - 1) * (rowHeight + margin) - cardPadding - titlePortion
+    <div ref={ref}>
+      <ResponsiveGridLayout
+        className="layout"
+        draggableHandle=".dragHandle"
+        layouts={{ lg: layoutLG, md: layoutMD, sm: layoutSM, xs: layoutXS, xxs: layoutXXS }}
+        breakpoints={breakpointsObj}
+        cols={gridCols}
+        margin={[margin, margin]}
+        resizeHandles={['se']}
+        rowHeight={rowHeight}
+        onLayoutChange={handleLayoutChange}
+      >
+        <div key={'premiums'}>
+          <Card shadow height={currLayoutsAt('premiums').h * rowHeight - cardPadding} className="dragHandle">
+            <Flex gap={8} col>
+              <Text t6s semibold contrast>
+                Premiums
+              </Text>
+              <CardSectionValue info>${truncateValue(premiumsUSD, 2)}</CardSectionValue>
+            </Flex>
+          </Card>
+        </div>
+        <div key={'uwpSize'}>
+          <Card shadow height={currLayoutsAt('uwpSize').h * rowHeight - cardPadding} className="dragHandle">
+            <Flex gap={8} col>
+              <Text t6s semibold contrast>
+                Underwriting Pool Size
+              </Text>
+              <CardSectionValue info>${truncateValue(formatUnits(uwpValueUSD, 18), 2)} </CardSectionValue>
+            </Flex>
+          </Card>
+        </div>
+        <div key={'leverageFactor'}>
+          <Card shadow height={currLayoutsAt('leverageFactor').h * rowHeight - cardPadding} className="dragHandle">
+            <Flex gap={8} col>
+              <Text t6s semibold contrast>
+                Leverage Factor
+              </Text>
+              <CardSectionValue info>{leverageFactor}</CardSectionValue>
+            </Flex>
+          </Card>
+        </div>
+        <div key={'tokenTable'}>
+          <AnalyticsCard
+            title="Underwriting Pool Composition"
+            clarification="Data is delayed by up to 1 hour."
+            height={rowHeight + (currLayoutsAt('tokenTable').h - 1) * (rowHeight + margin) - cardPadding}
+          >
+            <TokenTable
+              chosenHeight={
+                rowHeight + (currLayoutsAt('tokenTable').h - 1) * (rowHeight + margin) - cardPadding - titlePortion
+              }
+            />
+          </AnalyticsCard>
+        </div>
+        <div key={'portfolioAreaChart'}>
+          <AnalyticsCard
+            title="Portfolio Value"
+            clarification="Data is delayed by up to 1 hour."
+            height={rowHeight + (currLayoutsAt('portfolioAreaChart').h - 1) * (rowHeight + margin) - cardPadding}
+          >
+            <PortfolioAreaChartVega
+              chosenWidth={currLayoutsAt('portfolioAreaChart').w}
+              chosenHeight={
+                rowHeight +
+                (currLayoutsAt('portfolioAreaChart').h - 1) * (rowHeight + margin) -
+                cardPadding -
+                titlePortion
+              }
+            />
+          </AnalyticsCard>
+        </div>
+        <div key={'portfolioHistogram'}>
+          <AnalyticsCard
+            title="Underwriting Pool Volatility"
+            clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
+            height={rowHeight + (currLayoutsAt('portfolioHistogram').h - 1) * (rowHeight + margin) - cardPadding}
+          >
+            <TokenPortfolioHistogram
+              chosenWidth={currLayoutsAt('portfolioHistogram').w}
+              chosenHeight={
+                rowHeight +
+                (currLayoutsAt('portfolioHistogram').h - 1) * (rowHeight + margin) -
+                cardPadding -
+                titlePortion
+              }
+            />
+          </AnalyticsCard>
+        </div>
+        <div key={'tokenPriceVolatilityHistogram'}>
+          <AnalyticsCard
+            title="Token Price Volatility"
+            clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
+            height={
+              rowHeight + (currLayoutsAt('tokenPriceVolatilityHistogram').h - 1) * (rowHeight + margin) - cardPadding
             }
-          />
-        </AnalyticsCard>
-      </div>
-      <div key={'portfolioAreaChart'}>
-        <AnalyticsCard
-          title="Portfolio Value"
-          clarification="Data is delayed by up to 1 hour."
-          height={rowHeight + (currLayoutsAt('portfolioAreaChart').h - 1) * (rowHeight + margin) - cardPadding}
-        >
-          <PortfolioAreaChartVega
-            chosenWidth={currLayoutsAt('portfolioAreaChart').w}
-            chosenHeight={
-              rowHeight +
-              (currLayoutsAt('portfolioAreaChart').h - 1) * (rowHeight + margin) -
-              cardPadding -
-              titlePortion
-            }
-          />
-        </AnalyticsCard>
-      </div>
-      <div key={'portfolioHistogram'}>
-        <AnalyticsCard
-          title="Underwriting Pool Volatility"
-          clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
-          height={rowHeight + (currLayoutsAt('portfolioHistogram').h - 1) * (rowHeight + margin) - cardPadding}
-        >
-          <TokenPortfolioHistogram
-            chosenWidth={currLayoutsAt('portfolioHistogram').w}
-            chosenHeight={
-              rowHeight +
-              (currLayoutsAt('portfolioHistogram').h - 1) * (rowHeight + margin) -
-              cardPadding -
-              titlePortion
-            }
-          />
-        </AnalyticsCard>
-      </div>
-      <div key={'tokenPriceVolatilityHistogram'}>
-        <AnalyticsCard
-          title="Token Price Volatility"
-          clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
-          height={
-            rowHeight + (currLayoutsAt('tokenPriceVolatilityHistogram').h - 1) * (rowHeight + margin) - cardPadding
-          }
-        >
-          <TokenPriceVolatilityHistogram
-            chosenWidth={currLayoutsAt('tokenPriceVolatilityHistogram').w}
-            chosenHeight={
-              rowHeight +
-              (currLayoutsAt('tokenPriceVolatilityHistogram').h - 1) * (rowHeight + margin) -
-              cardPadding -
-              titlePortion
-            }
-          />
-        </AnalyticsCard>
-      </div>
-      <div key={'tokenRadial'}>
-        <AnalyticsCard
-          title="Token Price Volatility"
-          clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
-          height={rowHeight + (currLayoutsAt('tokenRadial').h - 1) * (rowHeight + margin) - cardPadding}
-        >
-          <TokenRadialChart
-            chosenWidth={currLayoutsAt('tokenRadial').w}
-            chosenHeight={
-              rowHeight + (currLayoutsAt('tokenRadial').h - 1) * (rowHeight + margin) - cardPadding - titlePortion
-            }
-          />
-        </AnalyticsCard>
-      </div>
-      <div key={'tokenWeights'}>
-        <AnalyticsCard
-          title="Token Weights"
-          clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
-          height={rowHeight + (currLayoutsAt('tokenWeights').h - 1) * (rowHeight + margin) - cardPadding}
-        >
-          <TokenWeights
-            chosenWidth={currLayoutsAt('tokenWeights').w}
-            chosenHeight={
-              rowHeight + (currLayoutsAt('tokenWeights').h - 1) * (rowHeight + margin) - cardPadding - titlePortion
-            }
-          />
-        </AnalyticsCard>
-      </div>
-      <div key={'premiumsChart'}>
-        <AnalyticsCard
-          title="Premiums Paid By Period"
-          clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
-          height={rowHeight + (currLayoutsAt('premiumsChart').h - 1) * (rowHeight + margin) - cardPadding}
-        >
-          <PremiumsPaidByPeriodChart
-            chosenWidth={currLayoutsAt('premiumsChart').w}
-            chosenHeight={
-              rowHeight + (currLayoutsAt('premiumsChart').h - 1) * (rowHeight + margin) - cardPadding - titlePortion
-            }
-          />
-        </AnalyticsCard>
-      </div>
-    </ResponsiveGridLayout>
+          >
+            <TokenPriceVolatilityHistogram
+              chosenWidth={currLayoutsAt('tokenPriceVolatilityHistogram').w}
+              chosenHeight={
+                rowHeight +
+                (currLayoutsAt('tokenPriceVolatilityHistogram').h - 1) * (rowHeight + margin) -
+                cardPadding -
+                titlePortion
+              }
+            />
+          </AnalyticsCard>
+        </div>
+        <div key={'tokenRadial'}>
+          <AnalyticsCard
+            title="Token Price Volatility"
+            clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
+            height={rowHeight + (currLayoutsAt('tokenRadial').h - 1) * (rowHeight + margin) - cardPadding}
+          >
+            <TokenRadialChart
+              chosenWidth={currLayoutsAt('tokenRadial').w}
+              chosenHeight={
+                rowHeight + (currLayoutsAt('tokenRadial').h - 1) * (rowHeight + margin) - cardPadding - titlePortion
+              }
+            />
+          </AnalyticsCard>
+        </div>
+        <div key={'tokenWeights'}>
+          <AnalyticsCard
+            title="Token Weights"
+            clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
+            height={rowHeight + (currLayoutsAt('tokenWeights').h - 1) * (rowHeight + margin) - cardPadding}
+          >
+            <TokenWeights
+              chosenWidth={currLayoutsAt('tokenWeights').w}
+              chosenHeight={
+                rowHeight + (currLayoutsAt('tokenWeights').h - 1) * (rowHeight + margin) - cardPadding - titlePortion
+              }
+            />
+          </AnalyticsCard>
+        </div>
+        <div key={'premiumsChart'}>
+          <AnalyticsCard
+            title="Premiums Paid By Period"
+            clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
+            height={rowHeight + (currLayoutsAt('premiumsChart').h - 1) * (rowHeight + margin) - cardPadding}
+          >
+            <PremiumsPaidByPeriodChart
+              chosenWidth={currLayoutsAt('premiumsChart').w}
+              chosenHeight={
+                rowHeight + (currLayoutsAt('premiumsChart').h - 1) * (rowHeight + margin) - cardPadding - titlePortion
+              }
+            />
+          </AnalyticsCard>
+        </div>
+      </ResponsiveGridLayout>
+    </div>
   )
 }

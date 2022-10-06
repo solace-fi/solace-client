@@ -275,7 +275,7 @@ export const TokenPortfolioHistogram = ({
   ])
 
   return (
-    <Flex gap={10} col={4 > chosenWidth}>
+    <Flex gap={10} col={4 >= chosenWidth}>
       {canSeePortfolioVolatility ? (
         <>
           <Flex col gap={12}>
@@ -348,7 +348,7 @@ export const TokenPortfolioHistogram = ({
               </Button>
             </Flex>
           </Flex>
-          <Flex col widthP={chosenWidth < 4 ? 100 : 75}>
+          <Flex col widthP={100}>
             {simWeightTotal == 1 ? (
               <>
                 <Flex id="vis2" />

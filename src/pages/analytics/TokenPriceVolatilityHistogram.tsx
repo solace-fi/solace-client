@@ -200,7 +200,7 @@ export const TokenPriceVolatilityHistogram = ({
   }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio, canSeeTokenVolatilities, chosenWidth, chosenHeight, width])
 
   return (
-    <Flex gap={10} col={chosenWidth < 3 || !canSeeTokenVolatilities}>
+    <Flex gap={10} col={4 >= chosenWidth || !canSeeTokenVolatilities}>
       {canSeeTokenVolatilities ? (
         <>
           <Flex col>
@@ -230,7 +230,7 @@ export const TokenPriceVolatilityHistogram = ({
               </Button>
             </Flex>
           </Flex>
-          <Flex col widthP={chosenWidth < 3 ? 100 : 75}>
+          <Flex col widthP={100}>
             <Flex id="vis" widthP={100} justifyCenter>
               <Text autoAlign>Please select a token to view its volatility</Text>
             </Flex>

@@ -5,7 +5,6 @@ import { calculateWeeklyTicks, xtickLabelFormatter } from '../../utils/chart'
 import { formatCurrency } from '../../utils/formatting'
 import { useAnalyticsContext } from './AnalyticsContext'
 import { Text } from '../../components/atoms/Typography'
-import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { PremiumsCustomTooltip } from '../../components/organisms/CustomTooltip'
 import { useGeneral } from '../../context/GeneralManager'
 import vegaEmbed from 'vega-embed'
@@ -19,7 +18,6 @@ export const PremiumsPaidByPeriodChart = ({
   chosenHeight: number
 }) => {
   const { appTheme } = useGeneral()
-  const { width, isSmallerMobile } = useWindowDimensions()
   const { activeNetwork } = useNetwork()
   const { data } = useAnalyticsContext()
   const { fetchedPremiums } = data
