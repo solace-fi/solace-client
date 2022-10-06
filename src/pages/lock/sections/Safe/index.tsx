@@ -70,7 +70,7 @@ export default function Safe({
           <Flex center hidden={!batchActionsIsEnabled || width < (rightSidebar ? BKPT_6 : BKPT_5)}>
             {batchActionsIsEnabled && <Checkbox type="checkbox" checked={isChecked} onChange={() => onCheck(index)} />}
           </Flex>
-          <GridOrRow preferredWidth={rightSidebar ? BKPT_7 : BKPT_6}>
+          <GridOrRow preferredWidth={rightSidebar ? BKPT_7 : BKPT_6} preferredRows={1} preferredRowGap={15}>
             <InfoPair
               isSafePreview
               batch={batchActionsIsEnabled}

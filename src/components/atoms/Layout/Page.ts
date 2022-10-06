@@ -99,7 +99,13 @@ export const Flex = styled.div<FlexProps & ButtonProps & GeneralElementProps>`
   ${GeneralElementCss}
 `
 
-export const GridOrRow = styled(Flex)<{ preferredWidth?: number }>`
+export const GridOrRow = styled(Flex)<{
+  preferredWidth?: number
+  preferredRows?: number
+  preferredCols?: number
+  preferredRowGap?: number
+  preferredColGap?: number
+}>`
   display: flex;
   /* gap: 80px; */
   align-items: stretch;
@@ -107,10 +113,10 @@ export const GridOrRow = styled(Flex)<{ preferredWidth?: number }>`
     margin-left: auto;
     margin-right: auto;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(1, 1fr);
-    grid-column-gap: 20px;
-    grid-row-gap: 15px;
+    grid-template-columns: repeat(${(props) => props.preferredCols ?? 3}, 1fr);
+    grid-template-rows: repeat(${(props) => props.preferredRows ?? 3}, 1fr);
+    grid-column-gap: ${(props) => props.preferredColGap ?? 20}px;
+    grid-row-gap: ${(props) => props.preferredRowGap ?? 22}px;
     .items-6 {
       grid-area: 1 / 1 / 3 / 4;
     }
