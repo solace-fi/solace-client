@@ -5,7 +5,13 @@ import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import { useSolaceBalance } from '../../../../hooks/balance/useBalance'
-import { accurateMultiply, convertSciNotaToPrecise, filterAmount, truncateValue } from '../../../../utils/formatting'
+import {
+  accurateMultiply,
+  convertSciNotaToPrecise,
+  filterAmount,
+  formatAmount,
+  truncateValue,
+} from '../../../../utils/formatting'
 import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
@@ -49,25 +55,25 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
 
   const accordionRef = useRef<HTMLDivElement>(null)
 
-  const [stakeInputValue, setStakeInputValue] = React.useState('0')
+  const [stakeInputValue, setStakeInputValue] = React.useState('')
   const [stakeRangeValue, setStakeRangeValue] = React.useState('0')
-  const [lockInputValue, setLockInputValue] = React.useState('0')
+  const [lockInputValue, setLockInputValue] = React.useState('')
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     stakeRangeValue,
-    latestBlock ? latestBlock.timestamp + parseInt(lockInputValue) * 86400 : 0
+    latestBlock ? latestBlock.timestamp + parseInt(formatAmount(lockInputValue)) * 86400 : 0
   )
 
   const callCreateLock = async () => {
     if (!latestBlock || !account) return
-    const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
-    await createLock(account, parseUnits(stakeInputValue, 18), BigNumber.from(seconds))
+    const seconds = latestBlock.timestamp + parseInt(formatAmount(lockInputValue)) * 86400
+    await createLock(account, parseUnits(formatAmount(stakeInputValue), 18), BigNumber.from(seconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callCreateLock', err, FunctionName.CREATE_LOCK))
   }
 
   /*            STAKE INPUT & RANGE HANDLERS             */
   const stakeInputOnChange = (value: string) => {
-    const filtered = filterAmount(value, stakeInputValue)
+    const filtered = filterAmount(value, formatAmount(stakeInputValue))
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
     setStakeRangeValue(accurateMultiply(filtered, 18))
     setStakeInputValue(filtered)
@@ -187,19 +193,19 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     />
                   </div>
                   <StyledSlider
-                    value={lockInputValue}
+                    value={parseInt(formatAmount(lockInputValue))}
                     onChange={(e) => lockRangeOnChange(e.target.value)}
                     min={0}
                     max={DAYS_PER_YEAR * 4}
                   />
                   {
-                    <SmallBox transparent collapse={!lockInputValue || lockInputValue == '0'} m={0} p={0}>
+                    <SmallBox transparent collapse={parseInt(formatAmount(lockInputValue)) == 0} m={0} p={0}>
                       <Text
                         style={{
                           fontWeight: 500,
                         }}
                       >
-                        Lock End Date: {getExpiration(parseInt(lockInputValue))}
+                        Lock End Date: {getExpiration(parseInt(formatAmount(lockInputValue)))}
                       </Text>
                     </SmallBox>
                   }
@@ -211,7 +217,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 secondary
                 info
                 noborder
-                disabled={!isAppropriateAmount(stakeInputValue, 18, parseUnits(solaceBalance, 18))}
+                disabled={!isAppropriateAmount(formatAmount(stakeInputValue), 18, parseUnits(solaceBalance, 18))}
                 onClick={callCreateLock}
               >
                 Stake

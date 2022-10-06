@@ -14,7 +14,7 @@ import { useProvider } from '../../../../context/ProviderManager'
 import { Text } from '../../../../components/atoms/Typography'
 import { getDateStringWithMonthName } from '../../../../utils/time'
 import { StyledForm } from '../../atoms/StyledForm'
-import { truncateValue } from '../../../../utils/formatting'
+import { formatAmount, truncateValue } from '../../../../utils/formatting'
 import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { Label } from '../../molecules/InfoPair'
@@ -37,16 +37,17 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
 
   const extendableDays = useMemo(() => Math.floor(DAYS_PER_YEAR * 4 - lockTimeInSeconds / 86400), [lockTimeInSeconds])
 
-  const [inputValue, setInputValue] = React.useState('0')
+  const [inputValue, setInputValue] = React.useState('')
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     lock.unboostedAmount.toString(),
-    lockEnd + parseInt(!inputValue ? '0' : inputValue) * 86400
+    lockEnd + parseInt(formatAmount(inputValue)) * 86400
   )
 
   const callExtendLock = async () => {
-    if (!latestBlock || !inputValue || inputValue == '0') return
+    if (!latestBlock || parseInt(formatAmount(inputValue)) == 0) return
     const newEndDateInSeconds =
-      lockEnd + (maxSelected ? DAYS_PER_YEAR * 4 * 86400 - lockTimeInSeconds : parseInt(inputValue) * 86400)
+      lockEnd +
+      (maxSelected ? DAYS_PER_YEAR * 4 * 86400 - lockTimeInSeconds : parseInt(formatAmount(inputValue)) * 86400)
     await extendLock(lock.xsLockID, BigNumber.from(newEndDateInSeconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callExtendLock', err, FunctionName.EXTEND_LOCK))
@@ -91,7 +92,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
               setMax={setMax}
             />
             <StyledSlider
-              value={inputValue}
+              value={parseInt(formatAmount(inputValue))}
               onChange={(e) => rangeOnChange(e.target.value)}
               min={0}
               max={extendableDays}
@@ -146,7 +147,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
         </Flex>
         <Text>
           Lockup End Date:{' '}
-          {getDateStringWithMonthName(new Date((lockEnd + parseInt(!inputValue ? '0' : inputValue) * 86400) * 1000))}
+          {getDateStringWithMonthName(new Date((lockEnd + parseInt(formatAmount(inputValue)) * 86400) * 1000))}
         </Text>
         <Button
           pl={14}
@@ -155,7 +156,8 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
           info
           noborder
           disabled={
-            !inputValue || inputValue == '0' || parseInt(inputValue) + lockTimeInSeconds / 86400 > DAYS_PER_YEAR * 4
+            parseInt(formatAmount(inputValue)) == 0 ||
+            parseInt(inputValue) + lockTimeInSeconds / 86400 > DAYS_PER_YEAR * 4
           }
           onClick={callExtendLock}
         >

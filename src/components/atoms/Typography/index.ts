@@ -266,7 +266,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.italics && 'font-style: italic;'}
   ${(props) => props.underline && 'text-decoration: underline;'}
 
-  ${(props) => props.lineHeight && `line-height: ${props.lineHeight};`}
+  ${(props) => props.lineHeight && `line-height: ${props.lineHeight}px;`}
   ${(props) => props.lineThrough && 'text-decoration: line-through;'}
 
   ${(props) => (props.analogical ? `color: ${props.theme.typography.analogicalText};` : `color: inherit;`)}
