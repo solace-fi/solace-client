@@ -119,11 +119,25 @@ export function AnalyticsContent(): JSX.Element {
   const breakpointsObj = { lg: BKPT_5, md: BKPT_4, sm: BKPT_2, xs: BKPT_1, xxs: 0 }
   const gridCols = { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }
 
-  // const [currLayouts, setCurrLayouts] = useState<Layout[]>(layoutLG)
   const currLayouts = useRef<Layout[]>(layoutLG)
 
-  const handleLayoutChange = useCallback((layout) => {
-    currLayouts.current = layout
+  const handleLayoutChange = useCallback((layout: Layout[]) => {
+    // some charts will change appearances based on the changed layout and might interfere with other charts, so we need to update them
+    const adjustedLayout = layout
+    for (let i = 0; i < layout.length; i++) {
+      if (
+        (layout[i].i === 'portfolioHistogram' || layout[i].i === 'tokenPriceVolatilityHistogram') &&
+        layout[i].w <= 4
+      ) {
+        // the histograms will be height 8 when width is 4, then all other charts will be moved down by the diff
+        const heightDiff = Math.max(8 - layout[i].h, 0)
+        adjustedLayout[i].h += heightDiff
+        for (let j = i + 1; j < layout.length; j++) {
+          adjustedLayout[j].y += heightDiff
+        }
+      }
+    }
+    currLayouts.current = adjustedLayout
   }, [])
 
   const currLayoutsAt = useCallback(
@@ -144,62 +158,6 @@ export function AnalyticsContent(): JSX.Element {
   )
 
   return (
-    // <Flex col gap={16} py={16} px={10}>
-    //   <Flex>
-    //     <Flex gap={10}>
-    //       <Card shadow widthP={100}>
-    //         <Flex gap={8} col>
-    //           <Text t6s semibold contrast style={{ whiteSpace: 'nowrap' }}>
-    //             Premiums
-    //           </Text>
-    //           <CardSectionValue info>${truncateValue(premiumsUSD, 2)}</CardSectionValue>
-    //         </Flex>
-    //       </Card>
-    //       <Card shadow widthP={100}>
-    //         <Flex gap={8} col>
-    //           <Text t6s semibold contrast style={{ whiteSpace: 'nowrap' }}>
-    //             Underwriting Pool Size
-    //           </Text>
-    //           <CardSectionValue info>${truncateValue(formatUnits(uwpValueUSD, 18), 2)} </CardSectionValue>
-    //         </Flex>
-    //       </Card>
-    //       <Card shadow widthP={100}>
-    //         <Flex gap={8} col>
-    //           <Text t6s semibold contrast style={{ whiteSpace: 'nowrap' }}>
-    //             Leverage Factor
-    //           </Text>
-    //           <CardSectionValue info>{leverageFactor}</CardSectionValue>
-    //         </Flex>
-    //       </Card>
-    //     </Flex>
-    //   </Flex>
-    //   <Flex col gap={16}>
-    //     <AnalyticsCard title="Underwriting Pool Composition" clarification="Data is delayed by up to 1 hour.">
-    //       <TokenTable />
-    //     </AnalyticsCard>
-    //     <AnalyticsCard title="Portfolio Value" clarification="Data is delayed by up to 1 hour.">
-    //       <PortfolioAreaChartVega />
-    //     </AnalyticsCard>
-    //     <AnalyticsCard
-    //       title="Underwriting Pool Volatility"
-    //       clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
-    //     >
-    //       <TokenPortfolioHistogram />
-    //     </AnalyticsCard>
-    //     <AnalyticsCard
-    //       title="Token Price Volatility"
-    //       clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
-    //     >
-    //       <TokenPriceVolatilityHistogram />
-    //     </AnalyticsCard>
-    //   </Flex>
-    //   <Flex col gap={10}>
-    //     <Text t2 semibold>
-    //       Premiums Paid By Period
-    //     </Text>
-    //     <PremiumsPaidByPeriodChart />
-    //   </Flex>
-    // </Flex>
     <div ref={ref}>
       <ResponsiveGridLayout
         className="layout"
