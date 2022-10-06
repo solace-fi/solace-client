@@ -7,7 +7,7 @@ import { Z_TABLE } from '../../constants'
 import { truncateValue } from '../../utils/formatting'
 import { useAnalyticsContext } from './AnalyticsContext'
 
-export const TokenTable = () => {
+export const TokenTable = ({ chosenHeight }: { chosenHeight: number }) => {
   const { data } = useAnalyticsContext()
   const { tokenDetails } = data
 
@@ -35,7 +35,12 @@ export const TokenTable = () => {
   )
 
   return (
-    <Scrollable style={{ padding: '0 10px 0 10px' }} maxDesktopHeight={'50vh'} maxMobileHeight={'50vh'} raised={true}>
+    <Scrollable
+      style={{ padding: '0 10px 0 10px' }}
+      maxDesktopHeight={`${chosenHeight}px`}
+      maxMobileHeight={`${chosenHeight}px`}
+      raised={true}
+    >
       <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
         <TableHead sticky zIndex={Z_TABLE + 1}>
           <TableRow inheritBg>

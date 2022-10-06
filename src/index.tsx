@@ -17,6 +17,10 @@ import VoteManager from './pages/vote/VoteContext'
 import AnalyticsManager from './pages/analytics/AnalyticsContext'
 import BribeManager from './pages/bribe/BribeContext'
 
+import '../node_modules/react-grid-layout/css/styles.css'
+import '../node_modules/react-resizable/css/styles.css'
+import './styles/index.css'
+
 /*
 
 This is the entry point of the web application, where everything is rendered at the root of the document.

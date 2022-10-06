@@ -6,8 +6,6 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { getWeightsFromBalances, useAnalyticsContext } from './AnalyticsContext'
 // import { calculateMonthlyTicks, xtickLabelFormatter } from '../../utils/chart'
 import { useGeneral } from '../../context/GeneralManager'
-import { TokenSelectionModal } from '../../components/organisms/TokenSelectionModal'
-import { UWP_ADDRESS } from '@solace-fi/sdk-nightly'
 const log = function <T>(v: T): T {
   return console.log(v), v
 }
@@ -40,9 +38,15 @@ type WeightsAndDates = WeightsAndDate[]
 //   price: string
 // }
 
-export const TokenWeights1 = () => {
-  const { width, isMobile } = useWindowDimensions()
-  const { intrface, data } = useAnalyticsContext()
+export const TokenWeights = ({
+  chosenWidth,
+  chosenHeight,
+}: {
+  chosenWidth: number
+  chosenHeight: number
+}): JSX.Element => {
+  const { isMobile } = useWindowDimensions()
+  const { data } = useAnalyticsContext()
   const { fetchedUwpData } = data
   const [weightsAndDates, setWeightsAndDates] = useState<WeightsAndDates>([])
   // TODO: GET CURRENT CHAIN ID AND ONLY DISPLAY / PROCESS THIS ONE
@@ -57,6 +61,23 @@ export const TokenWeights1 = () => {
     const weightsAndNames = tokenNames.map((name, i) => ({ [name]: weightsFromBalances[i] }))
     return { timestamp: uwp.timestamp, weights: weightsAndNames }
   })
+
+  const vegaStylizedWeightsAndDates = useMemo(
+    () =>
+      weightsAndDates
+        .map((wad) => {
+          const { timestamp, weights } = wad
+          const vegaStylizedWeights = weights.map((w) => {
+            const ticker = Object.keys(w)[0]
+            const weight = w[ticker]
+            return { ticker, y: weight, timestamp: timestamp * 1000 }
+          })
+          return vegaStylizedWeights
+        })
+        .flat(),
+    [weightsAndDates]
+  )
+
   useEffect(() => {
     _weightsAndDates && setWeightsAndDates(_weightsAndDates)
   }, [fetchedUwpData])
@@ -121,7 +142,7 @@ failed schema attempt:
     }[],
     theme: 'light' | 'dark'
   ) => {
-    vegaEmbed('#token-weights-1', {
+    vegaEmbed('#token-weights', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
       title: { text: 'Token Weights, Last 30 Days', color: theme == 'light' ? 'black' : 'white' },
       config: {
@@ -131,13 +152,12 @@ failed schema attempt:
       },
       background: 'transparent',
       width: 'container',
-      height: 300,
+      height: chosenHeight,
       autosize: {
         type: 'fit',
         contains: 'padding',
         resize: true,
       },
-      // data: { values: { dataIn } },
       data: { values: dataIn },
       mark: { type: 'area', tooltip: true },
       encoding: {
@@ -162,39 +182,16 @@ failed schema attempt:
             titleColor: theme == 'light' ? 'black' : 'white',
             labelColor: theme == 'light' ? 'black' : 'white',
             title: 'Token Portfolio',
+            orient: chosenWidth < 3 ? 'bottom' : 'right',
+            direction: 'vertical',
           },
         },
-        /*         x: {
-          timeUnit: 'yearmonthdate',
-          field: 'timestamp',
-          //   axis: { format: '%Y %M %D' },
-        },
-        y: {
-          aggregate: 'sum',
-          field: 'y',
-        },
-        color: {
-          field: 'ticker',
-          scale: { scheme: 'category20b' },
-        }, */
       },
     })
   }
   useEffect(() => {
-    const vegaStylizedWeightsAndDates = weightsAndDates
-      .map((wad) => {
-        const { timestamp, weights } = wad
-        const vegaStylizedWeights = weights.map((w) => {
-          const ticker = Object.keys(w)[0]
-          const weight = w[ticker]
-          return { ticker, y: weight, timestamp: timestamp * 1000 }
-        })
-        return vegaStylizedWeights
-      })
-      .flat()
-    console.log('vegaStylizedWeightsAndDates', vegaStylizedWeightsAndDates)
     fetchVega(vegaStylizedWeightsAndDates, appTheme)
-  }, [weightsAndDates, appTheme])
+  }, [weightsAndDates, appTheme, vegaStylizedWeightsAndDates, chosenWidth, chosenHeight])
 
   //   // const reformatedData2: any = []
   //   if (weightsAndDates.length > 0) {
@@ -240,7 +237,7 @@ failed schema attempt:
 
   return (
     <Flex gap={10} col={isMobile}>
-      <Flex id="token-weights-1" widthP={100} justifyCenter>
+      <Flex id="token-weights" widthP={100} justifyCenter>
         <Text autoAlign>data not available</Text>
       </Flex>
     </Flex>
