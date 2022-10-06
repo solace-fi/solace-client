@@ -197,6 +197,7 @@ export const SOLACE_TOKEN: ReadTokenData = {
   address: {
     [1]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
     [4]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
+    [5]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
     [42]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
     [137]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
     [250]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
@@ -204,37 +205,5 @@ export const SOLACE_TOKEN: ReadTokenData = {
     [80001]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
     [1313161554]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
     [1313161555]: '0x501ACE0C6DeA16206bb2D120484a257B9F393891',
-  },
-}
-
-export const XSOLACE_TOKEN: ReadTokenData = {
-  constants: {
-    name: 'xsolace',
-    symbol: 'xSOLACE',
-    decimals: 18,
-  },
-  address: {
-    [1]: '0x501ACe802447B1Ed4Aae36EA830BFBde19afbbF9',
-    [4]: '0x501ACe802447B1Ed4Aae36EA830BFBde19afbbF9',
-    [42]: '0x501ACe802447B1Ed4Aae36EA830BFBde19afbbF9',
-    [137]: '0x501ACe802447B1Ed4Aae36EA830BFBde19afbbF9',
-    [250]: '0x501ACe802447B1Ed4Aae36EA830BFBde19afbbF9',
-    [4002]: '0x501ACEF0358fb055027A89AE46387a53C75498e0',
-    [80001]: '0x501ACe802447B1Ed4Aae36EA830BFBde19afbbF9',
-    [1313161554]: '0x501ACe802447B1Ed4Aae36EA830BFBde19afbbF9',
-    [1313161555]: '0x501ACEF0358fb055027A89AE46387a53C75498e0',
-  },
-}
-
-export const XSOLACE_V1_TOKEN: ReadTokenData = {
-  constants: {
-    name: 'xsolace',
-    symbol: 'xSOLACE',
-    decimals: 18,
-  },
-  address: {
-    [1]: '0x501AcE5aC3Af20F49D53242B6D208f3B91cfc411',
-    [4]: '0x501AcE5aC3Af20F49D53242B6D208f3B91cfc411',
-    [42]: '0x501AcE5aC3Af20F49D53242B6D208f3B91cfc411',
   },
 }

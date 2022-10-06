@@ -16,6 +16,12 @@ export const rangeFrom0 = (stop: number): number[] => {
   return arr
 }
 
+export const range = (start: number, stop: number, step = 1): number[] => {
+  const arr = []
+  for (let i = start; i < stop; i += step) arr.push(i)
+  return arr
+}
+
 export const numberify = (number: any): number => {
   if (typeof number == 'number') return number
   if (typeof number == 'string') return parseFloat(number)

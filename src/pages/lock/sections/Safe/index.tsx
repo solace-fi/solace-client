@@ -11,7 +11,6 @@ import LockForm from './LockForm'
 import WithdrawForm from './WithdrawForm'
 import { Tab } from '../../../../constants/enums'
 import { Accordion } from '../../../../components/atoms/Accordion'
-import { LockData } from '@solace-fi/sdk-nightly'
 import { getDateStringWithMonthName, getTimeFromMillis } from '../../../../utils/time'
 import { truncateValue } from '../../../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
@@ -20,6 +19,9 @@ import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensi
 import { Checkbox } from '../../../../components/atoms/Input'
 import { StyledTooltip } from '../../../../components/molecules/Tooltip'
 import { useGeneral } from '../../../../context/GeneralManager'
+import { VoteLockData } from '../../../../constants/types'
+import { useProvider } from '../../../../context/ProviderManager'
+import { ZERO } from '@solace-fi/sdk-nightly'
 
 export default function Safe({
   lock,
@@ -30,7 +32,7 @@ export default function Safe({
   onCheck,
   index,
 }: {
-  lock: LockData
+  lock: VoteLockData
   batchActionsIsEnabled: boolean
   isChecked: boolean
   openedLockId: number | undefined
@@ -40,25 +42,22 @@ export default function Safe({
 }): JSX.Element {
   const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
-  const isOpen = useMemo(() => openedLockId == lock.xsLockID.toNumber(), [lock.xsLockID, openedLockId])
-  const openSafe = () => handleOpenLock(lock.xsLockID.toNumber())
+  const { latestBlock } = useProvider()
+  const isOpen = useMemo(() => openedLockId == lock.lockID.toNumber(), [lock.lockID, openedLockId])
+  const openSafe = () => handleOpenLock(lock.lockID.toNumber())
   const closeSafe = () => handleOpenLock(undefined)
 
-  const unboostedAmount = useMemo(() => formatUnits(lock.unboostedAmount, 18), [lock.unboostedAmount])
-  const boostedValue = useMemo(() => formatUnits(lock.boostedValue, 18), [lock.boostedValue])
-  const pendingRewards = useMemo(() => formatUnits(lock.pendingRewards, 18), [lock.pendingRewards])
+  const amount = useMemo(() => formatUnits(lock.amount, 18), [lock.amount])
 
-  const multiplier = useMemo(
-    () => (parseFloat(unboostedAmount) > 0 ? parseFloat(boostedValue) / parseFloat(unboostedAmount) : 0),
-    [boostedValue, unboostedAmount]
+  const lockTimeLeft = useMemo(
+    () => getTimeFromMillis((latestBlock ? Math.max(lock.end.toNumber() - latestBlock.timestamp, 0) : 0) * 1000),
+    [lock.end, latestBlock]
   )
-  const stringifiedMultiplier = useMemo(() => truncateValue(multiplier, 1), [multiplier])
-  const lockTimeLeft = useMemo(() => getTimeFromMillis(lock.timeLeft.toNumber() * 1000), [lock.timeLeft])
   const safeStatus = useMemo(() => {
-    if (lock.timeLeft.toNumber() > 0) return 'Locked'
-    if (parseFloat(unboostedAmount) > 0) return 'Unlocked'
+    if (latestBlock ? lock.end.toNumber() > latestBlock.timestamp : 0) return lockTimeLeft
+    if (parseFloat(amount) > 0) return 'Unlocked'
     return 'Empty'
-  }, [lock.timeLeft, unboostedAmount])
+  }, [latestBlock, amount, lock.end, lockTimeLeft])
 
   const [activeTab, setActiveTab] = useState(Tab.DEPOSIT)
   return (
@@ -72,7 +71,6 @@ export default function Safe({
             {batchActionsIsEnabled && <Checkbox type="checkbox" checked={isChecked} onChange={() => onCheck(index)} />}
           </Flex>
           <GridOrRow preferredWidth={rightSidebar ? BKPT_7 : BKPT_6}>
-            {/* <Flex stretch gap={90}> */}
             <InfoPair
               isSafePreview
               batch={batchActionsIsEnabled}
@@ -80,21 +78,21 @@ export default function Safe({
               label="Amount"
               desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
             >
-              <CardSectionValue highlight={true} annotation="SOLACE">
-                {truncateValue(unboostedAmount, 4)}
+              <CardSectionValue highlight={true} annotation="UWE">
+                {truncateValue(amount, 4)}
               </CardSectionValue>
             </InfoPair>
             <InfoPair
               isSafePreview
               batch={batchActionsIsEnabled}
               importance="tertiary"
-              label="Status"
+              label="Lock ID"
               desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
             >
-              <CardSectionValue>{safeStatus}</CardSectionValue>
+              <CardSectionValue>#{lock.lockID.toNumber()}</CardSectionValue>
             </InfoPair>
             <StyledTooltip
-              id={`lock-time-left#${lock.xsLockID.toNumber()}`}
+              id={`lock-time-left#${lock.lockID.toNumber()}`}
               tip={`${getDateStringWithMonthName(new Date(lock.end.toNumber() * 1000))}`}
               alwaysShowChildren
             >
@@ -105,20 +103,9 @@ export default function Safe({
                 label="Lock time left"
                 desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
               >
-                <CardSectionValue>{lockTimeLeft}</CardSectionValue>
+                <CardSectionValue>{safeStatus}</CardSectionValue>
               </InfoPair>
             </StyledTooltip>
-            <InfoPair
-              isSafePreview
-              batch={batchActionsIsEnabled}
-              importance="tertiary"
-              label="Rewards"
-              desktop={width > (rightSidebar ? BKPT_6 : BKPT_5)}
-            >
-              <CardSectionValue highlight={parseFloat(pendingRewards) > 0} annotation="SOLACE">
-                {truncateValue(pendingRewards, 4)}
-              </CardSectionValue>
-            </InfoPair>
             <Flex center className="items-1">
               {!batchActionsIsEnabled ? (
                 !isOpen ? (
@@ -141,10 +128,7 @@ export default function Safe({
               )}
             </Flex>
           </GridOrRow>
-          {/* </Flex> */}
         </Flex>
-        {/* Separator */}
-        {/* <div style={{ height: '1px', backgroundColor: '#e6e6e6',  }} /> */}
         {/******************************************************
 				                        SAFE BODY
 				******************************************************/}
@@ -167,7 +151,7 @@ export default function Safe({
                     clickable
                     onClick={() => setActiveTab(Tab.LOCK)}
                   >
-                    {lock.timeLeft.toNumber() > 0 ? 'Reset Lockup' : 'Lockup'}
+                    Extend
                   </Label>
                   <Label
                     importance={activeTab === Tab.WITHDRAW ? 'primary' : 'secondary'}

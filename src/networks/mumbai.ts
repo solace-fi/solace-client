@@ -5,24 +5,8 @@ import { ALCHEMY_POLYGON_API_KEY, POLYGONSCAN_API_KEY } from '../constants'
 import { hexValue } from 'ethers/lib/utils'
 
 import solaceABI from '../constants/abi/SOLACE.json'
-import xSolaceABI from '../constants/abi/xSOLACE.json'
-import bridgeWrapperABI from '../constants/abi/BridgeWrapper.json'
-import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/mumbai'
-import { FRAX_TOKEN } from '../constants/mappings/token'
+import { KEY_ADDRS } from '../constants/addresses/mumbai'
 
-import {
-  xsLocker_ABI,
-  ERC20_ABI,
-  StakingRewardsV2_ABI,
-  CoverPaymentManager_ABI,
-  SolaceCoverProductV3_ABI,
-} from '../constants/abi'
-import {
-  COVER_PAYMENT_MANAGER_ADDRESS,
-  NETWORKS_MAPPING,
-  SOLACE_COVER_PRODUCT_V3_ADDRESS,
-  STAKING_REWARDS_V2_ADDRESS,
-} from '@solace-fi/sdk-nightly'
 const chainId = 80001
 
 export const MumbaiNetwork: NetworkConfig = {
@@ -42,7 +26,7 @@ export const MumbaiNetwork: NetworkConfig = {
     key: String(POLYGONSCAN_API_KEY),
     url: 'https://mumbai.polygonscan.com/',
     apiUrl: 'https://api-testnet.polygonscan.com/',
-    excludedContractAddrs: [KEY_ADDRS.SOLACE, SPECIAL_ADDRS.BSOLACE],
+    excludedContractAddrs: [KEY_ADDRS.SOLACE],
   },
   config: {
     keyContracts: {
@@ -50,42 +34,10 @@ export const MumbaiNetwork: NetworkConfig = {
         addr: KEY_ADDRS.SOLACE,
         abi: solaceABI,
       },
-      xSolace: {
-        addr: KEY_ADDRS.XSOLACE,
-        abi: xSolaceABI.abi,
-      },
-      xsLocker: {
-        addr: KEY_ADDRS.XSLOCKER,
-        abi: xsLocker_ABI,
-      },
-      solaceCoverProductV3: {
-        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
-        abi: SolaceCoverProductV3_ABI,
-      },
-      coverPaymentManager: {
-        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
-        abi: CoverPaymentManager_ABI,
-      },
-      stakingRewardsV2: {
-        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
-        abi: StakingRewardsV2_ABI,
-      },
     },
-    generalFeatures: NETWORKS_MAPPING[chainId].features.general,
-    specialFeatures: {
-      unwrapBridgedSolace: true,
-      solaceBuyLink: `https://app.uniswap.org/#/swap?chain=polygon_mumbai&inputCurrency=${FRAX_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
-    },
-    specialContracts: {
-      bSolace: {
-        addr: SPECIAL_ADDRS.BSOLACE,
-        abi: ERC20_ABI,
-      },
-      bridgeWrapper: {
-        addr: SPECIAL_ADDRS.BRIDGE_WRAPPER,
-        abi: bridgeWrapperABI.abi,
-      },
-    },
+    generalFeatures: { native: false },
+    specialFeatures: {},
+    specialContracts: {},
   },
   metamaskChain: {
     chainId: hexValue(chainId),

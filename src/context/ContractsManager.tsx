@@ -15,11 +15,15 @@ the web application mainly reads the contracts.
 type Contracts = {
   keyContracts: {
     solace?: Contract | null
-    xSolace?: Contract | null
-    xSolaceV1?: Contract | null
-    xsLocker?: Contract | null
-    stakingRewardsV2?: Contract | null
-    xSolaceMigrator?: Contract | null
+    depositHelper?: Contract | null
+    gaugeController?: Contract | null
+    uwLockVoting?: Contract | null
+    uwLocker?: Contract | null
+    uwp?: Contract | null
+    uwe?: Contract | null
+    fluxMegaOracle?: Contract | null
+    solaceMegaOracle?: Contract | null
+    bribeController?: Contract | null
   }
   contractSources: ContractSources[]
 }
@@ -27,11 +31,15 @@ type Contracts = {
 const ContractsContext = createContext<Contracts>({
   keyContracts: {
     solace: undefined,
-    xSolace: undefined,
-    xSolaceV1: undefined,
-    xsLocker: undefined,
-    stakingRewardsV2: undefined,
-    xSolaceMigrator: undefined,
+    depositHelper: undefined,
+    gaugeController: undefined,
+    uwLockVoting: undefined,
+    uwLocker: undefined,
+    uwp: undefined,
+    uwe: undefined,
+    fluxMegaOracle: undefined,
+    solaceMegaOracle: undefined,
+    bribeController: undefined,
   },
   contractSources: [],
 })
@@ -42,25 +50,45 @@ const ContractsProvider: React.FC = (props) => {
   const keyContracts = useMemo(() => activeNetwork.config.keyContracts, [activeNetwork])
 
   const solace = useGetContract(keyContracts.solace)
-  const xSolace = useGetContract(keyContracts.xSolace)
-  const xSolaceV1 = useGetContract(keyContracts.xSolaceV1)
-  const xsLocker = useGetContract(keyContracts.xsLocker)
-  const stakingRewardsV2 = useGetContract(keyContracts.stakingRewardsV2)
-  const xSolaceMigrator = useGetContract(keyContracts.xSolaceMigrator)
+  const depositHelper = useGetContract(keyContracts.depositHelper)
+  const gaugeController = useGetContract(keyContracts.gaugeController)
+  const uwLockVoting = useGetContract(keyContracts.uwLockVoting)
+  const uwLocker = useGetContract(keyContracts.uwLocker)
+  const uwp = useGetContract(keyContracts.uwp)
+  const uwe = useGetContract(keyContracts.uwe)
+  const fluxMegaOracle = useGetContract(keyContracts.fluxMegaOracle)
+  const solaceMegaOracle = useGetContract(keyContracts.solaceMegaOracle)
+  const bribeController = useGetContract(keyContracts.bribeController)
 
   const value = useMemo<Contracts>(
     () => ({
       keyContracts: {
         solace,
-        xSolace,
-        xSolaceV1,
-        xsLocker,
-        stakingRewardsV2,
-        xSolaceMigrator,
+        depositHelper,
+        gaugeController,
+        uwLockVoting,
+        uwLocker,
+        uwp,
+        uwe,
+        fluxMegaOracle,
+        solaceMegaOracle,
+        bribeController,
       },
       contractSources,
     }),
-    [solace, xSolace, xSolaceV1, xsLocker, stakingRewardsV2, xSolaceMigrator, contractSources]
+    [
+      solace,
+      depositHelper,
+      gaugeController,
+      uwLockVoting,
+      uwLocker,
+      uwp,
+      uwe,
+      fluxMegaOracle,
+      bribeController,
+      solaceMegaOracle,
+      contractSources,
+    ]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>

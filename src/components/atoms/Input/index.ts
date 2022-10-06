@@ -78,6 +78,7 @@ export const Search = styled.input`
     cursor: pointer;
   }
   border-radius: 30px;
+  border-color: ${({ theme }) => theme.input.border_color};
   padding: 10px 20px;
   font-family: 'Open Sans', sans-serif;
 `

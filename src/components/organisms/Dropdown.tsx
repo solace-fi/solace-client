@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react'
-import { useCoverageContext } from '../../pages/cover/CoverageContext'
 import { Accordion } from '../atoms/Accordion'
 import { Button, ButtonAppearance } from '../atoms/Button'
 import { InputSectionWrapper, StyledInput } from '../atoms/Input'
@@ -7,6 +6,10 @@ import { Flex } from '../atoms/Layout'
 import { Text } from '../atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
 import { capitalizeFirstLetter } from '../../utils/formatting'
+import { TokenInfo } from '../../constants/types'
+import { formatUnits } from 'ethers/lib/utils'
+import { truncateValue } from '../../utils/formatting'
+import { StyledArrowDropDown } from '../atoms/Icon'
 
 export function processProtocolName(str: string): string {
   // remove hyphen & capitalize first letter of each word
@@ -54,11 +57,6 @@ export function processProtocolName(str: string): string {
     .join(' ')
 }
 
-import { TokenInfo } from '../../constants/types'
-import { formatUnits } from 'ethers/lib/utils'
-import { truncateValue } from '../../utils/formatting'
-import { StyledArrowDropDown } from '../atoms/Icon'
-
 export const DropdownInputSection = ({
   hasArrow,
   icon,
@@ -66,7 +64,8 @@ export const DropdownInputSection = ({
   isOpen,
   value,
   onChange,
-  onClick,
+  onClickDropdown,
+  onClickMax,
   disabled,
   w,
   style,
@@ -76,7 +75,8 @@ export const DropdownInputSection = ({
   hasArrow?: boolean
   value: string | undefined
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  onClick?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onClickDropdown?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onClickMax?: (e: React.ChangeEvent<HTMLInputElement>) => void
   icon?: JSX.Element
   text?: string
   isOpen?: boolean
@@ -117,7 +117,7 @@ export const DropdownInputSection = ({
             height: '32px',
             backgroundColor: appTheme === 'light' ? '#FFFFFF' : '#2a2f3b',
           }}
-          onClick={onClick ?? undefined}
+          onClick={onClickDropdown ?? undefined}
         >
           <Flex center gap={4}>
             {icon && <Text autoAlignVertical>{icon}</Text>}
@@ -148,20 +148,33 @@ export const DropdownInputSection = ({
         }}
         disabled={disabled}
       />
+      {onClickMax && (
+        <Button mr={12} onClick={onClickMax}>
+          MAX
+        </Button>
+      )}
     </InputSectionWrapper>
   )
 }
 
 export const DropdownOptions = ({
+  comparingList,
   searchedList,
   isOpen,
   noneText,
   onClick,
+  processName = true,
+  customProcessFunction,
+  customHeight,
 }: {
+  comparingList?: string[]
   searchedList: { label: string; value: string; icon?: JSX.Element }[]
   isOpen: boolean
   noneText?: string
   onClick: (value: string) => void
+  processName?: boolean
+  customProcessFunction?: (value: string) => string
+  customHeight?: number
 }): JSX.Element => {
   const { appTheme } = useGeneral()
   const gradientStyle = useMemo(
@@ -173,14 +186,14 @@ export const DropdownOptions = ({
     <Accordion
       isOpen={isOpen}
       style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }}
-      customHeight={'380px'}
+      customHeight={`${customHeight ?? 380}px`}
       noBackgroundColor
       thinScrollbar
     >
       <Flex col gap={8} p={12}>
-        {searchedList.map((item) => (
+        {searchedList.map((item, i) => (
           <ButtonAppearance
-            key={item.label}
+            key={i}
             matchBg
             secondary
             noborder
@@ -190,6 +203,7 @@ export const DropdownOptions = ({
             pl={12}
             pr={12}
             onClick={() => onClick(item.value)}
+            disabled={comparingList ? comparingList.includes(item.label) : false}
             style={{ borderRadius: '8px' }}
           >
             <Flex stretch gap={12}>
@@ -197,75 +211,11 @@ export const DropdownOptions = ({
                 {item.icon ?? <Text {...gradientStyle}>{item.label}</Text>}
               </Flex>
               <Text autoAlignVertical t5s bold>
-                {processProtocolName(item.value)}
-              </Text>
-            </Flex>
-          </ButtonAppearance>
-        ))}
-        {searchedList.length === 0 && (
-          <Text t3 textAlignCenter bold>
-            {noneText ?? 'No results found'}
-          </Text>
-        )}
-      </Flex>
-    </Accordion>
-  )
-}
-
-export const DropdownOptionsUnique = ({
-  comparingList,
-  searchedList,
-  isOpen,
-  noneText,
-  onClick,
-}: {
-  comparingList: string[]
-  searchedList: { label: string; value: string; icon?: JSX.Element }[]
-  isOpen: boolean
-  noneText?: string
-  onClick: (value: string) => void
-}): JSX.Element => {
-  const { appTheme } = useGeneral()
-  const gradientStyle = useMemo(
-    () =>
-      appTheme == 'light' ? { techygradient: true, warmgradient: false } : { techygradient: false, warmgradient: true },
-    [appTheme]
-  )
-
-  return (
-    <Accordion
-      isOpen={isOpen}
-      style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }}
-      customHeight={'280px'}
-      noBackgroundColor
-      thinScrollbar
-    >
-      <Flex col gap={8} px={12}>
-        {searchedList.map((item) => (
-          <ButtonAppearance
-            key={item.label}
-            matchBg
-            secondary
-            noborder
-            height={37}
-            pt={10.5}
-            pb={10.5}
-            pl={12}
-            pr={12}
-            onClick={() => onClick(item.value)}
-            disabled={comparingList.includes(item.label)}
-            style={{ borderRadius: '8px' }}
-          >
-            <Flex stretch gap={12}>
-              <Flex gap={8} itemsCenter>
-                {item.icon ?? (
-                  <Text {...gradientStyle} bold>
-                    {item.label}
-                  </Text>
-                )}
-              </Flex>
-              <Text autoAlignVertical t5s bold>
-                {processProtocolName(item.value)}
+                {processName
+                  ? customProcessFunction
+                    ? customProcessFunction(item.value)
+                    : processProtocolName(item.value)
+                  : item.value}
               </Text>
             </Flex>
           </ButtonAppearance>
@@ -284,12 +234,16 @@ export const BalanceDropdownOptions = ({
   searchedList,
   isOpen,
   noneText,
+  ignorePrice,
   onClick,
+  comparingList,
 }: {
   searchedList: TokenInfo[]
   isOpen: boolean
   noneText?: string
-  onClick: (value: string) => void
+  ignorePrice?: boolean
+  comparingList?: string[]
+  onClick?: (value: string) => void
 }): JSX.Element => {
   const { appTheme } = useGeneral()
   const gradientStyle = useMemo(
@@ -301,15 +255,16 @@ export const BalanceDropdownOptions = ({
   return (
     <Accordion isOpen={isOpen} style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }} customHeight={'380px'}>
       <Flex col gap={8} p={12}>
-        {searchedList.map((item) => (
+        {searchedList.map((item, i) => (
           <ButtonAppearance
-            key={item.address}
+            key={i}
             py={16}
             widthP={100}
             matchBg
             secondary
             noborder
-            onClick={() => onClick(item.address)}
+            onClick={() => (onClick ? onClick(item.address) : undefined)}
+            disabled={comparingList ? comparingList.includes(item.address.toLowerCase()) : false}
           >
             <Flex stretch between pl={16} pr={16}>
               <Flex gap={8} itemsCenter>
@@ -317,9 +272,9 @@ export const BalanceDropdownOptions = ({
                 <Text {...gradientStyle}>{item.symbol}</Text>
               </Flex>
               <Text autoAlignVertical>
-                {item.price > 0
+                {item.price > 0 && !ignorePrice
                   ? `~$${truncateValue(parseFloat(formatUnits(item.balance, item.decimals)) * item.price, 2)}`
-                  : `${truncateValue(formatUnits(item.balance, item.decimals), 2)} ${item.symbol}`}
+                  : `${truncateValue(formatUnits(item.balance, item.decimals), 2)}`}
               </Text>
             </Flex>
           </ButtonAppearance>

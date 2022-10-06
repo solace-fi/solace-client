@@ -1,12 +1,12 @@
 /* import packages */
-import React, { Fragment, useMemo, useState } from 'react'
+import React, { Fragment, useMemo } from 'react'
 import { useLocation } from 'react-router'
 
 /* import managers */
 import { useGeneral } from '../../context/GeneralManager'
 
 /* import constants */
-import { BKPT_2, BKPT_3, BKPT_4, BKPT_NAVBAR, Z_NAV } from '../../constants'
+import { BKPT_3, BKPT_4, Z_NAV } from '../../constants'
 
 /* import components */
 import { ItemText, ItemList } from '../atoms/Navbar'
@@ -19,8 +19,8 @@ import {
   StyledTwitter,
   StyledWork,
   StyledLockFile,
-  StyledArrowDropDown,
   StyledHelpCircle,
+  StyledDocumentText,
 } from '../atoms/Icon'
 import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
@@ -36,27 +36,28 @@ import AlchemyBadgeDark from '../../resources/svg/alchemy-badge-dark.svg'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
-import { Accordion } from '../atoms/Accordion'
 import { NavLink } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import { BaseModalProps, FadeInAnimation } from '../atoms/Modal'
 import { LogoBase } from '../atoms/Logo'
 import whiteLogo from '../../resources/svg/solace-logo-white.svg'
+import { ThinScrollbarCss } from '../atoms/Scrollbar/ThinScrollbar'
+import { PageInfo } from '../../constants/types'
 
-interface CollapsibleNavbar {
-  show: boolean
-  tabs: {
-    collapsibleName: string
-    pages: {
-      pageName: string
-      to: string
-      newTab?: boolean
-    }[]
-  }[]
-}
+const NavItemList = styled.ul`
+  width: 100%;
+  padding: 0;
+  margin: 0;
+`
+
+const NavItemText = styled.li`
+  display: flex;
+  list-style: none;
+  line-height: 40px;
+`
 
 const LeftAppNav = styled.div<{ shouldShow: boolean }>`
-  background: ${({ theme }) => theme.body.bg_color};
+  background: ${({ theme }) => theme.body.layout_bg_color};
   display: flex;
   position: fixed;
   overflow: auto;
@@ -64,13 +65,15 @@ const LeftAppNav = styled.div<{ shouldShow: boolean }>`
   bottom: 0;
   z-index: ${Z_NAV};
   ${(props) => (props.shouldShow ? `left: 0%; transition: 350ms;` : `left: -100%; transition: 350ms;`)};
+  ${ThinScrollbarCss}
+  overflow-x: hidden;
 `
-export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ show, tabs }) => {
+
+export const InfoSideNavbar = ({ show, pages }: { show: boolean; pages: PageInfo[] }): JSX.Element => {
   const { appTheme, rightSidebar } = useGeneral()
   const location = useLocation()
   const { width } = useWindowDimensions()
   const lightText = useMemo(() => location.pathname == '/', [location])
-  const [openTab, setOpenTab] = useState<string>('')
 
   const widthThreshold = useMemo(() => width > (rightSidebar ? BKPT_4 : BKPT_3), [width, rightSidebar])
 
@@ -92,60 +95,66 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ show, tabs }) => {
             <MiniLogo location={location} mb={33} style={{ marginLeft: 'auto', marginRight: 'auto' }} />
           </>
         )}
-        <ItemList>
-          {tabs.map((t, i) => (
-            <Flex col key={i} mb={16}>
-              <Button
-                p={0}
-                nohover
-                noborder
-                style={{ cursor: 'pointer', justifyContent: widthThreshold ? 'left' : 'center', minHeight: 'unset' }}
-                onClick={() => setOpenTab(openTab != t.collapsibleName ? t.collapsibleName : '')}
-              >
-                <Flex>
-                  <Text t3 light={lightText} bold>
-                    {t.collapsibleName}
-                  </Text>
-                  <Text autoAlignVertical light={lightText}>
-                    <StyledArrowDropDown
-                      style={{ transform: openTab == t.collapsibleName ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                      size={18}
-                    />
-                  </Text>
-                </Flex>
-              </Button>
-              <Accordion
-                key={i}
-                isOpen={openTab == t.collapsibleName}
-                noBackgroundColor
-                noScroll
-                openSpeed={700}
-                closeSpeed={0}
-              >
-                <Flex col mt={3}>
-                  {t.pages.map((p, i) => (
-                    <ItemText key={i} style={{ height: '25px', justifyContent: widthThreshold ? 'inherit' : 'center' }}>
-                      {p.newTab ? (
-                        <HyperLink href={p.to} target="_blank" rel="noopener noreferrer">
-                          <TextSpan t4 light={lightText}>
-                            {p.pageName}
-                          </TextSpan>
-                        </HyperLink>
-                      ) : (
-                        <HyperLink href={p.to}>
-                          <TextSpan t4 light={lightText}>
-                            {p.pageName}
-                          </TextSpan>
-                        </HyperLink>
-                      )}
-                    </ItemText>
-                  ))}
-                </Flex>
-              </Accordion>
-            </Flex>
-          ))}
-        </ItemList>
-        <div style={{ flex: '1 1' }}></div>
+        <Flex col>
+          <NavItemList>
+            {pages.map((item, index) => {
+              return (
+                <NavLink to={item.to} key={index}>
+                  <NavItemText
+                    style={{
+                      cursor: 'pointer',
+                      justifyContent: widthThreshold ? 'left' : 'center',
+                      minHeight: 'unset',
+                    }}
+                  >
+                    <TextSpan
+                      t3
+                      warmgradient={location.pathname == item.to && appTheme == 'dark'}
+                      techygradient={location.pathname == item.to && appTheme == 'light'}
+                    >
+                      {item.name}
+                    </TextSpan>
+                  </NavItemText>
+                </NavLink>
+              )
+            })}
+          </NavItemList>
+        </Flex>
+        <div style={{ flex: '1 1', padding: '10px 0' }}></div>
+        <Flex col marginAuto gap={10}>
+          <StyledNavTooltip id={'jobs-nav'} tip={`We\'re hiring!`}>
+            <HyperLink
+              href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <TextSpan t3s light={lightText} bold>
+                {widthThreshold ? `We\'re hiring!` : <StyledWork size={30} />}
+              </TextSpan>
+            </HyperLink>
+          </StyledNavTooltip>
+          <StyledNavTooltip id={'docs-nav'} tip={`Docs`}>
+            <HyperLink href={'https://docs.solace.fi/'} target="_blank" rel="noopener noreferrer">
+              <TextSpan t3s light={lightText}>
+                {widthThreshold ? `Docs` : <StyledDocumentText size={30} />}
+              </TextSpan>
+            </HyperLink>
+          </StyledNavTooltip>
+          <StyledNavTooltip id={'help-nav'} tip={`Help & Support`}>
+            <HyperLink href={'https://discord.gg/7v8qsyepfu'} target="_blank" rel="noopener noreferrer">
+              <TextSpan t3s light={lightText}>
+                {widthThreshold ? `Help & Support` : <StyledHelpCircle size={30} />}
+              </TextSpan>
+            </HyperLink>
+          </StyledNavTooltip>
+          {/* <StyledNavTooltip id={'terms-nav'} tip={'Terms & Conditions'}>
+            <NavLink to={'/terms'}>
+              <TextSpan t3s light={lightText}>
+                {widthThreshold ? 'Terms & Conditions' : <StyledLockFile size={30} />}
+              </TextSpan>
+            </NavLink>
+          </StyledNavTooltip> */}
+        </Flex>
         <Flex col marginAuto gap={10}>
           {widthThreshold ? (
             <ItemText jc={'space-between'} style={{ padding: '4px 0' }}>
@@ -339,13 +348,13 @@ export const MenuGradientBg = styled.div<BaseModalProps>`
     radial-gradient(ellipse 100% 200% at 0 100%, rgba(240, 77, 66, 1) 10%, rgba(240, 77, 66, 0) 100%);
 `
 
-export const MobileInfoSideNavbar: React.FC<
-  CollapsibleNavbar & { show: boolean; setShow: (show: boolean) => void }
-> = ({ show, setShow, tabs }) => {
-  const { appTheme, rightSidebar } = useGeneral()
-  const location = useLocation()
+export const MobileInfoSideNavbar: React.FC<{ show: boolean; setShow: (show: boolean) => void; pages: PageInfo[] }> = ({
+  show,
+  setShow,
+  pages,
+}) => {
+  const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
-  const [openTab, setOpenTab] = useState<string>('')
 
   const widthThreshold = useMemo(() => (rightSidebar ? width > BKPT_4 : width > BKPT_3), [width, rightSidebar])
 
@@ -371,45 +380,55 @@ export const MobileInfoSideNavbar: React.FC<
                     <img src={whiteLogo} alt="Solace | Decentralized Coverage Protocol" />
                   </LogoBase>
                 </Flex>
-                {tabs.map((t, i) => (
-                  <Flex col key={i} mt={15} mb={15}>
-                    <Button
-                      p={0}
-                      nohover
-                      noborder
-                      style={{ cursor: 'pointer', justifyContent: widthThreshold ? 'left' : 'center' }}
-                      onClick={() => setOpenTab(openTab != t.collapsibleName ? t.collapsibleName : '')}
-                    >
-                      <Text t3 light>
-                        {t.collapsibleName}
-                      </Text>
-                    </Button>
-                    <Accordion
-                      key={i}
-                      isOpen={openTab == t.collapsibleName}
-                      noBackgroundColor
-                      noScroll
-                      openSpeed={700}
-                      closeSpeed={0}
-                    >
-                      {t.pages.map((p, i) => (
-                        <ItemText
-                          key={i}
-                          style={{ height: '25px', justifyContent: widthThreshold ? 'inherit' : 'center' }}
-                        >
-                          <HyperLink href={p.to} target="_blank" rel="noopener noreferrer">
-                            <TextSpan t4 light>
-                              {p.pageName}
-                            </TextSpan>
-                          </HyperLink>
-                        </ItemText>
-                      ))}
-                    </Accordion>
-                  </Flex>
-                ))}
+                {pages.map((t, index) => {
+                  return (
+                    <Flex col key={index} my={10} itemsCenter>
+                      <NavItemText>
+                        <NavLink to={t.to}>
+                          <Button
+                            p={0}
+                            nohover
+                            noborder
+                            style={{ cursor: 'pointer', justifyContent: widthThreshold ? 'left' : 'center' }}
+                            onClick={() => setShow(false)}
+                          >
+                            <Text t3 light>
+                              {t.name}
+                            </Text>
+                          </Button>
+                        </NavLink>
+                      </NavItemText>
+                    </Flex>
+                  )
+                })}
               </ItemList>
               <Flex col style={{ margin: '0 auto 30px' }}>
-                <ItemText jc={'space-between'} style={{ padding: '4px 0', gap: '20px' }}>
+                <ItemText style={{ height: '25px', justifyContent: 'center' }}>
+                  <HyperLink
+                    href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <TextSpan t3s light bold>
+                      {`We\'re hiring!`}
+                    </TextSpan>
+                  </HyperLink>
+                </ItemText>
+                <ItemText style={{ height: '25px', justifyContent: 'center' }}>
+                  <HyperLink href={'https://docs.solace.fi/'} target="_blank" rel="noopener noreferrer">
+                    <TextSpan t3s light bold>
+                      {`Docs`}
+                    </TextSpan>
+                  </HyperLink>
+                </ItemText>
+                {/* <ItemText style={{ height: '25px', justifyContent: 'center' }}>
+                  <NavLink to={'/terms'} onClick={() => setShow(false)}>
+                    <TextSpan t3s light>
+                      {'Terms & Conditions'}
+                    </TextSpan>
+                  </NavLink>
+                </ItemText> */}
+                <ItemText jc={'space-between'} style={{ padding: '4px 0' }}>
                   <HyperLink
                     href={'https://discord.gg/7v8qsyepfu'}
                     target="_blank"

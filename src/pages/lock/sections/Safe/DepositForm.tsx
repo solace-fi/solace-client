@@ -1,68 +1,137 @@
-import React from 'react'
-import { BigNumber } from 'ethers'
+import React, { useEffect, useMemo, useState } from 'react'
+import { BigNumber, Contract } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
-import { useSolaceBalance } from '../../../../hooks/balance/useBalance'
-import { accurateMultiply, convertSciNotaToPrecise, filterAmount, truncateValue } from '../../../../utils/formatting'
+import {
+  accurateMultiply,
+  convertSciNotaToPrecise,
+  filterAmount,
+  fixed,
+  formatAmount,
+} from '../../../../utils/formatting'
 import InformationBox from '../../components/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
-import { LockData } from '@solace-fi/sdk-nightly'
 import { FunctionName } from '../../../../constants/enums'
-import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 
 import { StyledForm } from '../../atoms/StyledForm'
-import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
+import { Flex } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { Label } from '../../molecules/InfoPair'
-import { GrayBox } from '../../../../components/molecules/GrayBox'
-import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
-import { BKPT_5, BKPT_7 } from '../../../../constants'
-import { Text } from '../../../../components/atoms/Typography'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
+import { VoteLockData } from '../../../../constants/types'
+import { useLockContext } from '../../LockContext'
+import { ERC20_ABI, ZERO } from '@solace-fi/sdk-nightly'
+import { useProvider } from '../../../../context/ProviderManager'
+import { Text } from '../../../../components/atoms/Typography'
+import { StyledArrowDropDown } from '../../../../components/atoms/Icon'
+import { LoaderText } from '../../../../components/molecules/LoaderText'
+import { GrayBox } from '../../../../components/molecules/GrayBox'
+import useDebounce from '@rooks/use-debounce'
+import { useContracts } from '../../../../context/ContractsManager'
+import { useTokenAllowance } from '../../../../hooks/contract/useToken'
+import { useDepositHelper } from '../../../../hooks/lock/useDepositHelper'
 
-export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
-  const { appTheme, rightSidebar } = useGeneral()
-  const solaceBalance = useSolaceBalance()
+export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Element {
+  const { appTheme } = useGeneral()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { increaseLockAmount } = useXSLocker()
   const { account } = useWeb3React()
-  const { width } = useWindowDimensions()
+  const { signer } = useProvider()
+  const { keyContracts } = useContracts()
+  const { depositHelper } = keyContracts
 
-  const [disabled, setDisabled] = React.useState(false)
+  const { isMobile } = useWindowDimensions()
+  const { depositIntoLock, calculateDeposit } = useDepositHelper()
+  const { intrface, paymentCoins, input, locker } = useLockContext()
+  const { tokensLoading } = intrface
+  const { batchBalanceData, coinsOpen, handleCoinsOpen, approveCPM } = paymentCoins
+  const { selectedCoin } = input
+  const { stakeInputValue, stakeRangeValue, handleStakeInputValue, handleStakeRangeValue } = locker
 
-  const [inputValue, setInputValue] = React.useState('0')
-  const [rangeValue, setRangeValue] = React.useState('0')
+  const disabled = false
 
-  const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
-    convertSciNotaToPrecise((parseFloat(lock.unboostedAmount.toString()) + parseFloat(rangeValue)).toString()),
-    lock.end.toNumber()
+  const [equivalentUwe, setEquivalentUwe] = useState<BigNumber>(ZERO)
+
+  const selectedCoinContract = useMemo(
+    () => (selectedCoin ? new Contract(selectedCoin.address, ERC20_ABI, signer) : undefined),
+    [selectedCoin, signer]
   )
 
-  const callIncreaseLockAmount = async () => {
-    if (!account) return
-    await increaseLockAmount(account, lock.xsLockID, parseUnits(inputValue, 18))
+  const depositApproval = useTokenAllowance(
+    selectedCoinContract ?? null,
+    depositHelper?.address ?? null,
+    stakeInputValue && stakeInputValue != '.'
+      ? parseUnits(stakeInputValue, selectedCoin?.decimals ?? 18).toString()
+      : '0'
+  )
+
+  const selectedCoinBalance = useMemo(() => {
+    return (
+      batchBalanceData.find((d) => d.address.toLowerCase() == (selectedCoin?.address ?? '').toLowerCase())?.balance ??
+      ZERO
+    )
+  }, [batchBalanceData, selectedCoin])
+
+  const isAcceptableDeposit = useMemo(() => {
+    if (!selectedCoinBalance) return false
+    return isAppropriateAmount(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18, selectedCoinBalance)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchBalanceData, stakeInputValue, selectedCoin])
+
+  const callDepositIntoLock = async () => {
+    if (!account || !selectedCoinContract) return
+    await depositIntoLock(
+      selectedCoinContract.address,
+      parseUnits(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18),
+      lock.lockID
+    )
       .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callIncreaseLockAmount', err, FunctionName.INCREASE_LOCK_AMOUNT))
+      .catch((err) => handleContractCallError('callDepositIntoLock', err, FunctionName.DEPOSIT_INTO_LOCK))
   }
 
   const inputOnChange = (value: string) => {
-    const filtered = filterAmount(value, inputValue)
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
-    setRangeValue(accurateMultiply(filtered, 18))
-    setInputValue(filtered)
+    const filtered = filterAmount(value, formatAmount(stakeInputValue))
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > (selectedCoin?.decimals ?? 18)) return
+    handleStakeRangeValue(accurateMultiply(filtered, selectedCoin?.decimals ?? 18))
+    handleStakeInputValue(filtered)
   }
 
   const rangeOnChange = (value: string, convertFromSciNota = true) => {
-    setInputValue(formatUnits(BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`), 18))
-    setRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`)
+    handleStakeInputValue(
+      formatUnits(
+        BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`),
+        selectedCoin?.decimals ?? 18
+      )
+    )
+    handleStakeRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`)
   }
 
-  const setMax = () => rangeOnChange(parseUnits(solaceBalance, 18).toString())
+  const setMax = () => rangeOnChange(selectedCoinBalance.toString())
+
+  const getConversion = useDebounce(async () => {
+    if (selectedCoin) {
+      const res = await calculateDeposit(
+        selectedCoin.address,
+        parseUnits(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18)
+      )
+      setEquivalentUwe(res)
+    }
+  }, 400)
+
+  useEffect(() => {
+    getConversion()
+  }, [stakeInputValue, selectedCoin])
+
+  useEffect(() => {
+    if (stakeInputValue.includes('.') && stakeInputValue.split('.')[1]?.length) {
+      if (selectedCoin && selectedCoin.decimals < stakeInputValue.split('.')[1].length) {
+        handleStakeInputValue(fixed(formatAmount(stakeInputValue), selectedCoin.decimals).toString())
+      }
+    }
+  }, [selectedCoin])
 
   return (
     <div
@@ -72,16 +141,44 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
         gap: '30px',
       }}
     >
-      <InformationBox
-        type={InfoBoxType.info}
-        text="Stake additional SOLACE to this safe. Staking harvests rewards for you."
-      />
+      <InformationBox type={InfoBoxType.info} text="Deposit into this lock for voting power." />
       <StyledForm>
-        <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
+        <Flex column={isMobile} gap={30}>
           <Flex column gap={24}>
+            <Flex col>
+              {tokensLoading ? (
+                <LoaderText text={'Loading Tokens'} />
+              ) : (
+                <Button
+                  nohover
+                  noborder
+                  p={8}
+                  style={{
+                    justifyContent: 'center',
+                    height: '32px',
+                    backgroundColor: appTheme === 'light' ? '#FFFFFF' : '#2a2f3b',
+                  }}
+                  onClick={() => handleCoinsOpen(!coinsOpen)}
+                >
+                  <Flex center gap={4}>
+                    <Text autoAlignVertical>
+                      {selectedCoin && (
+                        <img src={`https://assets.solace.fi/${selectedCoin.name.toLowerCase()}`} height={16} />
+                      )}
+                    </Text>
+                    <Text t4>{selectedCoin?.symbol}</Text>
+                    <StyledArrowDropDown
+                      style={{ transform: coinsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                      size={18}
+                    />
+                  </Flex>
+                </Button>
+              )}
+            </Flex>
             <InputSection
+              placeholder={'Amount'}
               tab={Tab.DEPOSIT}
-              value={inputValue}
+              value={stakeInputValue}
               onChange={(e) => inputOnChange(e.target.value)}
               setMax={() =>
                 !disabled
@@ -93,69 +190,74 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
               disabled={disabled}
             />
             <StyledSlider
-              value={rangeValue}
+              value={stakeRangeValue}
               onChange={(e) => rangeOnChange(e.target.value)}
               min={1}
-              max={parseUnits(solaceBalance, 18).toString()}
+              max={selectedCoinBalance.toString()}
               disabled={disabled}
             />
           </Flex>
-          <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
-            <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-              Projected benefits
-            </Label>
+          <Flex column stretch width={isMobile ? 300 : 521}>
             <GrayBox>
               <Flex stretch column>
-                <Flex stretch gap={24}>
-                  <Flex column gap={2}>
-                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                      APR
-                    </Text>
-                    <div
-                      style={
-                        (rightSidebar ? BKPT_7 : BKPT_5) > width
-                          ? { margin: '-4px 0', display: 'block' }
-                          : { display: 'none' }
-                      }
-                    >
-                      &nbsp;
-                    </div>
-                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                      <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
-                    </Text>
-                  </Flex>
-                  <VerticalSeparator />
-                  <Flex column gap={2}>
-                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                      Reward Multiplier
-                    </Text>
-                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                      {projectedMultiplier}x
-                    </Text>
-                  </Flex>
-                  <VerticalSeparator />
-                  <Flex column gap={2}>
-                    <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'} mb={8}>
-                      Yearly Return
-                    </Text>
-                    <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
-                      {truncateValue(formatUnits(projectedYearlyReturns, 18), 4, false)}
-                    </Text>
-                  </Flex>
+                <Flex column gap={10}>
+                  <Text t5s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                    Amount of UWE to be minted on deposit
+                  </Text>
+                  <div style={isMobile ? { display: 'block' } : { display: 'none' }}>&nbsp;</div>
+                  <Text t3s techygradient={appTheme == 'light'} warmgradient={appTheme == 'dark'}>
+                    <Flex>{formatUnits(equivalentUwe, 18)} UWE</Flex>
+                  </Text>
                 </Flex>
               </Flex>
             </GrayBox>
           </Flex>
         </Flex>
-        <Button
-          secondary
-          info
-          noborder
-          disabled={!isAppropriateAmount(inputValue, 18, parseUnits(solaceBalance, 18))}
-          onClick={callIncreaseLockAmount}
-        >
-          Stake
-        </Button>
+        {depositApproval && selectedCoin && (
+          <Button
+            secondary
+            info
+            noborder
+            disabled={!isAcceptableDeposit || !selectedCoin}
+            onClick={callDepositIntoLock}
+          >
+            Stake
+          </Button>
+        )}
+        {!depositApproval && selectedCoin && (
+          <Flex gap={10}>
+            <Button
+              secondary
+              warmgradient
+              noborder
+              disabled={
+                !stakeInputValue ||
+                stakeInputValue == '.' ||
+                parseUnits(stakeInputValue, selectedCoin?.decimals ?? 18).isZero() ||
+                !selectedCoinContract ||
+                !depositHelper
+              }
+              onClick={() =>
+                approveCPM(
+                  depositHelper?.address ?? '',
+                  selectedCoinContract?.address ?? '',
+                  parseUnits(stakeInputValue, selectedCoin?.decimals ?? 18)
+                )
+              }
+            >
+              {`Approve Entered ${selectedCoin?.symbol}`}
+            </Button>
+            <Button
+              secondary
+              warmgradient
+              noborder
+              onClick={() => approveCPM(depositHelper?.address ?? '', selectedCoinContract?.address ?? '')}
+              disabled={!selectedCoinContract || !depositHelper}
+            >
+              {`Approve MAX ${selectedCoin?.symbol}`}
+            </Button>
+          </Flex>
+        )}
       </StyledForm>
     </div>
   )

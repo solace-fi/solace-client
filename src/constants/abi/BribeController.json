@@ -1,0 +1,427 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "governance_", "type": "address" },
+      { "internalType": "address", "name": "registry_", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  { "inputs": [], "name": "ArrayArgumentsLengthMismatch", "type": "error" },
+  { "inputs": [], "name": "BribeTokenNotAdded", "type": "error" },
+  { "inputs": [], "name": "BribesAlreadyProcessed", "type": "error" },
+  { "inputs": [], "name": "CannotBribeForInactiveGauge", "type": "error" },
+  { "inputs": [], "name": "CannotBribeForNonExistentGauge", "type": "error" },
+  { "inputs": [], "name": "CannotBribeWithNonWhitelistedToken", "type": "error" },
+  { "inputs": [], "name": "LastEpochBribesNotProcessed", "type": "error" },
+  { "inputs": [], "name": "LastEpochPremiumsNotCharged", "type": "error" },
+  { "inputs": [], "name": "NoBribesForSelectedGauge", "type": "error" },
+  { "inputs": [], "name": "NoClaimableBribes", "type": "error" },
+  { "inputs": [], "name": "NotOwnerNorDelegate", "type": "error" },
+  {
+    "inputs": [{ "internalType": "string", "name": "contractName", "type": "string" }],
+    "name": "ZeroAddressInput",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "briber", "type": "address" },
+      { "indexed": true, "internalType": "address", "name": "bribeToken", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "bribeAmount", "type": "uint256" }
+    ],
+    "name": "BribeClaimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "briber", "type": "address" },
+      { "indexed": true, "internalType": "uint256", "name": "gaugeID", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "bribeToken", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "bribeAmount", "type": "uint256" }
+    ],
+    "name": "BribeProvided",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "bribeToken", "type": "address" }],
+    "name": "BribeTokenAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "bribeToken", "type": "address" }],
+    "name": "BribeTokenRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "uint256", "name": "epochEndTimestamp", "type": "uint256" }],
+    "name": "BribesProcessed",
+    "type": "event"
+  },
+  { "anonymous": false, "inputs": [], "name": "GovernanceLocked", "type": "event" },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": false, "internalType": "address", "name": "pendingGovernance", "type": "address" }],
+    "name": "GovernancePending",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "oldGovernance", "type": "address" },
+      { "indexed": false, "internalType": "address", "name": "newGovernance", "type": "address" }
+    ],
+    "name": "GovernanceTransferred",
+    "type": "event"
+  },
+  { "anonymous": false, "inputs": [], "name": "IncompleteBribesProcessing", "type": "event" },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "registry", "type": "address" }],
+    "name": "RegistrySet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "token", "type": "address" },
+      { "indexed": true, "internalType": "address", "name": "receiver", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "balance", "type": "uint256" }
+    ],
+    "name": "TokenRescued",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "voter", "type": "address" },
+      { "indexed": true, "internalType": "uint256", "name": "gaugeID", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "votePowerBPS", "type": "uint256" }
+    ],
+    "name": "VoteForBribeAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "voter", "type": "address" },
+      { "indexed": true, "internalType": "uint256", "name": "gaugeID", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "newVotePowerBPS", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "oldVotePowerBPS", "type": "uint256" }
+    ],
+    "name": "VoteForBribeChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "voter", "type": "address" },
+      { "indexed": true, "internalType": "uint256", "name": "gaugeID", "type": "uint256" }
+    ],
+    "name": "VoteForBribeRemoved",
+    "type": "event"
+  },
+  { "inputs": [], "name": "acceptGovernance", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  {
+    "inputs": [{ "internalType": "address", "name": "bribeToken_", "type": "address" }],
+    "name": "addBribeToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  { "inputs": [], "name": "claimBribes", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  {
+    "inputs": [],
+    "name": "gaugeController",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAllGaugesWithBribe",
+    "outputs": [{ "internalType": "uint256[]", "name": "gauges", "type": "uint256[]" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "voter_", "type": "address" }],
+    "name": "getAvailableVotePowerBPS",
+    "outputs": [{ "internalType": "uint256", "name": "availableVotePowerBPS", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getBribeTokenWhitelist",
+    "outputs": [{ "internalType": "address[]", "name": "whitelist", "type": "address[]" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "voter_", "type": "address" }],
+    "name": "getClaimableBribes",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "address", "name": "bribeToken", "type": "address" },
+          { "internalType": "uint256", "name": "bribeAmount", "type": "uint256" }
+        ],
+        "internalType": "struct IBribeController.Bribe[]",
+        "name": "bribes",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getEpochEndTimestamp",
+    "outputs": [{ "internalType": "uint256", "name": "timestamp", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getEpochStartTimestamp",
+    "outputs": [{ "internalType": "uint256", "name": "timestamp", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "briber_", "type": "address" }],
+    "name": "getLifetimeProvidedBribes",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "address", "name": "bribeToken", "type": "address" },
+          { "internalType": "uint256", "name": "bribeAmount", "type": "uint256" }
+        ],
+        "internalType": "struct IBribeController.Bribe[]",
+        "name": "bribes",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "gaugeID_", "type": "uint256" }],
+    "name": "getProvidedBribesForGauge",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "address", "name": "bribeToken", "type": "address" },
+          { "internalType": "uint256", "name": "bribeAmount", "type": "uint256" }
+        ],
+        "internalType": "struct IBribeController.Bribe[]",
+        "name": "bribes",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "voter_", "type": "address" }],
+    "name": "getUnusedVotePowerBPS",
+    "outputs": [{ "internalType": "uint256", "name": "unusedVotePowerBPS", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "gaugeID_", "type": "uint256" }],
+    "name": "getVotesForGauge",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "address", "name": "voter", "type": "address" },
+          { "internalType": "uint256", "name": "votePowerBPS", "type": "uint256" }
+        ],
+        "internalType": "struct IBribeController.VoteForGauge[]",
+        "name": "votes",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "voter_", "type": "address" }],
+    "name": "getVotesForVoter",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "gaugeID", "type": "uint256" },
+          { "internalType": "uint256", "name": "votePowerBPS", "type": "uint256" }
+        ],
+        "internalType": "struct GaugeStructs.Vote[]",
+        "name": "votes",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "governance",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "governanceIsLocked",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "isBribingOpen",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lastTimeBribesProcessed",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  { "inputs": [], "name": "lockGovernance", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  {
+    "inputs": [],
+    "name": "pendingGovernance",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  { "inputs": [], "name": "processBribes", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  {
+    "inputs": [
+      { "internalType": "address[]", "name": "bribeTokens_", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "bribeAmounts_", "type": "uint256[]" },
+      { "internalType": "uint256", "name": "gaugeID_", "type": "uint256" }
+    ],
+    "name": "provideBribes",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "registry",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "bribeToken_", "type": "address" }],
+    "name": "removeBribeToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "voter_", "type": "address" },
+      { "internalType": "uint256", "name": "gaugeID_", "type": "uint256" }
+    ],
+    "name": "removeVoteForBribe",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address[]", "name": "voters_", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "gaugeIDs_", "type": "uint256[]" }
+    ],
+    "name": "removeVotesForBribeForMultipleVoters",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "voter_", "type": "address" },
+      { "internalType": "uint256[]", "name": "gaugeIDs_", "type": "uint256[]" }
+    ],
+    "name": "removeVotesForMultipleBribes",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address[]", "name": "tokens_", "type": "address[]" },
+      { "internalType": "address", "name": "receiver_", "type": "address" }
+    ],
+    "name": "rescueTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "pendingGovernance_", "type": "address" }],
+    "name": "setPendingGovernance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "registry_", "type": "address" }],
+    "name": "setRegistry",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "voter_", "type": "address" },
+      { "internalType": "uint256", "name": "gaugeID_", "type": "uint256" },
+      { "internalType": "uint256", "name": "votePowerBPS_", "type": "uint256" }
+    ],
+    "name": "voteForBribe",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address[]", "name": "voters_", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "gaugeIDs_", "type": "uint256[]" },
+      { "internalType": "uint256[]", "name": "votePowerBPSs_", "type": "uint256[]" }
+    ],
+    "name": "voteForBribeForMultipleVoters",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "voter_", "type": "address" },
+      { "internalType": "uint256[]", "name": "gaugeIDs_", "type": "uint256[]" },
+      { "internalType": "uint256[]", "name": "votePowerBPSs_", "type": "uint256[]" }
+    ],
+    "name": "voteForMultipleBribes",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "votingContract",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

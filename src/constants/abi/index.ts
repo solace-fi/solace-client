@@ -1,22 +1,2 @@
-export {
-  BondTellerErc20_ABI,
-  BondTellerEth_ABI,
-  BondTellerFtm_ABI,
-  BondTellerMatic_ABI,
-  CoverPaymentManager_ABI,
-  ERC20_ABI,
-  SCP_ABI,
-  SolaceCoverProduct_ABI,
-  SolaceCoverProductV2_ABI,
-  SolaceCoverProductV3_ABI,
-  StakingRewards_ABI,
-  StakingRewardsV2_ABI,
-  UniswapV2Pair_ABI,
-  UniswapV3Pool_ABI,
-  Vault_ABI,
-  WETH9_ABI,
-  WFTM_ABI,
-  WMATIC_ABI,
-  xsLocker_ABI,
-} from '@solace-fi/sdk-nightly'
+export { ERC20_ABI, WETH9_ABI, WFTM_ABI, WMATIC_ABI } from '@solace-fi/sdk-nightly'
 export * from '.'

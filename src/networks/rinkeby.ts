@@ -6,20 +6,9 @@ import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 
 /*  core contract abi */
 import solaceABI from '../constants/abi/SOLACE.json'
-import xSolaceABI from '../constants/abi/xSOLACE.json'
-import xSolaceV1ABI from '../constants/abi/xSOLACEV1.json'
-import xSolaceMigratorABI from '../constants/abi/xSolaceMigrator.json'
 
 import { KEY_ADDRS } from '../constants/addresses/rinkeby'
-import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
-import {
-  COVER_PAYMENT_MANAGER_ADDRESS,
-  NETWORKS_MAPPING,
-  SOLACE_COVER_PRODUCT_V3_ADDRESS,
-  STAKING_REWARDS_V2_ADDRESS,
-} from '@solace-fi/sdk-nightly'
-
-import { xsLocker_ABI, SolaceCoverProductV3_ABI, CoverPaymentManager_ABI, StakingRewardsV2_ABI } from '../constants/abi'
+import { WETH9_TOKEN } from '../constants/mappings/token'
 
 const chainId = 4
 
@@ -48,39 +37,9 @@ export const RinkebyNetwork: NetworkConfig = {
         addr: KEY_ADDRS.SOLACE,
         abi: solaceABI,
       },
-      xSolace: {
-        addr: KEY_ADDRS.XSOLACE,
-        abi: xSolaceABI.abi,
-      },
-      xSolaceV1: {
-        addr: KEY_ADDRS.XSOLACE_V1,
-        abi: xSolaceV1ABI,
-      },
-      xsLocker: {
-        addr: KEY_ADDRS.XSLOCKER,
-        abi: xsLocker_ABI,
-      },
-      xSolaceMigrator: {
-        addr: KEY_ADDRS.XSOLACE_MIGRATOR,
-        abi: xSolaceMigratorABI.abi,
-      },
-      solaceCoverProductV3: {
-        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
-        abi: SolaceCoverProductV3_ABI,
-      },
-      coverPaymentManager: {
-        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
-        abi: CoverPaymentManager_ABI,
-      },
-      stakingRewardsV2: {
-        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
-        abi: StakingRewardsV2_ABI,
-      },
     },
-    generalFeatures: { stakingV1: true, ...NETWORKS_MAPPING[chainId].features.general },
-    specialFeatures: {
-      solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
-    },
+    generalFeatures: { native: false },
+    specialFeatures: {},
     specialContracts: {},
   },
   metamaskChain: {

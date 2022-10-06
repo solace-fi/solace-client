@@ -2,27 +2,12 @@ import { Unit } from '../constants/enums'
 import { NetworkConfig } from '../constants/types'
 import AuroraLogo from '../resources/svg/networks/aurora-logo.svg'
 import { hexValue } from 'ethers/lib/utils'
-import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/aurora'
-import { NEAR_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
+import { KEY_ADDRS } from '../constants/addresses/aurora'
+import { WETH9_TOKEN } from '../constants/mappings/token'
 
 import solaceABI from '../constants/abi/SOLACE.json'
-import xSolaceABI from '../constants/abi/xSOLACE.json'
-import bridgeWrapperABI from '../constants/abi/BridgeWrapper.json'
 import { AURORASCAN_API_KEY } from '../constants'
 
-import {
-  xsLocker_ABI,
-  ERC20_ABI,
-  StakingRewardsV2_ABI,
-  CoverPaymentManager_ABI,
-  SolaceCoverProductV3_ABI,
-} from '../constants/abi'
-import {
-  COVER_PAYMENT_MANAGER_ADDRESS,
-  NETWORKS_MAPPING,
-  SOLACE_COVER_PRODUCT_V3_ADDRESS,
-  STAKING_REWARDS_V2_ADDRESS,
-} from '@solace-fi/sdk-nightly'
 const chainId = 1313161554
 
 export const AuroraNetwork: NetworkConfig = {
@@ -41,7 +26,7 @@ export const AuroraNetwork: NetworkConfig = {
     name: 'Aurorascan',
     url: 'https://aurorascan.dev',
     apiUrl: 'https://api.aurorascan.dev',
-    excludedContractAddrs: [KEY_ADDRS.SOLACE, SPECIAL_ADDRS.BSOLACE],
+    excludedContractAddrs: [KEY_ADDRS.SOLACE],
     key: String(AURORASCAN_API_KEY),
   },
   config: {
@@ -50,43 +35,36 @@ export const AuroraNetwork: NetworkConfig = {
         addr: KEY_ADDRS.SOLACE,
         abi: solaceABI,
       },
-      xSolace: {
-        addr: KEY_ADDRS.XSOLACE,
-        abi: xSolaceABI.abi,
+      gaugeController: {
+        addr: KEY_ADDRS.GAUGE_CONTROLLER,
+        abi: null,
       },
-      xsLocker: {
-        addr: KEY_ADDRS.XSLOCKER,
-        abi: xsLocker_ABI,
+      uwLockVoting: {
+        addr: KEY_ADDRS.UWP_LOCK_VOTING,
+        abi: null,
       },
-      solaceCoverProductV3: {
-        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
-        abi: SolaceCoverProductV3_ABI,
+      uwpLocker: {
+        addr: KEY_ADDRS.UWP_LOCKER,
+        abi: null,
       },
-      coverPaymentManager: {
-        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
-        abi: CoverPaymentManager_ABI,
+      uwp: {
+        addr: KEY_ADDRS.UWP,
+        abi: null,
       },
-      stakingRewardsV2: {
-        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
-        abi: StakingRewardsV2_ABI,
+      uwe: {
+        addr: KEY_ADDRS.UWE,
+        abi: null,
+      },
+      fluxMegaOracle: {
+        addr: KEY_ADDRS.FLUX_MEGA_ORACLE,
+        abi: null,
       },
     },
-    generalFeatures: NETWORKS_MAPPING[chainId].features.general,
+    generalFeatures: { native: true },
     specialFeatures: {
-      solaceBuyLink: `https://www.trisolaris.io/#/swap?inputCurrency=${NEAR_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
-      unwrapBridgedSolace: true,
       hardcodedGasPrice: 0.07,
     },
-    specialContracts: {
-      bSolace: {
-        addr: SPECIAL_ADDRS.BSOLACE,
-        abi: ERC20_ABI,
-      },
-      bridgeWrapper: {
-        addr: SPECIAL_ADDRS.BRIDGE_WRAPPER,
-        abi: bridgeWrapperABI.abi,
-      },
-    },
+    specialContracts: {},
     underwritingPoolAddr: '0x501ace27a074471f099fffec008bd1b151c7f7de',
   },
   metamaskChain: {

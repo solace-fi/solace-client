@@ -17,6 +17,7 @@ export const InputSection = ({
   setMax,
   disabled,
   readonly,
+  placeholder,
 }: {
   tab?: Tab.DEPOSIT | Tab.LOCK | Tab.WITHDRAW
   value: string | undefined
@@ -24,6 +25,7 @@ export const InputSection = ({
   setMax?: () => void
   disabled?: boolean
   readonly?: boolean
+  placeholder?: string
 }): JSX.Element => {
   return (
     <InputSectionWrapper>
@@ -32,7 +34,7 @@ export const InputSection = ({
         key="mainInput"
         type="text"
         className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
-        placeholder="0"
+        placeholder={placeholder ?? '0'}
         value={value ?? ''}
         onChange={onChange}
         style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: '100%' }}
@@ -137,7 +139,7 @@ export const GenericInputSection = ({
 
 export const SmallerInputSection = styled.input<{ asideBg?: boolean; theme: Theme }>`
   border-color: ${({ theme }: { theme: Theme }) => theme.separator.bg_color} !important;
-  width: 100% !important;
+  width: 100%;
   height: 36px !important;
   border-radius: 8px !important;
   border-width: 1px !important;
@@ -146,7 +148,7 @@ export const SmallerInputSection = styled.input<{ asideBg?: boolean; theme: Them
   font-size: 12px !important;
   font-family: 'Open Sans', sans-serif !important;
   box-sizing: border-box !important;
-  color: ${({ theme }: { theme: Theme }) => theme.typography.darkText} !important;
+  color: ${({ theme }: { theme: Theme }) => theme.typography.contrastText} !important;
   background-color: ${({ theme }: { theme: Theme }) => theme.v2.raised} !important;
   outline: none !important;
   &:focus,

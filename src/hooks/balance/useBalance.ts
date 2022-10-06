@@ -4,13 +4,10 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useState, useEffect, useRef } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { queryBalance } from '../../utils/contract'
-import { networks, useNetwork } from '../../context/NetworkManager'
+import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
-import { withBackoffRetries } from '../../utils/time'
-import { SOLACE_TOKEN, XSOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
-import { SCP, UnderwritingPoolUSDBalances } from '@solace-fi/sdk-nightly'
+import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { useWeb3React } from '@web3-react/core'
-import { NetworkConfig } from '../../constants/types'
 import { BigNumber, Contract } from 'ethers'
 import { ERC20_ABI } from '../../constants/abi'
 
@@ -18,7 +15,7 @@ export const useNativeTokenBalance = (): string => {
   const { provider } = useProvider()
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const [balance, setBalance] = useState<string>('0')
   const running = useRef(false)
 
@@ -36,55 +33,16 @@ export const useNativeTokenBalance = (): string => {
       }
     }
     getNativeTokenBalance()
-  }, [activeNetwork, account, version])
+  }, [activeNetwork, account, positiveVersion])
 
   return balance
-}
-
-export const useScpBalance = (): string => {
-  const { account } = useWeb3React()
-  const { activeNetwork } = useNetwork()
-  const { provider } = useProvider()
-  const { version } = useCachedData()
-  const [scpBalance, setScpBalance] = useState<string>('0')
-  const scpObj = useMemo(
-    () => (activeNetwork.config.generalFeatures.coverageV3 ? new SCP(activeNetwork.chainId, provider) : undefined),
-    [activeNetwork, provider]
-  )
-
-  const getScpBalance = async () => {
-    if (!account || !scpObj?.scp) return
-    try {
-      const balance = await scpObj.scp.balanceOf(account)
-      const formattedBalance = formatUnits(balance, 18)
-      setScpBalance(formattedBalance)
-    } catch (err) {
-      console.log('getScpBalance', err)
-    }
-  }
-
-  useEffect(() => {
-    if (!account || !scpObj?.scp) return
-    getScpBalance()
-    scpObj.scp.on('Transfer', (from, to) => {
-      if (from == account || to == account) {
-        getScpBalance()
-      }
-    })
-
-    return () => {
-      scpObj?.scp.removeAllListeners()
-    }
-  }, [account, scpObj, version])
-
-  return scpBalance
 }
 
 export const useSolaceBalance = (): string => {
   const { keyContracts } = useContracts()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWeb3React()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const [solaceBalance, setSolaceBalance] = useState<string>('0')
 
   const getSolaceBalance = useCallback(async () => {
@@ -110,113 +68,13 @@ export const useSolaceBalance = (): string => {
     return () => {
       solace.removeAllListeners()
     }
-  }, [account, solace, getSolaceBalance, version])
+  }, [account, solace, getSolaceBalance, positiveVersion])
 
   return solaceBalance
 }
 
-export const useXSolaceBalance = (): string => {
-  const { keyContracts } = useContracts()
-  const { xSolace } = useMemo(() => keyContracts, [keyContracts])
-  const { account } = useWeb3React()
-  const { version } = useCachedData()
-  const [xSolaceBalance, setXSolaceBalance] = useState<string>('0')
-
-  const getXSolaceBalance = useCallback(async () => {
-    if (!xSolace || !account) return
-    try {
-      const balance = await queryBalance(xSolace, account)
-      const formattedBalance = formatUnits(balance, XSOLACE_TOKEN.constants.decimals)
-      setXSolaceBalance(formattedBalance)
-    } catch (err) {
-      console.log('getXSolaceBalance', err)
-    }
-  }, [account, xSolace])
-
-  useEffect(() => {
-    if (!xSolace || !account) return
-    getXSolaceBalance()
-    xSolace.on('Transfer', (from, to) => {
-      if (from == account || to == account) {
-        getXSolaceBalance()
-      }
-    })
-
-    return () => {
-      xSolace.removeAllListeners()
-    }
-  }, [account, xSolace, getXSolaceBalance, version])
-
-  return xSolaceBalance
-}
-
-export const useXSolaceV1Balance = (): { xSolaceV1Balance: string; v1StakedSolaceBalance: string } => {
-  const { keyContracts } = useContracts()
-  const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-  const { account } = useWeb3React()
-  const { version } = useCachedData()
-  const [xSolaceV1Balance, setXSolaceV1Balance] = useState<string>('0')
-  const [v1StakedSolaceBalance, setV1StakedSolaceBalance] = useState<string>('0')
-
-  const getXSolaceV1Balance = useCallback(async () => {
-    if (!xSolaceV1 || !account) return
-    try {
-      const balance = await queryBalance(xSolaceV1, account)
-      const stakedBalance = await withBackoffRetries(async () => xSolaceV1.xSolaceToSolace(balance))
-      const formattedStakedBalance = formatUnits(stakedBalance, SOLACE_TOKEN.constants.decimals)
-      const formattedBalance = formatUnits(balance, XSOLACE_V1_TOKEN.constants.decimals)
-      setXSolaceV1Balance(formattedBalance)
-      setV1StakedSolaceBalance(formattedStakedBalance)
-    } catch (err) {
-      console.log('getXSolaceV1Balance', err)
-    }
-  }, [account, xSolaceV1])
-
-  useEffect(() => {
-    if (!xSolaceV1 || !account) return
-    getXSolaceV1Balance()
-    xSolaceV1.on('Transfer', (from, to) => {
-      if (from == account || to == account) {
-        getXSolaceV1Balance()
-      }
-    })
-
-    return () => {
-      xSolaceV1.removeAllListeners()
-    }
-  }, [account, xSolaceV1, getXSolaceV1Balance, version])
-
-  return { xSolaceV1Balance, v1StakedSolaceBalance }
-}
-
-export const useCrossChainUnderwritingPoolBalance = () => {
-  const { minute } = useCachedData()
-  const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<string>('-')
-
-  useEffect(() => {
-    const getBalance = async () => {
-      const uwpUSDBals = new UnderwritingPoolUSDBalances()
-      const countedNetworks = networks.filter((n) => !n.isTestnet)
-      const rpcUrlMapping: { [key: number]: string } = countedNetworks.reduce(
-        (urls: any, network: NetworkConfig) => ({
-          ...urls,
-          [network.chainId]: network.rpc.httpsUrl,
-        }),
-        {}
-      )
-      const usdBalData = await uwpUSDBals.getUSDBalances_All(rpcUrlMapping)
-      const totalUsdcBalance = usdBalData.total
-      setUnderwritingPoolBalance(totalUsdcBalance.toString())
-    }
-    getBalance()
-  }, [minute])
-
-  return { underwritingPoolBalance }
-}
-
 export const useBatchBalances = (
   coinOptions: {
-    stablecoin: boolean
     address: string
     name: string
     symbol: string
@@ -228,14 +86,14 @@ export const useBatchBalances = (
 } => {
   const { account } = useWeb3React()
   const { provider } = useProvider()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const { activeNetwork } = useNetwork()
   const [loading, setLoading] = useState(false)
   const [batchBalances, setBatchBalances] = useState<{ addr: string; balance: BigNumber }[]>([])
 
   useEffect(() => {
     const getBalances = async () => {
-      if (!activeNetwork.config.generalFeatures.coverageV3 || !account || loading) return
+      if (!activeNetwork.config.generalFeatures.native || !account || loading) return
       setLoading(true)
       const batchBalances = await Promise.all(
         coinOptions.map((o) => queryBalance(new Contract(o.address, ERC20_ABI, provider), account))
@@ -248,7 +106,7 @@ export const useBatchBalances = (
       setLoading(false)
     }
     getBalances()
-  }, [account, coinOptions, provider, version])
+  }, [account, coinOptions, provider, positiveVersion])
 
   return { loading, batchBalances }
 }

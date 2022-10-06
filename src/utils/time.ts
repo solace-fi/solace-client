@@ -67,7 +67,7 @@ export const getTimeFromMillis = (millis: number): string => {
   let str = `${days > 0 ? `${days}d` : ''}${hours > 0 ? ' ' : ''}${hours > 0 ? `${hours}h` : ''}${
     minutes > 0 ? ' ' : ''
   }${minutes > 0 ? `${minutes}m` : ''}`
-  if (str == '') str = '< 1m'
+  if (str == '') str = '<1m'
   return str
 }
 

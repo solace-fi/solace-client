@@ -21,14 +21,14 @@ import { Route, Switch, useLocation } from 'react-router-dom'
 /* import pages */
 import Lock from './lock'
 import Gauge from './vote'
+import Analytics from './analytics'
 /* import components */
 import { MenusTopNavBar } from '../components/organisms/MenusTopNavbar'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent, Flex } from '../components/atoms/Layout'
 // import { Statistics } from '../components/organisms/Statistics'
-import { StyledCoinStack, StyledVoteYea } from '../components/atoms/Icon'
 
 /* import constants */
-import { BKPT_2, BKPT_NAVBAR, MARKETING_SITE } from '../constants'
+import { BKPT_2, BKPT_NAVBAR } from '../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../hooks/internal/useWindowDimensions'
@@ -39,6 +39,7 @@ import { AppMenu } from '../components/organisms/RightNavbar'
 import { InfoSideNavbar, MobileInfoSideNavbar } from '../components/organisms/LeftNavbar'
 import { AppMenuHeader } from '../components/organisms/AppMenuHeader'
 import { useGeneral } from '../context/GeneralManager'
+import Bribe from './bribe'
 
 export default function App(): any {
   const { leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar } = useGeneral()
@@ -47,56 +48,28 @@ export default function App(): any {
 
   const pages: PageInfo[] = [
     {
-      name: 'Lock',
-      title: 'My Locking',
-      to: '/lock',
-      icon: <StyledCoinStack size={30} />,
-      component: Lock,
-    },
-    {
       name: 'Vote',
       title: 'My Voting',
       to: '/vote',
-      icon: <StyledVoteYea size={30} />,
       component: Gauge,
     },
-  ]
-
-  const tabs = [
     {
-      collapsibleName: 'Products',
-      pages: [
-        { pageName: 'Coverage', to: `${MARKETING_SITE}/about/cover` },
-        { pageName: 'Staking', to: `${MARKETING_SITE}/about/staking` },
-        { pageName: 'Bonding', to: `${MARKETING_SITE}/about/tokenomics` },
-      ],
+      name: 'Lock',
+      title: 'My Locking',
+      to: '/lock',
+      component: Lock,
     },
     {
-      collapsibleName: 'Governance',
-      pages: [
-        {
-          pageName: 'Token',
-          to: 'https://etherscan.io/token/0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
-          newTab: true,
-        },
-        { pageName: 'DAO', to: 'https://forum.solace.fi/', newTab: true },
-      ],
+      name: 'Bribe',
+      title: 'Native Bribes',
+      to: '/bribe',
+      component: Bribe,
     },
     {
-      collapsibleName: 'Developers',
-      pages: [
-        { pageName: 'Docs', to: 'https://docs.solace.fi/', newTab: true },
-        { pageName: 'SDK', to: 'https://docs.solace.fi/docs/dev-docs/sdk/getting-started', newTab: true },
-      ],
-    },
-    {
-      collapsibleName: 'About',
-      pages: [
-        { pageName: 'Roadmap', to: `${MARKETING_SITE}/#roadmap` },
-        { pageName: 'Investors', to: `${MARKETING_SITE}/#investors` },
-        { pageName: 'Advisors', to: `${MARKETING_SITE}/#advisors` },
-        { pageName: 'Core Contributors', to: `${MARKETING_SITE}/#coreContributors` },
-      ],
+      name: 'Analytics',
+      title: 'Native Analytics',
+      to: '/analytics',
+      component: Analytics,
     },
   ]
 
@@ -105,15 +78,15 @@ export default function App(): any {
       <AnalyticsReporter />
       <GlobalStyle location={location} />
       <MenusTopNavBar setShowLeft={setLeftSidebar} setShowRight={setRightSidebar} />
-      <InfoSideNavbar show={width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR)} tabs={tabs} />
+      <InfoSideNavbar pages={pages} show={width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR)} />
       <AppMenu show={rightSidebar} setShow={setRightSidebar} />
       <Layout>
         <ContentContainer>
           <SideNavContent mobileWidth={6}></SideNavContent>
           <MobileInfoSideNavbar
+            pages={pages}
             show={leftSidebar && width < (rightSidebar ? BKPT_2 : BKPT_NAVBAR)}
             setShow={setLeftSidebar}
-            tabs={tabs}
           />
           <LayoutContent>
             {width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR) && (
@@ -121,15 +94,12 @@ export default function App(): any {
             )}
             <Flex>
               <div style={{ transition: '350ms', width: rightSidebar ? 'calc(100% - 375px)' : '100%' }}>
-                {/* {location.pathname !== '/quote' && location.pathname !== '/terms' && location.pathname !== '/' && (
-                <Statistics />
-              )} */}
                 <Switch>
                   <Route
                     exact
                     path="/"
                     component={() => {
-                      window.location.href = MARKETING_SITE
+                      window.location.href = `${(window as any).location.href}vote`
                       return null
                     }}
                   />

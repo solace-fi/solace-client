@@ -1,10 +1,11 @@
 import React from 'react'
-import { Flex } from '../atoms/Layout'
+import { Flex, FlexProps } from '../atoms/Layout'
 
 export function TileCard({
   children,
   style,
   innerStyle,
+  bgSecondary,
   thinner,
   innerBigger,
   innerThinner,
@@ -22,6 +23,7 @@ export function TileCard({
   children: React.ReactNode
   style?: React.CSSProperties
   innerStyle?: React.CSSProperties
+  bgSecondary?: boolean
   /** first card - `flex: 0.8` */ thinner?: boolean
   /** second card - `flex 1` */ bigger?: boolean
   /** second card inactive - `flex 1.2` */ innerBigger?: boolean
@@ -34,7 +36,7 @@ export function TileCard({
   gap?: number
   padding?: number
   onClick?: () => void
-}): JSX.Element {
+} & FlexProps): JSX.Element {
   const defaultStyle = style ?? {}
   // thinner is 0.8, bigger is 1.2
   const customStyle = {
@@ -53,7 +55,8 @@ export function TileCard({
   return (
     <Flex
       shadow={!noShadow}
-      bgRaised
+      bgRaised={!bgSecondary}
+      bgSecondary={bgSecondary}
       rounded
       style={combinedStyle}
       gap={gap ?? 4}

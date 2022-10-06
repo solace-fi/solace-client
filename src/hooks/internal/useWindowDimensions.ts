@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BKPT_5, BKPT_7 } from '../../constants'
+import { BKPT_3, BKPT_4, BKPT_5, BKPT_7 } from '../../constants'
 import { WindowDimensions } from '../../constants/types'
 import { useGeneral } from '../../context/GeneralManager'
 
@@ -18,6 +18,9 @@ export const useWindowDimensions = (): WindowDimensions => {
   const { width } = windowDimensions
   const isDesktop = width > (rightSidebar ? BKPT_7 : BKPT_5)
   const isMobile = !isDesktop
+
+  const isSmallerMobile = width <= (rightSidebar ? BKPT_4 : BKPT_3)
+
   const ifDesktop = function <T, V>(desktopArg: T, mobileArg?: V): T | V | undefined {
     return isMobile ? mobileArg : desktopArg
   }
@@ -38,6 +41,7 @@ export const useWindowDimensions = (): WindowDimensions => {
     ...windowDimensions,
     isDesktop,
     isMobile,
+    isSmallerMobile,
     ifDesktop,
     ifMobile,
   }

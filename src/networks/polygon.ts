@@ -5,27 +5,8 @@ import { ALCHEMY_POLYGON_API_KEY, POLYGONSCAN_API_KEY } from '../constants'
 import { hexValue } from 'ethers/lib/utils'
 
 import solaceABI from '../constants/abi/SOLACE.json'
-import xSolaceABI from '../constants/abi/xSOLACE.json'
 
-import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/polygon'
-
-import bridgeWrapperABI from '../constants/abi/BridgeWrapper.json'
-
-import { FRAX_TOKEN } from '../constants/mappings/token'
-
-import {
-  xsLocker_ABI,
-  ERC20_ABI,
-  StakingRewardsV2_ABI,
-  CoverPaymentManager_ABI,
-  SolaceCoverProductV3_ABI,
-} from '../constants/abi'
-import {
-  COVER_PAYMENT_MANAGER_ADDRESS,
-  NETWORKS_MAPPING,
-  SOLACE_COVER_PRODUCT_V3_ADDRESS,
-  STAKING_REWARDS_V2_ADDRESS,
-} from '@solace-fi/sdk-nightly'
+import { KEY_ADDRS } from '../constants/addresses/polygon'
 
 const chainId = 137
 
@@ -46,7 +27,7 @@ export const PolygonNetwork: NetworkConfig = {
     key: String(POLYGONSCAN_API_KEY),
     url: 'https://polygonscan.com',
     apiUrl: 'https://api.polygonscan.com',
-    excludedContractAddrs: [KEY_ADDRS.SOLACE, SPECIAL_ADDRS.BSOLACE],
+    excludedContractAddrs: [KEY_ADDRS.SOLACE],
   },
   config: {
     keyContracts: {
@@ -54,44 +35,13 @@ export const PolygonNetwork: NetworkConfig = {
         addr: KEY_ADDRS.SOLACE,
         abi: solaceABI,
       },
-      xSolace: {
-        addr: KEY_ADDRS.XSOLACE,
-        abi: xSolaceABI.abi,
-      },
-      xsLocker: {
-        addr: KEY_ADDRS.XSLOCKER,
-        abi: xsLocker_ABI,
-      },
-      solaceCoverProductV3: {
-        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
-        abi: SolaceCoverProductV3_ABI,
-      },
-      coverPaymentManager: {
-        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
-        abi: CoverPaymentManager_ABI,
-      },
-      stakingRewardsV2: {
-        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
-        abi: StakingRewardsV2_ABI,
-      },
     },
-    generalFeatures: NETWORKS_MAPPING[chainId].features.general,
+    generalFeatures: { native: false },
     specialFeatures: {
-      unwrapBridgedSolace: true,
-      solaceBuyLink: `https://app.uniswap.org/#/swap?chain=polygon&inputCurrency=${FRAX_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
       hardcodedMaxFeePerGas: 31,
       hardcodedMaxPriorityFeePerGas: 31,
     },
-    specialContracts: {
-      bSolace: {
-        addr: SPECIAL_ADDRS.BSOLACE,
-        abi: ERC20_ABI,
-      },
-      bridgeWrapper: {
-        addr: SPECIAL_ADDRS.BRIDGE_WRAPPER,
-        abi: bridgeWrapperABI.abi,
-      },
-    },
+    specialContracts: {},
     underwritingPoolAddr: '0xd1108a800363C262774B990e9DF75a4287d5c075',
   },
   metamaskChain: {

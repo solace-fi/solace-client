@@ -39,12 +39,12 @@ export const CopyButton: React.FC<CopyProps & ButtonProps & GeneralElementProps>
     <Button onClick={() => setCopied(props.toCopy)} {...props}>
       {isCopied ? (
         <>
-          <StyledCheckmark size={30} style={{ margin: 'inherit' }} />
+          <StyledCheckmark size={20} style={{ margin: 'inherit' }} />
           Copied!
         </>
       ) : (
         <>
-          <StyledCopy size={30} />
+          <StyledCopy size={20} />
           Copy {props.objectName}
         </>
       )}
