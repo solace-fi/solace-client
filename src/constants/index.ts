@@ -2,6 +2,7 @@ import { constants } from 'ethers'
 
 export const ALCHEMY_ETHEREUM_API_KEY = process.env.REACT_APP_ALCHEMY_ETHEREUM_API_KEY
 export const ALCHEMY_POLYGON_API_KEY = process.env.REACT_APP_ALCHEMY_POLYGON_API_KEY
+export const ALCHEMY_GOERLI_API_KEY = process.env.REACT_APP_ALCHEMY_GOERLI_API_KEY
 export const THEGRAPH_API_KEY = process.env.REACT_APP_THEGRAPH_API_KEY
 export const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY
 export const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY
@@ -46,9 +47,7 @@ export const Z_MODAL = z2
 export const Z_TOOLTIP = z3
 
 export const POW_NINE = 1000000000
-
-export const CP_ROI = '150.5%'
-export const LP_ROI = '6.0%'
+export const POW_EIGHTEEN = 1000000000000000000
 
 export const MIN_RETRY_DELAY = 1000
 export const RETRY_BACKOFF_FACTOR = 2

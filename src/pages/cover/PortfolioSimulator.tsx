@@ -4,7 +4,7 @@ import { useCoverageContext } from './CoverageContext'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { Button } from '../../components/atoms/Button'
 import { formatAmount } from '../../utils/formatting'
-import { useTierColors } from '../../hooks/internal/useTierColors'
+import { useDistributedColors } from '../../hooks/internal/useDistributedColors'
 import { Protocol } from './Protocol'
 import { ProtocolMap, SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { LoaderText } from '../../components/molecules/LoaderText'
@@ -48,7 +48,7 @@ export const PortfolioSimulator = (): JSX.Element => {
     return mapEditableProtocols(editableProtocols)
   }, [editableProtocols])
 
-  const tierColors = useTierColors()
+  const tierColors = useDistributedColors(5)
 
   const getColorByTier = (tier: number) => {
     const index = tier - 1

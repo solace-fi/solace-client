@@ -8,7 +8,7 @@ import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { filterAmount } from '../../utils/formatting'
 import { useCoverageContext } from './CoverageContext'
-import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
+import { DropdownOptions, processProtocolName } from '../../components/organisms/Dropdown'
 import { formatAmount } from '../../utils/formatting'
 import { Button } from '../../components/atoms/Button'
 import { Modal } from '../../components/molecules/Modal'
@@ -56,7 +56,7 @@ export default function AddProtocolForm({
 
   const cachedDropdownOptions = useMemo(
     () => (
-      <DropdownOptionsUnique
+      <DropdownOptions
         comparingList={editableProtocols.map((p) => p.appId)}
         isOpen={dropdownOpen}
         searchedList={activeList}

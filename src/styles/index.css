@@ -1,0 +1,8 @@
+.dragHandle {
+  cursor: grab;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  border-right-color: rgb(46, 182, 236);
+  border-bottom-color: rgb(46, 182, 236);
+}

@@ -21,6 +21,15 @@ type Contracts = {
     xsLocker?: Contract | null
     stakingRewardsV2?: Contract | null
     xSolaceMigrator?: Contract | null
+    depositHelper?: Contract | null
+    gaugeController?: Contract | null
+    uwLockVoting?: Contract | null
+    uwLocker?: Contract | null
+    uwp?: Contract | null
+    uwe?: Contract | null
+    fluxMegaOracle?: Contract | null
+    solaceMegaOracle?: Contract | null
+    bribeController?: Contract | null
   }
   tellers: (BondTellerContractData & {
     metadata: TellerTokenMetadata
@@ -36,6 +45,15 @@ const ContractsContext = createContext<Contracts>({
     xsLocker: undefined,
     stakingRewardsV2: undefined,
     xSolaceMigrator: undefined,
+    depositHelper: undefined,
+    gaugeController: undefined,
+    uwLockVoting: undefined,
+    uwLocker: undefined,
+    uwp: undefined,
+    uwe: undefined,
+    fluxMegaOracle: undefined,
+    solaceMegaOracle: undefined,
+    bribeController: undefined,
   },
   tellers: [],
   contractSources: [],
@@ -53,6 +71,15 @@ const ContractsProvider: React.FC = (props) => {
   const stakingRewardsV2 = useGetContract(keyContracts.stakingRewardsV2)
   const xSolaceMigrator = useGetContract(keyContracts.xSolaceMigrator)
   const tellers = useGetBondTellerContracts()
+  const depositHelper = useGetContract(keyContracts.depositHelper)
+  const gaugeController = useGetContract(keyContracts.gaugeController)
+  const uwLockVoting = useGetContract(keyContracts.uwLockVoting)
+  const uwLocker = useGetContract(keyContracts.uwLocker)
+  const uwp = useGetContract(keyContracts.uwp)
+  const uwe = useGetContract(keyContracts.uwe)
+  const fluxMegaOracle = useGetContract(keyContracts.fluxMegaOracle)
+  const solaceMegaOracle = useGetContract(keyContracts.solaceMegaOracle)
+  const bribeController = useGetContract(keyContracts.bribeController)
 
   const value = useMemo<Contracts>(
     () => ({
@@ -63,11 +90,38 @@ const ContractsProvider: React.FC = (props) => {
         xsLocker,
         stakingRewardsV2,
         xSolaceMigrator,
+        depositHelper,
+        gaugeController,
+        uwLockVoting,
+        uwLocker,
+        uwp,
+        uwe,
+        fluxMegaOracle,
+        solaceMegaOracle,
+        bribeController,
       },
       tellers,
       contractSources,
     }),
-    [solace, xSolace, xSolaceV1, xsLocker, stakingRewardsV2, xSolaceMigrator, tellers, contractSources]
+    [
+      solace,
+      xSolace,
+      xSolaceV1,
+      xsLocker,
+      stakingRewardsV2,
+      xSolaceMigrator,
+      tellers,
+      depositHelper,
+      gaugeController,
+      uwLockVoting,
+      uwLocker,
+      uwp,
+      uwe,
+      fluxMegaOracle,
+      bribeController,
+      solaceMegaOracle,
+      contractSources,
+    ]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>

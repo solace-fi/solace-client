@@ -83,7 +83,7 @@ const CoverageContent = () => {
     <>
       <CodeNoticeModal />
       <Flex justifyCenter>
-        <Flex col w={450}>
+        <Flex col width={450}>
           <VisibilityController show={_showCldModal}>
             <CldModal />
           </VisibilityController>

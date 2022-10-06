@@ -505,7 +505,7 @@ export const useRiskSeries = () => {
 export const useCheckIsCoverageActive = () => {
   const { account } = useWeb3React()
   const { policyOf, getPolicyStatus, coverLimitOf } = useCoverageFunctions()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const { latestBlock } = useProvider()
   const [policyId, setPolicyId] = useState<BigNumber | undefined>(undefined)
   const [status, setStatus] = useState<boolean>(false)
@@ -538,7 +538,7 @@ export const useCheckIsCoverageActive = () => {
     }
     getStatus()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, latestBlock, activeNetwork, version])
+  }, [account, latestBlock, activeNetwork, positiveVersion])
 
   return { policyId, status, coverageLimit, mounting }
 }

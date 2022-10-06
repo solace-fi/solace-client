@@ -21,8 +21,8 @@ export const GlobalStyle = createGlobalStyle<LayoutProps>`
     margin: 0;
     font-family: 'Open Sans', sans-serif;
     line-height: 1.4;
-    color: ${({ theme }) => `${theme.typography.contrastText}`};
-    background: ${({ theme }) => theme.body.bg_color};
+    color: ${({ theme }) => `${theme.typography.secondary}`};
+    background: ${({ theme }) => theme.body.layout_bg_color};
     ${(props) =>
       props.location.pathname == '/' &&
       `background: radial-gradient(ellipse 120% 150% at 60% 0,

@@ -101,7 +101,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
               max={lock.unboostedAmount.toString()}
             />
           </Flex>
-          <Flex column stretch w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
+          <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
             <Label importance="quaternary" style={{ marginBottom: '8px' }}>
               Projected benefits
             </Label>

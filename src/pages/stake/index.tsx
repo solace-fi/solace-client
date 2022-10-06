@@ -262,7 +262,7 @@ function Stake1(): any {
                     </SmallBox>
                   }
                 </Flex>
-                <Flex column stretch w={(rightSidebar ? BKPT_6 : BKPT_5) > width ? 300 : 521}>
+                <Flex column stretch width={(rightSidebar ? BKPT_6 : BKPT_5) > width ? 300 : 521}>
                   <Label importance="quaternary" style={{ marginBottom: '8px' }}>
                     Projected benefits when migrated
                   </Label>
@@ -377,7 +377,7 @@ export default function Stake(): JSX.Element {
   const { account } = useWeb3React()
   const { latestBlock } = useProvider()
   const { activeNetwork } = useNetwork()
-  const { version, coverage } = useCachedData()
+  const { positiveVersion, coverage } = useCachedData()
   const [stakingVersion, setStakingVersion] = useState<StakingVersion>(StakingVersion.v2 as StakingVersion)
   const [locks, setLocks] = useState<LockData[]>([])
   const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
@@ -454,7 +454,7 @@ export default function Stake(): JSX.Element {
     }
     _getUserLocks()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, activeNetwork, latestBlock, version])
+  }, [account, activeNetwork, latestBlock, positiveVersion])
 
   useEffect(() => {
     setLoading(true)

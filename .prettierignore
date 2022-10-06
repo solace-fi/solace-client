@@ -5,3 +5,6 @@ node_modules
 coverage
 src/hooks/policy/useReferralsApi/InfoResponse.ts
 src/hooks/policy/useReferralsApi/GetByUserResponse.ts
+src/pages/analytics/types/UWPData.ts
+src/pages/analytics/types/SipMathLib.ts
+src/pages/analytics/types/FetchedPremiums.ts

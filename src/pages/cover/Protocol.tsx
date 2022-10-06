@@ -6,7 +6,7 @@ import { capitalizeFirstLetter, filterAmount, truncateValue } from '../../utils/
 import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { useCoverageContext } from './CoverageContext'
 import { TileCard } from '../../components/molecules/TileCard'
-import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
+import { DropdownOptions, processProtocolName } from '../../components/organisms/Dropdown'
 import { StyledArrowDropDown, StyledClose, StyledHelpCircle } from '../../components/atoms/Icon'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { networks } from '../../context/NetworkManager'
@@ -144,7 +144,7 @@ export const Protocol: React.FC<{
 
   const cachedDropdownOptions = useMemo(
     () => (
-      <DropdownOptionsUnique
+      <DropdownOptions
         comparingList={editableProtocolAppIds}
         isOpen={true}
         searchedList={activeList}

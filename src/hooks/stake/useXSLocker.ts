@@ -179,23 +179,28 @@ export const useXSLocker = () => {
       unlockedBalance: '0',
       successfulFetch: false,
     }
-    if (provider) {
-      const lock = new Lock(activeNetwork.chainId, provider)
-      const userLockerBalances = await lock
-        .getUserLockerBalances(account)
-        .then((balances) => {
-          return {
-            ...balances,
-            successfulFetch: true,
-          }
-        })
-        .catch((err) => {
-          console.log('getUserLockerBalances', err)
-          return errorRes
-        })
-      return userLockerBalances
+    try {
+      if (provider) {
+        const lock = new Lock(activeNetwork.chainId, provider)
+        const userLockerBalances = await lock
+          .getUserLockerBalances(account)
+          .then((balances) => {
+            return {
+              ...balances,
+              successfulFetch: true,
+            }
+          })
+          .catch((err) => {
+            console.log('getUserLockerBalances', err)
+            return errorRes
+          })
+        return userLockerBalances
+      }
+      return errorRes
+    } catch (e) {
+      console.log('getUserLockerBalances', e)
+      return errorRes
     }
-    return errorRes
   }
 
   return {
@@ -216,12 +221,7 @@ export const useUserLockData = () => {
   const { provider } = useProvider()
 
   const getUserLocks = async (user: string): Promise<UserLocksData> => {
-    if (provider) {
-      const lock = new Lock(activeNetwork.chainId, provider)
-      const userLocks = await lock.getUserLocks(user)
-      return userLocks
-    }
-    return {
+    const errorRes = {
       user: {
         pendingRewards: BigNumber.from(0),
         stakedBalance: BigNumber.from(0),
@@ -232,6 +232,17 @@ export const useUserLockData = () => {
       },
       locks: [],
       successfulFetch: false,
+    }
+    try {
+      if (provider) {
+        const lock = new Lock(activeNetwork.chainId, provider)
+        const userLocks = await lock.getUserLocks(user)
+        return userLocks
+      }
+      return errorRes
+    } catch (err) {
+      console.log('getUserLocks', err)
+      return errorRes
     }
   }
 

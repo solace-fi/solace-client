@@ -20,7 +20,7 @@ import {
   truncateValue,
 } from '../../utils/formatting'
 import { useCoverageContext } from './CoverageContext'
-import { BalanceDropdownOptions, DropdownInputSection } from './Dropdown'
+import { BalanceDropdownOptions, DropdownInputSection } from '../../components/organisms/Dropdown'
 
 import Zapper from '../../resources/svg/zapper.svg'
 import ZapperDark from '../../resources/svg/zapper-dark.svg'
@@ -92,7 +92,7 @@ export const PolicyContent = (): JSX.Element => {
 
   const { account } = useWeb3React()
   const { activeNetwork, changeNetwork } = useNetwork()
-  const { tokenPriceMapping, version } = useCachedData()
+  const { tokenPriceMapping, positiveVersion } = useCachedData()
   const { isMobile } = useWindowDimensions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
@@ -377,19 +377,24 @@ export const PolicyContent = (): JSX.Element => {
       return
     }
     const tokenSignature: any = Object.values(signature)[0]
-    const refundableSOLACEAmount = await scpObj.getRefundableSOLACEAmount(
-      account,
-      tokenSignature.price,
-      tokenSignature.deadline,
-      tokenSignature.signature
-    )
-    setRefundableSOLACEAmount(refundableSOLACEAmount)
+    try {
+      const refundableSOLACEAmount = await scpObj.getRefundableSOLACEAmount(
+        account,
+        tokenSignature.price,
+        tokenSignature.deadline,
+        tokenSignature.signature
+      )
+      setRefundableSOLACEAmount(refundableSOLACEAmount)
+    } catch (e) {
+      console.log('PolicyContent Component getRefundableSOLACEAmount', e)
+      setRefundableSOLACEAmount(ZERO)
+    }
   }, [account, scpObj, signatureObj, activeNetwork])
 
   useEffect(() => {
     getRefundableSOLACEAmount()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [version, latestBlock])
+  }, [positiveVersion, latestBlock])
 
   useEffect(() => {
     if (!policyId || policyId?.eq(ZERO)) {
@@ -399,7 +404,7 @@ export const PolicyContent = (): JSX.Element => {
     } else {
       handleUserState(InterfaceState.CURRENT_USER)
     }
-  }, [policyId, status, handleUserState, version, latestBlock])
+  }, [policyId, status, handleUserState, positiveVersion, latestBlock])
 
   useEffect(() => {
     setShowExistingPolicyMessage(true)
@@ -695,7 +700,7 @@ export const PolicyContent = (): JSX.Element => {
                               text={selectedCoin.symbol}
                               value={enteredUSDDeposit}
                               onChange={(e) => handleEnteredUSDDeposit(e.target.value, selectedCoin.decimals)}
-                              onClick={() => setCoinsOpen(!coinsOpen)}
+                              onClickDropdown={() => setCoinsOpen(!coinsOpen)}
                             />
                           </div>
                           <BalanceDropdownOptions

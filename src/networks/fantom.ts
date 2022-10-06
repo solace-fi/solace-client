@@ -1,4 +1,4 @@
-import { KEY_ADDRS } from '../constants/addresses/fantom'
+import { KEY_ADDRS, NATIVE_ADDRS } from '../constants/addresses/fantom'
 import { Unit } from '../constants/enums'
 import { WFTM_TOKEN } from '../constants/mappings/token'
 
@@ -65,9 +65,45 @@ export const FantomNetwork: NetworkConfig = {
         addr: STAKING_REWARDS_V2_ADDRESS[chainId],
         abi: StakingRewardsV2_ABI,
       },
+      depositHelper: {
+        addr: NATIVE_ADDRS.DEPOSIT_HELPER,
+        abi: null,
+      },
+      gaugeController: {
+        addr: NATIVE_ADDRS.GAUGE_CONTROLLER,
+        abi: null,
+      },
+      uwLockVoting: {
+        addr: NATIVE_ADDRS.UW_LOCK_VOTING,
+        abi: null,
+      },
+      uwLocker: {
+        addr: NATIVE_ADDRS.UW_LOCKER,
+        abi: null,
+      },
+      uwp: {
+        addr: NATIVE_ADDRS.UWP,
+        abi: null,
+      },
+      uwe: {
+        addr: NATIVE_ADDRS.UWE,
+        abi: null,
+      },
+      fluxMegaOracle: {
+        addr: NATIVE_ADDRS.FLUX_MEGA_ORACLE,
+        abi: null,
+      },
+      solaceMegaOracle: {
+        addr: NATIVE_ADDRS.SOLACE_MEGA_ORACLE,
+        abi: null,
+      },
+      bribeController: {
+        addr: NATIVE_ADDRS.BRIBE_CONTROLLER,
+        abi: null,
+      },
     },
     specialContracts: {},
-    generalFeatures: NETWORKS_MAPPING[chainId].features.general,
+    generalFeatures: { ...NETWORKS_MAPPING[chainId].features.general, native: false },
     specialFeatures: {},
     underwritingPoolAddr: '0x2971f45c0952437934B3F055C401241e5C339F93',
   },

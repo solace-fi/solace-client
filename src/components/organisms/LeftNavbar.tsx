@@ -1,5 +1,5 @@
 /* import packages */
-import React, { Fragment, useMemo, useState } from 'react'
+import React, { Fragment, useMemo } from 'react'
 import { useLocation } from 'react-router'
 
 /* import managers */
@@ -42,6 +42,7 @@ import { BaseModalProps, FadeInAnimation } from '../atoms/Modal'
 import { LogoBase } from '../atoms/Logo'
 import whiteLogo from '../../resources/svg/solace-logo-white.svg'
 import { ThinScrollbarCss } from '../atoms/Scrollbar/ThinScrollbar'
+import { PageInfo } from '../../constants/types'
 
 const NavItemList = styled.ul`
   width: 100%;
@@ -56,7 +57,7 @@ const NavItemText = styled.li`
 `
 
 const LeftAppNav = styled.div<{ shouldShow: boolean }>`
-  background: ${({ theme }) => theme.body.bg_color};
+  background: ${({ theme }) => theme.body.layout_bg_color};
   display: flex;
   position: fixed;
   overflow: auto;
@@ -67,27 +68,7 @@ const LeftAppNav = styled.div<{ shouldShow: boolean }>`
   ${ThinScrollbarCss}
   overflow-x: hidden;
 `
-
-const data = [
-  {
-    name: 'My Policy',
-    path: '/cover',
-  },
-  {
-    name: 'Bond',
-    path: '/bond',
-  },
-  {
-    name: 'Stake',
-    path: '/stake',
-  },
-  {
-    name: 'Govern',
-    path: '/govern',
-  },
-]
-
-export const InfoSideNavbar = ({ show }: { show: boolean }): JSX.Element => {
+export const InfoSideNavbar = ({ show, pages }: { show: boolean; pages: PageInfo[] }): JSX.Element => {
   const { appTheme, rightSidebar } = useGeneral()
   const location = useLocation()
   const { width } = useWindowDimensions()
@@ -115,9 +96,9 @@ export const InfoSideNavbar = ({ show }: { show: boolean }): JSX.Element => {
         )}
         <Flex col>
           <NavItemList>
-            {data.map((item, index) => {
+            {pages.map((item, index) => {
               return (
-                <NavLink to={item.path} key={index}>
+                <NavLink to={item.to} key={index}>
                   <NavItemText
                     style={{
                       cursor: 'pointer',
@@ -127,8 +108,8 @@ export const InfoSideNavbar = ({ show }: { show: boolean }): JSX.Element => {
                   >
                     <TextSpan
                       t3
-                      warmgradient={location.pathname == item.path && appTheme == 'dark'}
-                      techygradient={location.pathname == item.path && appTheme == 'light'}
+                      warmgradient={location.pathname == item.to && appTheme == 'dark'}
+                      techygradient={location.pathname == item.to && appTheme == 'light'}
                     >
                       {item.name}
                     </TextSpan>
@@ -370,9 +351,10 @@ export const MenuGradientBg = styled.div<BaseModalProps>`
     radial-gradient(ellipse 100% 200% at 0 100%, rgba(240, 77, 66, 1) 10%, rgba(240, 77, 66, 0) 100%);
 `
 
-export const MobileInfoSideNavbar: React.FC<{ show: boolean; setShow: (show: boolean) => void }> = ({
+export const MobileInfoSideNavbar: React.FC<{ show: boolean; setShow: (show: boolean) => void; pages: PageInfo[] }> = ({
   show,
   setShow,
+  pages,
 }) => {
   const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
@@ -401,11 +383,11 @@ export const MobileInfoSideNavbar: React.FC<{ show: boolean; setShow: (show: boo
                     <img src={whiteLogo} alt="Solace | Decentralized Coverage Protocol" />
                   </LogoBase>
                 </Flex>
-                {data.map((t, index) => {
+                {pages.map((t, index) => {
                   return (
                     <Flex col key={index} my={10} itemsCenter>
                       <NavItemText>
-                        <NavLink to={t.path}>
+                        <NavLink to={t.to}>
                           <Button
                             p={0}
                             nohover

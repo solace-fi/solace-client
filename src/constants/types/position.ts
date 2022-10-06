@@ -16,3 +16,7 @@ export type TokenInfo = ReadToken & {
   balance: BigNumber
   price: number
 }
+
+export type PoolTokenInfo = TokenInfo & {
+  poolBalance: BigNumber
+}
