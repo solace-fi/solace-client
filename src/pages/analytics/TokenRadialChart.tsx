@@ -48,11 +48,11 @@ export const TokenRadialChart = ({
       },
       layer: [
         {
-          mark: { type: 'arc', innerRadius: 20, stroke: '#fff' },
+          mark: { type: 'arc', innerRadius: 20, stroke: '#fff', tooltip: true },
         },
       ],
       encoding: {
-        theta: { field: 'weight', type: 'quantitative', stack: true },
+        theta: { field: 'weight', type: 'quantitative', stack: 'normalize' },
         radius: { field: 'weight', scale: { type: 'sqrt', zero: true, rangeMin: 20 } },
         color: {
           field: 'symbol',
@@ -60,7 +60,7 @@ export const TokenRadialChart = ({
           legend: {
             titleColor: theme == 'light' ? 'black' : 'white',
             labelColor: theme == 'light' ? 'black' : 'white',
-            title: 'Token Portfolio',
+            title: 'Tokens',
             direction: 'vertical',
           },
           sort: { field: 'weight', order: 'descending' },

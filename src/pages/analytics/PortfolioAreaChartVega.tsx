@@ -17,7 +17,6 @@ export const PortfolioAreaChartVega = ({
   const { data } = useAnalyticsContext()
   const { priceHistory30D } = data
   const { appTheme } = useGeneral()
-  const { allDataPortfolio } = data
 
   const reformattedData = useMemo(() => {
     const res: any = []
@@ -42,7 +41,7 @@ export const PortfolioAreaChartVega = ({
   }, [priceHistory30D])
 
   const fetchVega = (dataIn: any, theme: 'light' | 'dark') => {
-    vegaEmbed('#area-chart-2', {
+    vegaEmbed('#area-chart', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
       title: { text: 'Portfolio Value, Last 30 Days', color: theme == 'light' ? 'black' : 'white' },
       config: {
@@ -73,7 +72,6 @@ export const PortfolioAreaChartVega = ({
           axis: {
             format: '$,.0f',
             title: '',
-            // title: 'Portfolio Value',
             titleColor: theme == 'light' ? 'black' : 'white',
             grid: false,
           },
@@ -95,11 +93,11 @@ export const PortfolioAreaChartVega = ({
   useEffect(() => {
     fetchVega(reformattedData, appTheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allDataPortfolio, appTheme, chosenHeight, chosenWidth, reformattedData])
+  }, [appTheme, chosenHeight, chosenWidth, reformattedData])
 
   return (
     <Flex>
-      <Flex id="area-chart-2" widthP={100} justifyCenter>
+      <Flex id="area-chart" widthP={100} justifyCenter>
         <Text autoAlign>data not available</Text>
       </Flex>
     </Flex>

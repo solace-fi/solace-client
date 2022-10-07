@@ -131,7 +131,7 @@ export const TokenWeights = ({
           legend: {
             titleColor: theme == 'light' ? 'black' : 'white',
             labelColor: theme == 'light' ? 'black' : 'white',
-            title: 'Token Portfolio',
+            title: 'Tokens',
             orient: chosenWidth < 3 ? 'bottom' : 'right',
             direction: 'vertical',
           },
@@ -141,49 +141,7 @@ export const TokenWeights = ({
   }
   useEffect(() => {
     fetchVega(vegaStylizedWeightsAndDates, appTheme)
-  }, [weightsAndDates, appTheme, vegaStylizedWeightsAndDates, chosenWidth, chosenHeight])
-
-  //   // const reformatedData2: any = []
-  //   if (weightsAndDates.length > 0) {
-  //     weightsAndDates.forEach((wad) => {
-  //       wad.weights.forEach((w) => {
-  //         const ticker = Object.keys(w)[0]
-  //         const weight = Object.values(w)[0]
-  //         vegaStylizedWeightsAndDates.push({ timestamp: wad.timestamp * 1000, y: weight, ticker })
-  //       })
-  //     })
-  //     console.log({ vegaStylizedWeightsAndDates })
-  //     fetchVega(vegaStylizedWeightsAndDates, appTheme)
-  //   }
-  //   // if (tokenDetails.length > 0) {
-  //   //   tokenDetails.forEach((item) => {
-  //   //     // unique timestamp
-  //   //     for (const [key, value] of Object.entries(item)) {
-  //   //       const temptimestamp = item.timestamp
-  //   //       let tempticker = ''
-  //   //       let tempy: any = 0
-  //   //       if (key !== 'timestamp') {
-  //   //         tempticker = key
-  //   //         tempy = value
-  //   //       }
-  //   //       vegaStylizedWeightsAndDates.push({ timestamp: Number(temptimestamp) * 1000, ticker: tempticker, y: tempy })
-  //   //     }
-  //   //     // reformatedData2.push(vegaStylizedWeightsAndDates[item])
-  //   //   })
-  //   // }
-  //   // console.log('vegaStylizedWeightsAndDates', vegaStylizedWeightsAndDates)
-  //   fetchVega(vegaStylizedWeightsAndDates, appTheme)
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [weightsAndDates])
-
-  // Hmm twice? can we move appTheme up to [tickerSymbol,appTheme] ?
-  // useEffect(
-  //   () => {
-  //     fetchVega(weightsAndDates, appTheme)
-  //   },
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [fetchedUwpData, appTheme]
-  // )
+  }, [appTheme, vegaStylizedWeightsAndDates, chosenWidth, chosenHeight])
 
   return (
     <Flex gap={10} col={isMobile}>
