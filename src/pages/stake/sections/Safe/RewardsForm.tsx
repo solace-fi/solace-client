@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { Button, ButtonWrapper } from '../../../../components/atoms/Button'
-import InformationBox from '../../../../components/molecules/InformationBox'
+import InformationBox from '../../../../components/molecules/stake-and-lock/InformationBox'
 import { LockData } from '@solace-fi/sdk-nightly'
 import { useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { useStakingRewards } from '../../../../hooks/stake/useStakingRewards'

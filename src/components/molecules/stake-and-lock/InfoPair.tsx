@@ -1,9 +1,5 @@
-import styled, { css, ThemedStyledProps } from 'styled-components'
-import { Theme } from '../../styles/themes'
+import styled, { css } from 'styled-components'
 import React from 'react'
-
-// const theme = {} as Theme
-// theme.v2.tertiary
 
 type InfoPairProps = {
   importance: 'primary' | 'secondary' | 'tertiary' | 'quaternary'

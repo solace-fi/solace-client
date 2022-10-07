@@ -46,6 +46,7 @@ export const TokenWeights = ({
   chosenWidth: number
   chosenHeight: number
 }): JSX.Element => {
+  const { appTheme } = useGeneral()
   const { activeNetwork } = useNetwork()
   const { isMobile } = useWindowDimensions()
   const { data } = useAnalyticsContext()
@@ -82,58 +83,6 @@ export const TokenWeights = ({
   useEffect(() => {
     _weightsAndDates && setWeightsAndDates(_weightsAndDates)
   }, [fetchedUwpData])
-
-  // const { canSeePortfolioAreaChart } = intrface
-  // const xticks =
-  //   priceHistory30D.length > 0
-  //     ? calculateMonthlyTicks(priceHistory30D[0].timestamp, priceHistory30D[priceHistory30D.length - 1].timestamp)
-  //     : []
-  const { appTheme } = useGeneral()
-  // const { allDataPortfolio } = data
-  // const [displayVega, setDisplayVega] = useState(false)
-
-  // console.log('tokenDetails', tokenDetails)
-
-  /*
-failed schema attempt:
-
-{
-  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "title": { "text": "Token Weigths, Last 30 Days", "color": "black" },
-  "config": {
-    "style": { "cell": { "stroke": "transparent" } },
-    "axis": { "labelColor": "black" },
-    "font": "Montserrat"
-  },
-  "background": "transparent",
-  "width": "container",
-  "height": 300,
-  "autosize": {
-    "type": "fit",
-    "contains": "padding",
-    "resize": true
-  },
-  "data": { "url": "https://gist.githubusercontent.com/dredshep/52212776b94e3b40e26750a5ddf7bfd8/raw/66383a0e802e3189a7682c159ad5c2182d49eb96/tokenWeights.json" },
-  "mark": { "type": "area" },
-  "encoding": {
-    "x": {
-      "timeUnit": "yearmonthdate",
-      "field": "timestamp",
-      "axis": { "domain": false },
-      "title": null
-    },
-    "y": {
-      "aggregate": "sum",
-      "field": "weight",
-      "axis": null,
-      "stack": "normalize",
-      "title": "% Weight"
-    },
-    "color": { "field": "ticker", "scale": { "scheme": "category20b" } }
-  }
-}
-
-*/
 
   const fetchVega = (
     dataIn: {

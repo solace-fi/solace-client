@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react'
-import { Area, AreaChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts'
 import { useNetwork } from '../../context/NetworkManager'
 import { calculateWeeklyTicks, xtickLabelFormatter } from '../../utils/chart'
 import { formatCurrency } from '../../utils/formatting'
 import { useAnalyticsContext } from './AnalyticsContext'
 import { Text } from '../../components/atoms/Typography'
-import { PremiumsCustomTooltip } from '../../components/organisms/CustomTooltip'
 import { useGeneral } from '../../context/GeneralManager'
 import vegaEmbed from 'vega-embed'
 import { Flex } from '../../components/atoms/Layout'
@@ -78,48 +76,6 @@ export const PremiumsPaidByPeriodChart = ({
   }, [activeNetwork, fetchedPremiums, appTheme, chosenHeight, chosenWidth])
 
   return (
-    // <>
-    //   {premiumHistory.length > 0 ? (
-    //     <AreaChart width={chosenWidth < 3 ? width * 0.95 : width * 0.75} height={chosenHeight} data={premiumHistory}>
-    //       <defs>
-    //         <linearGradient id={`colorPremium`} x1="0" y1="0" x2="0" y2="1">
-    //           <stop offset="5%" stopColor={'#13a4e8'} stopOpacity={0.8} />
-    //           <stop offset="95%" stopColor={'#13a4e8'} stopOpacity={0.7} />
-    //         </linearGradient>
-    //       </defs>
-    //       <XAxis
-    //         dataKey="timestamp"
-    //         scale="time"
-    //         type="number"
-    //         domain={['auto', 'auto']}
-    //         ticks={xticks}
-    //         tickFormatter={xtickLabelFormatter}
-    //         stroke="#c0c2c3"
-    //         dy={5}
-    //       />
-    //       <YAxis
-    //         tickFormatter={formatCurrency({ decimals: 0 })}
-    //         domain={[0, 'auto']}
-    //         allowDataOverflow={false}
-    //         stroke="#c0c2c3"
-    //       />
-    //       <CartesianGrid strokeDasharray="3 3" />
-    //       <Tooltip content={<PremiumsCustomTooltip valueDecimals={2} chartType={'stackedLine'} color={'#13a4e8'} />} />
-    //       <Area
-    //         type="monotone"
-    //         dataKey={'premium'}
-    //         stackId="1"
-    //         stroke={'#13a4e8'}
-    //         fillOpacity={1}
-    //         fill={`url(#colorPremium)`}
-    //       />
-    //     </AreaChart>
-    //   ) : (
-    //     <Text textAlignCenter t2>
-    //       This chart cannot be viewed at this time
-    //     </Text>
-    //   )}
-    // </>
     <Flex>
       <Flex id="vis_ppbp" widthP={100} justifyCenter>
         <Text autoAlign>data not available</Text>

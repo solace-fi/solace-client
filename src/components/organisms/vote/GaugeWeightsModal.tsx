@@ -1,14 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, TooltipProps } from 'recharts'
 
-import { Flex } from '../atoms/Layout'
-import { Text } from '../atoms/Typography'
-import { useGeneral } from '../../context/GeneralManager'
-import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
-import { Modal } from '../molecules/Modal'
-import { Accordion } from '../atoms/Accordion'
-import { SmallerInputSection } from '../molecules/InputSection'
-import { truncateValue } from '../../utils/formatting'
+import { Flex } from '../../atoms/Layout'
+import { Text } from '../../atoms/Typography'
+import { useGeneral } from '../../../context/GeneralManager'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
+import { Modal } from '../../molecules/Modal'
+import { Accordion } from '../../atoms/Accordion'
+import { SmallerInputSection } from '../../molecules/InputSection'
+import { truncateValue } from '../../../utils/formatting'
 
 export const CustomPieChartTooltip = ({ active, payload }: TooltipProps<number, string>): JSX.Element => {
   const { appTheme } = useGeneral()

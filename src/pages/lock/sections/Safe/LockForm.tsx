@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Button } from '../../../../components/atoms/Button'
-import InformationBox from '../../../../components/molecules/InformationBox'
+import InformationBox from '../../../../components/molecules/stake-and-lock/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { DAYS_PER_YEAR } from '../../../../constants'

@@ -10,7 +10,7 @@ import {
   fixed,
   formatAmount,
 } from '../../../../utils/formatting'
-import InformationBox from '../../../../components/molecules/InformationBox'
+import InformationBox from '../../../../components/molecules/stake-and-lock/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'

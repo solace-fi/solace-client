@@ -13,7 +13,7 @@ import {
 import { BigNumber } from 'ethers'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { FunctionName, InfoBoxType } from '../../../../constants/enums'
-import InformationBox from '../../../../components/molecules/InformationBox'
+import InformationBox from '../../../../components/molecules/stake-and-lock/InformationBox'
 import { StyledForm, StyledSlider } from '../../../../components/atoms/Input'
 import { Flex } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
