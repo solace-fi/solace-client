@@ -1,6 +1,5 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, TooltipProps } from 'recharts'
-
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import vegaEmbed from 'vega-embed'
 import { Flex } from '../../atoms/Layout'
 import { Text } from '../../atoms/Typography'
 import { useGeneral } from '../../../context/GeneralManager'
@@ -10,36 +9,18 @@ import { Accordion } from '../../atoms/Accordion'
 import { SmallerInputSection } from '../../molecules/InputSection'
 import { truncateValue } from '../../../utils/formatting'
 
-export const CustomPieChartTooltip = ({ active, payload }: TooltipProps<number, string>): JSX.Element => {
-  const { appTheme } = useGeneral()
-
-  return (
-    <>
-      {active && (
-        <div
-          style={{
-            backgroundColor: appTheme == 'light' ? '#ffff' : '#2a2f3b',
-            padding: '5px',
-            borderRadius: '10px',
-          }}
-        >
-          <Text>{`${payload?.[0].name} : ${payload?.[0].value}%`}</Text>
-        </div>
-      )}
-    </>
-  )
-}
-
 export const GaugeWeightsModal = ({
   isOpen,
   handleClose,
   handleViewCurrentData,
   currentWeightsData,
   nextWeightsData,
-  chartColors,
-  textColors,
-  lightColors,
-  darkColors,
+  chartTopColors,
+  textTopColors,
+  chartSubColors,
+  textSubColors,
+  topColorTypes,
+  subColorTypes,
   viewCurrentData,
 }: {
   isOpen: boolean
@@ -47,14 +28,16 @@ export const GaugeWeightsModal = ({
   handleViewCurrentData: (toggle: boolean) => void
   currentWeightsData: { name: string; value: number; usdValue: number }[]
   nextWeightsData: { name: string; value: number; usdValue: number }[]
-  chartColors: string[]
-  textColors: string[]
-  lightColors: string[]
-  darkColors: string[]
+  chartTopColors: string[]
+  textTopColors: string[]
+  chartSubColors: string[]
+  textSubColors: string[]
+  topColorTypes: string[]
+  subColorTypes: string[]
   viewCurrentData: boolean
 }): JSX.Element => {
-  const { isMobile } = useWindowDimensions()
-  const [animate, setAnimate] = useState(true)
+  const { appTheme } = useGeneral()
+  const { width, isMobile } = useWindowDimensions()
   const [searchTerm, setSearchTerm] = useState('')
 
   const searchedList = useMemo(() => {
@@ -62,11 +45,66 @@ export const GaugeWeightsModal = ({
     return searchTerm ? dataToUse.filter((item) => item.name.includes(searchTerm.toLowerCase())) : dataToUse
   }, [searchTerm, currentWeightsData, nextWeightsData, viewCurrentData])
 
-  const onAnimationStart = useCallback(() => {
-    setTimeout(() => {
-      setAnimate(false)
-    }, 2000)
-  }, [])
+  function fetchVega(theme: 'light' | 'dark') {
+    const dataToUse = viewCurrentData ? currentWeightsData : nextWeightsData
+    vegaEmbed('#gauge-weights-pie-full', {
+      $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
+      config: {
+        style: { cell: { stroke: 'transparent' } },
+        axis: { labelColor: theme == 'light' ? 'black' : 'white' },
+        font: 'Montserrat',
+      },
+      background: 'transparent',
+      width: 'container',
+      height: 300,
+      autosize: {
+        type: 'fit',
+        contains: 'padding',
+        resize: true,
+      },
+      data: {
+        name: 'table',
+        values: dataToUse.map((item: any, i) => {
+          return {
+            name: item.name,
+            value: item.value / 100,
+            usdValue: item.usdValue,
+            colorType: i < topColorTypes.length ? topColorTypes[i] : subColorTypes[i % subColorTypes.length],
+            index: i,
+          }
+        }),
+      },
+      layer: [
+        {
+          mark: {
+            type: 'arc',
+            stroke: '#fff',
+          },
+        },
+      ],
+      encoding: {
+        tooltip: [
+          { field: 'name', type: 'nominal' },
+          { field: 'value', type: 'quantitative', format: '.0%' },
+        ],
+        theta: { field: 'value', type: 'quantitative', stack: 'normalize' },
+        color: {
+          field: 'colorType',
+          type: 'nominal',
+          legend: null,
+          scale: {
+            domain: [...topColorTypes, ...subColorTypes],
+            range: [...chartTopColors, ...chartSubColors],
+          },
+        },
+        order: { field: 'index', type: 'quantitative', sort: 'ascending' },
+      },
+    })
+  }
+
+  useEffect(() => {
+    fetchVega(appTheme)
+  }, [isOpen, width, appTheme, currentWeightsData, nextWeightsData, viewCurrentData])
 
   return (
     <Modal modalTitle="Gauge Weights" isOpen={isOpen} handleClose={handleClose}>
@@ -117,28 +155,9 @@ export const GaugeWeightsModal = ({
         </Flex>
       </Flex>
       <Flex col={isMobile} row={!isMobile} gap={10} bgSecondary rounded p={12}>
-        <ResponsiveContainer width={!isMobile ? '60%' : '100%'} height={300}>
-          <PieChart width={50}>
-            <Pie
-              isAnimationActive={animate}
-              onAnimationStart={onAnimationStart}
-              data={viewCurrentData ? currentWeightsData : nextWeightsData}
-              cx="50%"
-              cy="50%"
-              outerRadius={'100%'}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {(viewCurrentData ? currentWeightsData : nextWeightsData).map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={index < chartColors.length ? chartColors[index] : darkColors[index % darkColors.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomPieChartTooltip />} />
-          </PieChart>
-        </ResponsiveContainer>
+        <Flex id="gauge-weights-pie-full" width={400} widthP={isMobile ? 100 : undefined} justifyCenter>
+          <Text autoAlign>data not available</Text>
+        </Flex>
         <Flex col gap={10}>
           <SmallerInputSection
             placeholder={'Search'}
@@ -161,7 +180,10 @@ export const GaugeWeightsModal = ({
                       bold
                       textAlignLeft
                       style={{
-                        color: index < textColors.length ? textColors[index] : darkColors[index % darkColors.length],
+                        color:
+                          index < textTopColors.length
+                            ? textTopColors[index]
+                            : textSubColors[index % textSubColors.length],
                       }}
                     >{`${entry.name}`}</Text>
                   </Flex>
@@ -169,7 +191,10 @@ export const GaugeWeightsModal = ({
                     bold
                     textAlignRight
                     style={{
-                      color: index < textColors.length ? textColors[index] : darkColors[index % darkColors.length],
+                      color:
+                        index < textTopColors.length
+                          ? textTopColors[index]
+                          : textSubColors[index % textSubColors.length],
                     }}
                   >{`$${truncateValue(entry.usdValue, 2)}`}</Text>
                 </Flex>

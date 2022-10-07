@@ -1,17 +1,16 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react'
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
 import { Button } from '../../components/atoms/Button'
 import { Flex } from '../../components/atoms/Layout'
 import { LoaderText } from '../../components/molecules/LoaderText'
 import { TileCard } from '../../components/molecules/TileCard'
-import { CustomPieChartTooltip, GaugeWeightsModal } from '../../components/organisms/vote/GaugeWeightsModal'
-import { BKPT_NAVBAR } from '../../constants'
+import { GaugeWeightsModal } from '../../components/organisms/vote/GaugeWeightsModal'
 import { Text } from '../../components/atoms/Typography'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { formatUnits } from 'ethers/lib/utils'
 import { useVoteContext } from './VoteContext'
 import { truncateValue } from '../../utils/formatting'
 import { useGeneral } from '../../context/GeneralManager'
+import vegaEmbed from 'vega-embed'
 
 export const GaugePieChart = () => {
   const { appTheme } = useGeneral()
@@ -24,21 +23,59 @@ export const GaugePieChart = () => {
 
   const [openGaugeWeightsModal, setOpenGaugeWeightsModal] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [animate, setAnimate] = useState(true)
   const [viewCurrentData, setViewCurrentData] = useState<boolean>(true)
 
-  const CHART_COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', 'rgb(95,93,249)', 'rgb(240,77,66)'], [])
-  const LIGHT_COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', '#6493fa', 'rgb(240,77,66)'], [])
-  const DARK_COLORS = useMemo(() => ['rgb(182, 104, 185)', 'rgb(187, 136, 0)', 'rgb(95,93,249)', '#b83c33'], [])
+  const topColorTypes = ['top1', 'top2', 'top3', 'top4']
+  const subColorTypes = ['sub1', 'sub2', 'sub3', 'sub4']
 
-  const TEXT_COLORS = useMemo(() => {
+  const LIGHT_CHART_TOP_COLORS = useMemo(
+    () => ['rgb(212,120,216)', 'rgb(243,211,126)', '#5d81f9', 'rgb(240,77,66)'],
+    []
+  )
+  const DARK_CHART_TOP_COLORS = useMemo(
+    () => ['rgb(182, 104, 185)', 'rgb(187, 136, 0)', 'rgb(95,93,249)', '#b83c33'],
+    []
+  )
+  const LIGHT_TEXT_TOP_COLORS = useMemo(() => ['rgb(212,120,216)', 'rgb(243,211,126)', '#6493fa', 'rgb(240,77,66)'], [])
+  const DARK_TEXT_TOP_COLORS = useMemo(
+    () => ['rgb(182, 104, 185)', 'rgb(187, 136, 0)', 'rgb(95,93,249)', '#b83c33'],
+    []
+  )
+
+  const LIGHT_CHART_SUB_COLORS = useMemo(() => ['#93e046', '#7f51fc', '#e89638', '#26ecbe'], [])
+  const DARK_CHART_SUB_COLORS = useMemo(() => ['#6da832', '#5432b1', '#b8772c', '#1bb692'], [])
+  const LIGHT_TEXT_SUB_COLORS = useMemo(() => ['#93e046', '#7f51fc', '#e89638', '#26ecbe'], [])
+  const DARK_TEXT_SUB_COLORS = useMemo(() => ['#6da832', '#5432b1', '#b8772c', '#1bb692'], [])
+
+  const TEXT_TOP_COLORS = useMemo(() => {
     if (appTheme === 'dark') {
-      return LIGHT_COLORS
+      return LIGHT_TEXT_TOP_COLORS
     }
-    return DARK_COLORS
-  }, [appTheme, LIGHT_COLORS, DARK_COLORS])
+    return DARK_TEXT_TOP_COLORS
+  }, [appTheme, LIGHT_TEXT_TOP_COLORS, DARK_TEXT_TOP_COLORS])
 
-  const TOP_GAUGES = CHART_COLORS.length
+  const CHART_TOP_COLORS = useMemo(() => {
+    if (appTheme === 'dark') {
+      return LIGHT_CHART_TOP_COLORS
+    }
+    return DARK_CHART_TOP_COLORS
+  }, [appTheme, LIGHT_CHART_TOP_COLORS, DARK_CHART_TOP_COLORS])
+
+  const TEXT_SUB_COLORS = useMemo(() => {
+    if (appTheme === 'dark') {
+      return LIGHT_TEXT_SUB_COLORS
+    }
+    return DARK_TEXT_SUB_COLORS
+  }, [appTheme, LIGHT_TEXT_SUB_COLORS, DARK_TEXT_SUB_COLORS])
+
+  const CHART_SUB_COLORS = useMemo(() => {
+    if (appTheme === 'dark') {
+      return LIGHT_CHART_SUB_COLORS
+    }
+    return DARK_CHART_SUB_COLORS
+  }, [appTheme, LIGHT_CHART_SUB_COLORS, DARK_CHART_SUB_COLORS])
+
+  const TOP_GAUGES = TEXT_TOP_COLORS.length
 
   const currentData = useMemo(() => {
     return currentGaugesData
@@ -94,15 +131,70 @@ export const GaugePieChart = () => {
     }
   }, [gaugesLoading])
 
-  const onAnimationStart = useCallback(() => {
-    setTimeout(() => {
-      setAnimate(false)
-    }, 2000)
-  }, [])
-
   const handleViewCurrentData = useCallback((toggle: boolean) => {
     setViewCurrentData(toggle)
   }, [])
+
+  function fetchVega(theme: 'light' | 'dark') {
+    vegaEmbed('#gauge-weights-pie', {
+      $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
+      config: {
+        style: { cell: { stroke: 'transparent' } },
+        axis: { labelColor: theme == 'light' ? 'black' : 'white' },
+        font: 'Montserrat',
+      },
+      background: 'transparent',
+      width: 'container',
+      height: 300,
+      autosize: {
+        type: 'fit',
+        contains: 'padding',
+        resize: true,
+      },
+      data: {
+        name: 'table',
+        values: summarizedData.map((item: any, i) => {
+          return {
+            name: item.name,
+            value: item.value / 100,
+            usdValue: item.usdValue,
+            colorType: i < topColorTypes.length ? topColorTypes[i] : 'other',
+            index: i,
+          }
+        }),
+      },
+      layer: [
+        {
+          mark: {
+            type: 'arc',
+            stroke: '#fff',
+          },
+        },
+      ],
+      encoding: {
+        tooltip: [
+          { field: 'name', type: 'nominal' },
+          { field: 'value', type: 'quantitative', format: '.0%' },
+        ],
+        theta: { field: 'value', type: 'quantitative', stack: 'normalize' },
+        color: {
+          field: 'colorType',
+          type: 'nominal',
+          legend: null,
+          scale: {
+            domain: [...topColorTypes, ...subColorTypes, 'other'],
+            range: [...CHART_TOP_COLORS, ...CHART_SUB_COLORS, '#DCDCDC'],
+          },
+        },
+        order: { field: 'index', type: 'quantitative', sort: 'ascending' },
+      },
+    })
+  }
+
+  useEffect(() => {
+    if (loading || openGaugeWeightsModal) return
+    fetchVega(appTheme)
+  }, [openGaugeWeightsModal, width, appTheme, currentData, nextData, viewCurrentData, loading])
 
   return (
     <TileCard gap={20}>
@@ -112,10 +204,12 @@ export const GaugePieChart = () => {
         handleViewCurrentData={handleViewCurrentData}
         currentWeightsData={currentData}
         nextWeightsData={nextData}
-        chartColors={CHART_COLORS}
-        textColors={TEXT_COLORS}
-        lightColors={LIGHT_COLORS}
-        darkColors={DARK_COLORS}
+        chartTopColors={CHART_TOP_COLORS}
+        textTopColors={TEXT_TOP_COLORS}
+        chartSubColors={CHART_SUB_COLORS}
+        textSubColors={TEXT_SUB_COLORS}
+        topColorTypes={topColorTypes}
+        subColorTypes={subColorTypes}
         viewCurrentData={viewCurrentData}
       />
       <Flex between itemsCenter>
@@ -173,32 +267,13 @@ export const GaugePieChart = () => {
         </Flex>
       </Flex>
       <Flex justifyCenter>
-        {loading ? (
+        {loading || openGaugeWeightsModal ? (
           <LoaderText />
         ) : (
           <Flex col={isMobile} widthP={100}>
-            <ResponsiveContainer width={!isMobile ? '60%' : '100%'} height={200}>
-              <PieChart width={25}>
-                <Pie
-                  isAnimationActive={animate}
-                  onAnimationStart={onAnimationStart}
-                  data={summarizedData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={width > BKPT_NAVBAR ? '100%' : '80%'}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {summarizedData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={index == summarizedData.length - 1 ? '#DCDCDC' : CHART_COLORS[index % CHART_COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomPieChartTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
+            <Flex id="gauge-weights-pie" width={400} widthP={isMobile ? 100 : undefined} justifyCenter>
+              <Text autoAlign>data not available</Text>
+            </Flex>
             <Flex col gap={18} widthP={!isMobile ? 50 : 100}>
               {summarizedData.map((entry, index) => (
                 <Flex key={`${entry.name}-${index}`} between gap={10}>
@@ -210,14 +285,14 @@ export const GaugePieChart = () => {
                       bold
                       t4s
                       textAlignLeft
-                      style={{ color: index < TEXT_COLORS.length ? TEXT_COLORS[index] : 'inherit' }}
+                      style={{ color: index < TEXT_TOP_COLORS.length ? TEXT_TOP_COLORS[index] : 'inherit' }}
                     >{`${entry.name}`}</Text>
                   </Flex>
                   <Text
                     t4s
                     bold
                     textAlignRight
-                    style={{ color: index < TEXT_COLORS.length ? TEXT_COLORS[index] : 'inherit' }}
+                    style={{ color: index < TEXT_TOP_COLORS.length ? TEXT_TOP_COLORS[index] : 'inherit' }}
                   >{`$${truncateValue(entry.usdValue, 2)}`}</Text>
                 </Flex>
               ))}

@@ -77,7 +77,7 @@ export const TokenRadialChart = ({
 
   return (
     <Flex gap={10}>
-      <Flex id="token-radial-chart" widthP={300} justifyCenter>
+      <Flex id="token-radial-chart" widthP={100} justifyCenter>
         <Text autoAlign>data not available</Text>
       </Flex>
     </Flex>
