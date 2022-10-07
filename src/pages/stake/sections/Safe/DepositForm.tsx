@@ -2,7 +2,7 @@ import React from 'react'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { Button } from '../../../../components/atoms/Button'
-import { StyledSlider } from '../../../../components/atoms/Input'
+import { StyledForm, StyledSlider } from '../../../../components/atoms/Input'
 import { useSolaceBalance } from '../../../../hooks/balance/useBalance'
 import {
   accurateMultiply,
@@ -11,7 +11,7 @@ import {
   formatAmount,
   truncateValue,
 } from '../../../../utils/formatting'
-import InformationBox from '../../components/InformationBox'
+import InformationBox from '../../../../components/molecules/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
@@ -19,10 +19,9 @@ import { LockData } from '@solace-fi/sdk-nightly'
 import { FunctionName } from '../../../../constants/enums'
 import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 
-import { StyledForm } from '../../atoms/StyledForm'
 import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { Label } from '../../molecules/InfoPair'
+import { Label } from '../../../../components/molecules/InfoPair'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { BKPT_5, BKPT_7 } from '../../../../constants'

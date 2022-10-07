@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { BigNumber, Contract } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { Button } from '../../../../components/atoms/Button'
-import { StyledSlider } from '../../../../components/atoms/Input'
+import { StyledForm, StyledSlider } from '../../../../components/atoms/Input'
 import {
   accurateMultiply,
   convertSciNotaToPrecise,
@@ -10,13 +10,12 @@ import {
   fixed,
   formatAmount,
 } from '../../../../utils/formatting'
-import InformationBox from '../../components/InformationBox'
+import InformationBox from '../../../../components/molecules/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
 
-import { StyledForm } from '../../atoms/StyledForm'
 import { Flex } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { useWeb3React } from '@web3-react/core'

@@ -42,6 +42,7 @@ export default function useReferralApi(): {
   const checkReferralCodeUsability = useCallback(
     async (referral_code: string) => {
       setCookieCodeUsable(undefined)
+      // referral codes are chain-specific
       const canBeUsed = await policyReferralObj.isReferralCodeUsable(referral_code, activeNetwork.chainId)
       setCookieCodeUsable(canBeUsed)
     },

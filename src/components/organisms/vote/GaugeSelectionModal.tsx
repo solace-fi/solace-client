@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react'
-import { DropdownOptions } from './Dropdown'
-import { SmallerInputSection } from '../molecules/InputSection'
-import { Modal } from '../molecules/Modal'
+import { DropdownOptions } from '../Dropdown'
+import { SmallerInputSection } from '../../molecules/InputSection'
+import { Modal } from '../../molecules/Modal'
 import { BigNumber } from '@solace-fi/sdk-nightly'
-import { GaugeData, VoteAllocation } from '../../constants/types'
+import { GaugeData, VoteAllocation } from '../../../constants/types'
 
 export const GaugeSelectionModal = ({
   show,

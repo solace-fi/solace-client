@@ -26,7 +26,7 @@ import {
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
-import CardSectionValue from './components/CardSectionValue'
+import CardSectionValue from '../../components/molecules/CardSectionValue'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'

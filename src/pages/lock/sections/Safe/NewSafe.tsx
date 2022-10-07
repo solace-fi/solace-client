@@ -13,7 +13,7 @@ import { Text } from '../../../../components/atoms/Typography'
 import { BKPT_7, BKPT_5 } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
 import { RaisedBox } from '../../../../components/atoms/Box'
-import { Label } from '../../molecules/InfoPair'
+import { Label } from '../../../../components/molecules/InfoPair'
 import { Flex, ShadowDiv } from '../../../../components/atoms/Layout'
 import { Accordion } from '../../../../components/atoms/Accordion'
 import { useProvider } from '../../../../context/ProviderManager'
@@ -30,7 +30,7 @@ import { useContracts } from '../../../../context/ContractsManager'
 import { useTokenAllowance } from '../../../../hooks/contract/useToken'
 import { useDepositHelper } from '../../../../hooks/lock/useDepositHelper'
 
-const StyledForm = styled.div`
+const NewSafeStyledForm = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -176,7 +176,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
     >
       <ShadowDiv ref={accordionRef} style={{ marginBottom: '20px' }}>
         <RaisedBox>
-          <StyledForm>
+          <NewSafeStyledForm>
             <Flex column={isMobile} p={24} gap={30}>
               <Flex column gap={24}>
                 <Flex column gap={24}>
@@ -326,7 +326,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 </Flex>
               )}
             </Flex>
-          </StyledForm>
+          </NewSafeStyledForm>
         </RaisedBox>
       </ShadowDiv>
     </Accordion>

@@ -1,5 +1,5 @@
 import styled, { css, ThemedStyledProps } from 'styled-components'
-import { Theme } from '../../../styles/themes'
+import { Theme } from '../../styles/themes'
 import React from 'react'
 
 // const theme = {} as Theme

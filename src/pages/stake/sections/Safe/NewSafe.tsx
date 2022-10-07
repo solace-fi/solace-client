@@ -22,7 +22,7 @@ import { Text } from '../../../../components/atoms/Typography'
 import { BKPT_7, BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
 import { RaisedBox } from '../../../../components/atoms/Box'
-import { Label } from '../../molecules/InfoPair'
+import { Label } from '../../../../components/molecules/InfoPair'
 import { Flex, ShadowDiv, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { Accordion } from '../../../../components/atoms/Accordion'
@@ -32,7 +32,7 @@ import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensi
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
 
-const StyledForm = styled.div`
+const NewSafeStyledForm = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -110,7 +110,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
     >
       <ShadowDiv ref={accordionRef} style={{ marginBottom: '20px' }}>
         <RaisedBox>
-          <StyledForm>
+          <NewSafeStyledForm>
             <Flex column p={24} gap={30}>
               <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
                 <Flex column gap={24}>
@@ -223,7 +223,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 Stake
               </Button>
             </Flex>
-          </StyledForm>
+          </NewSafeStyledForm>
         </RaisedBox>
       </ShadowDiv>
     </Accordion>

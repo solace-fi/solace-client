@@ -171,3 +171,21 @@ export const Checkbox = styled.input`
     /* animate with ease-in-out duration 200ms */
   }
 `
+
+export const StyledForm = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 30px;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: auto;
+  width: 300px;
+  /* for screens bigger than BKPT_5 */
+  @media (min-width: ${BKPT_5}px) {
+    width: 521px;
+    margin: 0;
+  }
+`

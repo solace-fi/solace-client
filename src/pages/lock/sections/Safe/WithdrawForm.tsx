@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { Button } from '../../../../components/atoms/Button'
-import { StyledSlider } from '../../../../components/atoms/Input'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import {
@@ -14,8 +13,8 @@ import {
 import { BigNumber } from 'ethers'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { FunctionName, InfoBoxType } from '../../../../constants/enums'
-import InformationBox from '../../components/InformationBox'
-import { StyledForm } from '../../atoms/StyledForm'
+import InformationBox from '../../../../components/molecules/InformationBox'
+import { StyledForm, StyledSlider } from '../../../../components/atoms/Input'
 import { Flex } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { ZERO } from '../../../../constants'

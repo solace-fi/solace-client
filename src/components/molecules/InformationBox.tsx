@@ -1,8 +1,8 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
-import { InfoBoxType } from '../../../constants/enums'
-import { StyledInfo } from '../../../components/atoms/Icon'
-import { BKPT_5 } from '../../../constants'
+import { InfoBoxType } from '../../constants/enums'
+import { StyledInfo } from '../atoms/Icon'
+import { BKPT_5 } from '../../constants'
 
 // border-[#5F5DF9] bg-[#F7F7FF] text-[#5F5DF9]
 const infoCss = css`

@@ -1,7 +1,7 @@
 import { BigNumber, ZERO, ZERO_ADDRESS } from '@solace-fi/sdk-nightly'
 import { useWeb3React } from '@web3-react/core'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { GaugeSelectionModal } from '../../components/organisms/GaugeSelectionModal'
+import { GaugeSelectionModal } from '../../components/organisms/vote/GaugeSelectionModal'
 import { DelegatorVotesData, GaugeData, VoteAllocation, VotesData } from '../../constants/types'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
