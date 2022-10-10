@@ -39,7 +39,6 @@ import { useGeneral } from '../context/GeneralManager'
 /* import pages */
 import Stake from './stake'
 import Bond from './bond'
-import Govern from './govern'
 import Cover from './cover'
 import Bribe from './bribe'
 import Lock from './lock'
@@ -59,8 +58,8 @@ export default function App(): any {
       component: Cover,
     },
     {
-      name: 'Bond',
-      title: 'My Bonding',
+      name: 'Buy $SOLACE',
+      title: 'Buy $SOLACE',
       to: '/bond',
       component: Bond,
     },
@@ -70,15 +69,9 @@ export default function App(): any {
       to: '/stake',
       component: Stake,
     },
-    {
-      name: 'Govern',
-      title: 'Governance',
-      to: '/govern',
-      component: Govern,
-    },
-    { name: 'Vote', title: 'My Voting', to: '/vote', component: Gauge },
-    { name: 'Lock', title: 'My Locking', to: '/lock', component: Lock },
-    { name: 'Bribe', title: 'Native Bribes', to: '/bribe', component: Bribe },
+    { name: 'Governance', title: 'Native Governance', to: '/vote', component: Gauge },
+    { name: 'Underwriting', title: 'Native Underwriting', to: '/lock', component: Lock },
+    { name: 'Marketplace', title: 'Native Marketplace', to: '/bribe', component: Bribe },
     { name: 'Analytics', title: 'Native Analytics', to: '/analytics', component: Analytics },
   ]
 

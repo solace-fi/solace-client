@@ -22,7 +22,9 @@ function VisibilityController({ show, children }: { show: boolean; children: Rea
 }
 
 const CoverageContent = () => {
-  const { intrface } = useCoverageContext()
+  const { account } = useWeb3React()
+  const { activeNetwork } = useNetwork()
+  const { styles, intrface } = useCoverageContext()
   const {
     showPortfolioModal,
     showCLDModal,
@@ -30,7 +32,12 @@ const CoverageContent = () => {
     showSimCoverModal,
     showReferralModal,
     showShareReferralModal,
+    handleShowSimulatorModal,
   } = intrface
+  const { gradientStyle } = styles
+  const canShowCoverageV3 = useMemo(() => activeNetwork.config.generalFeatures.coverageV3, [
+    activeNetwork.config.generalFeatures.coverageV3,
+  ])
 
   const _showCldModal =
     showCLDModal &&
@@ -81,58 +88,35 @@ const CoverageContent = () => {
 
   return (
     <>
-      <CodeNoticeModal />
-      <Flex justifyCenter>
-        <Flex col width={450}>
-          <VisibilityController show={_showCldModal}>
-            <CldModal />
-          </VisibilityController>
-          <VisibilityController show={_showPortfolioModal}>
-            <Portfolio />
-          </VisibilityController>
-          <VisibilityController show={_showSimulatorModal}>
-            <PortfolioSimulator />
-          </VisibilityController>
-          <VisibilityController show={_showSimCoverModal}>
-            <SimCoverModal />
-          </VisibilityController>
-          <VisibilityController show={_showDefault}>
-            <CoveragePage />
-          </VisibilityController>
-          <VisibilityController show={_showReferralModal}>
-            <ReferralModal />
-          </VisibilityController>
-          <VisibilityController show={_showShareReferralModal}>
-            <ShareModal />
-          </VisibilityController>
-        </Flex>
-      </Flex>
-    </>
-  )
-}
-
-function Cover(): JSX.Element {
-  return (
-    <CoverageManager>
-      <CoverageContent />
-    </CoverageManager>
-  )
-}
-
-const CoveragePage = (): JSX.Element => {
-  const { account } = useWeb3React()
-  const { activeNetwork } = useNetwork()
-  const { styles, intrface } = useCoverageContext()
-  const { handleShowSimulatorModal } = intrface
-  const { gradientStyle } = styles
-  const canShowCoverageV3 = useMemo(() => activeNetwork.config.generalFeatures.coverageV3, [
-    activeNetwork.config.generalFeatures.coverageV3,
-  ])
-
-  return (
-    <>
       {canShowCoverageV3 && account ? (
-        <PolicyContent />
+        <>
+          <CodeNoticeModal />
+          <Flex justifyCenter>
+            <Flex col width={450}>
+              <VisibilityController show={_showCldModal}>
+                <CldModal />
+              </VisibilityController>
+              <VisibilityController show={_showPortfolioModal}>
+                <Portfolio />
+              </VisibilityController>
+              <VisibilityController show={_showSimulatorModal}>
+                <PortfolioSimulator />
+              </VisibilityController>
+              <VisibilityController show={_showSimCoverModal}>
+                <SimCoverModal />
+              </VisibilityController>
+              <VisibilityController show={_showDefault}>
+                <PolicyContent />
+              </VisibilityController>
+              <VisibilityController show={_showReferralModal}>
+                <ReferralModal />
+              </VisibilityController>
+              <VisibilityController show={_showShareReferralModal}>
+                <ShareModal />
+              </VisibilityController>
+            </Flex>
+          </Flex>
+        </>
       ) : account ? (
         <Content>
           <Box error pt={10} pb={10} pl={15} pr={15}>
@@ -158,4 +142,11 @@ const CoveragePage = (): JSX.Element => {
   )
 }
 
+function Cover(): JSX.Element {
+  return (
+    <CoverageManager>
+      <CoverageContent />
+    </CoverageManager>
+  )
+}
 export default Cover
