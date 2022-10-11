@@ -97,6 +97,21 @@ export const TableHead = styled.thead<TableHeadProps>`
   `};
 `
 
+export const TableFoot = styled.thead<TableHeadProps>`
+  ${(props) =>
+    props.sticky &&
+    `
+    position: sticky;
+    transform: translateY(${props.translation ?? 7}px);
+    bottom: ${props.translation ?? 7}px;
+    background-color: ${props.theme.table.head_bg_color};
+    z-index: ${props.zIndex ? props.zIndex : `${Z_TABLE}`};
+    th {
+      padding-bottom: 20px;
+    }
+  `};
+`
+
 export const TableHeader = styled.th<TableProps>`
   ${(props) => props.width && `max-width: ${props.width}px !important`};
   padding: 4px 18px;

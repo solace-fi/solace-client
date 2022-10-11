@@ -38,6 +38,7 @@ type AnalyticsContextType = {
     fetchedPremiums: FetchedPremiums | undefined
     tokenDetails: { symbol: string; price: number; weight: number }[]
     uwpValueUSD: BigNumber
+    premiumsUSD: number
     getPortfolioVolatility: (weights: number[], simulatedVolatility: number[][]) => number[]
   }
 }
@@ -60,6 +61,7 @@ const AnalyticsContext = createContext<AnalyticsContextType>({
     fetchedPremiums: undefined,
     tokenDetails: [],
     uwpValueUSD: ZERO,
+    premiumsUSD: 0,
     getPortfolioVolatility: () => [],
   },
 })
@@ -88,6 +90,13 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const [canSeePortfolioAreaChart, setCanSeePortfolioAreaChart] = useState<boolean | undefined>(undefined)
   const [canSeePortfolioVolatility, setCanSeePortfolioVolatility] = useState<boolean | undefined>(undefined)
   const [canSeeTokenVolatilities, setCanSeeTokenVolatilities] = useState<boolean | undefined>(undefined)
+
+  const premiumsUSD = useMemo(() => {
+    if (!fetchedPremiums || !fetchedPremiums?.[activeNetwork.chainId]) return 0
+    const premiumsByChainId = fetchedPremiums?.[activeNetwork.chainId]
+    const latestEpoch = premiumsByChainId.history[premiumsByChainId.history.length - 1]
+    return Number(latestEpoch.uweAmount) * Number(latestEpoch.uwpValuePerShare) * Number(latestEpoch.uwpPerUwe)
+  }, [activeNetwork, fetchedPremiums])
 
   const TRIALS = 1000
 
@@ -298,6 +307,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
         fetchedSipMathLib,
         tokenDetails,
         uwpValueUSD,
+        premiumsUSD,
         getPortfolioVolatility,
       },
     }),
@@ -315,6 +325,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
       fetchedPremiums,
       tokenDetails,
       uwpValueUSD,
+      premiumsUSD,
       getPortfolioVolatility,
     ]
   )

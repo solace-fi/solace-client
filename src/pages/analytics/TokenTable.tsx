@@ -46,33 +46,33 @@ export const TokenTable = ({ chosenHeight }: { chosenHeight: number }) => {
           <TableRow inheritBg>
             <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
               <Flex justifyCenter>
-                <TextSpan info autoAlignVertical onClick={() => setSelectedSort('TA')}>
+                <TextSpan info warning={selectedSort == 'TA'} autoAlignVertical onClick={() => setSelectedSort('TA')}>
                   <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
                 </TextSpan>
                 <TextSpan autoAlignVertical>Token</TextSpan>
-                <TextSpan info autoAlignVertical onClick={() => setSelectedSort('TD')}>
+                <TextSpan info warning={selectedSort == 'TD'} autoAlignVertical onClick={() => setSelectedSort('TD')}>
                   <StyledArrowDropDown size={30} />
                 </TextSpan>
               </Flex>
             </TableHeader>
             <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
               <Flex justifyCenter>
-                <TextSpan info autoAlignVertical onClick={() => setSelectedSort('PA')}>
+                <TextSpan info warning={selectedSort == 'PA'} autoAlignVertical onClick={() => setSelectedSort('PA')}>
                   <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
                 </TextSpan>
                 <TextSpan autoAlignVertical>Price</TextSpan>
-                <TextSpan info autoAlignVertical onClick={() => setSelectedSort('PD')}>
+                <TextSpan info warning={selectedSort == 'PD'} autoAlignVertical onClick={() => setSelectedSort('PD')}>
                   <StyledArrowDropDown size={30} />
                 </TextSpan>
               </Flex>
             </TableHeader>
             <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
               <Flex justifyCenter>
-                <TextSpan info autoAlignVertical onClick={() => setSelectedSort('WA')}>
+                <TextSpan info warning={selectedSort == 'WA'} autoAlignVertical onClick={() => setSelectedSort('WA')}>
                   <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
                 </TextSpan>
                 <TextSpan autoAlignVertical>Weight</TextSpan>
-                <TextSpan info autoAlignVertical>
+                <TextSpan info warning={selectedSort == 'WD'} autoAlignVertical>
                   <StyledArrowDropDown size={30} onClick={() => setSelectedSort('WD')} />
                 </TextSpan>
               </Flex>
@@ -83,7 +83,7 @@ export const TokenTable = ({ chosenHeight }: { chosenHeight: number }) => {
           {tokenDetails
             .sort((a, b) => modifiedSort(a, b))
             .map((info, i) => (
-              <TableRow key={i} raised={true}>
+              <TableRow key={i}>
                 <TableData style={{ padding: '14px 4px' }}>
                   <Flex gap={5} justifyCenter>
                     <img src={`https://assets.solace.fi/${info.symbol.toLowerCase()}`} height={20} />

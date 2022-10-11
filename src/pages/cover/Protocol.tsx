@@ -12,17 +12,7 @@ import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { networks } from '../../context/NetworkManager'
 import commaNumber from '../../utils/commaNumber'
 import { Modal } from '../../components/molecules/Modal'
-
-function mapNumberToLetter(number: number): string {
-  const grade = {
-    1: 'A',
-    2: 'B',
-    3: 'C',
-    4: 'D',
-  }[number]
-  if (grade) return grade
-  return 'F'
-}
+import { mapNumberToLetter } from '../../utils/mapProtocols'
 
 export const ReadOnlyProtocol: React.FC<{
   protocol: LocalSolaceRiskProtocol
