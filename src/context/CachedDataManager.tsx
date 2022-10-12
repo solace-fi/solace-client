@@ -1,4 +1,4 @@
-import React, { useMemo, useContext, createContext, useEffect, useCallback } from 'react'
+import React, { useMemo, useContext, createContext, useEffect, useCallback, useState } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
@@ -21,6 +21,7 @@ import { useCheckIsCoverageActive, usePortfolio, useRiskSeries } from '../hooks/
 import { useScpBalance } from '../hooks/balance/useBalance'
 import { usePortfolioAnalysis } from '../hooks/policy/usePortfolioAnalysis'
 import { ZERO } from '../constants'
+import axios from 'axios'
 
 /*
 
@@ -39,6 +40,7 @@ type CachedData = {
   positiveVersion: number // primary timekeeper, triggers updates in components that read this
   negativeVersion: number // secondary timekeeper, triggers updates in components that read this  minute: number
   gasData: GasData | undefined
+  statsCache: any
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
   positiveReload: () => void // primary timekeeper intended for reloading UI and data
@@ -71,6 +73,7 @@ const CachedDataContext = createContext<CachedData>({
   negativeVersion: 0,
   minute: 0,
   gasData: undefined,
+  statsCache: undefined,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
   positiveReload: () => undefined,
@@ -110,6 +113,7 @@ const CachedDataProvider: React.FC = (props) => {
   const { policyId, status, coverageLimit, mounting: coverageLoading } = useCheckIsCoverageActive()
   const scpBalance = useScpBalance()
   const { series, loading: seriesLoading } = useRiskSeries()
+  const [statsCache, setStatsCache] = useState<any>(undefined)
 
   const seriesLogos = useMemo(() => {
     return series
@@ -163,6 +167,16 @@ const CachedDataProvider: React.FC = (props) => {
     clearLocalTransactions()
   }, [disconnect, account, activeNetwork.chainId])
 
+  useEffect(() => {
+    const getStatsCache = async () => {
+      const _statsCache = await axios.get('https://stats-cache.solace.fi/analytics-stats.json')
+      if (_statsCache.data) {
+        setStatsCache(_statsCache.data)
+      }
+    }
+    getStatsCache()
+  }, [])
+
   const value = useMemo<CachedData>(
     () => ({
       localTransactions: localTxs,
@@ -173,6 +187,7 @@ const CachedDataProvider: React.FC = (props) => {
       negativeVersion,
       minute,
       gasData,
+      statsCache,
       addLocalTransactions,
       deleteLocalTransactions,
       coverage: {
@@ -206,6 +221,7 @@ const CachedDataProvider: React.FC = (props) => {
       positiveVersion,
       negativeVersion,
       gasData,
+      statsCache,
       portfolio,
       fetchStatus,
       policyId,

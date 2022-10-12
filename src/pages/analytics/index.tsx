@@ -29,7 +29,7 @@ const {
   TOKEN_RADIAL_PIE_CHART,
   TOKEN_WEIGHTS_AREA_CHART,
   PREMIUMS_LINE_CHART,
-  SPI_EXPOSURES_TABLE,
+  SPI_EXPOSURES_TABLE_APPID,
 } = AnalyticsChart
 
 import { Layout, Responsive, WidthProvider } from 'react-grid-layout'
@@ -47,7 +47,7 @@ import {
   cardUnchartable,
   interval,
 } from './constants'
-import { SpiExposuresTable } from './SpiExposuresTable'
+import { SpiExposuresTable } from './SpiExposure/SpiExposuresTableByAppId'
 
 const ResponsiveGridLayout = WidthProvider(Responsive)
 
@@ -220,14 +220,14 @@ export function AnalyticsContent(): JSX.Element {
             />
           </AnalyticsCard>
         </div>
-        <div key={SPI_EXPOSURES_TABLE}>
+        <div key={SPI_EXPOSURES_TABLE_APPID}>
           <AnalyticsCard
-            title="Portfolio Insurance Exposures"
+            title="Portfolio Insurance Exposures By Protocol"
             clarification={``}
-            height={rowHeight + (at(SPI_EXPOSURES_TABLE).h - 1) * interval - cardPadding}
+            height={rowHeight + (at(SPI_EXPOSURES_TABLE_APPID).h - 1) * interval - cardPadding}
           >
             <SpiExposuresTable
-              chosenHeight={rowHeight + (at(SPI_EXPOSURES_TABLE).h - 1) * interval - cardUnchartable}
+              chosenHeight={rowHeight + (at(SPI_EXPOSURES_TABLE_APPID).h - 1) * interval - cardUnchartable}
             />
           </AnalyticsCard>
         </div>
