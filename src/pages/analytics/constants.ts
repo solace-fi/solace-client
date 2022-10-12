@@ -21,6 +21,7 @@ const {
   TOKEN_WEIGHTS_AREA_CHART,
   PREMIUMS_LINE_CHART,
   SPI_EXPOSURES_TABLE_APPID,
+  SPI_EXPOSURES_TABLE_POLICY,
 } = AnalyticsChart
 
 export const breakpointsObj = { lg: BKPT_5, md: BKPT_4, sm: BKPT_2, xs: BKPT_1, xxs: 0 }
@@ -38,6 +39,7 @@ export const layoutLG = [
   { i: TOKEN_WEIGHTS_AREA_CHART, x: 3, y: 20, w: 9, h: 4, minW: 3, minH: 4, maxH: 10, maxW: 12 },
   { i: PREMIUMS_LINE_CHART, x: 0, y: 24, w: 3, h: 4, minW: 2, minH: 2, maxH: 10, maxW: 12 },
   { i: SPI_EXPOSURES_TABLE_APPID, x: 4, y: 24, w: 9, h: 8, minW: 2, minH: 4, maxH: 10, maxW: 12 },
+  { i: SPI_EXPOSURES_TABLE_POLICY, x: 0, y: 32, w: 9, h: 8, minW: 2, minH: 4, maxH: 10, maxW: 12 },
 ]
 
 export const layoutMD = [
@@ -52,6 +54,7 @@ export const layoutMD = [
   { i: TOKEN_WEIGHTS_AREA_CHART, x: 3, y: 20, w: 7, h: 4, minW: 3, minH: 4, maxH: 10, maxW: 10 },
   { i: PREMIUMS_LINE_CHART, x: 0, y: 24, w: 3, h: 4, minW: 2, minH: 2, maxH: 10, maxW: 10 },
   { i: SPI_EXPOSURES_TABLE_APPID, x: 4, y: 24, w: 7, h: 8, minW: 2, minH: 4, maxH: 10, maxW: 10 },
+  { i: SPI_EXPOSURES_TABLE_POLICY, x: 0, y: 31, w: 7, h: 8, minW: 2, minH: 4, maxH: 10, maxW: 10 },
 ]
 
 export const layoutSM = [
@@ -66,6 +69,7 @@ export const layoutSM = [
   { i: TOKEN_WEIGHTS_AREA_CHART, x: 3, y: 16, w: 3, h: 4, minW: 3, minH: 4, maxH: 10, maxW: 6 },
   { i: PREMIUMS_LINE_CHART, x: 0, y: 24, w: 6, h: 4, minW: 2, minH: 2, maxH: 10, maxW: 6 },
   { i: SPI_EXPOSURES_TABLE_APPID, x: 0, y: 28, w: 6, h: 8, minW: 2, minH: 4, maxH: 10, maxW: 6 },
+  { i: SPI_EXPOSURES_TABLE_POLICY, x: 0, y: 34, w: 6, h: 8, minW: 2, minH: 4, maxH: 10, maxW: 6 },
 ]
 
 export const layoutXS = [
@@ -80,6 +84,7 @@ export const layoutXS = [
   { i: TOKEN_WEIGHTS_AREA_CHART, x: 0, y: 20, w: 4, h: 4, minW: 3, minH: 4, maxH: 10, maxW: 4 },
   { i: PREMIUMS_LINE_CHART, x: 0, y: 24, w: 4, h: 4, minW: 2, minH: 2, maxH: 10, maxW: 4 },
   { i: SPI_EXPOSURES_TABLE_APPID, x: 0, y: 28, w: 4, h: 8, minW: 2, minH: 4, maxH: 10, maxW: 4 },
+  { i: SPI_EXPOSURES_TABLE_POLICY, x: 0, y: 32, w: 4, h: 8, minW: 2, minH: 4, maxH: 10, maxW: 4 },
 ]
 
 export const layoutXXS = [
@@ -94,4 +99,29 @@ export const layoutXXS = [
   { i: TOKEN_WEIGHTS_AREA_CHART, x: 0, y: 20, w: 2, h: 6, minW: 2, minH: 6, maxH: 10, maxW: 2 },
   { i: PREMIUMS_LINE_CHART, x: 0, y: 24, w: 2, h: 4, minW: 2, minH: 2, maxH: 10, maxW: 2 },
   { i: SPI_EXPOSURES_TABLE_APPID, x: 0, y: 28, w: 2, h: 8, minW: 2, minH: 4, maxH: 10, maxW: 2 },
+  { i: SPI_EXPOSURES_TABLE_POLICY, x: 0, y: 30, w: 2, h: 8, minW: 2, minH: 4, maxH: 10, maxW: 2 },
 ]
+
+export type ProtocolExposureType = {
+  appId: string
+  network: string
+  balanceUSD: number
+  coverLimit: number
+  highestPosition: number
+  totalExposure: number
+  totalLossPayoutAmount: number
+  premiumsPerYear: number
+  policies: PolicyExposure[]
+  positions: any[]
+}
+
+export type PolicyExposure = {
+  policyID: string
+  policyHolder: string
+  coverLimit: string
+  depositsMade: string
+  premiumsCharged: string
+  exposure: number
+  network: string
+  product: string
+}

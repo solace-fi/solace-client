@@ -47,6 +47,7 @@ import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosF
 import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline'
 import { Vote } from '@styled-icons/fluentui-system-regular/Vote'
 import { Tractor } from '@styled-icons/fa-solid/Tractor'
+import { WindowRestore } from '@styled-icons/fa-solid/WindowRestore'
 import { FolderHistory } from '@styled-icons/remix-fill/FolderHistory'
 import { Export } from '@styled-icons/boxicons-regular/Export'
 
@@ -181,3 +182,5 @@ export const StyledFire = styled(LocalFireDepartment)`
 export const StyledAnalytics = styled(Analytics)``
 
 export const StyledDownload = styled(ArrowDownload)``
+
+export const StyledWindowRestore = styled(WindowRestore)``

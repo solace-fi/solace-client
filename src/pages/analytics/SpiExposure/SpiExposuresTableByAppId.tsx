@@ -1,7 +1,11 @@
 import { formatUnits } from 'ethers/lib/utils'
-import React, { useState, useCallback, useEffect, useMemo, Fragment, useRef } from 'react'
+import React, { useState, useCallback, useEffect, useMemo, Fragment } from 'react'
 import { Button, GraySquareButton } from '../../../components/atoms/Button'
-import { StyledArrowDropDown } from '../../../components/atoms/Icon'
+import {
+  StyledArrowDropDown,
+  StyledArrowIosBackOutline,
+  StyledArrowIosForwardOutline,
+} from '../../../components/atoms/Icon'
 import { Flex, Scrollable } from '../../../components/atoms/Layout'
 import {
   Table,
@@ -16,34 +20,12 @@ import { Text, TextSpan } from '../../../components/atoms/Typography'
 import { processProtocolName } from '../../../components/organisms/Dropdown'
 import { Z_TABLE } from '../../../constants'
 import { useCachedData } from '../../../context/CachedDataManager'
-import { useScrollPercentage } from '../../../hooks/internal/useScrollPercentage'
-import { shortenAddress, truncateValue } from '../../../utils/formatting'
+import { truncateValue } from '../../../utils/formatting'
 import { mapNumberToLetter } from '../../../utils/mapProtocols'
 import { rangeFrom0 } from '../../../utils/numeric'
+import { PolicyExposure, ProtocolExposureType } from '../constants'
 
-type ProtocolExposureType = {
-  appId: string
-  network: string
-  balanceUSD: number
-  coverLimit: number
-  highestPosition: number
-  totalExposure: number
-  totalLossPayoutAmount: number
-  premiumsPerYear: number
-  policies: {
-    policyID: string
-    policyHolder: string
-    coverLimit: string
-    depositsMade: string
-    premiumsCharged: string
-    exposure: number
-    network: string
-    product: string
-  }[]
-  positions: any[]
-}
-
-export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) => {
+export const SpiExposuresTableByAppId = ({ chosenHeight }: { chosenHeight: number }) => {
   const { statsCache } = useCachedData()
 
   const [selectedSort, setSelectedSort] = useState<string>('balanceUSD_D')
@@ -51,7 +33,21 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
 
   const [protocols, setProtocols] = useState<ProtocolExposureType[]>([])
 
-  const modifiedSort = useCallback(
+  const [currentProtocolsPage, setCurrentProtocolsPage] = useState<number>(0)
+  const numProtocolsPerPage = 10
+  const numPagesOfProtocols = useMemo(() => Math.ceil(protocols.length / numProtocolsPerPage), [
+    numProtocolsPerPage,
+    protocols.length,
+  ])
+
+  const [currentPoliciesPage, setCurrentPoliciesPage] = useState<number>(0)
+  const numPoliciesPerPage = 10
+  const numPagesOfPolicies = useMemo(
+    () => (openProtocol ? Math.ceil(openProtocol.policies.length / numPoliciesPerPage) : 0),
+    [numPoliciesPerPage, openProtocol]
+  )
+
+  const modifiedSortProtocols = useCallback(
     (a, b) => {
       switch (selectedSort) {
         case 'appID_A':
@@ -87,6 +83,59 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
     },
     [selectedSort]
   )
+
+  const protocolsPaginated = useMemo(
+    () =>
+      protocols
+        .sort((a, b) => modifiedSortProtocols(a, b))
+        .slice(currentProtocolsPage * numProtocolsPerPage, (currentProtocolsPage + 1) * numProtocolsPerPage),
+    [currentProtocolsPage, protocols, modifiedSortProtocols]
+  )
+
+  const policiesPaginated = useMemo(
+    () =>
+      openProtocol
+        ? openProtocol.policies.slice(
+            currentPoliciesPage * numPoliciesPerPage,
+            (currentPoliciesPage + 1) * numPoliciesPerPage
+          )
+        : [],
+    [currentPoliciesPage, openProtocol]
+  )
+
+  const positionsPaginated = useMemo(
+    () =>
+      openProtocol
+        ? openProtocol.positions.slice(
+            currentPoliciesPage * numPoliciesPerPage,
+            (currentPoliciesPage + 1) * numPoliciesPerPage
+          )
+        : [],
+    [currentPoliciesPage, openProtocol]
+  )
+
+  const handleCurrentProtocolsPageChange = useCallback(
+    (dest: 'next' | 'prev') => {
+      if (dest == 'prev') {
+        setCurrentProtocolsPage(currentProtocolsPage - 1 < 0 ? numPagesOfProtocols - 1 : currentProtocolsPage - 1)
+      } else {
+        setCurrentProtocolsPage(currentProtocolsPage + 1 > numPagesOfProtocols - 1 ? 0 : currentProtocolsPage + 1)
+      }
+    },
+    [currentProtocolsPage, numPagesOfProtocols]
+  )
+
+  const handleCurrentPoliciesPageChange = useCallback(
+    (dest: 'next' | 'prev') => {
+      if (dest == 'prev') {
+        setCurrentPoliciesPage(currentPoliciesPage - 1 < 0 ? numPagesOfPolicies - 1 : currentPoliciesPage - 1)
+      } else {
+        setCurrentPoliciesPage(currentPoliciesPage + 1 > numPagesOfPolicies - 1 ? 0 : currentPoliciesPage + 1)
+      }
+    },
+    [currentPoliciesPage, numPagesOfPolicies]
+  )
+
   useEffect(() => {
     const aggregateSpiExposures = async () => {
       if (
@@ -100,16 +149,7 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
       const positions = statsCache.positions || statsCache.positions_cleaned
       const series = statsCache.series
       const policyOf: {
-        [key: string]: {
-          policyID: string
-          policyHolder: string
-          coverLimit: string
-          depositsMade: string
-          premiumsCharged: string
-          exposure: number
-          network: string
-          product: string
-        }
+        [key: string]: PolicyExposure
       } = {} // map account -> policy
       statsCache.spi.ethereum_v3.policies.forEach((policy: any) => {
         policy.product = 'SPI V3'
@@ -212,147 +252,165 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
   return (
     <>
       {!openProtocol ? (
-        <Scrollable
-          style={{ padding: '0 10px 0 10px' }}
-          maxDesktopHeight={`${chosenHeight}px`}
-          maxMobileHeight={`${chosenHeight}px`}
-          raised={true}
-        >
-          <Table canHover textAlignCenter style={{ borderSpacing: '0px 7px' }}>
-            <TableHead sticky zIndex={Z_TABLE + 1}>
-              <TableRow inheritBg>
-                <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-                  <Flex
-                    col
-                    justifyCenter
-                    itemsCenter
-                    onClick={() => setSelectedSort(selectedSort == 'appID_D' ? 'appID_A' : 'appID_D')}
-                  >
-                    <TextSpan autoAlignVertical>Protocol</TextSpan>
-                    <GraySquareButton noborder shadow width={60} height={28} radius={8}>
-                      <TextSpan info warning={selectedSort == 'appID_A'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                      </TextSpan>
-                      <TextSpan info warning={selectedSort == 'appID_D'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} />
-                      </TextSpan>
-                    </GraySquareButton>
-                  </Flex>
-                </TableHeader>
-                <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-                  <Flex
-                    col
-                    justifyCenter
-                    itemsCenter
-                    onClick={() => setSelectedSort(selectedSort == 'network_D' ? 'network_A' : 'network_D')}
-                  >
-                    <TextSpan autoAlignVertical>Network</TextSpan>
-                    <GraySquareButton noborder shadow width={60} height={28} radius={8}>
-                      <TextSpan info warning={selectedSort == 'network_A'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                      </TextSpan>
-                      <TextSpan info warning={selectedSort == 'network_D'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} />
-                      </TextSpan>
-                    </GraySquareButton>
-                  </Flex>
-                </TableHeader>
-                <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-                  <Flex
-                    col
-                    justifyCenter
-                    itemsCenter
-                    onClick={() => setSelectedSort(selectedSort == 'balanceUSD_D' ? 'balanceUSD_A' : 'balanceUSD_D')}
-                  >
-                    <TextSpan autoAlignVertical>USD Balance</TextSpan>
-                    <GraySquareButton noborder shadow width={60} height={28} radius={8}>
-                      <TextSpan info warning={selectedSort == 'balanceUSD_A'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                      </TextSpan>
-                      <TextSpan info warning={selectedSort == 'balanceUSD_D'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} />
-                      </TextSpan>
-                    </GraySquareButton>
-                  </Flex>
-                </TableHeader>
-                <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-                  <Flex
-                    col
-                    justifyCenter
-                    itemsCenter
-                    onClick={() => setSelectedSort(selectedSort == 'CL_D' ? 'CL_A' : 'CL_D')}
-                  >
-                    <TextSpan autoAlignVertical>Cover Limit</TextSpan>
-                    <GraySquareButton noborder shadow width={60} height={28} radius={8}>
-                      <TextSpan info warning={selectedSort == 'CL_A'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                      </TextSpan>
-                      <TextSpan info warning={selectedSort == 'CL_D'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} />
-                      </TextSpan>
-                    </GraySquareButton>
-                  </Flex>
-                </TableHeader>
-                <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-                  <Flex
-                    col
-                    justifyCenter
-                    itemsCenter
-                    onClick={() => setSelectedSort(selectedSort == 'exposure_D' ? 'exposure_A' : 'exposure_D')}
-                  >
-                    <TextSpan autoAlignVertical>Total Exposure</TextSpan>
-                    <GraySquareButton noborder shadow width={60} height={28} radius={8}>
-                      <TextSpan info warning={selectedSort == 'exposure_A'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                      </TextSpan>
-                      <TextSpan info warning={selectedSort == 'exposure_D'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} />
-                      </TextSpan>
-                    </GraySquareButton>
-                  </Flex>
-                </TableHeader>
-                <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-                  <Flex
-                    col
-                    justifyCenter
-                    itemsCenter
-                    onClick={() => setSelectedSort(selectedSort == 'HighestPos_D' ? 'HighestPos_A' : 'HighestPos_D')}
-                  >
-                    <TextSpan autoAlignVertical>Highest Position</TextSpan>
-                    <GraySquareButton noborder shadow width={60} height={28} radius={8}>
-                      <TextSpan info warning={selectedSort == 'HighestPos_A'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                      </TextSpan>
-                      <TextSpan info warning={selectedSort == 'HighestPos_D'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} />
-                      </TextSpan>
-                    </GraySquareButton>
-                  </Flex>
-                </TableHeader>
-                <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-                  <Flex
-                    col
-                    justifyCenter
-                    itemsCenter
-                    onClick={() => setSelectedSort(selectedSort == 'policies_D' ? 'policies_A' : 'policies_D')}
-                  >
-                    <TextSpan autoAlignVertical>Policies</TextSpan>
-                    <GraySquareButton noborder shadow width={60} height={28} radius={8}>
-                      <TextSpan info warning={selectedSort == 'policies_A'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                      </TextSpan>
-                      <TextSpan info warning={selectedSort == 'policies_D'} autoAlignVertical>
-                        <StyledArrowDropDown size={30} />
-                      </TextSpan>
-                    </GraySquareButton>
-                  </Flex>
-                </TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {protocols
-                .sort((a, b) => modifiedSort(a, b))
-                .map((p: ProtocolExposureType, i: number) => (
+        <Flex col gap={10}>
+          <Flex justifyCenter>
+            {numPagesOfProtocols > 1 && (
+              <Flex pb={20} justifyCenter>
+                <Flex itemsCenter gap={5}>
+                  <GraySquareButton onClick={() => handleCurrentProtocolsPageChange('prev')}>
+                    <StyledArrowIosBackOutline height={18} />
+                  </GraySquareButton>
+                  {numPagesOfProtocols > 1 && (
+                    <Text t4>
+                      Page {currentProtocolsPage + 1}/{numPagesOfProtocols}
+                    </Text>
+                  )}
+                  <GraySquareButton onClick={() => handleCurrentProtocolsPageChange('next')}>
+                    <StyledArrowIosForwardOutline height={18} />
+                  </GraySquareButton>
+                </Flex>
+              </Flex>
+            )}
+          </Flex>
+          <Scrollable
+            style={{ padding: '0 10px 0 10px' }}
+            maxDesktopHeight={`${chosenHeight - 50}px`}
+            maxMobileHeight={`${chosenHeight - 50}px`}
+            raised={true}
+          >
+            <Table canHover textAlignCenter style={{ borderSpacing: '0px 7px' }}>
+              <TableHead sticky zIndex={Z_TABLE + 1}>
+                <TableRow inheritBg>
+                  <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
+                    <Flex
+                      col
+                      justifyCenter
+                      itemsCenter
+                      onClick={() => setSelectedSort(selectedSort == 'appID_D' ? 'appID_A' : 'appID_D')}
+                    >
+                      <TextSpan autoAlignVertical>Protocol</TextSpan>
+                      <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                        <TextSpan info warning={selectedSort == 'appID_A'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                        </TextSpan>
+                        <TextSpan info warning={selectedSort == 'appID_D'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} />
+                        </TextSpan>
+                      </GraySquareButton>
+                    </Flex>
+                  </TableHeader>
+                  <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
+                    <Flex
+                      col
+                      justifyCenter
+                      itemsCenter
+                      onClick={() => setSelectedSort(selectedSort == 'network_D' ? 'network_A' : 'network_D')}
+                    >
+                      <TextSpan autoAlignVertical>Network</TextSpan>
+                      <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                        <TextSpan info warning={selectedSort == 'network_A'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                        </TextSpan>
+                        <TextSpan info warning={selectedSort == 'network_D'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} />
+                        </TextSpan>
+                      </GraySquareButton>
+                    </Flex>
+                  </TableHeader>
+                  <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
+                    <Flex
+                      col
+                      justifyCenter
+                      itemsCenter
+                      onClick={() => setSelectedSort(selectedSort == 'balanceUSD_D' ? 'balanceUSD_A' : 'balanceUSD_D')}
+                    >
+                      <TextSpan autoAlignVertical>USD Balance</TextSpan>
+                      <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                        <TextSpan info warning={selectedSort == 'balanceUSD_A'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                        </TextSpan>
+                        <TextSpan info warning={selectedSort == 'balanceUSD_D'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} />
+                        </TextSpan>
+                      </GraySquareButton>
+                    </Flex>
+                  </TableHeader>
+                  <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
+                    <Flex
+                      col
+                      justifyCenter
+                      itemsCenter
+                      onClick={() => setSelectedSort(selectedSort == 'CL_D' ? 'CL_A' : 'CL_D')}
+                    >
+                      <TextSpan autoAlignVertical>Cover Limit</TextSpan>
+                      <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                        <TextSpan info warning={selectedSort == 'CL_A'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                        </TextSpan>
+                        <TextSpan info warning={selectedSort == 'CL_D'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} />
+                        </TextSpan>
+                      </GraySquareButton>
+                    </Flex>
+                  </TableHeader>
+                  <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
+                    <Flex
+                      col
+                      justifyCenter
+                      itemsCenter
+                      onClick={() => setSelectedSort(selectedSort == 'exposure_D' ? 'exposure_A' : 'exposure_D')}
+                    >
+                      <TextSpan autoAlignVertical>Total Exposure</TextSpan>
+                      <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                        <TextSpan info warning={selectedSort == 'exposure_A'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                        </TextSpan>
+                        <TextSpan info warning={selectedSort == 'exposure_D'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} />
+                        </TextSpan>
+                      </GraySquareButton>
+                    </Flex>
+                  </TableHeader>
+                  <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
+                    <Flex
+                      col
+                      justifyCenter
+                      itemsCenter
+                      onClick={() => setSelectedSort(selectedSort == 'HighestPos_D' ? 'HighestPos_A' : 'HighestPos_D')}
+                    >
+                      <TextSpan autoAlignVertical>Highest Position</TextSpan>
+                      <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                        <TextSpan info warning={selectedSort == 'HighestPos_A'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                        </TextSpan>
+                        <TextSpan info warning={selectedSort == 'HighestPos_D'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} />
+                        </TextSpan>
+                      </GraySquareButton>
+                    </Flex>
+                  </TableHeader>
+                  <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
+                    <Flex
+                      col
+                      justifyCenter
+                      itemsCenter
+                      onClick={() => setSelectedSort(selectedSort == 'policies_D' ? 'policies_A' : 'policies_D')}
+                    >
+                      <TextSpan autoAlignVertical>Policies</TextSpan>
+                      <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                        <TextSpan info warning={selectedSort == 'policies_A'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                        </TextSpan>
+                        <TextSpan info warning={selectedSort == 'policies_D'} autoAlignVertical>
+                          <StyledArrowDropDown size={30} />
+                        </TextSpan>
+                      </GraySquareButton>
+                    </Flex>
+                  </TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {protocolsPaginated.map((p: ProtocolExposureType, i: number) => (
                   <TableRow raised key={'appId ' + i} style={{ cursor: 'pointer' }} onClick={() => setOpenProtocol(p)}>
                     <TableData style={{ padding: '14px 4px' }}>
                       <Text autoAlignVertical semibold>
@@ -391,76 +449,96 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
                     </TableData>
                   </TableRow>
                 ))}
-            </TableBody>
-            <TableFoot sticky zIndex={Z_TABLE + 1}>
-              <TableRow inheritBg>
-                <TableHeader style={{ padding: '12px 4px' }}>
-                  <Flex justifyCenter>
-                    <TextSpan autoAlignVertical>Total:</TextSpan>
-                  </Flex>
-                </TableHeader>
-                <TableHeader style={{ padding: '12px 4px' }}></TableHeader>
-                <TableHeader style={{ padding: '12px 4px' }}>
-                  <Flex justifyCenter>
-                    <TextSpan autoAlignVertical>
-                      $
-                      {truncateValue(
-                        protocols.reduce((pv, cv) => (pv += cv.balanceUSD), 0),
-                        2
-                      )}
-                    </TextSpan>
-                  </Flex>
-                </TableHeader>
-                <TableHeader style={{ padding: '12px 4px' }}>
-                  <Flex justifyCenter>
-                    <TextSpan autoAlignVertical>
-                      {' '}
-                      $
-                      {truncateValue(
-                        protocols.reduce((pv, cv) => (pv += cv.coverLimit), 0),
-                        2
-                      )}
-                    </TextSpan>
-                  </Flex>
-                </TableHeader>
-                <TableHeader style={{ padding: '12px 4px' }}>
-                  <Flex justifyCenter>
-                    <TextSpan autoAlignVertical>
-                      {' '}
-                      $
-                      {truncateValue(
-                        protocols.reduce((pv, cv) => (pv += cv.totalExposure), 0),
-                        2
-                      )}
-                    </TextSpan>
-                  </Flex>
-                </TableHeader>
-                <TableHeader style={{ padding: '12px 4px' }}>
-                  <Flex justifyCenter>
-                    <TextSpan autoAlignVertical>
-                      {' '}
-                      $
-                      {truncateValue(
-                        protocols.reduce((pv, cv) => (pv += cv.highestPosition), 0),
-                        2
-                      )}
-                    </TextSpan>
-                  </Flex>
-                </TableHeader>
-                <TableHeader style={{ padding: '12px 4px' }}>
-                  <Flex justifyCenter>
-                    <TextSpan autoAlignVertical>
-                      {truncateValue(
-                        protocols.reduce((pv, cv) => (pv += cv.policies.length), 0),
-                        2
-                      )}
-                    </TextSpan>
-                  </Flex>
-                </TableHeader>
-              </TableRow>
-            </TableFoot>
-          </Table>
-        </Scrollable>
+              </TableBody>
+              <TableFoot sticky zIndex={Z_TABLE + 1}>
+                <TableRow inheritBg>
+                  <TableHeader style={{ padding: '12px 4px' }}>
+                    <Flex justifyCenter>
+                      <TextSpan autoAlignVertical>Total:</TextSpan>
+                    </Flex>
+                  </TableHeader>
+                  <TableHeader style={{ padding: '12px 4px' }}></TableHeader>
+                  <TableHeader style={{ padding: '12px 4px' }}>
+                    <Flex justifyCenter>
+                      <TextSpan autoAlignVertical>
+                        $
+                        {truncateValue(
+                          protocols.reduce((pv, cv) => (pv += cv.balanceUSD), 0),
+                          2
+                        )}
+                      </TextSpan>
+                    </Flex>
+                  </TableHeader>
+                  <TableHeader style={{ padding: '12px 4px' }}>
+                    <Flex justifyCenter>
+                      <TextSpan autoAlignVertical>
+                        {' '}
+                        $
+                        {truncateValue(
+                          protocols.reduce((pv, cv) => (pv += cv.coverLimit), 0),
+                          2
+                        )}
+                      </TextSpan>
+                    </Flex>
+                  </TableHeader>
+                  <TableHeader style={{ padding: '12px 4px' }}>
+                    <Flex justifyCenter>
+                      <TextSpan autoAlignVertical>
+                        {' '}
+                        $
+                        {truncateValue(
+                          protocols.reduce((pv, cv) => (pv += cv.totalExposure), 0),
+                          2
+                        )}
+                      </TextSpan>
+                    </Flex>
+                  </TableHeader>
+                  <TableHeader style={{ padding: '12px 4px' }}>
+                    <Flex justifyCenter>
+                      <TextSpan autoAlignVertical>
+                        {' '}
+                        $
+                        {truncateValue(
+                          protocols.reduce((pv, cv) => (pv += cv.highestPosition), 0),
+                          2
+                        )}
+                      </TextSpan>
+                    </Flex>
+                  </TableHeader>
+                  <TableHeader style={{ padding: '12px 4px' }}>
+                    <Flex justifyCenter>
+                      <TextSpan autoAlignVertical>
+                        {truncateValue(
+                          protocols.reduce((pv, cv) => (pv += cv.policies.length), 0),
+                          2
+                        )}
+                      </TextSpan>
+                    </Flex>
+                  </TableHeader>
+                </TableRow>
+              </TableFoot>
+            </Table>
+          </Scrollable>
+          <Flex justifyCenter>
+            {numPagesOfProtocols > 1 && (
+              <Flex pb={20} justifyCenter>
+                <Flex itemsCenter gap={5}>
+                  <GraySquareButton onClick={() => handleCurrentProtocolsPageChange('prev')}>
+                    <StyledArrowIosBackOutline height={18} />
+                  </GraySquareButton>
+                  {numPagesOfProtocols > 1 && (
+                    <Text t4>
+                      Page {currentProtocolsPage + 1}/{numPagesOfProtocols}
+                    </Text>
+                  )}
+                  <GraySquareButton onClick={() => handleCurrentProtocolsPageChange('next')}>
+                    <StyledArrowIosForwardOutline height={18} />
+                  </GraySquareButton>
+                </Flex>
+              </Flex>
+            )}
+          </Flex>
+        </Flex>
       ) : (
         <Flex col gap={10}>
           <Flex mt={20} around>
@@ -483,10 +561,29 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
               <Text bold>${truncateValue(openProtocol.totalExposure, 2)}</Text>
             </Flex>
           </Flex>
+          <Flex justifyCenter>
+            {numPagesOfPolicies > 1 && (
+              <Flex pb={20} justifyCenter>
+                <Flex itemsCenter gap={5}>
+                  <GraySquareButton onClick={() => handleCurrentPoliciesPageChange('prev')}>
+                    <StyledArrowIosBackOutline height={18} />
+                  </GraySquareButton>
+                  {numPagesOfPolicies > 1 && (
+                    <Text t4>
+                      Page {currentPoliciesPage + 1}/{numPagesOfPolicies}
+                    </Text>
+                  )}
+                  <GraySquareButton onClick={() => handleCurrentPoliciesPageChange('next')}>
+                    <StyledArrowIosForwardOutline height={18} />
+                  </GraySquareButton>
+                </Flex>
+              </Flex>
+            )}
+          </Flex>
           <Scrollable
             style={{ padding: '0 10px 0 10px' }}
-            maxDesktopHeight={`${chosenHeight - 100}px`}
-            maxMobileHeight={`${chosenHeight - 100}px`}
+            maxDesktopHeight={`${chosenHeight - 180}px`}
+            maxMobileHeight={`${chosenHeight - 180}px`}
             raised={true}
           >
             <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
@@ -525,14 +622,14 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rangeFrom0(openProtocol.policies.length).map((j: number) => {
-                  const policy = openProtocol.policies[j]
-                  const position = openProtocol.positions[j]
+                {rangeFrom0(policiesPaginated.length).map((j: number) => {
+                  const policy = policiesPaginated[j]
+                  const position = positionsPaginated[j]
                   return (
                     <TableRow key={'policy ' + j}>
                       <TableData style={{ padding: '14px 4px' }}>
                         <Text autoAlignVertical semibold>
-                          {openProtocol.policies[j].policyID}
+                          {policiesPaginated[j].policyID}
                         </Text>
                       </TableData>
                       <TableData style={{ padding: '14px 4px' }}>
@@ -566,6 +663,25 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
               </TableBody>
             </Table>
           </Scrollable>
+          <Flex justifyCenter>
+            {numPagesOfPolicies > 1 && (
+              <Flex pb={20} justifyCenter>
+                <Flex itemsCenter gap={5}>
+                  <GraySquareButton onClick={() => handleCurrentPoliciesPageChange('prev')}>
+                    <StyledArrowIosBackOutline height={18} />
+                  </GraySquareButton>
+                  {numPagesOfPolicies > 1 && (
+                    <Text t4>
+                      Page {currentPoliciesPage + 1}/{numPagesOfPolicies}
+                    </Text>
+                  )}
+                  <GraySquareButton onClick={() => handleCurrentPoliciesPageChange('next')}>
+                    <StyledArrowIosForwardOutline height={18} />
+                  </GraySquareButton>
+                </Flex>
+              </Flex>
+            )}
+          </Flex>
         </Flex>
       )}
     </>
