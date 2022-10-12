@@ -97,7 +97,7 @@ export const TableHead = styled.thead<TableHeadProps>`
   `};
 `
 
-export const TableFoot = styled.thead<TableHeadProps>`
+export const TableFoot = styled.tfoot<TableHeadProps>`
   ${(props) =>
     props.sticky &&
     `

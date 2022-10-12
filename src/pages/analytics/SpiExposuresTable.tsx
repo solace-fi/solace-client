@@ -1,16 +1,23 @@
 import axios from 'axios'
 import { formatUnits } from 'ethers/lib/utils'
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
+import { GraySquareButton } from '../../components/atoms/Button'
 import { StyledArrowDropDown } from '../../components/atoms/Icon'
 import { Flex, Scrollable } from '../../components/atoms/Layout'
 import { Table, TableBody, TableData, TableHead, TableFoot, TableHeader, TableRow } from '../../components/atoms/Table'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { processProtocolName } from '../../components/organisms/Dropdown'
 import { Z_TABLE } from '../../constants'
+import { useScrollPercentage } from '../../hooks/internal/useScrollPercentage'
 import { truncateValue } from '../../utils/formatting'
 import { mapNumberToLetter } from '../../utils/mapProtocols'
 
 export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) => {
+  const { scrollRef, scrollPercentage } = useScrollPercentage()
+
+  const itemsPerPage = useMemo(() => chosenHeight / 45, [chosenHeight])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+
   const [selectedSort, setSelectedSort] = useState<string>('balanceUSD_D')
   const [protocols, setProtocols] = useState<
     {
@@ -34,6 +41,10 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
     }[]
   >([])
 
+  const handlePage = useCallback((number: number) => {
+    setCurrentPage(number)
+  }, [])
+
   const modifiedSort = useCallback(
     (a, b) => {
       switch (selectedSort) {
@@ -50,9 +61,9 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
         case 'balanceUSD_D':
           return b.balanceUSD - a.balanceUSD
         case 'CL_A':
-          return a.cl - b.cl
+          return a.coverLimit - b.coverLimit
         case 'CL_D':
-          return b.cl - a.cl
+          return b.coverLimit - a.coverLimit
         case 'HighestPos_A':
           return a.highestPosition - b.highestPosition
         case 'HighestPos_D':
@@ -70,6 +81,15 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
     },
     [selectedSort]
   )
+
+  useEffect(() => {
+    if (scrollPercentage > 70 && protocols.length > itemsPerPage * currentPage) {
+      handlePage(currentPage + 1)
+    } else if (scrollPercentage < 20 && currentPage > 1) {
+      handlePage(1)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scrollPercentage])
 
   useEffect(() => {
     const aggregateSpiExposures = async () => {
@@ -215,155 +235,135 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
       maxDesktopHeight={`${chosenHeight}px`}
       maxMobileHeight={`${chosenHeight}px`}
       raised={true}
+      ref={scrollRef}
     >
       <Table canHover textAlignCenter style={{ borderSpacing: '0px 7px' }}>
         <TableHead sticky zIndex={Z_TABLE + 1}>
           <TableRow inheritBg>
             <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-              <Flex justifyCenter>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'appID_A'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('appID_A')}
-                >
-                  <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                </TextSpan>
+              <Flex
+                col
+                justifyCenter
+                itemsCenter
+                onClick={() => setSelectedSort(selectedSort == 'appID_D' ? 'appID_A' : 'appID_D')}
+              >
                 <TextSpan autoAlignVertical>Protocol</TextSpan>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'appID_D'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('appID_D')}
-                >
-                  <StyledArrowDropDown size={30} />
-                </TextSpan>
+                <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                  <TextSpan info warning={selectedSort == 'appID_A'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                  </TextSpan>
+                  <TextSpan info warning={selectedSort == 'appID_D'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} />
+                  </TextSpan>
+                </GraySquareButton>
               </Flex>
             </TableHeader>
             <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-              <Flex justifyCenter>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'network_A'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('network_A')}
-                >
-                  <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                </TextSpan>
+              <Flex
+                col
+                justifyCenter
+                itemsCenter
+                onClick={() => setSelectedSort(selectedSort == 'network_D' ? 'network_A' : 'network_D')}
+              >
                 <TextSpan autoAlignVertical>Network</TextSpan>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'network_D'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('network_D')}
-                >
-                  <StyledArrowDropDown size={30} />
-                </TextSpan>
+                <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                  <TextSpan info warning={selectedSort == 'network_A'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                  </TextSpan>
+                  <TextSpan info warning={selectedSort == 'network_D'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} />
+                  </TextSpan>
+                </GraySquareButton>
               </Flex>
             </TableHeader>
             <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-              <Flex justifyCenter>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'balanceUSD_A'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('balanceUSD_A')}
-                >
-                  <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                </TextSpan>
+              <Flex
+                col
+                justifyCenter
+                itemsCenter
+                onClick={() => setSelectedSort(selectedSort == 'balanceUSD_D' ? 'balanceUSD_A' : 'balanceUSD_D')}
+              >
                 <TextSpan autoAlignVertical>USD Balance</TextSpan>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'balanceUSD_D'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('balanceUSD_D')}
-                >
-                  <StyledArrowDropDown size={30} />
-                </TextSpan>
+                <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                  <TextSpan info warning={selectedSort == 'balanceUSD_A'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                  </TextSpan>
+                  <TextSpan info warning={selectedSort == 'balanceUSD_D'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} />
+                  </TextSpan>
+                </GraySquareButton>
               </Flex>
             </TableHeader>
             <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-              <Flex justifyCenter>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'CL_A'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('CL_A')}
-                >
-                  <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                </TextSpan>
+              <Flex
+                col
+                justifyCenter
+                itemsCenter
+                onClick={() => setSelectedSort(selectedSort == 'CL_D' ? 'CL_A' : 'CL_D')}
+              >
                 <TextSpan autoAlignVertical>Cover Limit</TextSpan>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'CL_D'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('CL_D')}
-                >
-                  <StyledArrowDropDown size={30} />
-                </TextSpan>
+                <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                  <TextSpan info warning={selectedSort == 'CL_A'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                  </TextSpan>
+                  <TextSpan info warning={selectedSort == 'CL_D'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} />
+                  </TextSpan>
+                </GraySquareButton>
               </Flex>
             </TableHeader>
             <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-              <Flex justifyCenter>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'HighestPos_A'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('HighestPos_A')}
-                >
-                  <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                </TextSpan>
+              <Flex
+                col
+                justifyCenter
+                itemsCenter
+                onClick={() => setSelectedSort(selectedSort == 'HighestPos_D' ? 'HighestPos_A' : 'HighestPos_D')}
+              >
                 <TextSpan autoAlignVertical>Highest Position</TextSpan>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'HighestPos_D'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('HighestPos_D')}
-                >
-                  <StyledArrowDropDown size={30} />
-                </TextSpan>
+                <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                  <TextSpan info warning={selectedSort == 'HighestPos_A'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                  </TextSpan>
+                  <TextSpan info warning={selectedSort == 'HighestPos_D'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} />
+                  </TextSpan>
+                </GraySquareButton>
               </Flex>
             </TableHeader>
             <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-              <Flex justifyCenter>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'exposure_A'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('exposure_A')}
-                >
-                  <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                </TextSpan>
-                <TextSpan autoAlignVertical>Exposure</TextSpan>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'exposure_D'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('exposure_D')}
-                >
-                  <StyledArrowDropDown size={30} />
-                </TextSpan>
+              <Flex
+                col
+                justifyCenter
+                itemsCenter
+                onClick={() => setSelectedSort(selectedSort == 'exposure_D' ? 'exposure_A' : 'exposure_D')}
+              >
+                <TextSpan autoAlignVertical>Total Exposure</TextSpan>
+                <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                  <TextSpan info warning={selectedSort == 'exposure_A'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                  </TextSpan>
+                  <TextSpan info warning={selectedSort == 'exposure_D'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} />
+                  </TextSpan>
+                </GraySquareButton>
               </Flex>
             </TableHeader>
             <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-              <Flex justifyCenter>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'policies_A'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('policies_A')}
-                >
-                  <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
-                </TextSpan>
+              <Flex
+                col
+                justifyCenter
+                itemsCenter
+                onClick={() => setSelectedSort(selectedSort == 'policies_D' ? 'policies_A' : 'policies_D')}
+              >
                 <TextSpan autoAlignVertical>Policies</TextSpan>
-                <TextSpan
-                  info
-                  warning={selectedSort == 'policies_D'}
-                  autoAlignVertical
-                  onClick={() => setSelectedSort('policies_D')}
-                >
-                  <StyledArrowDropDown size={30} />
-                </TextSpan>
+                <GraySquareButton noborder shadow width={60} height={28} radius={8}>
+                  <TextSpan info warning={selectedSort == 'policies_A'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} style={{ transform: 'rotate(180deg)' }} />
+                  </TextSpan>
+                  <TextSpan info warning={selectedSort == 'policies_D'} autoAlignVertical>
+                    <StyledArrowDropDown size={30} />
+                  </TextSpan>
+                </GraySquareButton>
               </Flex>
             </TableHeader>
           </TableRow>
@@ -371,6 +371,7 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
         <TableBody>
           {protocols
             .sort((a, b) => modifiedSort(a, b))
+            .slice(0, itemsPerPage * currentPage)
             .map((p: any, i: number) => (
               <TableRow key={i} raised style={{ cursor: 'pointer' }}>
                 <TableData style={{ padding: '14px 4px' }}>
@@ -412,69 +413,71 @@ export const SpiExposuresTable = ({ chosenHeight }: { chosenHeight: number }) =>
             ))}
         </TableBody>
         <TableFoot sticky zIndex={Z_TABLE + 1}>
-          <TableHeader style={{ padding: '12px 4px' }}>
-            <Flex justifyCenter>
-              <TextSpan autoAlignVertical>Total:</TextSpan>
-            </Flex>
-          </TableHeader>
-          <TableHeader style={{ padding: '12px 4px' }}></TableHeader>
-          <TableHeader style={{ padding: '12px 4px' }}>
-            <Flex justifyCenter>
-              <TextSpan autoAlignVertical>
-                $
-                {truncateValue(
-                  protocols.reduce((pv, cv) => (pv += cv.balanceUSD), 0),
-                  2
-                )}
-              </TextSpan>
-            </Flex>
-          </TableHeader>
-          <TableHeader style={{ padding: '12px 4px' }}>
-            <Flex justifyCenter>
-              <TextSpan autoAlignVertical>
-                {' '}
-                $
-                {truncateValue(
-                  protocols.reduce((pv, cv) => (pv += cv.coverLimit), 0),
-                  2
-                )}
-              </TextSpan>
-            </Flex>
-          </TableHeader>
-          <TableHeader style={{ padding: '12px 4px' }}>
-            <Flex justifyCenter>
-              <TextSpan autoAlignVertical>
-                {' '}
-                $
-                {truncateValue(
-                  protocols.reduce((pv, cv) => (pv += cv.highestPosition), 0),
-                  2
-                )}
-              </TextSpan>
-            </Flex>
-          </TableHeader>
-          <TableHeader style={{ padding: '12px 4px' }}>
-            <Flex justifyCenter>
-              <TextSpan autoAlignVertical>
-                {' '}
-                $
-                {truncateValue(
-                  protocols.reduce((pv, cv) => (pv += cv.totalExposure), 0),
-                  2
-                )}
-              </TextSpan>
-            </Flex>
-          </TableHeader>
-          <TableHeader style={{ padding: '12px 4px' }}>
-            <Flex justifyCenter>
-              <TextSpan autoAlignVertical>
-                {truncateValue(
-                  protocols.reduce((pv, cv) => (pv += cv.policies.length), 0),
-                  2
-                )}
-              </TextSpan>
-            </Flex>
-          </TableHeader>
+          <TableRow inheritBg>
+            <TableHeader style={{ padding: '12px 4px' }}>
+              <Flex justifyCenter>
+                <TextSpan autoAlignVertical>Total:</TextSpan>
+              </Flex>
+            </TableHeader>
+            <TableHeader style={{ padding: '12px 4px' }}></TableHeader>
+            <TableHeader style={{ padding: '12px 4px' }}>
+              <Flex justifyCenter>
+                <TextSpan autoAlignVertical>
+                  $
+                  {truncateValue(
+                    protocols.reduce((pv, cv) => (pv += cv.balanceUSD), 0),
+                    2
+                  )}
+                </TextSpan>
+              </Flex>
+            </TableHeader>
+            <TableHeader style={{ padding: '12px 4px' }}>
+              <Flex justifyCenter>
+                <TextSpan autoAlignVertical>
+                  {' '}
+                  $
+                  {truncateValue(
+                    protocols.reduce((pv, cv) => (pv += cv.coverLimit), 0),
+                    2
+                  )}
+                </TextSpan>
+              </Flex>
+            </TableHeader>
+            <TableHeader style={{ padding: '12px 4px' }}>
+              <Flex justifyCenter>
+                <TextSpan autoAlignVertical>
+                  {' '}
+                  $
+                  {truncateValue(
+                    protocols.reduce((pv, cv) => (pv += cv.highestPosition), 0),
+                    2
+                  )}
+                </TextSpan>
+              </Flex>
+            </TableHeader>
+            <TableHeader style={{ padding: '12px 4px' }}>
+              <Flex justifyCenter>
+                <TextSpan autoAlignVertical>
+                  {' '}
+                  $
+                  {truncateValue(
+                    protocols.reduce((pv, cv) => (pv += cv.totalExposure), 0),
+                    2
+                  )}
+                </TextSpan>
+              </Flex>
+            </TableHeader>
+            <TableHeader style={{ padding: '12px 4px' }}>
+              <Flex justifyCenter>
+                <TextSpan autoAlignVertical>
+                  {truncateValue(
+                    protocols.reduce((pv, cv) => (pv += cv.policies.length), 0),
+                    2
+                  )}
+                </TextSpan>
+              </Flex>
+            </TableHeader>
+          </TableRow>
         </TableFoot>
       </Table>
     </Scrollable>

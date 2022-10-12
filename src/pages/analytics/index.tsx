@@ -61,8 +61,6 @@ export function AnalyticsContent(): JSX.Element {
   const { leverageFactor } = gauges
   const { premiumsUSD, uwpValueUSD, fetchedSipMathLib } = data
 
-  const ref = useRef<HTMLHeadingElement>(null)
-
   const currLayouts = useRef<Layout[]>(layoutLG)
 
   const handleLayoutChange = useCallback((layout: Layout[]) => {
@@ -99,7 +97,7 @@ export function AnalyticsContent(): JSX.Element {
   )
 
   return (
-    <div ref={ref}>
+    <div>
       <ResponsiveGridLayout
         className="layout"
         draggableHandle=".dragHandle"
