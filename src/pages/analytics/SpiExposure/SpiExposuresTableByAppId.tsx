@@ -176,7 +176,6 @@ export const SpiExposuresTableByAppId = ({ chosenHeight }: { chosenHeight: numbe
       const protocols: ProtocolExposureType[] = []
       policyholders.forEach((policyholder: string) => {
         if (!positions.hasOwnProperty(policyholder)) {
-          // console.log(`uncached policyholder ${policyholder}`)
           return
         }
         const coveredPositionsOfPolicyholder =
@@ -186,23 +185,23 @@ export const SpiExposuresTableByAppId = ({ chosenHeight }: { chosenHeight: numbe
           {}
         )
         const policyExposure = Math.min(
-          highestPosOfPolicyholder.balanceUSD,
+          highestPosOfPolicyholder?.balanceUSD ?? 0,
           parseFloat(formatUnits(policyOf[policyholder].coverLimit, 18))
         )
         policyOf[policyholder].policyHolder = policyholder
         policyOf[policyholder].exposure = policyExposure
         const policy = policyOf[policyholder]
-        coveredPositionsOfPolicyholder.forEach((p: any) => {
+        coveredPositionsOfPolicyholder.forEach((coveredPosition: any) => {
           const foundProtocols = protocols.filter(
-            (protocol: any) => protocol.appId == p.appId && protocol.network == p.network
+            (protocol: any) => protocol.appId == coveredPosition.appId && protocol.network == coveredPosition.network
           )
           let protocol: any = {}
           if (foundProtocols.length > 1) console.log('warning in exposures')
           if (foundProtocols.length == 0) {
             // new protocol found. create new entry
             protocol = {
-              appId: p.appId,
-              network: p.network,
+              appId: coveredPosition.appId,
+              network: coveredPosition.network,
               balanceUSD: 0,
               coverLimit: 0,
               highestPosition: 0,
@@ -214,7 +213,7 @@ export const SpiExposuresTableByAppId = ({ chosenHeight }: { chosenHeight: numbe
             }
             protocols.push(protocol)
             // map to series
-            const foundSeries = series.data.protocolMap.filter((s: any) => s.appId == p.appId)
+            const foundSeries = series.data.protocolMap.filter((s: any) => s.appId == coveredPosition.appId)
             if (foundSeries.length > 1) console.log('protocols series uhh')
             if (foundSeries.length == 0) {
               // unknown protocol
@@ -229,19 +228,19 @@ export const SpiExposuresTableByAppId = ({ chosenHeight }: { chosenHeight: numbe
             }
           } else protocol = foundProtocols[0]
 
-          const balanceUSD = parseFloat(p.balanceUSD)
+          const balanceUSD = parseFloat(coveredPosition.balanceUSD)
           const coverLimit = parseFloat(formatUnits(policy.coverLimit, 18))
           const totalLossPayoutAmount = Math.min(coverLimit, balanceUSD)
           const premiumsPerYear = totalLossPayoutAmount * protocol.rol
           protocol.balanceUSD += balanceUSD
           protocol.coverLimit += coverLimit
-          protocol.highestPosition = Math.max(protocol.highestPosition, highestPosOfPolicyholder.balanceUSD)
-          protocol.totalExposure += policyExposure
+          protocol.highestPosition = Math.max(protocol.highestPosition, highestPosOfPolicyholder?.balanceUSD ?? 0)
+          protocol.totalExposure += Math.min(balanceUSD, coverLimit)
           protocol.totalLossPayoutAmount += totalLossPayoutAmount
           protocol.premiumsPerYear += premiumsPerYear
-          p.premiumsPerYear = premiumsPerYear
+          coveredPosition.premiumsPerYear = premiumsPerYear
           protocol.policies.push(policy)
-          protocol.positions.push(p)
+          protocol.positions.push(coveredPosition)
         })
       })
       setProtocols(protocols)
@@ -434,7 +433,7 @@ export const SpiExposuresTableByAppId = ({ chosenHeight }: { chosenHeight: numbe
                     </TableData>
                     <TableData style={{ padding: '14px 4px' }}>
                       <Text autoAlignVertical semibold>
-                        ${truncateValue(p.totalExposure, 2)}
+                        ${truncateValue(Math.min(p.balanceUSD, p.coverLimit), 2)}
                       </Text>
                     </TableData>
                     <TableData style={{ padding: '14px 4px' }}>
@@ -649,7 +648,11 @@ export const SpiExposuresTableByAppId = ({ chosenHeight }: { chosenHeight: numbe
                       </TableData>
                       <TableData style={{ padding: '14px 4px' }}>
                         <Text autoAlignVertical semibold>
-                          ${truncateValue(policy.exposure, 2)}
+                          ${' '}
+                          {truncateValue(
+                            Math.min(position.balanceUSD, parseFloat(formatUnits(policy.coverLimit, 18))),
+                            2
+                          )}
                         </Text>
                       </TableData>
                       <TableData style={{ padding: '14px 4px' }}>

@@ -160,7 +160,7 @@ export const SpiExposuresTableByPolicy = ({ chosenHeight }: { chosenHeight: numb
                 <TextSpan autoAlignVertical>Cover Limit</TextSpan>
               </TableHeader>
               <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
-                <TextSpan autoAlignVertical>Total Exposure</TextSpan>
+                <TextSpan autoAlignVertical>Exposure</TextSpan>
               </TableHeader>
               <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
                 <TextSpan autoAlignVertical>Highest Position</TextSpan>
@@ -195,7 +195,8 @@ export const SpiExposuresTableByPolicy = ({ chosenHeight }: { chosenHeight: numb
                 </TableData>
                 <TableData style={{ padding: '14px 4px' }}>
                   <Text autoAlignVertical semibold>
-                    ${truncateValue(p.exposure, 2)}
+                    {/* ${truncateValue(p.exposure, 2)} */}$
+                    {truncateValue(Math.min(p.balanceUSD, parseFloat(formatUnits(p.coverLimit, 18))), 2)}
                   </Text>
                 </TableData>
                 <TableData style={{ padding: '14px 4px' }}>
