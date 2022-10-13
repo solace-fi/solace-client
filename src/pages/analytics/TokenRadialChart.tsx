@@ -4,8 +4,6 @@ import { useAnalyticsContext } from './AnalyticsContext'
 import vegaEmbed from 'vega-embed'
 import { useGeneral } from '../../context/GeneralManager'
 import { Text } from '../../components/atoms/Typography'
-import { StyledSlider } from '../../components/atoms/Input'
-import { Loader } from '../../components/atoms/Loader'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 export const TokenRadialChart = ({

@@ -31,6 +31,7 @@ const {
   PREMIUMS_LINE_CHART,
   SPI_EXPOSURES_TABLE_APPID,
   SPI_EXPOSURES_TABLE_POLICY,
+  COVER_LIMIT_PER_CATEGORY_PIE_CHART,
 } = AnalyticsChart
 
 import { Layout, Responsive, WidthProvider } from 'react-grid-layout'
@@ -50,6 +51,7 @@ import {
 } from './constants'
 import { SpiExposuresTableByAppId } from './SpiExposure/SpiExposuresTableByAppId'
 import { SpiExposuresTableByPolicy } from './SpiExposure/SpiExposuresTableByPolicy'
+import { CoverLimitCategoryPieChart } from './CoverLimitPerCategoryPieChart'
 
 const ResponsiveGridLayout = WidthProvider(Responsive)
 
@@ -176,7 +178,7 @@ export function AnalyticsContent(): JSX.Element {
         </div>
         <div key={TOKEN_PRICE_VOL_HISTOGRAM}>
           <AnalyticsCard
-            title="Token Price Volatility"
+            title="Token Price Volatility Histogram"
             clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
             height={rowHeight + (at(TOKEN_PRICE_VOL_HISTOGRAM).h - 1) * interval - cardPadding}
           >
@@ -188,7 +190,7 @@ export function AnalyticsContent(): JSX.Element {
         </div>
         <div key={TOKEN_RADIAL_PIE_CHART}>
           <AnalyticsCard
-            title="Token Price Volatility"
+            title="Token Price Volatility Pie"
             clarification={`Data from the last ${fetchedSipMathLib?.sips?.[0]?.metadata?.count} days was analyzed to build this chart.`}
             height={rowHeight + (at(TOKEN_RADIAL_PIE_CHART).h - 1) * interval - cardPadding}
           >
@@ -241,6 +243,18 @@ export function AnalyticsContent(): JSX.Element {
           >
             <SpiExposuresTableByPolicy
               chosenHeight={rowHeight + (at(SPI_EXPOSURES_TABLE_POLICY).h - 1) * interval - cardUnchartable}
+            />
+          </AnalyticsCard>
+        </div>
+        <div key={COVER_LIMIT_PER_CATEGORY_PIE_CHART}>
+          <AnalyticsCard
+            title="Balance Per Category"
+            clarification={``}
+            height={rowHeight + (at(COVER_LIMIT_PER_CATEGORY_PIE_CHART).h - 1) * interval - cardPadding}
+          >
+            <CoverLimitCategoryPieChart
+              chosenWidth={at(COVER_LIMIT_PER_CATEGORY_PIE_CHART).w}
+              chosenHeight={rowHeight + (at(COVER_LIMIT_PER_CATEGORY_PIE_CHART).h - 1) * interval - cardUnchartable}
             />
           </AnalyticsCard>
         </div>

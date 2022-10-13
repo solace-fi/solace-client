@@ -87,7 +87,7 @@ export const SpiExposuresTableByPolicy = ({ chosenHeight }: { chosenHeight: numb
         policyOf[policy.policyholder] = policy
       })
       const policyholders: string[] = Object.keys(policyOf)
-      const _policies: any[] = []
+      const _policies: (PolicyExposure & { balanceUSD: number; highestPositionUSD: number })[] = []
       policyholders.forEach((policyholder) => {
         if (!positions.hasOwnProperty(policyholder)) return
         const coveredPositionsOfPolicyholder =
@@ -97,16 +97,17 @@ export const SpiExposuresTableByPolicy = ({ chosenHeight }: { chosenHeight: numb
           (a: any, b: any) => (a.balanceUSD > b.balanceUSD ? a : b),
           {}
         )
+        const totalPositionAmount = coveredPositionsOfPolicyholder.reduce((a: any, b: any) => {
+          return a + b.balanceUSD
+        }, 0)
         const policyExposure = Math.min(
-          highestPosOfPolicyholder?.balanceUSD ?? 0,
+          totalPositionAmount,
           parseFloat(formatUnits(policyOf[policyholder].coverLimit, 18))
         )
         policyOf[policyholder].policyHolder = policyholder
         policyOf[policyholder].exposure = policyExposure
         portfolioOf[policyholder] = {
-          balanceUSD: coveredPositionsOfPolicyholder.reduce((a: any, b: any) => {
-            return a + b.balanceUSD
-          }, 0),
+          balanceUSD: totalPositionAmount,
           highestPositionUSD: highestPosOfPolicyholder?.balanceUSD ?? 0,
         }
         _policies.push({ ...policyOf[policyholder], ...portfolioOf[policyholder] })
@@ -118,7 +119,6 @@ export const SpiExposuresTableByPolicy = ({ chosenHeight }: { chosenHeight: numb
 
   return (
     <Flex col gap={10}>
-      {' '}
       <Flex justifyCenter>
         {numPagesOfPolicies > 1 && (
           <Flex pb={20} justifyCenter>
@@ -144,7 +144,7 @@ export const SpiExposuresTableByPolicy = ({ chosenHeight }: { chosenHeight: numb
         maxMobileHeight={`${chosenHeight}px`}
         raised={true}
       >
-        <Table canHover textAlignCenter style={{ borderSpacing: '0px 7px' }}>
+        <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
           <TableHead sticky zIndex={Z_TABLE + 1}>
             <TableRow inheritBg>
               <TableHeader style={{ padding: '20px 4px 4px 4px' }}>
@@ -172,7 +172,7 @@ export const SpiExposuresTableByPolicy = ({ chosenHeight }: { chosenHeight: numb
           </TableHead>
           <TableBody>
             {policiesPaginated.map((p: any, i: number) => (
-              <TableRow raised key={'appId ' + i} style={{ cursor: 'pointer' }}>
+              <TableRow raised key={'appId ' + i}>
                 <TableData style={{ padding: '14px 4px' }}>
                   <Text autoAlignVertical semibold>
                     {p.policyID}
