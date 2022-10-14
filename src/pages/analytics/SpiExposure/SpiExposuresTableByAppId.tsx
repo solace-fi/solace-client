@@ -19,12 +19,10 @@ import {
 import { Text, TextSpan } from '../../../components/atoms/Typography'
 import { processProtocolName } from '../../../components/organisms/Dropdown'
 import { Z_TABLE } from '../../../constants'
-import { useCachedData } from '../../../context/CachedDataManager'
 import { truncateValue } from '../../../utils/formatting'
-import { mapNumberToLetter } from '../../../utils/mapProtocols'
 import { rangeFrom0 } from '../../../utils/numeric'
 import { useAnalyticsContext } from '../AnalyticsContext'
-import { PolicyExposure, ProtocolExposureType } from '../constants'
+import { ProtocolExposureType } from '../constants'
 
 enum SortType {
   appID_A,
@@ -354,7 +352,7 @@ export const SpiExposuresTableByAppId = ({ chosenHeight }: { chosenHeight: numbe
                     </TableData>
                     <TableData style={{ padding: '14px 4px' }}>
                       <Text autoAlignVertical semibold>
-                        ${truncateValue(Math.min(p.balanceUSD, p.coverLimit), 2)}
+                        ${truncateValue(p.totalExposure, 2)}
                       </Text>
                     </TableData>
                     <TableData style={{ padding: '14px 4px' }}>

@@ -22,6 +22,7 @@ const {
   PREMIUMS_STAT,
   UWP_SIZE_STAT,
   LEVERAGE_FACTOR_STAT,
+  MAX_EXPOSURE_STAT,
   TOKEN_COMPOSITION_TABLE,
   PORTFOLIO_AREA_CHART,
   PORTFOLIO_VOL_HISTOGRAM,
@@ -63,7 +64,7 @@ export function AnalyticsContent(): JSX.Element {
   const { data } = useAnalyticsContext()
   const { gauges } = useVoteContext()
   const { leverageFactor } = gauges
-  const { premiumsUSD, uwpValueUSD, fetchedSipMathLib } = data
+  const { premiumsUSD, uwpValueUSD, fetchedSipMathLib, protocolExposureData } = data
 
   const currLayouts = useRef<Layout[]>(layoutLG)
 
@@ -114,34 +115,41 @@ export function AnalyticsContent(): JSX.Element {
         onLayoutChange={handleLayoutChange}
       >
         <div key={PREMIUMS_STAT}>
-          <Card shadow height={at(PREMIUMS_STAT).h * rowHeight - cardPadding} className="dragHandle">
-            <Flex gap={8} col>
-              <Text t6s semibold contrast>
-                Premiums
-              </Text>
-              <CardSectionValue info>${truncateValue(premiumsUSD, 2)}</CardSectionValue>
-            </Flex>
-          </Card>
+          <AnalyticsCard title="Premiums" height={rowHeight + (at(PREMIUMS_STAT).h - 1) * interval - cardPadding}>
+            <CardSectionValue info>${truncateValue(premiumsUSD, 2)}</CardSectionValue>
+          </AnalyticsCard>
         </div>
         <div key={UWP_SIZE_STAT}>
-          <Card shadow height={at(UWP_SIZE_STAT).h * rowHeight - cardPadding} className="dragHandle">
-            <Flex gap={8} col>
-              <Text t6s semibold contrast>
-                Underwriting Pool Size
-              </Text>
-              <CardSectionValue info>${truncateValue(formatUnits(uwpValueUSD, 18), 2)} </CardSectionValue>
-            </Flex>
-          </Card>
+          <AnalyticsCard
+            title="Underwriting Pool Size"
+            height={rowHeight + (at(UWP_SIZE_STAT).h - 1) * interval - cardPadding}
+          >
+            <CardSectionValue info>${truncateValue(formatUnits(uwpValueUSD, 18), 2)} </CardSectionValue>
+          </AnalyticsCard>
         </div>
         <div key={LEVERAGE_FACTOR_STAT}>
-          <Card shadow height={at(LEVERAGE_FACTOR_STAT).h * rowHeight - cardPadding} className="dragHandle">
-            <Flex gap={8} col>
-              <Text t6s semibold contrast>
-                Leverage Factor
-              </Text>
-              <CardSectionValue info>{leverageFactor}</CardSectionValue>
-            </Flex>
-          </Card>
+          <AnalyticsCard
+            title="Leverage Factor"
+            height={rowHeight + (at(LEVERAGE_FACTOR_STAT).h - 1) * interval - cardPadding}
+          >
+            <CardSectionValue info>{leverageFactor}</CardSectionValue>
+          </AnalyticsCard>
+        </div>
+        <div key={MAX_EXPOSURE_STAT}>
+          <AnalyticsCard
+            title="Max Protocol Exposure"
+            height={rowHeight + (at(MAX_EXPOSURE_STAT).h - 1) * interval - cardPadding}
+          >
+            <CardSectionValue info>
+              $
+              {truncateValue(
+                protocolExposureData.length > 0
+                  ? Math.max(...protocolExposureData.map((data) => data.totalExposure))
+                  : 0,
+                2
+              )}
+            </CardSectionValue>
+          </AnalyticsCard>
         </div>
         <div key={TOKEN_COMPOSITION_TABLE}>
           <AnalyticsCard
