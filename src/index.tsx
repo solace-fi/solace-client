@@ -18,7 +18,6 @@ import BribeManager from './pages/bribe/BribeContext'
 import VoteManager from './pages/vote/VoteContext'
 
 import '../node_modules/react-grid-layout/css/styles.css'
-import '../node_modules/react-resizable/css/styles.css'
 import './styles/index.css'
 
 /*

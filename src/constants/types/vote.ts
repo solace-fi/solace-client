@@ -35,4 +35,5 @@ export type GaugeData = {
   gaugeName: string
   gaugeWeight: BigNumber
   isActive: boolean
+  startTimestamp: string
 }

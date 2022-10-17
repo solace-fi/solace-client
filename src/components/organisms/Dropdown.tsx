@@ -197,7 +197,6 @@ export const DropdownOptions = ({
             matchBg
             secondary
             noborder
-            height={37}
             pt={10.5}
             pb={10.5}
             pl={12}

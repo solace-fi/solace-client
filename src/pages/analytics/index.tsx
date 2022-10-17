@@ -33,6 +33,7 @@ const {
   SPI_EXPOSURES_TABLE_APPID,
   SPI_EXPOSURES_TABLE_POLICY,
   COVER_LIMIT_PER_CATEGORY_PIE_CHART,
+  GAUGE_OVERVIEW_TABLE,
 } = AnalyticsChart
 
 import { Layout, Responsive, WidthProvider } from 'react-grid-layout'
@@ -43,7 +44,7 @@ import {
   layoutXS,
   layoutXXS,
   breakpointsObj,
-  gridCols,
+  cols,
   margin,
   rowHeight,
   cardPadding,
@@ -53,6 +54,7 @@ import {
 import { SpiExposuresTableByAppId } from './SpiExposure/SpiExposuresTableByAppId'
 import { SpiExposuresTableByPolicy } from './SpiExposure/SpiExposuresTableByPolicy'
 import { CoverLimitCategoryPieChart } from './CoverLimitPerCategoryPieChart'
+import { GaugeOverviewTable } from './GaugeOverviewTable'
 
 const ResponsiveGridLayout = WidthProvider(Responsive)
 
@@ -108,7 +110,7 @@ export function AnalyticsContent(): JSX.Element {
         draggableHandle=".dragHandle"
         layouts={{ lg: layoutLG, md: layoutMD, sm: layoutSM, xs: layoutXS, xxs: layoutXXS }}
         breakpoints={breakpointsObj}
-        cols={gridCols}
+        cols={cols}
         margin={[margin, margin]}
         resizeHandles={['se']}
         rowHeight={rowHeight}
@@ -263,6 +265,16 @@ export function AnalyticsContent(): JSX.Element {
             <CoverLimitCategoryPieChart
               chosenWidth={at(COVER_LIMIT_PER_CATEGORY_PIE_CHART).w}
               chosenHeight={rowHeight + (at(COVER_LIMIT_PER_CATEGORY_PIE_CHART).h - 1) * interval - cardUnchartable}
+            />
+          </AnalyticsCard>
+        </div>
+        <div key={GAUGE_OVERVIEW_TABLE}>
+          <AnalyticsCard
+            title="Gauge Overview"
+            height={rowHeight + (at(GAUGE_OVERVIEW_TABLE).h - 1) * interval - cardPadding}
+          >
+            <GaugeOverviewTable
+              chosenHeight={rowHeight + (at(GAUGE_OVERVIEW_TABLE).h - 1) * interval - cardUnchartable}
             />
           </AnalyticsCard>
         </div>

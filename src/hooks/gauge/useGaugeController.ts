@@ -13,6 +13,8 @@ import underwritingLockVotingABI from '../../constants/abi/UnderwritingLockVotin
 import { MAX_BPS } from '../../constants'
 import { useNetwork } from '../../context/NetworkManager'
 import { multicallChunked, MulticallProvider } from '../../utils/contract'
+import { fetchExplorerTxHistoryByAddress } from '../../utils/explorer'
+import { decodeInput } from '../../utils/decoder'
 
 export const useGaugeController = () => {
   const { keyContracts } = useContracts()
@@ -219,7 +221,7 @@ export const useGaugeControllerHelper = () => {
   const { valueOfHolder } = useUwp()
   const { activeNetwork } = useNetwork()
   const { provider } = useProvider()
-  const { keyContracts } = useContracts()
+  const { keyContracts, contractSources } = useContracts()
   const { uwe, gaugeController, uwLockVoting } = keyContracts
 
   const [loading, setLoading] = useState(false)
@@ -233,6 +235,16 @@ export const useGaugeControllerHelper = () => {
   const fetchGauges = useCallback(async () => {
     if (!gaugeController || !uwLockVoting) return
     setLoading(true)
+    const data = await fetchExplorerTxHistoryByAddress(activeNetwork, gaugeController.address)
+    const gaugeNameToStartTimestampMapping: { [key: string]: string } = {}
+    for (let i = 0; i < data.result.length; i++) {
+      const decodedInput = decodeInput(data.result[i], contractSources)
+      if (decodedInput?.name == 'addGauge') {
+        const gaugeName = decodedInput.args[0]
+        const timeStamp = data.result[i].timeStamp
+        gaugeNameToStartTimestampMapping[gaugeName] = timeStamp
+      }
+    }
     const offset = 1
     const gaugeWeights = await getAllGaugeWeights()
     const adjustedGaugeWeights = gaugeWeights.slice(offset)
@@ -250,12 +262,13 @@ export const useGaugeControllerHelper = () => {
         })
       )
 
-      const _currentGaugesData = adjustedGaugeWeights.map((gaugeWeight, i) => {
+      const _currentGaugesData: GaugeData[] = adjustedGaugeWeights.map((gaugeWeight, i) => {
         return {
           gaugeId: BigNumber.from(i).add(BigNumber.from(offset)),
           gaugeName: gaugeNames[i],
           gaugeWeight,
           isActive: gaugesActive[i],
+          startTimestamp: gaugeNameToStartTimestampMapping[gaugeNames[i]],
         }
       })
 
@@ -297,12 +310,13 @@ export const useGaugeControllerHelper = () => {
         })
       }
 
-      const _nextGaugesData = nextEpochWeights.map((gaugeWeight, i) => {
+      const _nextGaugesData: GaugeData[] = nextEpochWeights.map((gaugeWeight, i) => {
         return {
           gaugeId: BigNumber.from(i).add(BigNumber.from(offset)),
           gaugeName: gaugeNames[i],
           gaugeWeight,
           isActive: gaugesActive[i],
+          startTimestamp: gaugeNameToStartTimestampMapping[gaugeNames[i]],
         }
       })
 
@@ -319,8 +333,9 @@ export const useGaugeControllerHelper = () => {
     getVoters,
     gaugeController,
     uwLockVoting,
-    activeNetwork.chainId,
+    activeNetwork,
     provider,
+    contractSources,
   ])
 
   useEffect(() => {

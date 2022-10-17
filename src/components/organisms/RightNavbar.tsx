@@ -17,7 +17,7 @@ import { UserImage } from '../atoms/User'
 import { ZERO, Z_NAV } from '../../constants'
 import { decodeInput } from '../../utils/decoder'
 import { getExplorerItemUrl } from '../../utils/explorer'
-import { shortenAddress, truncateValue } from '../../utils/formatting'
+import { capitalizeFirstLetter, shortenAddress, truncateValue } from '../../utils/formatting'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useENS } from '../../hooks/wallet/useENS'
@@ -253,7 +253,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                       </Flex>
                       {txHistory.slice(0, 5).map((tx: any) => (
                         <Flex stretch between pl={40} pr={40} pb={12} key={tx.hash}>
-                          <Text t4>{decodeInput(tx, contractSources)}</Text>
+                          <Text t4>{capitalizeFirstLetter(decodeInput(tx, contractSources)?.name ?? '')}</Text>
                           <HyperLink
                             href={getExplorerItemUrl(activeNetwork.explorer.url, tx.hash, ExplorerscanApi.TX)}
                             target="_blank"
