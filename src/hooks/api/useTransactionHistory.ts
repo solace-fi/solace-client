@@ -22,7 +22,7 @@ export const useFetchTxHistoryByAddress = (): any => {
         .then((result) => {
           if (result.status == '1') {
             const contractAddrs = contractSources.map((contract) => contract.addr)
-            const txList = result.result.filter((tx: any) => contractAddrs.includes(tx.to.toLowerCase()))
+            const txList: any[] = result.result.filter((tx: any) => contractAddrs.includes(tx.to.toLowerCase()))
             deleteLocalTransactions(txList)
             setTxHistory(txList.slice(0, 30))
           } else {

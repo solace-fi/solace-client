@@ -253,7 +253,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                       </Flex>
                       {txHistory.slice(0, 5).map((tx: any) => (
                         <Flex stretch between pl={40} pr={40} pb={12} key={tx.hash}>
-                          <Text t4>{capitalizeFirstLetter(decodeInput(tx, contractSources)?.name ?? '')}</Text>
+                          <Text t4>{capitalizeFirstLetter(decodeInput(tx, contractSources)?.name ?? '?')}</Text>
                           <HyperLink
                             href={getExplorerItemUrl(activeNetwork.explorer.url, tx.hash, ExplorerscanApi.TX)}
                             target="_blank"

@@ -140,7 +140,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                       >
                         {txHistory.length > 0 ? (
                           <Text error={tx.txreceipt_status != '1'}>
-                            {capitalizeFirstLetter(decodeInput(tx, contractSources)?.name ?? '')}
+                            {capitalizeFirstLetter(decodeInput(tx, contractSources)?.name ?? '?')}
                           </Text>
                         ) : (
                           <Loader width={10} height={10} />

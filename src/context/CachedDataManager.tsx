@@ -42,7 +42,7 @@ type CachedData = {
   gasData: GasData | undefined
   statsCache: any
   addLocalTransactions: (txToAdd: LocalTx) => void
-  deleteLocalTransactions: (txsToDelete: []) => void
+  deleteLocalTransactions: (txsToDelete: { hash: string }[]) => void
   positiveReload: () => void // primary timekeeper intended for reloading UI and data
   negativeReload: () => void // secondary timekeeper intended for reloading UI but not data
   coverage: {
@@ -142,7 +142,7 @@ const CachedDataProvider: React.FC = (props) => {
   )
 
   const deleteLocalTransactions = useCallback(
-    (txsToDelete: LocalTx[]) => {
+    (txsToDelete: { hash: string }[]) => {
       if (txsToDelete.length == 0) return
       const formattedTxsToDelete = txsToDelete.map((tx) => tx.hash.toLowerCase())
       const passedLocalTxs = localTxs.filter(
