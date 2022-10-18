@@ -11,7 +11,7 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { PortfolioGaugeWeight } from './components/PortfolioGaugeWeightDisplay'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { Button } from '../../components/atoms/Button'
-import { DragDropContext, Droppable, Draggable, DraggingStyle } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { StyledDownload } from '../../components/atoms/Icon'
 import sipMath3 from '../../resources/svg/sipmath3.svg'
 
@@ -304,7 +304,25 @@ export const TokenPortfolioHistogram = ({
               }}
             >
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-                <Droppable droppableId="droppable">
+                <Droppable
+                  droppableId="droppable"
+                  renderClone={(provided, snapshot, rubric) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+                    >
+                      <PortfolioGaugeWeight
+                        gaugeName={simWeights[rubric.source.index].name}
+                        weight={simWeights[rubric.source.index].weight}
+                        editingItem={editingItem}
+                        handleEditingItem={handleEditingItem}
+                        saveEditedItem={saveEditedItem}
+                      />
+                    </div>
+                  )}
+                >
                   {(provided, snapshot) => (
                     <div
                       {...provided.droppableProps}
@@ -315,15 +333,6 @@ export const TokenPortfolioHistogram = ({
                         return (
                           <Draggable key={item.name} draggableId={item.name} index={i}>
                             {(provided, snapshot) => {
-                              if (
-                                snapshot.isDragging &&
-                                provided.draggableProps.style != undefined &&
-                                'left' in (provided.draggableProps.style as DraggingStyle) &&
-                                'top' in (provided.draggableProps.style as DraggingStyle)
-                              ) {
-                                ;(provided.draggableProps.style as any).left = undefined
-                                ;(provided.draggableProps.style as any).top = undefined
-                              }
                               return (
                                 <div
                                   ref={provided.innerRef}
