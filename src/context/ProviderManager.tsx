@@ -50,7 +50,7 @@ const ProviderContext = createContext<ProviderContextType>({
 const ProviderManager: React.FC = (props) => {
   const { account, library } = useWeb3React()
   const { activeNetwork, changeNetwork } = useNetwork()
-  const provider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork])
+  const provider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork.rpc.httpsUrl])
   const signer = useMemo(() => (account ? getSigner(library, account) : undefined), [library, account])
   const latestBlock = useGetLatestBlock(provider)
 

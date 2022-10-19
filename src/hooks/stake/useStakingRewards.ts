@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { useContracts } from '../../context/ContractsManager'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
@@ -13,7 +13,6 @@ import { withBackoffRetries } from '../../utils/time'
 import { useNetwork } from '../../context/NetworkManager'
 
 import { Lock, Staker, GlobalLockInfo, Price } from '@solace-fi/sdk-nightly'
-import { useCachedData } from '../../context/CachedDataManager'
 import { FunctionGasLimits } from '../../constants/mappings/gas'
 
 export const useStakingRewards = () => {
@@ -201,8 +200,8 @@ export const useProjectedBenefits = (
   projectedYearlyReturns: BigNumber
 } => {
   const { getGlobalLockStats } = useStakingRewards()
-  const { latestBlock } = useProvider()
-  const { minute } = useCachedData()
+  const { latestBlock, provider } = useProvider()
+  const hasRan = useRef<boolean>(false)
 
   const [projectedMultiplier, setProjectedMultiplier] = useState<string>('0')
   const [projectedApr, setProjectedApr] = useState<BigNumber>(ZERO)
@@ -217,14 +216,21 @@ export const useProjectedBenefits = (
   })
 
   useEffect(() => {
+    hasRan.current = false
+  }, [provider])
+
+  useEffect(() => {
     const _getGlobalLockStats = async () => {
       const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
       setGlobalLockStats(globalLockStats)
     }
-    _getGlobalLockStats()
+    if (formatAmount(bnBalance) !== '0' && !hasRan.current) {
+      _getGlobalLockStats()
+      hasRan.current = true
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [minute])
+  }, [bnBalance, provider])
 
   useEffect(() => {
     if (!latestBlock) return

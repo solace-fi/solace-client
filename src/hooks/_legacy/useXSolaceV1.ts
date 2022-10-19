@@ -66,8 +66,7 @@ export const useXSolaceV1 = () => {
 export const useXSolaceV1Details = () => {
   const { keyContracts } = useContracts()
   const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-  const { positiveVersion } = useCachedData()
-  const { latestBlock } = useProvider()
+  const { positiveVersion, minute } = useCachedData()
   const xSolaceBalance = useXSolaceBalance()
   const [userShare, setUserShare] = useState<string>('0')
   const [xSolacePerSolace, setXSolacePerSolace] = useState<string>('1')
@@ -110,7 +109,7 @@ export const useXSolaceV1Details = () => {
     getXSolaceUserPoolShare()
     getXSolacePerSolace()
     getSolacePerXSolace()
-  }, [latestBlock, positiveVersion, getXSolaceUserPoolShare, getSolacePerXSolace, getXSolacePerSolace])
+  }, [minute, positiveVersion, getXSolaceUserPoolShare, getSolacePerXSolace, getXSolacePerSolace])
 
   return { userShare, xSolacePerSolace, solacePerXSolace }
 }
