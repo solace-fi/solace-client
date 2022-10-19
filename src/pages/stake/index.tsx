@@ -375,9 +375,8 @@ export default function Stake(): JSX.Element {
   locksCheckedRef.current = locksChecked
 
   const { account } = useWeb3React()
-  const { latestBlock } = useProvider()
   const { activeNetwork } = useNetwork()
-  const { version, coverage } = useCachedData()
+  const { version, coverage, minute } = useCachedData()
   const [stakingVersion, setStakingVersion] = useState<StakingVersion>(StakingVersion.v2 as StakingVersion)
   const [locks, setLocks] = useState<LockData[]>([])
   const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
@@ -454,7 +453,7 @@ export default function Stake(): JSX.Element {
     }
     _getUserLocks()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, activeNetwork, latestBlock, version])
+  }, [account, activeNetwork, minute, version])
 
   useEffect(() => {
     setLoading(true)
