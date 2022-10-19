@@ -1,4 +1,4 @@
-import React, { useMemo, useContext, createContext, useEffect, useCallback } from 'react'
+import React, { useMemo, useContext, createContext, useEffect, useCallback, useState } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
@@ -12,6 +12,7 @@ import { useGetCrossTokenPricesFromCoingecko } from '../hooks/api/usePrice'
 import { useWeb3React } from '@web3-react/core'
 import {
   BigNumber,
+  GlobalLockInfo,
   SolaceRiskProtocol,
   SolaceRiskScore,
   SolaceRiskSeries,
@@ -60,6 +61,12 @@ type CachedData = {
     seriesLogos: { label: string; value: string; icon: JSX.Element }[]
     seriesLoading: boolean
   }
+  staking: {
+    globalLockStats: GlobalLockInfo
+    handleGlobalLockStats: (_stats: GlobalLockInfo) => void
+    canFetchGlobalStatsFlag: boolean
+    handleCanFetchGlobalStatsFlag: (_flag: boolean) => void
+  }
 }
 
 const CachedDataContext = createContext<CachedData>({
@@ -89,6 +96,19 @@ const CachedDataContext = createContext<CachedData>({
     series: undefined,
     seriesLogos: [],
     seriesLoading: true,
+  },
+  staking: {
+    globalLockStats: {
+      solaceStaked: '0',
+      valueStaked: '0',
+      numLocks: '0',
+      rewardPerSecond: '0',
+      apr: '0',
+      successfulFetch: false,
+    },
+    handleGlobalLockStats: () => undefined,
+    canFetchGlobalStatsFlag: true,
+    handleCanFetchGlobalStatsFlag: () => undefined,
   },
 })
 
@@ -125,6 +145,25 @@ const CachedDataProvider: React.FC = (props) => {
     dailyCost: curDailyCost,
   } = usePortfolioAnalysis(portfolio, coverageLimit)
 
+  const [globalLockStats, setGlobalLockStats] = useState<GlobalLockInfo>({
+    solaceStaked: '0',
+    valueStaked: '0',
+    numLocks: '0',
+    rewardPerSecond: '0',
+    apr: '0',
+    successfulFetch: false,
+  })
+
+  const [canFetchGlobalStatsFlag, setCanFetchGlobalStatsFlag] = useState<boolean>(true)
+
+  const handleCanFetchGlobalStatsFlag = useCallback((_flag: boolean) => {
+    setCanFetchGlobalStatsFlag(_flag)
+  }, [])
+
+  const handleGlobalLockStats = useCallback((_stats: GlobalLockInfo) => {
+    setGlobalLockStats(_stats)
+  }, [])
+
   const addLocalTransactions = useCallback(
     (txToAdd: LocalTx) => {
       setLocalTxs([txToAdd, ...localTxs])
@@ -150,6 +189,10 @@ const CachedDataProvider: React.FC = (props) => {
     }, 60000)
     return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    handleCanFetchGlobalStatsFlag(true)
+  }, [activeNetwork])
 
   useEffect(() => {
     const clearLocalTransactions = () => {
@@ -187,6 +230,12 @@ const CachedDataProvider: React.FC = (props) => {
         seriesLogos,
         seriesLoading,
       },
+      staking: {
+        globalLockStats,
+        handleGlobalLockStats,
+        canFetchGlobalStatsFlag,
+        handleCanFetchGlobalStatsFlag,
+      },
     }),
     [
       minute,
@@ -212,6 +261,10 @@ const CachedDataProvider: React.FC = (props) => {
       series,
       seriesLogos,
       seriesLoading,
+      globalLockStats,
+      handleGlobalLockStats,
+      canFetchGlobalStatsFlag,
+      handleCanFetchGlobalStatsFlag,
     ]
   )
 

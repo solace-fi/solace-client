@@ -204,10 +204,10 @@ export default function Safe({
                 </Flex>
               </Flex>
               {/* depending on the tab, use <DepositForm />, or LockForm, RewardsForm or WithdrawForm */}
-              {activeTab === Tab.DEPOSIT && <DepositForm lock={lock} />}
-              {activeTab === Tab.LOCK && <LockForm lock={lock} />}
-              {activeTab === Tab.WITHDRAW && <WithdrawForm lock={lock} />}
-              {activeTab === Tab.REWARDS && <RewardsForm lock={lock} />}
+              {activeTab === Tab.DEPOSIT && isOpen && <DepositForm lock={lock} />}
+              {activeTab === Tab.LOCK && isOpen && <LockForm lock={lock} />}
+              {activeTab === Tab.WITHDRAW && isOpen && <WithdrawForm lock={lock} />}
+              {activeTab === Tab.REWARDS && isOpen && <RewardsForm lock={lock} />}
             </Flex>
           </div>
         </Accordion>
