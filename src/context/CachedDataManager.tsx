@@ -141,7 +141,7 @@ const CachedDataProvider: React.FC = (props) => {
           return {
             label: s.appId,
             value: s.appId,
-            icon: `https://assets.solace.fi/zapperLogos/${s.appId}`,
+            iconUrl: `https://assets.solace.fi/zapperLogos/${s.appId}`,
           }
         })
       : []

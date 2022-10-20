@@ -48,7 +48,7 @@ import { useStakingRewards } from '../../hooks/stake/useStakingRewards'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
-import { useTotalActivePolicies } from '../../hooks/policy/usePolicy'
+import { useTotalActivePolicies } from '../../hooks/_legacy/usePolicy'
 import { useWeb3React } from '@web3-react/core'
 
 export const Statistics: React.FC = () => {

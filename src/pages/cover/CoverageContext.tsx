@@ -23,6 +23,7 @@ import { useTokenAllowance, useTokenApprove } from '../../hooks/contract/useToke
 import SOLACE from '../../constants/abi/SOLACE.json'
 import useReferralApi from '../../hooks/api/useReferralApi'
 import { isAddress } from '../../utils'
+import { useWeb3React } from '@web3-react/core'
 
 type CoverageContextType = {
   intrface: {
@@ -232,6 +233,7 @@ const CoverageContext = createContext<CoverageContextType>({
 
 const CoverageManager: React.FC = (props) => {
   const { appTheme, rightSidebar } = useGeneral()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { tokenPriceMapping, minute, coverage } = useCachedData()
   const {
@@ -306,7 +308,7 @@ const CoverageManager: React.FC = (props) => {
     policyId: existingPolicyId,
     network: existingPolicyNetwork,
     loading: existingPolicyLoading,
-  } = useExistingPolicy()
+  } = useExistingPolicy(account)
 
   const coinOptions = useMemo(
     () => [
