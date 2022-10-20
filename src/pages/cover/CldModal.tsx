@@ -533,7 +533,7 @@ export const CldModal = () => {
                     text={selectedCoin.symbol}
                     value={enteredUSDDeposit}
                     onChange={(e) => handleEnteredUSDDeposit(e.target.value, selectedCoin.decimals)}
-                    onClick={() => setLocalCoinsOpen(!localCoinsOpen)}
+                    onClickDropdown={() => setLocalCoinsOpen(!localCoinsOpen)}
                   />
                 </div>
                 <BalanceDropdownOptions

@@ -262,7 +262,7 @@ function Stake1(): any {
                     </SmallBox>
                   }
                 </Flex>
-                <Flex column stretch w={(rightSidebar ? BKPT_6 : BKPT_5) > width ? 300 : 521}>
+                <Flex column stretch width={(rightSidebar ? BKPT_6 : BKPT_5) > width ? 300 : 521}>
                   <Label importance="quaternary" style={{ marginBottom: '8px' }}>
                     Projected benefits when migrated
                   </Label>

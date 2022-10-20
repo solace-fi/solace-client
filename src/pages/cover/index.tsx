@@ -88,7 +88,7 @@ const CoverageContent = () => {
         <>
           <CodeNoticeModal />
           <Flex justifyCenter>
-            <Flex col w={450}>
+            <Flex col width={450}>
               {_showCldModal && <CldModal />}
               {_showPortfolioModal && <Portfolio />}
               {_showSimulatorModal && <PortfolioSimulator />}

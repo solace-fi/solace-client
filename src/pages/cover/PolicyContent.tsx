@@ -695,7 +695,7 @@ export const PolicyContent = (): JSX.Element => {
                               text={selectedCoin.symbol}
                               value={enteredUSDDeposit}
                               onChange={(e) => handleEnteredUSDDeposit(e.target.value, selectedCoin.decimals)}
-                              onClick={() => setCoinsOpen(!coinsOpen)}
+                              onClickDropdown={() => setCoinsOpen(!coinsOpen)}
                             />
                           </div>
                           <BalanceDropdownOptions
