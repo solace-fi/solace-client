@@ -255,7 +255,7 @@ export const PortfolioSimulator = (): JSX.Element => {
         </Flex>
       </Flex>
       <Flex
-        shadow
+        bgSecondary
         col
         gap={12}
         px={20}
@@ -278,7 +278,6 @@ export const PortfolioSimulator = (): JSX.Element => {
         }}
         p={20}
         bgSecondary
-        shadow
       >
         <Button
           secondary

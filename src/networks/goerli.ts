@@ -17,6 +17,7 @@ import fluxMegaOracleABI from '../constants/abi/FluxMegaOracle.json'
 import solaceMegaOracleABI from '../constants/abi/SolaceMegaOracle.json'
 import underwritingLockVotingABI from '../constants/abi/UnderwritingLockVoting.json'
 import bribeControllerABI from '../constants/abi/BribeController.json'
+import { NETWORKS_MAPPING } from '@solace-fi/sdk-nightly'
 
 const chainId = 5
 
@@ -82,7 +83,7 @@ export const GoerliNetwork: NetworkConfig = {
         abi: bribeControllerABI,
       },
     },
-    generalFeatures: { native: true },
+    generalFeatures: { ...NETWORKS_MAPPING[chainId].features.general, native: true },
     specialFeatures: {},
     specialContracts: {},
   },
