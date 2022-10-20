@@ -14,6 +14,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 import { Lock, Staker, GlobalLockInfo, Price } from '@solace-fi/sdk-nightly'
 import { FunctionGasLimits } from '../../constants/mappings/gas'
+import { useCachedData } from '../../context/CachedDataManager'
 
 export const useStakingRewards = () => {
   const { provider, signer } = useProvider()
@@ -200,37 +201,31 @@ export const useProjectedBenefits = (
   projectedYearlyReturns: BigNumber
 } => {
   const { getGlobalLockStats } = useStakingRewards()
-  const { latestBlock, provider } = useProvider()
-  const hasRan = useRef<boolean>(false)
+  const { latestBlock } = useProvider()
+  const { staking } = useCachedData()
+  const { globalLockStats, handleGlobalLockStats, canFetchGlobalStatsFlag, handleCanFetchGlobalStatsFlag } = staking
+  const running = useRef<boolean>(false)
 
   const [projectedMultiplier, setProjectedMultiplier] = useState<string>('0')
   const [projectedApr, setProjectedApr] = useState<BigNumber>(ZERO)
   const [projectedYearlyReturns, setProjectedYearlyReturns] = useState<BigNumber>(ZERO)
-  const [globalLockStats, setGlobalLockStats] = useState<GlobalLockInfo>({
-    solaceStaked: '0',
-    valueStaked: '0',
-    numLocks: '0',
-    rewardPerSecond: '0',
-    apr: '0',
-    successfulFetch: false,
-  })
-
-  useEffect(() => {
-    hasRan.current = false
-  }, [provider])
 
   useEffect(() => {
     const _getGlobalLockStats = async () => {
-      const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
-      setGlobalLockStats(globalLockStats)
+      running.current = true
+      const _globalLockStats: GlobalLockInfo = await getGlobalLockStats()
+      handleGlobalLockStats(_globalLockStats)
+      handleCanFetchGlobalStatsFlag(false)
+      running.current = false
     }
-    if (formatAmount(bnBalance) !== '0' && !hasRan.current) {
-      _getGlobalLockStats()
-      hasRan.current = true
+    if (!running.current) {
+      if (formatAmount(bnBalance) !== '0') {
+        if (!globalLockStats.successfulFetch || canFetchGlobalStatsFlag) {
+          _getGlobalLockStats()
+        }
+      }
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bnBalance, provider])
+  }, [bnBalance, canFetchGlobalStatsFlag, globalLockStats])
 
   useEffect(() => {
     if (!latestBlock) return
