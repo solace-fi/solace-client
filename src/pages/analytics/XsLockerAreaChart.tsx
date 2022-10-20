@@ -1,4 +1,4 @@
-import { BigNumber, getProvider, Staker, XSLOCKER_ADDRESS } from '@solace-fi/sdk-nightly'
+import { BigNumber, Staker, XSLOCKER_ADDRESS } from '@solace-fi/sdk-nightly'
 import React, { useEffect } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
@@ -7,7 +7,7 @@ import { useGeneral } from '../../context/GeneralManager'
 import { rangeFrom1 } from '../../utils/numeric'
 import vegaEmbed from 'vega-embed'
 import { formatUnits } from 'ethers/lib/utils'
-import { networks, useNetwork } from '../../context/NetworkManager'
+import { networks } from '../../context/NetworkManager'
 import { JsonRpcProvider } from '@ethersproject/providers'
 
 export const XsLockerAreaChart = ({
