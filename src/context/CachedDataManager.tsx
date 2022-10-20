@@ -58,7 +58,7 @@ type CachedData = {
   }
   seriesKit: {
     series?: SolaceRiskSeries
-    seriesLogos: { label: string; value: string; icon: JSX.Element }[]
+    seriesLogos: { label: string; value: string; iconUrl?: string }[]
     seriesLoading: boolean
   }
   staking: {
@@ -132,7 +132,7 @@ const CachedDataProvider: React.FC = (props) => {
           return {
             label: s.appId,
             value: s.appId,
-            icon: <img src={`https://assets.solace.fi/zapperLogos/${s.appId}`} height={24} />,
+            iconUrl: `https://assets.solace.fi/zapperLogos/${s.appId}`,
           }
         })
       : []

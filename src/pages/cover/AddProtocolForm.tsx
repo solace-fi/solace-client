@@ -1,17 +1,17 @@
 import { ProtocolMap } from '@solace-fi/sdk-nightly'
 import React, { useCallback, useMemo, useState } from 'react'
 import { ThinButton, GraySquareButton } from '../../components/atoms/Button'
-import { StyledArrowDropDown, StyledClose } from '../../components/atoms/Icon'
+import { StyledArrowDropDown } from '../../components/atoms/Icon'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { filterAmount } from '../../utils/formatting'
-import { useCoverageContext } from './CoverageContext'
 import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
 import { formatAmount } from '../../utils/formatting'
 import { Button } from '../../components/atoms/Button'
 import { Modal } from '../../components/molecules/Modal'
+import { useCachedData } from '../../context/CachedDataManager'
 
 export default function AddProtocolForm({
   editableProtocols,
@@ -24,7 +24,7 @@ export default function AddProtocolForm({
   onAddProtocol: (protocolMap: ProtocolMap, balance: string) => void
   setIsAddingProtocol: (bool: boolean) => void
 }): React.ReactElement {
-  const { seriesKit } = useCoverageContext()
+  const { seriesKit } = useCachedData()
   const { series, seriesLogos } = seriesKit
   const [dropdownOpen, setDropdownOpen] = useState(true)
   const [searchTerm, setSearchTerm] = useState<string>('')

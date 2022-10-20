@@ -218,7 +218,7 @@ export const DropdownOptionsUnique = ({
   onClick,
 }: {
   comparingList: string[]
-  searchedList: { label: string; value: string; icon?: JSX.Element }[]
+  searchedList: { label: string; value: string; iconUrl?: string }[]
   isOpen: boolean
   noneText?: string
   onClick: (value: string) => void
@@ -253,7 +253,9 @@ export const DropdownOptionsUnique = ({
           >
             <Flex stretch gap={12}>
               <Flex gap={8} itemsCenter>
-                {item.icon ?? (
+                {item.iconUrl ? (
+                  <img src={item.iconUrl} height={24} />
+                ) : (
                   <Text {...gradientStyle} bold>
                     {item.label}
                   </Text>

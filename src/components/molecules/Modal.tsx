@@ -32,7 +32,7 @@ export const Modal: React.FC<ModalProps> = ({ children, ...props }) => {
   return (
     <ModalContainer {...props}>
       <ModalBase {...props}>
-        <ModalHeader style={{ justifyContent: props.centerTitle ? 'center' : 'unset' }}>
+        <ModalHeader style={{ justifyContent: props.centerTitle ? 'center' : 'between' }}>
           <Text t2 bold>
             {props.modalTitle}
           </Text>
