@@ -16,12 +16,14 @@ import { useGeneral } from '../../context/GeneralManager'
 import AddProtocolForm from './AddProtocolForm'
 import { mapEditableProtocols, mapUniqueRiskProtocols } from '../../utils/mapProtocols'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { useCachedData } from '../../context/CachedDataManager'
 
 export const PortfolioSimulator = (): JSX.Element => {
   const { appTheme } = useGeneral()
+  const { seriesKit } = useCachedData()
 
   const { active, account } = useWeb3React()
-  const { portfolioKit, simulator, input, styles, seriesKit, intrface } = useCoverageContext()
+  const { portfolioKit, simulator, input, styles, intrface } = useCoverageContext()
   const { series } = seriesKit
   const { simCoverLimit } = input
   const { portfolioLoading, handleShowSimulatorModal } = intrface

@@ -17,10 +17,6 @@ import ReferralModal from './ReferralModal'
 import ShareModal from './ShareModal'
 import { CodeNoticeModal } from './CodeNoticeModal'
 
-function VisibilityController({ show, children }: { show: boolean; children: React.ReactNode }) {
-  return <div style={{ display: show ? 'block' : 'none' }}>{children}</div>
-}
-
 const CoverageContent = () => {
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
@@ -93,27 +89,13 @@ const CoverageContent = () => {
           <CodeNoticeModal />
           <Flex justifyCenter>
             <Flex col width={450}>
-              <VisibilityController show={_showCldModal}>
-                <CldModal />
-              </VisibilityController>
-              <VisibilityController show={_showPortfolioModal}>
-                <Portfolio />
-              </VisibilityController>
-              <VisibilityController show={_showSimulatorModal}>
-                <PortfolioSimulator />
-              </VisibilityController>
-              <VisibilityController show={_showSimCoverModal}>
-                <SimCoverModal />
-              </VisibilityController>
-              <VisibilityController show={_showDefault}>
-                <PolicyContent />
-              </VisibilityController>
-              <VisibilityController show={_showReferralModal}>
-                <ReferralModal />
-              </VisibilityController>
-              <VisibilityController show={_showShareReferralModal}>
-                <ShareModal />
-              </VisibilityController>
+              {_showCldModal && <CldModal />}
+              {_showPortfolioModal && <Portfolio />}
+              {_showSimulatorModal && <PortfolioSimulator />}
+              {_showSimCoverModal && <SimCoverModal />}
+              {_showDefault && <PolicyContent />}
+              {_showReferralModal && <ReferralModal />}
+              {_showShareReferralModal && <ShareModal />}
             </Flex>
           </Flex>
         </>

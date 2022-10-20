@@ -168,7 +168,7 @@ export const DropdownOptions = ({
   customHeight,
 }: {
   comparingList?: string[]
-  searchedList: { label: string; value: string; icon?: JSX.Element }[]
+  searchedList: { label: string; value: string; iconUrl?: string }[]
   isOpen: boolean
   noneText?: string
   onClick: (value: string) => void
@@ -207,7 +207,7 @@ export const DropdownOptions = ({
           >
             <Flex stretch gap={12}>
               <Flex gap={8} itemsCenter>
-                {item.icon ?? <Text {...gradientStyle}>{item.label}</Text>}
+                {item.iconUrl ? <img src={item.iconUrl} height={24} /> : <Text {...gradientStyle}>{item.label}</Text>}
               </Flex>
               <Text autoAlignVertical t5s bold>
                 {processName
