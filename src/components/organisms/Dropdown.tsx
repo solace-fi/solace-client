@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react'
-import { useCoverageContext } from './CoverageContext'
-import { Accordion } from '../../components/atoms/Accordion'
-import { Button, ButtonAppearance } from '../../components/atoms/Button'
-import { InputSectionWrapper, StyledInput } from '../../components/atoms/Input'
-import { Flex } from '../../components/atoms/Layout'
-import { Text } from '../../components/atoms/Typography'
+import { useCoverageContext } from '../../pages/cover/CoverageContext'
+import { Accordion } from '../atoms/Accordion'
+import { Button, ButtonAppearance } from '../atoms/Button'
+import { InputSectionWrapper, StyledInput } from '../atoms/Input'
+import { Flex } from '../atoms/Layout'
+import { Text } from '../atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
 import { capitalizeFirstLetter } from '../../utils/formatting'
 
@@ -57,7 +57,7 @@ export function processProtocolName(str: string): string {
 import { TokenInfo } from '../../constants/types'
 import { formatUnits } from 'ethers/lib/utils'
 import { truncateValue } from '../../utils/formatting'
-import { StyledArrowDropDown } from '../../components/atoms/Icon'
+import { StyledArrowDropDown } from '../atoms/Icon'
 
 export const DropdownInputSection = ({
   hasArrow,
@@ -153,116 +153,63 @@ export const DropdownInputSection = ({
 }
 
 export const DropdownOptions = ({
-  searchedList,
-  isOpen,
-  noneText,
-  onClick,
-}: {
-  searchedList: { label: string; value: string; icon?: JSX.Element }[]
-  isOpen: boolean
-  noneText?: string
-  onClick: (value: string) => void
-}): JSX.Element => {
-  const { styles } = useCoverageContext()
-  const { bigButtonStyle, gradientStyle } = styles
-
-  return (
-    <Accordion
-      isOpen={isOpen}
-      style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }}
-      customHeight={'380px'}
-      noBackgroundColor
-      thinScrollbar
-    >
-      <Flex col gap={8} p={12}>
-        {searchedList.map((item) => (
-          <ButtonAppearance
-            key={item.label}
-            {...bigButtonStyle}
-            matchBg
-            secondary
-            noborder
-            height={37}
-            pt={10.5}
-            pb={10.5}
-            pl={12}
-            pr={12}
-            onClick={() => onClick(item.value)}
-            style={{ borderRadius: '8px' }}
-          >
-            <Flex stretch gap={12}>
-              <Flex gap={8} itemsCenter>
-                {item.icon ?? <Text {...gradientStyle}>{item.label}</Text>}
-              </Flex>
-              <Text autoAlignVertical t5s bold>
-                {processProtocolName(item.value)}
-              </Text>
-            </Flex>
-          </ButtonAppearance>
-        ))}
-        {searchedList.length === 0 && (
-          <Text t3 textAlignCenter bold>
-            {noneText ?? 'No results found'}
-          </Text>
-        )}
-      </Flex>
-    </Accordion>
-  )
-}
-
-export const DropdownOptionsUnique = ({
   comparingList,
   searchedList,
   isOpen,
   noneText,
   onClick,
+  processName = true,
+  customProcessFunction,
+  customHeight,
 }: {
-  comparingList: string[]
+  comparingList?: string[]
   searchedList: { label: string; value: string; iconUrl?: string }[]
   isOpen: boolean
   noneText?: string
   onClick: (value: string) => void
+  processName?: boolean
+  customProcessFunction?: (value: string) => string
+  customHeight?: number
 }): JSX.Element => {
-  const { styles } = useCoverageContext()
-  const { bigButtonStyle, gradientStyle } = styles
-
+  const { appTheme } = useGeneral()
+  const gradientStyle = useMemo(
+    () =>
+      appTheme == 'light' ? { techygradient: true, warmgradient: false } : { techygradient: false, warmgradient: true },
+    [appTheme]
+  )
   return (
     <Accordion
       isOpen={isOpen}
       style={{ marginTop: isOpen ? 12 : 0, position: 'relative' }}
-      customHeight={'280px'}
+      customHeight={`${customHeight ?? 380}px`}
       noBackgroundColor
       thinScrollbar
     >
-      <Flex col gap={8} px={12}>
-        {searchedList.map((item) => (
+      <Flex col gap={8} p={12}>
+        {searchedList.map((item, i) => (
           <ButtonAppearance
-            key={item.label}
-            {...bigButtonStyle}
+            key={i}
             matchBg
             secondary
             noborder
-            height={37}
             pt={10.5}
             pb={10.5}
             pl={12}
             pr={12}
             onClick={() => onClick(item.value)}
-            disabled={comparingList.includes(item.label)}
+            disabled={comparingList ? comparingList.includes(item.label) : false}
             style={{ borderRadius: '8px' }}
           >
             <Flex stretch gap={12}>
               <Flex gap={8} itemsCenter>
-                {item.iconUrl ? (
-                  <img src={item.iconUrl} height={24} />
-                ) : (
-                  <Text {...gradientStyle} bold>
-                    {item.label}
-                  </Text>
-                )}
+                {item.iconUrl ? <img src={item.iconUrl} height={24} /> : <Text {...gradientStyle}>{item.label}</Text>}
               </Flex>
               <Text autoAlignVertical t5s bold>
-                {processProtocolName(item.value)}
+                {processName
+                  ? customProcessFunction
+                    ? customProcessFunction(item.value)
+                    : processProtocolName(item.value)
+                  : item.value}
               </Text>
             </Flex>
           </ButtonAppearance>

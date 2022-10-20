@@ -1,13 +1,13 @@
 import { ProtocolMap } from '@solace-fi/sdk-nightly'
 import React, { useCallback, useMemo, useState } from 'react'
-import { ThinButton, GraySquareButton } from '../../components/atoms/Button'
+import { ThinButton } from '../../components/atoms/Button'
 import { StyledArrowDropDown } from '../../components/atoms/Icon'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { filterAmount } from '../../utils/formatting'
-import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
+import { DropdownOptions, processProtocolName } from '../../components/organisms/Dropdown'
 import { formatAmount } from '../../utils/formatting'
 import { Button } from '../../components/atoms/Button'
 import { Modal } from '../../components/molecules/Modal'
@@ -56,7 +56,7 @@ export default function AddProtocolForm({
 
   const cachedDropdownOptions = useMemo(
     () => (
-      <DropdownOptionsUnique
+      <DropdownOptions
         comparingList={editableProtocols.map((p) => p.appId)}
         isOpen={dropdownOpen}
         searchedList={activeList}

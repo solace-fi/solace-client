@@ -19,7 +19,7 @@ import {
   truncateValue,
 } from '../../utils/formatting'
 import { useCoverageContext } from './CoverageContext'
-import { BalanceDropdownOptions, DropdownInputSection } from './Dropdown'
+import { BalanceDropdownOptions, DropdownInputSection } from '../../components/organisms/Dropdown'
 import { BigNumber } from 'ethers'
 import { Flex, ShadowDiv } from '../../components/atoms/Layout'
 import { GraySquareButton } from '../../components/atoms/Button'
