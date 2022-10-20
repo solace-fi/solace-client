@@ -176,7 +176,6 @@ export const HeroContainer = styled.div<HeightAndWidthProps & GeneralElementProp
 
 export const Content = styled.div<GeneralElementProps>`
   padding: 20px 0;
-
   @media screen and (max-width: ${BKPT_5}px) {
     padding: 30px 20px;
   }
