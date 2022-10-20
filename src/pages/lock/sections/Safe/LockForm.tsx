@@ -13,10 +13,10 @@ import { getDateStringWithMonthName } from '../../../../utils/time'
 import { StyledForm, StyledSlider } from '../../../../components/atoms/Input'
 import { Flex } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { VoteLockData } from '../../../../constants/types'
+import { LockData } from '../../../../constants/types'
 import { useUwLocker } from '../../../../hooks/lock/useUwLocker'
 
-export default function LockForm({ lock }: { lock: VoteLockData }): JSX.Element {
+export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   const { latestBlock } = useProvider()
   const { extendLock } = useUwLocker()
   const { handleToast, handleContractCallError } = useTransactionExecution()

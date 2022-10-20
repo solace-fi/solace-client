@@ -1,4 +1,4 @@
-import { CheckboxData, VoteLockData } from '../../../constants/types'
+import { CheckboxData, LockData } from '../../../constants/types'
 
 /**
  * @name updateLocksChecked
@@ -8,7 +8,7 @@ import { CheckboxData, VoteLockData } from '../../../constants/types'
  * @returns The updated array of locks
  * @example updateLocksChecked(locks, oldArray)
  */
-const updateLocksChecked = (locks: VoteLockData[], oldArray: CheckboxData[]): CheckboxData[] => {
+const updateLocksChecked = (locks: LockData[], oldArray: CheckboxData[]): CheckboxData[] => {
   // if oldArray is empty (component was just rendered), return the new locks, all unchecked
   if (oldArray.length === 0) return locks.map((lock) => ({ id: lock.lockID.toString(), checked: false }))
   // we check which locks have already been loaded (they may be checked)

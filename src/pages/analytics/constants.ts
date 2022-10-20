@@ -25,6 +25,7 @@ const {
   SPI_EXPOSURES_TABLE_POLICY,
   COVER_LIMIT_PER_CATEGORY_PIE_CHART,
   GAUGE_OVERVIEW_TABLE,
+  STAKING_LOCK_BURNDOWN_AREA_CHART,
 } = AnalyticsChart
 
 export const breakpointsObj = { lg: BKPT_5, md: BKPT_4, sm: BKPT_2, xs: BKPT_1, xxs: 0 }
@@ -46,6 +47,7 @@ export const layoutLG = [
   { i: COVER_LIMIT_PER_CATEGORY_PIE_CHART, x: 0, y: 28, w: 3, h: 4, minH: 4, maxH: 6, minW: 3, maxW: 5 },
   { i: GAUGE_OVERVIEW_TABLE, x: 0, y: 32, w: 3, h: 8, minW: 2, minH: 3, maxH: 8, maxW: 5 },
   { i: SPI_EXPOSURES_TABLE_POLICY, x: 3, y: 32, w: 9, h: 8, minW: 2, minH: 4, maxH: 10, maxW: cols.lg },
+  { i: STAKING_LOCK_BURNDOWN_AREA_CHART, x: 0, y: 40, w: cols.lg, h: 4, minW: 2, minH: 4, maxH: 10, maxW: cols.lg },
 ]
 
 export const layoutMD = [
@@ -64,6 +66,7 @@ export const layoutMD = [
   { i: COVER_LIMIT_PER_CATEGORY_PIE_CHART, x: 0, y: 28, w: 3, h: 4, minH: 4, maxH: 6, minW: 3, maxW: 5 },
   { i: GAUGE_OVERVIEW_TABLE, x: 0, y: 28, w: 3, h: 8, minW: 2, minH: 3, maxH: 10, maxW: 5 },
   { i: SPI_EXPOSURES_TABLE_POLICY, x: 3, y: 31, w: 7, h: 8, minW: 2, minH: 4, maxH: 10, maxW: cols.md },
+  { i: STAKING_LOCK_BURNDOWN_AREA_CHART, x: 0, y: 39, w: cols.md, h: 4, minW: 2, minH: 4, maxH: 10, maxW: cols.md },
 ]
 
 export const layoutSM = [
@@ -82,6 +85,7 @@ export const layoutSM = [
   { i: SPI_EXPOSURES_TABLE_POLICY, x: 0, y: 34, w: cols.sm, h: 8, minW: 2, minH: 4, maxH: 10, maxW: cols.sm },
   { i: COVER_LIMIT_PER_CATEGORY_PIE_CHART, x: 0, y: 42, w: 3, h: 4, minH: 4, maxH: 6, minW: 3, maxW: 5 },
   { i: GAUGE_OVERVIEW_TABLE, x: 3, y: 42, w: 3, h: 4, minW: 2, minH: 3, maxH: 7, maxW: 5 },
+  { i: STAKING_LOCK_BURNDOWN_AREA_CHART, x: 0, y: 46, w: cols.sm, h: 4, minW: 2, minH: 4, maxH: 10, maxW: cols.sm },
 ]
 
 export const layoutXS = [
@@ -130,6 +134,17 @@ export const layoutXS = [
     maxW: cols.xs,
   },
   { i: GAUGE_OVERVIEW_TABLE, x: 0, y: 44, w: cols.xs, h: 4, minW: 2, minH: 3, maxH: 7, maxW: cols.xs },
+  {
+    i: STAKING_LOCK_BURNDOWN_AREA_CHART,
+    x: 0,
+    y: 48,
+    w: cols.xs,
+    h: 4,
+    minW: 2,
+    minH: 4,
+    maxH: 10,
+    maxW: cols.xs,
+  },
 ]
 
 export const layoutXXS = [
@@ -246,6 +261,17 @@ export const layoutXXS = [
     minW: cols.xxs,
     minH: 3,
     maxH: 7,
+    maxW: cols.xxs,
+  },
+  {
+    i: STAKING_LOCK_BURNDOWN_AREA_CHART,
+    x: 0,
+    y: 47,
+    w: cols.xxs,
+    h: 4,
+    minW: cols.xxs,
+    minH: 4,
+    maxH: 10,
     maxW: cols.xxs,
   },
 ]

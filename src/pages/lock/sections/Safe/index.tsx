@@ -19,7 +19,7 @@ import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensi
 import { Checkbox } from '../../../../components/atoms/Input'
 import { StyledTooltip } from '../../../../components/molecules/Tooltip'
 import { useGeneral } from '../../../../context/GeneralManager'
-import { VoteLockData } from '../../../../constants/types'
+import { LockData } from '../../../../constants/types'
 import { useProvider } from '../../../../context/ProviderManager'
 import { ZERO } from '@solace-fi/sdk-nightly'
 
@@ -32,7 +32,7 @@ export default function Safe({
   onCheck,
   index,
 }: {
-  lock: VoteLockData
+  lock: LockData
   batchActionsIsEnabled: boolean
   isChecked: boolean
   openedLockId: number | undefined

@@ -9,7 +9,7 @@ import { useProvider } from '../../context/ProviderManager'
 
 /* import constants */
 import { BKPT_5, BKPT_6, ZERO } from '../../constants'
-import { CheckboxData, VoteLockData } from '../../constants/types'
+import { CheckboxData, LockData } from '../../constants/types'
 
 /* import components */
 import { Button, GraySquareButton } from '../../components/atoms/Button'
@@ -118,7 +118,7 @@ const LockContent = () => {
   const navbarThreshold = useMemo(() => width < (rightSidebar ? BKPT_6 : BKPT_5), [rightSidebar, width])
 
   const calculateTotalWithdrawable = useCallback(
-    (locks: VoteLockData[]): BigNumber => locks.reduce((acc, lock) => acc.add(lock.amount), ZERO),
+    (locks: LockData[]): BigNumber => locks.reduce((acc, lock) => acc.add(lock.amount), ZERO),
     []
   )
 

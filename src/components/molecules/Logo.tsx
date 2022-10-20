@@ -23,7 +23,6 @@ import coloredLogo from '../../resources/svg/solace-logo-color.svg'
 import whiteLogo from '../../resources/svg/solace-logo-white.svg'
 import coloredCircle from '../../resources/svg/solace-circle-color.svg'
 import whiteCircle from '../../resources/svg/solace-circle-white.svg'
-import { MARKETING_SITE } from '../../constants'
 
 interface LogoProps {
   location: any

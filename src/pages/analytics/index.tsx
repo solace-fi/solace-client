@@ -34,6 +34,7 @@ const {
   SPI_EXPOSURES_TABLE_POLICY,
   COVER_LIMIT_PER_CATEGORY_PIE_CHART,
   GAUGE_OVERVIEW_TABLE,
+  STAKING_LOCK_BURNDOWN_AREA_CHART,
 } = AnalyticsChart
 
 import { Layout, Responsive, WidthProvider } from 'react-grid-layout'
@@ -55,6 +56,7 @@ import { SpiExposuresTableByAppId } from './SpiExposure/SpiExposuresTableByAppId
 import { SpiExposuresTableByPolicy } from './SpiExposure/SpiExposuresTableByPolicy'
 import { CoverLimitCategoryPieChart } from './CoverLimitPerCategoryPieChart'
 import { GaugeOverviewTable } from './GaugeOverviewTable'
+import { XsLockerAreaChart } from './XsLockerAreaChart'
 
 const ResponsiveGridLayout = WidthProvider(Responsive)
 
@@ -275,6 +277,18 @@ export function AnalyticsContent(): JSX.Element {
           >
             <GaugeOverviewTable
               chosenHeight={rowHeight + (at(GAUGE_OVERVIEW_TABLE).h - 1) * interval - cardUnchartable}
+            />
+          </AnalyticsCard>
+        </div>
+        <div key={STAKING_LOCK_BURNDOWN_AREA_CHART}>
+          <AnalyticsCard
+            title="Staking Lock Burndown Chart"
+            height={rowHeight + (at(STAKING_LOCK_BURNDOWN_AREA_CHART).h - 1) * interval - cardPadding}
+          >
+            <XsLockerAreaChart
+              chosenWidth={at(STAKING_LOCK_BURNDOWN_AREA_CHART).w}
+              chosenHeight={rowHeight + (at(STAKING_LOCK_BURNDOWN_AREA_CHART).h - 1) * interval - cardUnchartable}
+              chainId={1}
             />
           </AnalyticsCard>
         </div>

@@ -1,4 +1,4 @@
-import { CheckboxData, VoteLockData } from '../../../constants/types'
+import { CheckboxData, LockData } from '../../../constants/types'
 
 /**
  * @name getCheckedLocks
@@ -7,7 +7,7 @@ import { CheckboxData, VoteLockData } from '../../../constants/types'
  * @param checkboxArray The array of checkboxes
  * @returns The array of locks with all locks checked
  */
-const getCheckedLocks = (lockArray: VoteLockData[], checkboxArray: CheckboxData[]): VoteLockData[] => {
+const getCheckedLocks = (lockArray: LockData[], checkboxArray: CheckboxData[]): LockData[] => {
   // find all xsLockIDs in the checkbox array, and return the corresponding locks
   return lockArray.filter((lock) => {
     return checkboxArray.find((checkbox) => {

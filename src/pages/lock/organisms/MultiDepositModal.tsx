@@ -12,9 +12,8 @@ import { GrayBox } from '../../../components/molecules/GrayBox'
 import { SmallerInputSection } from '../../../components/molecules/InputSection'
 import { LoaderText } from '../../../components/molecules/LoaderText'
 import { Modal } from '../../../components/molecules/Modal'
-import { BKPT_7, BKPT_5 } from '../../../constants'
 import { FunctionName } from '../../../constants/enums'
-import { VoteLockData } from '../../../constants/types'
+import { LockData } from '../../../constants/types'
 import { useGeneral } from '../../../context/GeneralManager'
 import { useProvider } from '../../../context/ProviderManager'
 import { useTokenAllowance } from '../../../hooks/contract/useToken'
@@ -34,7 +33,7 @@ export const MultiDepositModal = ({
 }: {
   isOpen: boolean
   handleClose: () => void
-  selectedLocks: VoteLockData[]
+  selectedLocks: LockData[]
 }): JSX.Element => {
   const [amountTracker, setAmountTracker] = useState<
     {

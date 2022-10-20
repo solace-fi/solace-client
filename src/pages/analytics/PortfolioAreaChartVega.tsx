@@ -1,11 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import vegaEmbed from 'vega-embed'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { useAnalyticsContext } from './AnalyticsContext'
-import { calculateMonthlyTicks, xtickLabelFormatter } from '../../utils/chart'
 import { useGeneral } from '../../context/GeneralManager'
-import { Layout } from 'react-grid-layout'
 
 export const PortfolioAreaChartVega = ({
   chosenWidth,
@@ -13,7 +11,7 @@ export const PortfolioAreaChartVega = ({
 }: {
   chosenWidth: number
   chosenHeight: number
-}) => {
+}): JSX.Element => {
   const { data } = useAnalyticsContext()
   const { priceHistory30D } = data
   const { appTheme } = useGeneral()

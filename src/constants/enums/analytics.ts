@@ -14,4 +14,5 @@ export enum AnalyticsChart {
   SPI_EXPOSURES_TABLE_POLICY = 'se_t_p',
   COVER_LIMIT_PER_CATEGORY_PIE_CHART = 'clpc_pc',
   GAUGE_OVERVIEW_TABLE = 'go_t',
+  STAKING_LOCK_BURNDOWN_AREA_CHART = 'slb_ac',
 }

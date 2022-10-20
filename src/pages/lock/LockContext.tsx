@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import React, { createContext, useMemo, useState, useContext, useEffect, useCallback, useRef } from 'react'
-import { PoolTokenInfo, ReadToken, VoteLockData } from '../../constants/types'
+import { PoolTokenInfo, ReadToken, LockData } from '../../constants/types'
 import { useBatchBalancesNative } from '../../hooks/balance/useBalance'
 import { ERC20_ABI } from '../../constants/abi'
 import { useTokenApprove } from '../../hooks/contract/useToken'
@@ -35,7 +35,7 @@ type LockContextType = {
   }
   locker: {
     stakedBalance: BigNumber
-    userLocks: VoteLockData[]
+    userLocks: LockData[]
     minLockDuration: BigNumber
     maxLockDuration: BigNumber
     maxNumLocks: BigNumber

@@ -20,7 +20,7 @@ import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensi
 import { ZERO } from '../../../../constants'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
-import { VoteLockData } from '../../../../constants/types'
+import { LockData } from '../../../../constants/types'
 import { useProvider } from '../../../../context/ProviderManager'
 import { useUwLocker } from '../../../../hooks/lock/useUwLocker'
 import { Text } from '../../../../components/atoms/Typography'
@@ -30,7 +30,7 @@ import { useLockContext } from '../../LockContext'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { StyledFire } from '../../../../components/atoms/Icon'
 
-export default function WithdrawForm({ lock }: { lock: VoteLockData }): JSX.Element {
+export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element {
   const { appTheme } = useGeneral()
   const { isMobile } = useWindowDimensions()
   const { latestBlock } = useProvider()

@@ -13,7 +13,7 @@ import { GrayBox } from '../../../components/molecules/GrayBox'
 import { SmallerInputSection } from '../../../components/molecules/InputSection'
 import { Modal } from '../../../components/molecules/Modal'
 import { FunctionName } from '../../../constants/enums'
-import { VoteLockData } from '../../../constants/types'
+import { LockData } from '../../../constants/types'
 import { useGeneral } from '../../../context/GeneralManager'
 import { useProvider } from '../../../context/ProviderManager'
 import { useTransactionExecution } from '../../../hooks/internal/useInputAmount'
@@ -30,7 +30,7 @@ export const MultiWithdrawModal = ({
 }: {
   isOpen: boolean
   handleClose: () => void
-  selectedLocks: VoteLockData[]
+  selectedLocks: LockData[]
 }): JSX.Element => {
   const { account } = useWeb3React()
   const { appTheme } = useGeneral()

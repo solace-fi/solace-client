@@ -20,7 +20,7 @@ import { Flex } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
-import { VoteLockData } from '../../../../constants/types'
+import { LockData } from '../../../../constants/types'
 import { useLockContext } from '../../LockContext'
 import { ERC20_ABI, ZERO } from '@solace-fi/sdk-nightly'
 import { useProvider } from '../../../../context/ProviderManager'
@@ -33,7 +33,7 @@ import { useContracts } from '../../../../context/ContractsManager'
 import { useTokenAllowance } from '../../../../hooks/contract/useToken'
 import { useDepositHelper } from '../../../../hooks/lock/useDepositHelper'
 
-export default function DepositForm({ lock }: { lock: VoteLockData }): JSX.Element {
+export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
   const { appTheme } = useGeneral()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()

@@ -9,7 +9,7 @@ import { SmallerInputSection } from '../../../components/molecules/InputSection'
 import { Modal } from '../../../components/molecules/Modal'
 import { DAYS_PER_YEAR } from '../../../constants'
 import { FunctionName } from '../../../constants/enums'
-import { VoteLockData } from '../../../constants/types'
+import { LockData } from '../../../constants/types'
 import { useProvider } from '../../../context/ProviderManager'
 import { useTransactionExecution } from '../../../hooks/internal/useInputAmount'
 import { useUwLocker } from '../../../hooks/lock/useUwLocker'
@@ -23,7 +23,7 @@ export const MultiExtendModal = ({
 }: {
   isOpen: boolean
   handleClose: () => void
-  selectedLocks: VoteLockData[]
+  selectedLocks: LockData[]
 }): JSX.Element => {
   const { latestBlock } = useProvider()
   const { extendLock, extendLockMultiple } = useUwLocker()

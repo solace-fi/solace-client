@@ -1,8 +1,8 @@
 import { BigNumber } from '@solace-fi/sdk-nightly'
 
-export type VoteLockData = {
+export type LockData = {
   lockID: BigNumber
-} & VoteLock
+} & Lock
 
 export type UserVoteLocksInfo = {
   stakedBalance: BigNumber
@@ -10,11 +10,11 @@ export type UserVoteLocksInfo = {
 
 export type UserVoteLocksData = {
   user: UserVoteLocksInfo
-  locks: VoteLockData[]
+  locks: LockData[]
   successfulFetch: boolean
 }
 
-export type VoteLock = {
+export type Lock = {
   amount: BigNumber
   end: BigNumber
 }

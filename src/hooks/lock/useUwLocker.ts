@@ -2,7 +2,7 @@ import { ZERO } from '@solace-fi/sdk-nightly'
 import { BigNumber } from 'ethers'
 import { useCallback, useMemo } from 'react'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { LocalTx, VoteLock } from '../../constants/types'
+import { LocalTx, Lock } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useGetFunctionGas } from '../provider/useGas'
@@ -16,7 +16,7 @@ export const useUwLocker = () => {
   const { gasConfig } = useGetFunctionGas()
 
   const locks = useCallback(
-    async (lockId: BigNumber): Promise<VoteLock> => {
+    async (lockId: BigNumber): Promise<Lock> => {
       if (!uwLocker)
         return {
           amount: ZERO,
