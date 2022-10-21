@@ -15,7 +15,6 @@ export const TokenPriceVolatilityCumm = (): JSX.Element => {
   const { data } = useAnalyticsContext()
   const { tokenHistogramTickers, fetchedSipMathLib, allDataPortfolio } = data
   const [tickerSymbol, setTickerSymbol] = useState('')
-  const [displayVega, setDisplayVega] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const activeList = useMemo(
     // TODO: ticker symbols or project names? /vote is using names
@@ -99,7 +98,6 @@ export const TokenPriceVolatilityCumm = (): JSX.Element => {
       allDataPortfolio[chartDataIndex].weight,
       allDataPortfolio[chartDataIndex].symbol
     )
-    setDisplayVega(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tickerSymbol])
 

@@ -15,6 +15,7 @@ import { useSpiExposures } from '../../hooks/policy/useSpiExposures'
 import { reformatDataForAreaChart } from './utils/reformatDataForAreaChart'
 import { getPortfolioVolatility } from './utils/getPortfolioVolatility'
 import { getPortfolioDetailData } from './utils/getPortfolioDetailData'
+import { useAnalyticsData } from '../../hooks/analytics/useAnalyticsData'
 
 export type TimestampedTokenNumberValues = {
   timestamp: number
@@ -28,7 +29,6 @@ export type ReformattedData = {
 type AnalyticsContextType = {
   intrface: {}
   data: {
-    portfolioHistogramTickers: string[]
     tokenHistogramTickers: string[]
     trials: number
     portfolioVolatilityData: number[]
@@ -47,7 +47,6 @@ type AnalyticsContextType = {
 const AnalyticsContext = createContext<AnalyticsContextType>({
   intrface: {},
   data: {
-    portfolioHistogramTickers: [],
     tokenHistogramTickers: [],
     trials: 0,
     portfolioVolatilityData: [],
@@ -73,12 +72,6 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const { activeNetwork } = useNetwork()
   const { valueOfPool } = useUwp()
   const protocolExposureData = useSpiExposures()
-  const [portfolioHistogramTickers, setPortfolioHistogramTickers] = useState<string[]>([])
-  const [tokenHistogramTickers, setTokenHistogramTickers] = useState<string[]>([])
-  const [portfolioVolatilityData, setPortfolioVolatilityData] = useState<number[]>([])
-  const [priceHistory30D, setPriceHistory30D] = useState<TimestampedTokenNumberValues[]>([])
-  const [allDataPortfolio, setAllDataPortfolio] = useState<MassUwpDataPortfolio[]>([])
-  const [tokenDetails, setTokenDetails] = useState<{ symbol: string; price: number; weight: number }[]>([])
   const [uwpValueUSD, setUwpValueUSD] = useState<BigNumber>(ZERO)
 
   const [fetchedUwpData, setFetchedUwpData] = useState<FetchedUWPData | undefined>(undefined)
@@ -90,9 +83,11 @@ const AnalyticsManager: React.FC = ({ children }) => {
     const premiumsByChainId = fetchedPremiums?.[activeNetwork.chainId]
     const latestEpoch = premiumsByChainId.history[premiumsByChainId.history.length - 1]
     return Number(latestEpoch.uweAmount) * Number(latestEpoch.uwpValuePerShare) * Number(latestEpoch.uwpPerUwe)
-  }, [activeNetwork, fetchedPremiums])
+  }, [activeNetwork.chainId, fetchedPremiums])
 
   const TRIALS = 1000
+
+  const analyticsData = useAnalyticsData(5, TRIALS, fetchedUwpData, fetchedSipMathLib, fetchedPremiums) // goerli
 
   useEffect(() => {
     const init = async () => {
@@ -118,92 +113,25 @@ const AnalyticsManager: React.FC = ({ children }) => {
     }, 200)
   }, [])
 
-  useEffect(() => {
-    const getData = async () => {
-      if (!fetchedUwpData || !fetchedSipMathLib || !fetchedSipMathLib.sips) return
-      if (!(fetchedUwpData[activeNetwork.chainId.toString()] as BlockData[])) return
-
-      const { output: _priceHistory30D, allTokenKeys } = reformatDataForAreaChart(
-        fetchedUwpData[`${activeNetwork.chainId}`]
-      )
-      setTokenHistogramTickers(fetchedSipMathLib.sips.map((item) => item.name.toLowerCase()))
-      setPortfolioHistogramTickers(allTokenKeys)
-      setPriceHistory30D(_priceHistory30D)
-
-      const numSips = listSIPs(fetchedSipMathLib).map((item) => item.toLowerCase())
-
-      const _simulatedReturns: { [key: string]: number[] } = hydrateLibrary(fetchedSipMathLib, TRIALS)
-
-      if (validateTokenArrays(allTokenKeys, numSips)) {
-        const allDataPortfolio: MassUwpDataPortfolio[] = getPortfolioDetailData(
-          fetchedUwpData[`${activeNetwork.chainId}`],
-          _simulatedReturns,
-          allTokenKeys
-        )
-        const tokenWeights = getWeightsFromBalances(
-          allDataPortfolio.map((token: MassUwpDataPortfolio) => token.usdBalance)
-        )
-        const adjustedPortfolio: MassUwpDataPortfolio[] = allDataPortfolio.map((token, i: number) => {
-          return {
-            ...token,
-            weight: tokenWeights[i],
-          }
-        })
-        setTokenDetails(
-          adjustedPortfolio.map((token: MassUwpDataPortfolio) => {
-            return {
-              symbol: token.symbol,
-              weight: token.weight,
-              price: token.price,
-            }
-          })
-        )
-
-        const _portfolioVolatilityData = getPortfolioVolatility(
-          tokenWeights,
-          adjustedPortfolio.map((token: MassUwpDataPortfolio) => token.simulation),
-          TRIALS
-        )
-        setPortfolioVolatilityData(_portfolioVolatilityData)
-        setAllDataPortfolio(adjustedPortfolio)
-      }
-    }
-    getData()
-  }, [activeNetwork, fetchedUwpData, fetchedSipMathLib])
-
   const value = useMemo(
     () => ({
       intrface: {},
       data: {
-        portfolioHistogramTickers,
-        tokenHistogramTickers,
+        tokenHistogramTickers: analyticsData.tokenHistogramTickers,
         trials: TRIALS,
-        portfolioVolatilityData,
-        priceHistory30D,
-        allDataPortfolio,
+        portfolioVolatilityData: analyticsData.portfolioVolatilityData,
+        priceHistory30D: analyticsData.priceHistory30D,
+        allDataPortfolio: analyticsData.allDataPortfolio,
         fetchedUwpData,
         fetchedPremiums,
         fetchedSipMathLib,
-        tokenDetails,
+        tokenDetails: analyticsData.tokenDetails,
         uwpValueUSD,
         premiumsUSD,
         protocolExposureData,
       },
     }),
-    [
-      portfolioHistogramTickers,
-      tokenHistogramTickers,
-      portfolioVolatilityData,
-      priceHistory30D,
-      allDataPortfolio,
-      fetchedUwpData,
-      fetchedSipMathLib,
-      fetchedPremiums,
-      tokenDetails,
-      uwpValueUSD,
-      premiumsUSD,
-      protocolExposureData,
-    ]
+    [analyticsData, fetchedUwpData, fetchedSipMathLib, fetchedPremiums, uwpValueUSD, protocolExposureData]
   )
   return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>
 }

@@ -1,7 +1,4 @@
 import React, { useEffect } from 'react'
-import { useNetwork } from '../../context/NetworkManager'
-import { calculateWeeklyTicks, xtickLabelFormatter } from '../../utils/chart'
-import { formatCurrency } from '../../utils/formatting'
 import { useAnalyticsContext } from './AnalyticsContext'
 import { Text } from '../../components/atoms/Typography'
 import { useGeneral } from '../../context/GeneralManager'
@@ -11,21 +8,15 @@ import { Flex } from '../../components/atoms/Layout'
 export const PremiumsPaidByPeriodChart = ({
   chosenWidth,
   chosenHeightPx,
+  chainId,
 }: {
   chosenWidth: number
   chosenHeightPx: number
+  chainId: number
 }) => {
   const { appTheme } = useGeneral()
-  const { activeNetwork } = useNetwork()
   const { data } = useAnalyticsContext()
   const { fetchedPremiums } = data
-
-  // const [premiumHistory, setPremiumHistory] = React.useState<any[]>([])
-
-  // const xticks =
-  //   premiumHistory.length > 0
-  //     ? calculateWeeklyTicks(premiumHistory[0].timestamp, premiumHistory[premiumHistory.length - 1].timestamp)
-  //     : []
 
   const fetchVega = (dataIn: any, theme: 'light' | 'dark') => {
     vegaEmbed('#vis_ppbp', {
@@ -64,8 +55,8 @@ export const PremiumsPaidByPeriodChart = ({
   }
 
   useEffect(() => {
-    if (!fetchedPremiums || !fetchedPremiums?.[activeNetwork.chainId]) return
-    const premiumsByChainId = fetchedPremiums?.[activeNetwork.chainId]
+    if (!fetchedPremiums || !fetchedPremiums?.[chainId]) return
+    const premiumsByChainId = fetchedPremiums?.[chainId]
     const _premiumHistory = premiumsByChainId.history.map((epoch: any) => {
       return {
         timestamp: epoch.epochStartTimestamp * 1000,
@@ -73,7 +64,7 @@ export const PremiumsPaidByPeriodChart = ({
       }
     })
     fetchVega(_premiumHistory, appTheme)
-  }, [activeNetwork, fetchedPremiums, appTheme, chosenHeightPx, chosenWidth])
+  }, [chainId, fetchedPremiums, appTheme, chosenHeightPx, chosenWidth])
 
   return (
     <Flex>

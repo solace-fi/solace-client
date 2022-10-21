@@ -120,13 +120,6 @@ const VoteContext = createContext<VoteContextType>({
 })
 
 const VoteManager: React.FC = (props) => {
-  const {
-    loading: gaugesLoading,
-    currentGaugesData,
-    nextGaugesData,
-    insuranceCapacity,
-    leverageFactor,
-  } = useGaugeControllerHelper()
   const { keyContracts } = useContracts()
   const { uwLockVoting } = keyContracts
 
@@ -136,6 +129,13 @@ const VoteManager: React.FC = (props) => {
   const { positiveVersion } = useCachedData()
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
+  const {
+    loading: gaugesLoading,
+    currentGaugesData,
+    nextGaugesData,
+    insuranceCapacity,
+    leverageFactor,
+  } = useGaugeControllerHelper(activeNetwork.chainId)
   const { latestBlock } = useProvider()
   const [isVotingOpen, setIsVotingOpen] = useState(true)
   const [openGaugeSelectionModal, setOpenGaugeSelectionModal] = useState(false)

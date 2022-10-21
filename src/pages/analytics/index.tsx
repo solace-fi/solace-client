@@ -71,8 +71,6 @@ export function AnalyticsContent(): JSX.Element {
   const { leverageFactor } = gauges
   const { premiumsUSD, uwpValueUSD, fetchedSipMathLib, protocolExposureData } = data
 
-  const [numCols, setNumCols] = useState(cols.lg)
-
   const currLayouts = useRef<Layout[]>(layoutLG)
 
   const handleLayoutChange = useCallback((layout: Layout[]) => {
@@ -225,6 +223,7 @@ export function AnalyticsContent(): JSX.Element {
             <TokenWeights
               chosenWidth={at(TOKEN_WEIGHTS_AREA_CHART).w}
               chosenHeightPx={rowHeight + (at(TOKEN_WEIGHTS_AREA_CHART).h - 1) * interval - cardUnchartable}
+              chainId={5}
             />
           </AnalyticsCard>
         </div>
@@ -237,6 +236,7 @@ export function AnalyticsContent(): JSX.Element {
             <PremiumsPaidByPeriodChart
               chosenWidth={at(PREMIUMS_LINE_CHART).w}
               chosenHeightPx={rowHeight + (at(PREMIUMS_LINE_CHART).h - 1) * interval - cardUnchartable}
+              chainId={5}
             />
           </AnalyticsCard>
         </div>
@@ -281,6 +281,7 @@ export function AnalyticsContent(): JSX.Element {
           >
             <GaugeOverviewTable
               chosenHeightPx={rowHeight + (at(GAUGE_OVERVIEW_TABLE).h - 1) * interval - cardUnchartable}
+              chainId={5}
             />
           </AnalyticsCard>
         </div>

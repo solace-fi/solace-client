@@ -42,17 +42,18 @@ type WeightsAndDates = WeightsAndDate[]
 export const TokenWeights = ({
   chosenWidth,
   chosenHeightPx,
+  chainId,
 }: {
   chosenWidth: number
   chosenHeightPx: number
+  chainId: number
 }): JSX.Element => {
   const { appTheme } = useGeneral()
-  const { activeNetwork } = useNetwork()
   const { isMobile } = useWindowDimensions()
   const { data } = useAnalyticsContext()
   const { fetchedUwpData } = data
   const [weightsAndDates, setWeightsAndDates] = useState<WeightsAndDates>([])
-  const _weightsAndDates = fetchedUwpData?.[`${activeNetwork.chainId}`]?.map((uwp) => {
+  const _weightsAndDates = fetchedUwpData?.[`${chainId}`]?.map((uwp) => {
     // for each item, calculate and return { timestamp, weights: {tokenName: weight, tokenName: weight} }
     // uwp is FetchUWPData
     // getWeightsFromBalances takes number[]

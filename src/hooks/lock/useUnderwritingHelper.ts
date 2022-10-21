@@ -10,6 +10,9 @@ import { useMemo } from 'react'
 import { TokenData } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { floatUnits } from '../../utils/formatting'
+import { networks, useNetwork } from '../../context/NetworkManager'
+import { JsonRpcProvider } from '@ethersproject/providers'
+import underwritingPoolABI from '../../constants/abi/UnderwritingPool.json'
 
 export const useUwe = () => {
   const { keyContracts } = useContracts()
@@ -84,6 +87,7 @@ export const useUwe = () => {
 }
 
 export const useUwp = () => {
+  const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { uwp } = useMemo(() => keyContracts, [keyContracts])
 
@@ -187,17 +191,24 @@ export const useUwp = () => {
    */
 
   const valueOfHolder = useCallback(
-    async (holder: string): Promise<BigNumber> => {
-      if (!uwp) return ZERO
+    async (holder: string, chainId?: number): Promise<BigNumber> => {
+      let c = uwp
+      if (chainId && activeNetwork.chainId != chainId) {
+        const desiredNetwork = networks.find((n) => n.chainId == chainId) ?? networks[0]
+        const localProvider = new JsonRpcProvider(desiredNetwork.rpc.httpsUrl)
+        const uwpCs = desiredNetwork.config.keyContracts.uwp
+        c = new Contract(uwpCs.addr, underwritingPoolABI, localProvider)
+      }
+      if (!c) return ZERO
       try {
-        const valueOfHolder = await uwp.valueOfHolder(holder)
+        const valueOfHolder = await c.valueOfHolder(holder)
         return valueOfHolder
       } catch (error) {
         console.error(error)
         return ZERO
       }
     },
-    [uwp]
+    [uwp, activeNetwork]
   )
 
   /**

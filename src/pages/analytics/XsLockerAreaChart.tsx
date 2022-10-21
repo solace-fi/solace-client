@@ -1,5 +1,5 @@
 import { BigNumber, Staker, XSLOCKER_ADDRESS, ZERO } from '@solace-fi/sdk-nightly'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { Lock } from '../../constants/types'
@@ -9,6 +9,7 @@ import vegaEmbed from 'vega-embed'
 import { formatUnits } from 'ethers/lib/utils'
 import { networks } from '../../context/NetworkManager'
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { Loader } from '../../components/atoms/Loader'
 
 export const XsLockerAreaChart = ({
   chosenWidth,
@@ -21,7 +22,8 @@ export const XsLockerAreaChart = ({
 }): JSX.Element => {
   const { appTheme } = useGeneral()
 
-  const [lockBurndownData, setLockBurndownData] = React.useState<Lock[]>([])
+  const [lockBurndownData, setLockBurndownData] = useState<Lock[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
 
   const fetchVega = (dataIn: Lock[], theme: 'light' | 'dark') => {
     vegaEmbed('#xslocker-area-chart' + chainId, {
@@ -81,6 +83,7 @@ export const XsLockerAreaChart = ({
     const getLocks = async () => {
       const foundNetwork = networks.find((network) => network.chainId == chainId)
       if (!XSLOCKER_ADDRESS[chainId] || !foundNetwork) return
+      setLoading(true)
       const _provider = new JsonRpcProvider(foundNetwork.rpc.httpsUrl)
       const staker = new Staker(chainId, _provider)
       const stakeContract = staker.xsLocker
@@ -104,6 +107,7 @@ export const XsLockerAreaChart = ({
         }
       })
       setLockBurndownData(burndownData)
+      setLoading(false)
     }
     getLocks()
   }, [chainId])
@@ -116,7 +120,7 @@ export const XsLockerAreaChart = ({
   return (
     <Flex>
       <Flex id={'xslocker-area-chart' + chainId} widthP={100} justifyCenter>
-        <Text autoAlign>data not available</Text>
+        <Text autoAlign>{loading ? <Loader /> : 'Data not available'}</Text>
       </Flex>
     </Flex>
   )

@@ -1,22 +1,24 @@
 import { ZERO } from '@solace-fi/sdk-nightly'
 import { Contract as MulticallContract } from 'ethers-multicall'
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { GaugeData, Vote } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { useUwp } from '../lock/useUnderwritingHelper'
-import { useProvider } from '../../context/ProviderManager'
 
 import gaugeControllerABI from '../../constants/abi/GaugeController.json'
 import underwritingLockVotingABI from '../../constants/abi/UnderwritingLockVoting.json'
 import { MAX_BPS } from '../../constants'
-import { useNetwork } from '../../context/NetworkManager'
+import { networks, useNetwork } from '../../context/NetworkManager'
 import { multicallChunked, MulticallProvider } from '../../utils/contract'
 import { fetchExplorerTxHistoryByAddress } from '../../utils/explorer'
 import { decodeInput } from '../../utils/decoder'
+import { useContractArray } from '../contract/useContract'
+import { JsonRpcProvider } from '@ethersproject/providers'
 
 export const useGaugeController = () => {
+  const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { gaugeController } = useMemo(() => keyContracts, [keyContracts])
 
@@ -56,16 +58,26 @@ export const useGaugeController = () => {
     [gaugeController]
   )
 
-  const getAllGaugeWeights = useCallback(async (): Promise<BigNumber[]> => {
-    if (!gaugeController) return []
-    try {
-      const gaugeWeights = await gaugeController.getAllGaugeWeights()
-      return gaugeWeights
-    } catch (error) {
-      console.error(error)
-      return []
-    }
-  }, [gaugeController])
+  const getAllGaugeWeights = useCallback(
+    async (chainId?: number): Promise<BigNumber[]> => {
+      let c = gaugeController
+      if (chainId && activeNetwork.chainId != chainId) {
+        const desiredNetwork = networks.find((n) => n.chainId == chainId) ?? networks[0]
+        const localProvider = new JsonRpcProvider(desiredNetwork.rpc.httpsUrl)
+        const gaugeControllerCs = desiredNetwork.config.keyContracts.gaugeController
+        c = new Contract(gaugeControllerCs.addr, gaugeControllerABI, localProvider)
+      }
+      if (!c) return []
+      try {
+        const gaugeWeights = await c.getAllGaugeWeights()
+        return gaugeWeights
+      } catch (error) {
+        console.error(error)
+        return []
+      }
+    },
+    [gaugeController, activeNetwork.chainId]
+  )
 
   const getNumActiveGauges = useCallback(async (): Promise<BigNumber> => {
     if (!gaugeController) return ZERO
@@ -79,45 +91,66 @@ export const useGaugeController = () => {
   }, [gaugeController])
 
   const getGaugeName = useCallback(
-    async (gaugeId: BigNumber): Promise<string> => {
-      if (!gaugeController) return ''
+    async (gaugeId: BigNumber, chainId?: number): Promise<string> => {
+      let c = gaugeController
+      if (chainId && activeNetwork.chainId != chainId) {
+        const desiredNetwork = networks.find((n) => n.chainId == chainId) ?? networks[0]
+        const localProvider = new JsonRpcProvider(desiredNetwork.rpc.httpsUrl)
+        const gaugeControllerCs = desiredNetwork.config.keyContracts.gaugeController
+        c = new Contract(gaugeControllerCs.addr, gaugeControllerABI, localProvider)
+      }
+      if (!c) return ''
       try {
-        const gaugeName = await gaugeController.getGaugeName(gaugeId)
+        const gaugeName = await c.getGaugeName(gaugeId)
         return gaugeName
       } catch (error) {
         console.error(error)
         return ''
       }
     },
-    [gaugeController]
+    [gaugeController, activeNetwork.chainId]
   )
 
   const isGaugeActive = useCallback(
-    async (gaugeId: BigNumber): Promise<boolean> => {
-      if (!gaugeController) return false
+    async (gaugeId: BigNumber, chainId?: number): Promise<boolean> => {
+      let c = gaugeController
+      if (chainId && activeNetwork.chainId != chainId) {
+        const desiredNetwork = networks.find((n) => n.chainId == chainId) ?? networks[0]
+        const localProvider = new JsonRpcProvider(desiredNetwork.rpc.httpsUrl)
+        const gaugeControllerCs = desiredNetwork.config.keyContracts.gaugeController
+        c = new Contract(gaugeControllerCs.addr, gaugeControllerABI, localProvider)
+      }
+      if (!c) return false
       try {
-        const isActive = await gaugeController.isGaugeActive(gaugeId)
+        const isActive = await c.isGaugeActive(gaugeId)
         return isActive
       } catch (error) {
         console.error(error)
         return false
       }
     },
-    [gaugeController]
+    [gaugeController, activeNetwork.chainId]
   )
 
   const getRateOnLineOfGauge = useCallback(
-    async (gaugeId: BigNumber): Promise<BigNumber> => {
-      if (!gaugeController) return ZERO
+    async (gaugeId: BigNumber, chainId?: number): Promise<BigNumber> => {
+      let c = gaugeController
+      if (chainId && activeNetwork.chainId != chainId) {
+        const desiredNetwork = networks.find((n) => n.chainId == chainId) ?? networks[0]
+        const localProvider = new JsonRpcProvider(desiredNetwork.rpc.httpsUrl)
+        const gaugeControllerCs = desiredNetwork.config.keyContracts.gaugeController
+        c = new Contract(gaugeControllerCs.addr, gaugeControllerABI, localProvider)
+      }
+      if (!c) return ZERO
       try {
-        const rateOnLineOfGauge = await gaugeController.getRateOnLineOfGauge(gaugeId)
+        const rateOnLineOfGauge = await c.getRateOnLineOfGauge(gaugeId)
         return rateOnLineOfGauge
       } catch (error) {
         console.error(error)
         return ZERO
       }
     },
-    [gaugeController]
+    [gaugeController, activeNetwork.chainId]
   )
 
   const getInsuranceCapacity = useCallback(async (): Promise<BigNumber> => {
@@ -157,17 +190,24 @@ export const useGaugeController = () => {
   )
 
   const getVoters = useCallback(
-    async (votingContractAddr: string): Promise<string[]> => {
-      if (!gaugeController) return []
+    async (votingContractAddr: string, chainId?: number): Promise<string[]> => {
+      let c = gaugeController
+      if (chainId && activeNetwork.chainId != chainId) {
+        const desiredNetwork = networks.find((n) => n.chainId == chainId) ?? networks[0]
+        const localProvider = new JsonRpcProvider(desiredNetwork.rpc.httpsUrl)
+        const gaugeControllerCs = desiredNetwork.config.keyContracts.gaugeController
+        c = new Contract(gaugeControllerCs.addr, gaugeControllerABI, localProvider)
+      }
+      if (!c) return []
       try {
-        const voters = await gaugeController.getVoters(votingContractAddr)
+        const voters = await c.getVoters(votingContractAddr)
         return voters
       } catch (error) {
         console.error(error)
         return []
       }
     },
-    [gaugeController]
+    [gaugeController, activeNetwork.chainId]
   )
 
   const getVoteCount = useCallback(
@@ -216,13 +256,18 @@ export const useGaugeController = () => {
   }
 }
 
-export const useGaugeControllerHelper = () => {
+export const useGaugeControllerHelper = (chainId: number, disabled?: boolean) => {
   const { getAllGaugeWeights, getGaugeName, isGaugeActive, getVoters } = useGaugeController()
   const { valueOfHolder } = useUwp()
-  const { activeNetwork } = useNetwork()
-  const { provider } = useProvider()
-  const { keyContracts, contractSources } = useContracts()
-  const { uwe, gaugeController, uwLockVoting } = keyContracts
+
+  const desiredNetwork = useMemo(() => networks.find((n) => n.chainId == chainId) ?? networks[0], [chainId])
+  const localProvider = useMemo(() => new JsonRpcProvider(desiredNetwork.rpc.httpsUrl), [desiredNetwork.rpc.httpsUrl])
+
+  const gaugeControllerCs = useMemo(() => desiredNetwork.config.keyContracts.gaugeController, [desiredNetwork])
+  const uwLockVotingCs = useMemo(() => desiredNetwork.config.keyContracts.uwLockVoting, [desiredNetwork])
+  const uweCs = useMemo(() => desiredNetwork.config.keyContracts.uwe, [desiredNetwork])
+
+  const contractSources = useContractArray(desiredNetwork)
 
   const [loading, setLoading] = useState(false)
   const running = useRef(false)
@@ -233,9 +278,9 @@ export const useGaugeControllerHelper = () => {
   const [leverageFactor, setLeverageFactor] = useState<number>(0)
 
   const fetchGauges = useCallback(async () => {
-    if (!gaugeController || !uwLockVoting) return
+    if (!gaugeControllerCs || !uwLockVotingCs) return
     setLoading(true)
-    const data = await fetchExplorerTxHistoryByAddress(activeNetwork, gaugeController.address)
+    const data = await fetchExplorerTxHistoryByAddress(desiredNetwork, gaugeControllerCs.addr)
     const gaugeNameToStartTimestampMapping: { [key: string]: string } = {}
     for (let i = 0; i < data.result.length; i++) {
       const decodedInput = decodeInput(data.result[i], contractSources)
@@ -246,19 +291,19 @@ export const useGaugeControllerHelper = () => {
       }
     }
     const offset = 1
-    const gaugeWeights = await getAllGaugeWeights()
+    const gaugeWeights = await getAllGaugeWeights(chainId)
     const adjustedGaugeWeights = gaugeWeights.slice(offset)
 
     try {
       const gaugeNames = await Promise.all(
         adjustedGaugeWeights.map(async (gaugeWeight, i) => {
-          return await getGaugeName(BigNumber.from(i).add(BigNumber.from(offset)))
+          return await getGaugeName(BigNumber.from(i).add(BigNumber.from(offset)), chainId)
         })
       )
 
       const gaugesActive = await Promise.all(
         adjustedGaugeWeights.map(async (gaugeWeight, i) => {
-          return await isGaugeActive(BigNumber.from(i).add(BigNumber.from(offset)))
+          return await isGaugeActive(BigNumber.from(i).add(BigNumber.from(offset)), chainId)
         })
       )
 
@@ -272,14 +317,14 @@ export const useGaugeControllerHelper = () => {
         }
       })
 
-      const mcProvider = new MulticallProvider(provider, activeNetwork.chainId)
-      const gaugeControllerMC = new MulticallContract(gaugeController.address, gaugeControllerABI)
+      const mcProvider = new MulticallProvider(localProvider, chainId)
+      const gaugeControllerMC = new MulticallContract(gaugeControllerCs.addr, gaugeControllerABI)
       const nextEpochWeights: BigNumber[] = Array(adjustedGaugeWeights.length).fill(ZERO)
-      const VOTING_CONTRACTS = [uwLockVoting.address]
+      const VOTING_CONTRACTS = [uwLockVotingCs.addr]
       const VOTING_ABIS = [underwritingLockVotingABI]
 
       for (let i = 0; i < VOTING_CONTRACTS.length; ++i) {
-        const voters: string[] = await getVoters(VOTING_CONTRACTS[i])
+        const voters: string[] = await getVoters(VOTING_CONTRACTS[i], chainId)
         const voteContractMC = new MulticallContract(VOTING_CONTRACTS[i], VOTING_ABIS[i])
         const [votePowers, votes] = await Promise.all([
           multicallChunked(
@@ -319,7 +364,6 @@ export const useGaugeControllerHelper = () => {
           startTimestamp: gaugeNameToStartTimestampMapping[gaugeNames[i]],
         }
       })
-
       setCurrentGaugesData(_currentGaugesData)
       setNextGaugesData(_nextGaugesData)
     } catch (error) {
@@ -331,28 +375,30 @@ export const useGaugeControllerHelper = () => {
     getGaugeName,
     isGaugeActive,
     getVoters,
-    gaugeController,
-    uwLockVoting,
-    activeNetwork,
-    provider,
+    gaugeControllerCs,
+    uwLockVotingCs,
     contractSources,
+    desiredNetwork,
+    localProvider,
+    chainId,
   ])
 
   useEffect(() => {
     const callFetchGauges = async () => {
-      if (running.current || !gaugeController) return
+      if (running.current || !gaugeControllerCs || disabled || !desiredNetwork.config.generalFeatures.native) return
       running.current = true
       await fetchGauges()
       running.current = false
     }
     callFetchGauges()
-  }, [fetchGauges, gaugeController])
+  }, [fetchGauges, gaugeControllerCs, disabled])
 
   useEffect(() => {
-    if (!uwe || !gaugeController) return
+    if (!uweCs || !gaugeControllerCs || disabled || !desiredNetwork.config.generalFeatures.native) return
     const calculateInsuranceCapacity = async () => {
-      const uf = await valueOfHolder(uwe.address)
-      const l = await gaugeController.leverageFactor()
+      const uf = await valueOfHolder(uweCs.addr, desiredNetwork.chainId)
+      const gaugeControllerContract = new Contract(gaugeControllerCs.addr, gaugeControllerABI, localProvider)
+      const l = await gaugeControllerContract.leverageFactor()
       const convertedUf = formatUnits(uf, 18)
       const convertedL = formatUnits(l, 18)
       const sic = parseFloat(convertedUf) * parseFloat(convertedL)
@@ -360,7 +406,7 @@ export const useGaugeControllerHelper = () => {
       setInsuranceCapacity(sic)
     }
     calculateInsuranceCapacity()
-  }, [uwe, gaugeController, valueOfHolder])
+  }, [uweCs, gaugeControllerCs, valueOfHolder, localProvider, disabled, desiredNetwork])
 
   return { loading, currentGaugesData, nextGaugesData, insuranceCapacity, leverageFactor }
 }

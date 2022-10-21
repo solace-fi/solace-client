@@ -44,7 +44,7 @@ export const TokenPriceVolatilityHistogram = ({
         return {
           label: ticker.toLowerCase(),
           value: ticker.toLowerCase(),
-          icon: <img src={`https://assets.solace.fi/${ticker.toLowerCase()}`} height={24} />,
+          iconUrl: `https://assets.solace.fi/${ticker.toLowerCase()}`,
         }
       }),
     [searchTerm, tokenHistogramTickers]

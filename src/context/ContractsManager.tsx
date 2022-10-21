@@ -61,7 +61,7 @@ const ContractsContext = createContext<Contracts>({
 
 const ContractsProvider: React.FC = (props) => {
   const { activeNetwork } = useNetwork()
-  const contractSources = useContractArray()
+  const contractSources = useContractArray(activeNetwork)
   const keyContracts = useMemo(() => activeNetwork.config.keyContracts, [activeNetwork])
 
   const solace = useGetContract(keyContracts.solace)
