@@ -286,7 +286,7 @@ export function AnalyticsContent(): JSX.Element {
         </div>
         <div key={STAKING_LOCK_BURNDOWN_AREA_CHART_ETHMAIN}>
           <AnalyticsCard
-            title="Staked Solace Burndown (Ethereum Mainnet)"
+            title="Staked Solace Burndown (Ethereum)"
             height={rowHeight + (at(STAKING_LOCK_BURNDOWN_AREA_CHART_ETHMAIN).h - 1) * interval - cardPadding}
           >
             <XsLockerAreaChart

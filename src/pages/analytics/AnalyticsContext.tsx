@@ -2,7 +2,7 @@ import { hydrateLibrary, listSIPs } from '@solace-fi/hydrate'
 import { ZERO } from '@solace-fi/sdk-nightly'
 import axios from 'axios'
 import { BigNumber } from 'ethers'
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { MassUwpDataPortfolio } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 import { FetchedPremiums } from './types/FetchedPremiums'
@@ -10,10 +10,11 @@ import { FetchedSipMathLib } from './types/SipMathLib'
 import { BlockData, FetchedUWPData } from './types/UWPData'
 import { useUwp } from '../../hooks/lock/useUnderwritingHelper'
 import { validateTokenArrays } from '../../utils'
-import { formatUnits } from 'ethers/lib/utils'
-import { useCachedData } from '../../context/CachedDataManager'
-import { mapNumberToLetter } from '../../utils/mapProtocols'
-import { ProtocolExposureType, PolicyExposure } from './constants'
+import { ProtocolExposureType } from './constants'
+import { useSpiExposures } from '../../hooks/policy/useSpiExposures'
+import { reformatDataForAreaChart } from './utils/reformatDataForAreaChart'
+import { getPortfolioVolatility } from './utils/getPortfolioVolatility'
+import { getPortfolioDetailData } from './utils/getPortfolioDetailData'
 
 export type TimestampedTokenNumberValues = {
   timestamp: number
@@ -25,11 +26,7 @@ export type ReformattedData = {
 }
 
 type AnalyticsContextType = {
-  intrface: {
-    canSeePortfolioAreaChart?: boolean
-    canSeePortfolioVolatility?: boolean
-    canSeeTokenVolatilities?: boolean
-  }
+  intrface: {}
   data: {
     portfolioHistogramTickers: string[]
     tokenHistogramTickers: string[]
@@ -44,16 +41,11 @@ type AnalyticsContextType = {
     uwpValueUSD: BigNumber
     premiumsUSD: number
     protocolExposureData: ProtocolExposureType[]
-    getPortfolioVolatility: (weights: number[], simulatedVolatility: number[][]) => number[]
   }
 }
 
 const AnalyticsContext = createContext<AnalyticsContextType>({
-  intrface: {
-    canSeePortfolioAreaChart: undefined,
-    canSeePortfolioVolatility: undefined,
-    canSeeTokenVolatilities: undefined,
-  },
+  intrface: {},
   data: {
     portfolioHistogramTickers: [],
     tokenHistogramTickers: [],
@@ -68,7 +60,6 @@ const AnalyticsContext = createContext<AnalyticsContextType>({
     uwpValueUSD: ZERO,
     premiumsUSD: 0,
     protocolExposureData: [],
-    getPortfolioVolatility: () => [],
   },
 })
 
@@ -80,8 +71,8 @@ export const getWeightsFromBalances = (balances: number[]): number[] => {
 
 const AnalyticsManager: React.FC = ({ children }) => {
   const { activeNetwork } = useNetwork()
-  const { statsCache } = useCachedData()
   const { valueOfPool } = useUwp()
+  const protocolExposureData = useSpiExposures()
   const [portfolioHistogramTickers, setPortfolioHistogramTickers] = useState<string[]>([])
   const [tokenHistogramTickers, setTokenHistogramTickers] = useState<string[]>([])
   const [portfolioVolatilityData, setPortfolioVolatilityData] = useState<number[]>([])
@@ -89,15 +80,10 @@ const AnalyticsManager: React.FC = ({ children }) => {
   const [allDataPortfolio, setAllDataPortfolio] = useState<MassUwpDataPortfolio[]>([])
   const [tokenDetails, setTokenDetails] = useState<{ symbol: string; price: number; weight: number }[]>([])
   const [uwpValueUSD, setUwpValueUSD] = useState<BigNumber>(ZERO)
-  const [protocolExposureData, setProtocolExposureData] = useState<ProtocolExposureType[]>([])
 
   const [fetchedUwpData, setFetchedUwpData] = useState<FetchedUWPData | undefined>(undefined)
   const [fetchedSipMathLib, setFetchedSipMathLib] = useState<FetchedSipMathLib | undefined>(undefined)
   const [fetchedPremiums, setFetchedPremiums] = useState<FetchedPremiums | undefined>(undefined)
-
-  const [canSeePortfolioAreaChart, setCanSeePortfolioAreaChart] = useState<boolean | undefined>(undefined)
-  const [canSeePortfolioVolatility, setCanSeePortfolioVolatility] = useState<boolean | undefined>(undefined)
-  const [canSeeTokenVolatilities, setCanSeeTokenVolatilities] = useState<boolean | undefined>(undefined)
 
   const premiumsUSD = useMemo(() => {
     if (!fetchedPremiums || !fetchedPremiums?.[activeNetwork.chainId]) return 0
@@ -107,97 +93,6 @@ const AnalyticsManager: React.FC = ({ children }) => {
   }, [activeNetwork, fetchedPremiums])
 
   const TRIALS = 1000
-
-  const reformatDataForAreaChart = useCallback(function reformatDataForAreaChart(
-    blockDataArr: BlockData[]
-  ): ReformattedData {
-    if (!blockDataArr || blockDataArr.length == 0) return { output: [], allTokenKeys: [] }
-    const now = Date.now() / 1000
-    const daysCutOffPoint = 30
-    const start = now - 60 * 60 * 24 * daysCutOffPoint // filter out data points by time
-    const output = []
-    const nonZeroBalanceMapping: { [key: string]: boolean } = {}
-    let allTokenKeys: string[] = []
-
-    for (let i = 1; i < blockDataArr.length; ++i) {
-      const currData = blockDataArr[i]
-      const timestamp = currData.timestamp
-      if (timestamp < start) continue
-      const tokens = currData.tokens
-      // todo: vwave is taken out for now
-      const tokenKeys = Object.keys(tokens).filter((key) => key.toLowerCase() !== 'vwave')
-      allTokenKeys = tokenKeys.map((item) => item.toLowerCase())
-      const usdArr = tokenKeys.map((key: string) => {
-        const balance = Number(tokens[key].balance) - 0
-        const price = Number(tokens[key].price) - 0
-        const usd = balance * price
-        if (usd > 0) nonZeroBalanceMapping[key.toLowerCase()] = true
-        return usd
-      })
-      const newRow: TimestampedTokenNumberValues = {
-        timestamp: parseInt(currData.timestamp.toString()),
-      }
-      tokenKeys.forEach((key, i) => {
-        newRow[key.toLowerCase()] = usdArr[i]
-      })
-      const inf = tokenKeys.filter((key) => newRow[key.toLowerCase()] == Infinity).length > 0
-      if (!inf) output.push(newRow)
-    }
-
-    // sort by timestamp and only add tokens that had non-zero balances
-    const adjustedOutput = output
-      .sort((a: TimestampedTokenNumberValues, b: TimestampedTokenNumberValues) => a.timestamp - b.timestamp)
-      .map((oldRow) => {
-        const newerRow: TimestampedTokenNumberValues = { timestamp: oldRow.timestamp }
-        Object.keys(nonZeroBalanceMapping).forEach((key) => {
-          newerRow[key.toLowerCase()] = oldRow[key.toLowerCase()]
-        })
-        return newerRow
-      })
-    const formattedData = { output: adjustedOutput, allTokenKeys }
-    return formattedData
-  },
-  [])
-
-  const getPortfolioVolatility = useCallback((weights: number[], simulatedVolatility: number[][]): number[] => {
-    const result: number[] = Array(TRIALS).fill(0) // fixed array of length 1000 and initialized with zeroes
-    for (let i = 0; i < TRIALS; i++) {
-      let trialSum = 0
-      for (let j = 0; j < simulatedVolatility.length; j++) {
-        const ticker = simulatedVolatility[j]
-        const volatilityTrials = ticker // array of 1000 trials based on token ticker
-        const weight = weights[j] // number less than 1
-        const adjustedVolatility = volatilityTrials[i] * weight
-        trialSum += adjustedVolatility
-      }
-      result[i] = trialSum // add to the result array
-    }
-    return result
-  }, [])
-
-  const getPortfolioDetailData = useCallback(
-    (json: BlockData[], simulatedReturns: { [key: string]: number[] }, tokenKeys: string[]): MassUwpDataPortfolio[] => {
-      if (!json || json.length == 0) return []
-      const latestData = json[json.length - 1]
-      const tokens = latestData.tokens
-      const tokenDetails = tokenKeys.map((key: string) => {
-        const balance = Number(tokens[key.toUpperCase()].balance) - 0
-        const price = Number(tokens[key.toUpperCase()].price) - 0
-        const usd = balance * price
-        const _tokenDetails = {
-          symbol: key.toLowerCase(),
-          balance: balance,
-          price: price,
-          usdBalance: usd,
-          weight: 0,
-          simulation: simulatedReturns[key.toLowerCase()] ?? [],
-        }
-        return _tokenDetails
-      })
-      return tokenDetails
-    },
-    []
-  )
 
   useEffect(() => {
     const init = async () => {
@@ -225,19 +120,8 @@ const AnalyticsManager: React.FC = ({ children }) => {
 
   useEffect(() => {
     const getData = async () => {
-      if (!fetchedUwpData || !fetchedSipMathLib || !fetchedSipMathLib.sips) {
-        setCanSeePortfolioAreaChart(undefined)
-        setCanSeePortfolioVolatility(undefined)
-        setCanSeeTokenVolatilities(undefined)
-        return
-      }
-
-      if (!(fetchedUwpData[activeNetwork.chainId.toString()] as BlockData[])) {
-        setCanSeePortfolioAreaChart(false)
-        setCanSeePortfolioVolatility(false)
-        setCanSeeTokenVolatilities(false)
-        return
-      }
+      if (!fetchedUwpData || !fetchedSipMathLib || !fetchedSipMathLib.sips) return
+      if (!(fetchedUwpData[activeNetwork.chainId.toString()] as BlockData[])) return
 
       const { output: _priceHistory30D, allTokenKeys } = reformatDataForAreaChart(
         fetchedUwpData[`${activeNetwork.chainId}`]
@@ -277,151 +161,19 @@ const AnalyticsManager: React.FC = ({ children }) => {
 
         const _portfolioVolatilityData = getPortfolioVolatility(
           tokenWeights,
-          adjustedPortfolio.map((token: MassUwpDataPortfolio) => token.simulation)
+          adjustedPortfolio.map((token: MassUwpDataPortfolio) => token.simulation),
+          TRIALS
         )
         setPortfolioVolatilityData(_portfolioVolatilityData)
         setAllDataPortfolio(adjustedPortfolio)
-        setCanSeePortfolioAreaChart(true)
-        setCanSeePortfolioVolatility(true)
-        setCanSeeTokenVolatilities(true)
       }
     }
     getData()
-  }, [
-    getPortfolioDetailData,
-    reformatDataForAreaChart,
-    getPortfolioVolatility,
-    activeNetwork,
-    fetchedUwpData,
-    fetchedSipMathLib,
-  ])
-
-  useEffect(() => {
-    const aggregateSpiExposures = async () => {
-      if (
-        !statsCache ||
-        !statsCache.spi ||
-        Object.keys(statsCache.spi).length == 0 ||
-        (!statsCache.positions && !statsCache.positions_cleaned) ||
-        !statsCache.series
-      )
-        return
-      const positions = statsCache.positions || statsCache.positions_cleaned
-      const series = statsCache.series
-      const policyOf: {
-        [key: string]: PolicyExposure
-      } = {} // map account -> policy
-
-      // assign stored policy data for each policyholder
-      statsCache.spi.ethereum_v3.policies.forEach((policy: any) => {
-        policy.product = 'SPI V3'
-        policy.network = 'ethereum'
-        policyOf[policy.policyholder] = policy
-      })
-      statsCache.spi.aurora_v3.policies.forEach((policy: any) => {
-        policy.product = 'SPI V3'
-        policy.network = 'aurora'
-        policyOf[policy.policyholder] = policy
-      })
-      statsCache.spi.polygon_v3.policies.forEach((policy: any) => {
-        policy.product = 'SPI V3'
-        policy.network = 'polygon'
-        policyOf[policy.policyholder] = policy
-      })
-      statsCache.spi.fantom_v3.policies.forEach((policy: any) => {
-        policy.product = 'SPI V3'
-        policy.network = 'fantom'
-        policyOf[policy.policyholder] = policy
-      })
-      const policyholders: string[] = Object.keys(policyOf)
-
-      const protocols: ProtocolExposureType[] = []
-
-      // for each policy holder, get their covered positions, and overall exposure
-      policyholders.forEach((policyholder: string) => {
-        if (!positions.hasOwnProperty(policyholder)) {
-          return
-        }
-        const coveredPositionsOfPolicyholder =
-          positions[policyholder].positions_cleaned || positions[policyholder].positions
-        const policyExposure = Math.min(
-          coveredPositionsOfPolicyholder.reduce((a: any, b: any) => a + b.balanceUSD, 0),
-          parseFloat(formatUnits(policyOf[policyholder].coverLimit, 18))
-        )
-        policyOf[policyholder].policyHolder = policyholder
-        policyOf[policyholder].exposure = policyExposure
-        const policy = policyOf[policyholder]
-
-        // for each covered position of this policy holder, update the protocols data
-        coveredPositionsOfPolicyholder.forEach((coveredPosition: any) => {
-          const foundProtocols = protocols.filter(
-            (protocol: any) => protocol.appId == coveredPosition.appId && protocol.network == coveredPosition.network
-          )
-          let protocol: any = {}
-          if (foundProtocols.length > 1) console.log('warning in exposures')
-          if (foundProtocols.length == 0) {
-            // new protocol found. create new entry
-            protocol = {
-              appId: coveredPosition.appId,
-              network: coveredPosition.network,
-              balanceUSD: 0,
-              coverLimit: 0,
-              highestPosition: 0,
-              totalExposure: 0,
-              totalLossPayoutAmount: 0,
-              premiumsPerYear: 0,
-              policies: [],
-              positions: [],
-            }
-            protocols.push(protocol)
-            // map to series
-            const foundSeries = series.data.protocolMap.filter((s: any) => s.appId == coveredPosition.appId)
-            if (foundSeries.length > 1) console.log('protocols series uhh')
-            if (foundSeries.length == 0) {
-              // unknown protocol
-              protocol.tier = 'F'
-              protocol.category = 'unknown'
-              protocol.rol = series.data.rateCard[0].rol
-            } else {
-              const tier = foundSeries[0].tier
-              protocol.tier = mapNumberToLetter(tier)
-              protocol.category = foundSeries[0].category
-              protocol.rol = series.data.rateCard[tier].rol
-            }
-          } else protocol = foundProtocols[0]
-
-          const balanceUSD = parseFloat(coveredPosition.balanceUSD)
-          const coverLimit = parseFloat(formatUnits(policy.coverLimit, 18))
-          const totalLossPayoutAmount = Math.min(coverLimit, balanceUSD)
-          const premiumsPerYear = totalLossPayoutAmount * protocol.rol
-          protocol.balanceUSD += balanceUSD
-          protocol.coverLimit += coverLimit
-          protocol.highestPosition = Math.max(protocol.highestPosition, balanceUSD)
-          protocol.totalLossPayoutAmount += totalLossPayoutAmount
-          protocol.premiumsPerYear += premiumsPerYear
-          coveredPosition.premiumsPerYear = premiumsPerYear
-          protocol.policies.push(policy)
-          protocol.positions.push(coveredPosition)
-        })
-      })
-      const adjustedProtocols = protocols.map((p: ProtocolExposureType) => {
-        return {
-          ...p,
-          totalExposure: Math.min(p.balanceUSD, p.coverLimit),
-        }
-      })
-      setProtocolExposureData(adjustedProtocols)
-    }
-    aggregateSpiExposures()
-  }, [statsCache])
+  }, [activeNetwork, fetchedUwpData, fetchedSipMathLib])
 
   const value = useMemo(
     () => ({
-      intrface: {
-        canSeePortfolioAreaChart,
-        canSeeTokenVolatilities,
-        canSeePortfolioVolatility,
-      },
+      intrface: {},
       data: {
         portfolioHistogramTickers,
         tokenHistogramTickers,
@@ -436,18 +188,14 @@ const AnalyticsManager: React.FC = ({ children }) => {
         uwpValueUSD,
         premiumsUSD,
         protocolExposureData,
-        getPortfolioVolatility,
       },
     }),
     [
-      canSeePortfolioAreaChart,
       portfolioHistogramTickers,
       tokenHistogramTickers,
       portfolioVolatilityData,
       priceHistory30D,
       allDataPortfolio,
-      canSeeTokenVolatilities,
-      canSeePortfolioVolatility,
       fetchedUwpData,
       fetchedSipMathLib,
       fetchedPremiums,
@@ -455,7 +203,6 @@ const AnalyticsManager: React.FC = ({ children }) => {
       uwpValueUSD,
       premiumsUSD,
       protocolExposureData,
-      getPortfolioVolatility,
     ]
   )
   return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>

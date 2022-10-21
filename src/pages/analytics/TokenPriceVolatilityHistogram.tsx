@@ -9,7 +9,6 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useAnalyticsContext } from './AnalyticsContext'
 import { q } from '@solace-fi/hydrate'
 import { StyledSlider } from '../../components/atoms/Input'
-import { Loader } from '../../components/atoms/Loader'
 import { Button } from '../../components/atoms/Button'
 import { StyledDownload } from '../../components/atoms/Icon'
 import sipMath3 from '../../resources/svg/sipmath3.svg'
@@ -23,8 +22,7 @@ export const TokenPriceVolatilityHistogram = ({
 }): JSX.Element => {
   const { width } = useWindowDimensions()
   const { appTheme } = useGeneral()
-  const { intrface, data } = useAnalyticsContext()
-  const { canSeeTokenVolatilities } = intrface
+  const { data } = useAnalyticsContext()
   const { tokenHistogramTickers, fetchedSipMathLib, allDataPortfolio } = data
   const [tickerSymbol, setTickerSymbol] = useState('')
   const [displayVega, setDisplayVega] = useState(false)
@@ -190,18 +188,18 @@ export const TokenPriceVolatilityHistogram = ({
         : undefined
       if (highestWeightTicker) setTickerSymbol(highestWeightTicker.symbol)
     }
-    if (tickerSymbol.length === 0 || !canSeeTokenVolatilities) return
+    if (tickerSymbol.length === 0) return
     const chartDataIndex = allDataPortfolio.findIndex((x) => x.symbol === tickerSymbol)
     const varBar = getVarBar(var4Bar, tickerSymbol)
     setVarBar(varBar)
     fetchVega(allDataPortfolio[chartDataIndex], appTheme, varBar)
     if (!displayVega) setDisplayVega(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio, canSeeTokenVolatilities, chosenWidth, chosenHeightPx, width])
+  }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio, chosenWidth, chosenHeightPx, width])
 
   return (
-    <Flex gap={10} col={4 >= chosenWidth || !canSeeTokenVolatilities}>
-      {canSeeTokenVolatilities ? (
+    <Flex gap={10} col={4 >= chosenWidth}>
+      {allDataPortfolio.length > 0 ? (
         <>
           <Flex col>
             <SmallerInputSection
@@ -258,12 +256,10 @@ export const TokenPriceVolatilityHistogram = ({
             )}
           </Flex>
         </>
-      ) : canSeeTokenVolatilities == false ? (
+      ) : (
         <Text textAlignCenter t2>
           This chart cannot be viewed at this time
         </Text>
-      ) : (
-        <Loader />
       )}
     </Flex>
   )

@@ -5,7 +5,6 @@ import vegaEmbed from 'vega-embed'
 import { useGeneral } from '../../context/GeneralManager'
 import { Text } from '../../components/atoms/Typography'
 import { StyledSlider } from '../../components/atoms/Input'
-import { Loader } from '../../components/atoms/Loader'
 import { filterAmount, formatAmount } from '../../utils/formatting'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { PortfolioGaugeWeight } from './components/PortfolioGaugeWeightDisplay'
@@ -14,6 +13,7 @@ import { Button } from '../../components/atoms/Button'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { StyledDownload } from '../../components/atoms/Icon'
 import sipMath3 from '../../resources/svg/sipmath3.svg'
+import { getPortfolioVolatility } from './utils/getPortfolioVolatility'
 
 export const TokenPortfolioHistogram = ({
   chosenWidth,
@@ -24,9 +24,8 @@ export const TokenPortfolioHistogram = ({
 }): JSX.Element => {
   const { width } = useWindowDimensions()
   const { appTheme } = useGeneral()
-  const { intrface, data } = useAnalyticsContext()
-  const { canSeePortfolioVolatility } = intrface
-  const { getPortfolioVolatility, allDataPortfolio, portfolioVolatilityData, fetchedSipMathLib } = data
+  const { data } = useAnalyticsContext()
+  const { allDataPortfolio, portfolioVolatilityData, fetchedSipMathLib, trials } = data
 
   const [rangeValue, setRangeValue] = useState(1000)
   // const [varBar, setVarBar] = useState<number>(0)
@@ -254,29 +253,21 @@ export const TokenPortfolioHistogram = ({
   useEffect(() => {
     const _simPortfolioVolatilityData = getPortfolioVolatility(
       simWeights.map((item) => item.weight),
-      simWeights.map((item) => item.sim)
+      simWeights.map((item) => item.sim),
+      trials
     )
     setSimPortfolioVolatilityData(_simPortfolioVolatilityData)
-  }, [simWeights, getPortfolioVolatility])
+  }, [simWeights, trials])
 
   useEffect(() => {
-    if (simPortfolioVolatilityData.length == 0 || !canSeePortfolioVolatility || simWeightTotal != 1) return
+    if (simPortfolioVolatilityData.length == 0 || simWeightTotal != 1) return
 
     fetchVega(simPortfolioVolatilityData, appTheme, varBar)
-  }, [
-    simPortfolioVolatilityData,
-    appTheme,
-    canSeePortfolioVolatility,
-    varBar,
-    simWeightTotal,
-    chosenWidth,
-    chosenHeightPx,
-    width,
-  ])
+  }, [simPortfolioVolatilityData, appTheme, varBar, simWeightTotal, chosenWidth, chosenHeightPx, width])
 
   return (
     <Flex gap={10} col={4 >= chosenWidth}>
-      {canSeePortfolioVolatility ? (
+      {simPortfolioVolatilityData.length > 0 ? (
         <>
           <Flex col gap={12}>
             <Flex col gap={5}>
@@ -398,12 +389,10 @@ export const TokenPortfolioHistogram = ({
             )}
           </Flex>
         </>
-      ) : canSeePortfolioVolatility == false ? (
+      ) : (
         <Text textAlignCenter t2>
           This chart cannot be viewed at this time
         </Text>
-      ) : (
-        <Loader />
       )}
     </Flex>
   )

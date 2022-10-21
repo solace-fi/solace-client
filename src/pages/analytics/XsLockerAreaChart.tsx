@@ -26,7 +26,7 @@ export const XsLockerAreaChart = ({
   const fetchVega = (dataIn: Lock[], theme: 'light' | 'dark') => {
     vegaEmbed('#xslocker-area-chart' + chainId, {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-      title: { text: 'Staking Area Chart (Last 30 Days)', color: theme == 'light' ? 'black' : 'white' },
+      title: { text: '(Including Last 30 Days)', color: theme == 'light' ? 'black' : 'white' },
       config: {
         style: { cell: { stroke: 'transparent' } },
         axis: { labelColor: theme == 'light' ? 'black' : 'white' },
