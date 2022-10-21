@@ -1,4 +1,4 @@
-import { BigNumber, Staker, XSLOCKER_ADDRESS } from '@solace-fi/sdk-nightly'
+import { BigNumber, Staker, XSLOCKER_ADDRESS, ZERO } from '@solace-fi/sdk-nightly'
 import React, { useEffect } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
@@ -21,12 +21,12 @@ export const XsLockerAreaChart = ({
 }): JSX.Element => {
   const { appTheme } = useGeneral()
 
-  const [lockData, setLockData] = React.useState<Lock[]>([])
+  const [lockBurndownData, setLockBurndownData] = React.useState<Lock[]>([])
 
   const fetchVega = (dataIn: Lock[], theme: 'light' | 'dark') => {
     vegaEmbed('#xslocker-area-chart', {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-      title: { text: 'Staking Area Chart', color: theme == 'light' ? 'black' : 'white' },
+      title: { text: 'Staking Area Chart (Last 30 Days)', color: theme == 'light' ? 'black' : 'white' },
       config: {
         style: { cell: { stroke: 'transparent' } },
         axis: { labelColor: theme == 'light' ? 'black' : 'white' },
@@ -91,15 +91,26 @@ export const XsLockerAreaChart = ({
         existArray.map((exist, i) => (exist ? stakeContract.locks(BigNumber.from(i + 1)) : null))
       )
       const existingLocks = locks.filter((lock) => lock !== null) as Lock[]
-      const filteredLocks = existingLocks.filter((lock) => lock?.end.toNumber() > 0)
-      setLockData(filteredLocks)
+
+      const today = Date.now()
+      const filteredLocks = existingLocks.filter((lock) => lock?.end.toNumber() * 1000 > today - 2592000000) // last 30 days
+      let summedAmount = filteredLocks.reduce((acc, lock) => acc.add(lock.amount), ZERO)
+      const sortedEnds = filteredLocks.sort((a, b) => a.end.toNumber() - b.end.toNumber())
+      const burndownData = sortedEnds.map((lock) => {
+        summedAmount = summedAmount.sub(lock.amount)
+        return {
+          amount: summedAmount,
+          end: lock.end,
+        }
+      })
+      setLockBurndownData(burndownData)
     }
     getLocks()
   }, [chainId])
 
   useEffect(() => {
-    fetchVega(lockData, appTheme)
-  }, [lockData, chosenHeight, chosenWidth, appTheme])
+    fetchVega(lockBurndownData, appTheme)
+  }, [lockBurndownData, chosenHeight, chosenWidth, appTheme])
 
   return (
     <Flex>
