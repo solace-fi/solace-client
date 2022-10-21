@@ -16,10 +16,10 @@ import sipMath3 from '../../resources/svg/sipmath3.svg'
 
 export const TokenPriceVolatilityHistogram = ({
   chosenWidth,
-  chosenHeight,
+  chosenHeightPx,
 }: {
   chosenWidth: number
-  chosenHeight: number
+  chosenHeightPx: number
 }): JSX.Element => {
   const { width } = useWindowDimensions()
   const { appTheme } = useGeneral()
@@ -80,7 +80,7 @@ export const TokenPriceVolatilityHistogram = ({
       },
       background: 'transparent',
       width: 'container',
-      height: chosenHeight - (chosenWidth > 4 ? 80 : chosenHeight * 0.7),
+      height: chosenHeightPx - (chosenWidth > 4 ? 80 : chosenHeightPx * 0.7),
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -197,7 +197,7 @@ export const TokenPriceVolatilityHistogram = ({
     fetchVega(allDataPortfolio[chartDataIndex], appTheme, varBar)
     if (!displayVega) setDisplayVega(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio, canSeeTokenVolatilities, chosenWidth, chosenHeight, width])
+  }, [tickerSymbol, var4Bar, appTheme, allDataPortfolio, canSeeTokenVolatilities, chosenWidth, chosenHeightPx, width])
 
   return (
     <Flex gap={10} col={4 >= chosenWidth || !canSeeTokenVolatilities}>
@@ -220,7 +220,7 @@ export const TokenPriceVolatilityHistogram = ({
               onClick={(value: string) => setTickerSymbol(value)}
               processName={true}
               customProcessFunction={(value: string) => value.toUpperCase()}
-              customHeight={chosenHeight - (chosenWidth > 4 ? 80 : chosenHeight * 0.6)}
+              customHeight={chosenHeightPx - (chosenWidth > 4 ? 80 : chosenHeightPx * 0.6)}
             />
             <Flex around gap={5} mt={10}>
               <img width={40} src={sipMath3} style={{ filter: appTheme == 'dark' ? 'brightness(200%)' : undefined }} />

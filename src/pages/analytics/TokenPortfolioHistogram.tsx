@@ -17,10 +17,10 @@ import sipMath3 from '../../resources/svg/sipmath3.svg'
 
 export const TokenPortfolioHistogram = ({
   chosenWidth,
-  chosenHeight,
+  chosenHeightPx,
 }: {
   chosenWidth: number
-  chosenHeight: number
+  chosenHeightPx: number
 }): JSX.Element => {
   const { width } = useWindowDimensions()
   const { appTheme } = useGeneral()
@@ -71,7 +71,7 @@ export const TokenPortfolioHistogram = ({
       },
       background: 'transparent',
       width: 'container',
-      height: chosenHeight - (chosenWidth > 4 ? 80 : chosenHeight * 0.7),
+      height: chosenHeightPx - (chosenWidth > 4 ? 80 : chosenHeightPx * 0.7),
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -270,7 +270,7 @@ export const TokenPortfolioHistogram = ({
     varBar,
     simWeightTotal,
     chosenWidth,
-    chosenHeight,
+    chosenHeightPx,
     width,
   ])
 
@@ -300,7 +300,7 @@ export const TokenPortfolioHistogram = ({
               px={14}
               style={{
                 overflowY: 'auto',
-                height: chosenHeight - (chosenWidth > 4 ? 120 : chosenHeight * 0.7),
+                height: chosenHeightPx - (chosenWidth > 4 ? 120 : chosenHeightPx * 0.7),
               }}
             >
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>

@@ -12,11 +12,11 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 
 export const XsLockerAreaChart = ({
   chosenWidth,
-  chosenHeight,
+  chosenHeightPx,
   chainId,
 }: {
   chosenWidth: number
-  chosenHeight: number
+  chosenHeightPx: number
   chainId: number
 }): JSX.Element => {
   const { appTheme } = useGeneral()
@@ -24,7 +24,7 @@ export const XsLockerAreaChart = ({
   const [lockBurndownData, setLockBurndownData] = React.useState<Lock[]>([])
 
   const fetchVega = (dataIn: Lock[], theme: 'light' | 'dark') => {
-    vegaEmbed('#xslocker-area-chart', {
+    vegaEmbed('#xslocker-area-chart' + chainId, {
       $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
       title: { text: 'Staking Area Chart (Last 30 Days)', color: theme == 'light' ? 'black' : 'white' },
       config: {
@@ -34,7 +34,7 @@ export const XsLockerAreaChart = ({
       },
       background: 'transparent',
       width: 'container',
-      height: chosenHeight,
+      height: chosenHeightPx,
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -109,12 +109,13 @@ export const XsLockerAreaChart = ({
   }, [chainId])
 
   useEffect(() => {
+    if (lockBurndownData.length == 0) return
     fetchVega(lockBurndownData, appTheme)
-  }, [lockBurndownData, chosenHeight, chosenWidth, appTheme])
+  }, [lockBurndownData, chosenHeightPx, chosenWidth, appTheme])
 
   return (
     <Flex>
-      <Flex id="xslocker-area-chart" widthP={100} justifyCenter>
+      <Flex id={'xslocker-area-chart' + chainId} widthP={100} justifyCenter>
         <Text autoAlign>data not available</Text>
       </Flex>
     </Flex>

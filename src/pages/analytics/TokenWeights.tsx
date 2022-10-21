@@ -41,10 +41,10 @@ type WeightsAndDates = WeightsAndDate[]
 
 export const TokenWeights = ({
   chosenWidth,
-  chosenHeight,
+  chosenHeightPx,
 }: {
   chosenWidth: number
-  chosenHeight: number
+  chosenHeightPx: number
 }): JSX.Element => {
   const { appTheme } = useGeneral()
   const { activeNetwork } = useNetwork()
@@ -102,7 +102,7 @@ export const TokenWeights = ({
       },
       background: 'transparent',
       width: 'container',
-      height: chosenHeight,
+      height: chosenHeightPx,
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -141,7 +141,7 @@ export const TokenWeights = ({
   }
   useEffect(() => {
     fetchVega(vegaStylizedWeightsAndDates, appTheme)
-  }, [appTheme, vegaStylizedWeightsAndDates, chosenWidth, chosenHeight])
+  }, [appTheme, vegaStylizedWeightsAndDates, chosenWidth, chosenHeightPx])
 
   return (
     <Flex gap={10} col={isMobile}>

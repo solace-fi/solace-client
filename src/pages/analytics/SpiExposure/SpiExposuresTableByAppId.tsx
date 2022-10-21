@@ -41,7 +41,7 @@ enum SortType {
   policies_D,
 }
 
-export const SpiExposuresTableByAppId = ({ chosenHeight }: { chosenHeight: number }) => {
+export const SpiExposuresTableByAppId = ({ chosenHeightPx }: { chosenHeightPx: number }) => {
   const { data } = useAnalyticsContext()
   const { protocolExposureData: protocols } = data
 
@@ -176,8 +176,8 @@ export const SpiExposuresTableByAppId = ({ chosenHeight }: { chosenHeight: numbe
           </Flex>
           <Scrollable
             style={{ padding: '0 10px 0 10px' }}
-            maxDesktopHeight={`${chosenHeight - 50}px`}
-            maxMobileHeight={`${chosenHeight - 50}px`}
+            maxDesktopHeight={`${chosenHeightPx - 50}px`}
+            maxMobileHeight={`${chosenHeightPx - 50}px`}
             raised={true}
           >
             <Table canHover textAlignCenter style={{ borderSpacing: '0px 7px' }}>
@@ -500,8 +500,8 @@ export const SpiExposuresTableByAppId = ({ chosenHeight }: { chosenHeight: numbe
           </Flex>
           <Scrollable
             style={{ padding: '0 10px 0 10px' }}
-            maxDesktopHeight={`${chosenHeight - 180}px`}
-            maxMobileHeight={`${chosenHeight - 180}px`}
+            maxDesktopHeight={`${chosenHeightPx - 180}px`}
+            maxMobileHeight={`${chosenHeightPx - 180}px`}
             raised={true}
           >
             <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>

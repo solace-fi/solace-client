@@ -8,10 +8,10 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 export const TokenRadialChart = ({
   chosenWidth,
-  chosenHeight,
+  chosenHeightPx,
 }: {
   chosenWidth: number
-  chosenHeight: number
+  chosenHeightPx: number
 }): JSX.Element => {
   const { appTheme } = useGeneral()
   const { width } = useWindowDimensions()
@@ -29,7 +29,7 @@ export const TokenRadialChart = ({
       },
       background: 'transparent',
       width: 'container',
-      height: chosenHeight,
+      height: chosenHeightPx,
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -71,7 +71,7 @@ export const TokenRadialChart = ({
   useEffect(() => {
     fetchVega(allDataPortfolio, appTheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allDataPortfolio, chosenHeight, chosenWidth, appTheme, width])
+  }, [allDataPortfolio, chosenHeightPx, chosenWidth, appTheme, width])
 
   return (
     <Flex gap={10}>

@@ -10,10 +10,10 @@ import { Flex } from '../../components/atoms/Layout'
 
 export const PremiumsPaidByPeriodChart = ({
   chosenWidth,
-  chosenHeight,
+  chosenHeightPx,
 }: {
   chosenWidth: number
-  chosenHeight: number
+  chosenHeightPx: number
 }) => {
   const { appTheme } = useGeneral()
   const { activeNetwork } = useNetwork()
@@ -38,7 +38,7 @@ export const PremiumsPaidByPeriodChart = ({
       },
       background: 'transparent',
       width: 'container',
-      height: chosenHeight,
+      height: chosenHeightPx,
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -73,7 +73,7 @@ export const PremiumsPaidByPeriodChart = ({
       }
     })
     fetchVega(_premiumHistory, appTheme)
-  }, [activeNetwork, fetchedPremiums, appTheme, chosenHeight, chosenWidth])
+  }, [activeNetwork, fetchedPremiums, appTheme, chosenHeightPx, chosenWidth])
 
   return (
     <Flex>

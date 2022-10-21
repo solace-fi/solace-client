@@ -9,10 +9,10 @@ import { ProtocolExposureType } from './constants'
 
 export const CoverLimitCategoryPieChart = ({
   chosenWidth,
-  chosenHeight,
+  chosenHeightPx,
 }: {
   chosenWidth: number
-  chosenHeight: number
+  chosenHeightPx: number
 }): JSX.Element => {
   const { appTheme } = useGeneral()
   const { width } = useWindowDimensions()
@@ -32,7 +32,7 @@ export const CoverLimitCategoryPieChart = ({
       },
       background: 'transparent',
       width: 'container',
-      height: chosenHeight,
+      height: chosenHeightPx,
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -97,7 +97,7 @@ export const CoverLimitCategoryPieChart = ({
     }
     getData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [protocols, chosenHeight, chosenWidth, appTheme, width])
+  }, [protocols, chosenHeightPx, chosenWidth, appTheme, width])
 
   return (
     <Flex gap={10}>

@@ -18,7 +18,7 @@ import { useCachedData } from '../../../context/CachedDataManager'
 import { truncateValue } from '../../../utils/formatting'
 import { PolicyExposure } from '../constants'
 
-export const SpiExposuresTableByPolicy = ({ chosenHeight }: { chosenHeight: number }) => {
+export const SpiExposuresTableByPolicy = ({ chosenHeightPx }: { chosenHeightPx: number }) => {
   const { statsCache } = useCachedData()
 
   const [policies, setPolicies] = useState<any[]>([])
@@ -140,8 +140,8 @@ export const SpiExposuresTableByPolicy = ({ chosenHeight }: { chosenHeight: numb
       </Flex>
       <Scrollable
         style={{ padding: '0 10px 0 10px' }}
-        maxDesktopHeight={`${chosenHeight}px`}
-        maxMobileHeight={`${chosenHeight}px`}
+        maxDesktopHeight={`${chosenHeightPx}px`}
+        maxMobileHeight={`${chosenHeightPx}px`}
         raised={true}
       >
         <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>

@@ -1,12 +1,10 @@
-import React, { useCallback, useRef } from 'react'
-import { Flex } from '../../components/atoms/Layout'
-import { Text } from '../../components/atoms/Typography'
+import React, { useCallback, useRef, useState } from 'react'
+
 import { useAnalyticsContext } from './AnalyticsContext'
 import { TokenPortfolioHistogram } from './TokenPortfolioHistogram'
 import { TokenPriceVolatilityHistogram } from './TokenPriceVolatilityHistogram'
 // import { TokenPriceVolatilityCumm } from './TokenPriceVolatilityCumm'
 import { TokenTable } from './TokenTable'
-import { Card } from '../../components/atoms/Card'
 import { truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { TokenRadialChart } from './TokenRadialChart'
@@ -34,7 +32,10 @@ const {
   SPI_EXPOSURES_TABLE_POLICY,
   COVER_LIMIT_PER_CATEGORY_PIE_CHART,
   GAUGE_OVERVIEW_TABLE,
-  STAKING_LOCK_BURNDOWN_AREA_CHART,
+  STAKING_LOCK_BURNDOWN_AREA_CHART_ETHMAIN,
+  STAKING_LOCK_BURNDOWN_AREA_CHART_POLYGON,
+  STAKING_LOCK_BURNDOWN_AREA_CHART_FANTOM,
+  STAKING_LOCK_BURNDOWN_AREA_CHART_AURORA,
 } = AnalyticsChart
 
 import { Layout, Responsive, WidthProvider } from 'react-grid-layout'
@@ -70,6 +71,8 @@ export function AnalyticsContent(): JSX.Element {
   const { leverageFactor } = gauges
   const { premiumsUSD, uwpValueUSD, fetchedSipMathLib, protocolExposureData } = data
 
+  const [numCols, setNumCols] = useState(cols.lg)
+
   const currLayouts = useRef<Layout[]>(layoutLG)
 
   const handleLayoutChange = useCallback((layout: Layout[]) => {
@@ -87,7 +90,6 @@ export function AnalyticsContent(): JSX.Element {
     }
     currLayouts.current = adjustedLayout
   }, [])
-
   const at = useCallback(
     (i: string) => {
       const layout = currLayouts.current.find((l) => l.i === i)
@@ -123,6 +125,7 @@ export function AnalyticsContent(): JSX.Element {
             <CardSectionValue info>${truncateValue(premiumsUSD, 2)}</CardSectionValue>
           </AnalyticsCard>
         </div>
+
         <div key={UWP_SIZE_STAT}>
           <AnalyticsCard
             title="Underwriting Pool Size"
@@ -131,6 +134,7 @@ export function AnalyticsContent(): JSX.Element {
             <CardSectionValue info>${truncateValue(formatUnits(uwpValueUSD, 18), 2)} </CardSectionValue>
           </AnalyticsCard>
         </div>
+
         <div key={LEVERAGE_FACTOR_STAT}>
           <AnalyticsCard
             title="Leverage Factor"
@@ -161,7 +165,7 @@ export function AnalyticsContent(): JSX.Element {
             clarification="Data is delayed by up to 1 hour."
             height={rowHeight + (at(TOKEN_COMPOSITION_TABLE).h - 1) * interval - cardPadding}
           >
-            <TokenTable chosenHeight={rowHeight + (at(TOKEN_COMPOSITION_TABLE).h - 1) * interval - cardUnchartable} />
+            <TokenTable chosenHeightPx={rowHeight + (at(TOKEN_COMPOSITION_TABLE).h - 1) * interval - cardUnchartable} />
           </AnalyticsCard>
         </div>
         <div key={PORTFOLIO_AREA_CHART}>
@@ -172,7 +176,7 @@ export function AnalyticsContent(): JSX.Element {
           >
             <PortfolioAreaChartVega
               chosenWidth={at(PORTFOLIO_AREA_CHART).w}
-              chosenHeight={rowHeight + (at(PORTFOLIO_AREA_CHART).h - 1) * interval - cardUnchartable}
+              chosenHeightPx={rowHeight + (at(PORTFOLIO_AREA_CHART).h - 1) * interval - cardUnchartable}
             />
           </AnalyticsCard>
         </div>
@@ -184,7 +188,7 @@ export function AnalyticsContent(): JSX.Element {
           >
             <TokenPortfolioHistogram
               chosenWidth={at(PORTFOLIO_VOL_HISTOGRAM).w}
-              chosenHeight={rowHeight + (at(PORTFOLIO_VOL_HISTOGRAM).h - 1) * interval - cardUnchartable}
+              chosenHeightPx={rowHeight + (at(PORTFOLIO_VOL_HISTOGRAM).h - 1) * interval - cardUnchartable}
             />
           </AnalyticsCard>
         </div>
@@ -196,7 +200,7 @@ export function AnalyticsContent(): JSX.Element {
           >
             <TokenPriceVolatilityHistogram
               chosenWidth={at(TOKEN_PRICE_VOL_HISTOGRAM).w}
-              chosenHeight={rowHeight + (at(TOKEN_PRICE_VOL_HISTOGRAM).h - 1) * interval - cardUnchartable}
+              chosenHeightPx={rowHeight + (at(TOKEN_PRICE_VOL_HISTOGRAM).h - 1) * interval - cardUnchartable}
             />
           </AnalyticsCard>
         </div>
@@ -208,7 +212,7 @@ export function AnalyticsContent(): JSX.Element {
           >
             <TokenRadialChart
               chosenWidth={at(TOKEN_RADIAL_PIE_CHART).w}
-              chosenHeight={rowHeight + (at(TOKEN_RADIAL_PIE_CHART).h - 1) * interval - cardUnchartable}
+              chosenHeightPx={rowHeight + (at(TOKEN_RADIAL_PIE_CHART).h - 1) * interval - cardUnchartable}
             />
           </AnalyticsCard>
         </div>
@@ -220,7 +224,7 @@ export function AnalyticsContent(): JSX.Element {
           >
             <TokenWeights
               chosenWidth={at(TOKEN_WEIGHTS_AREA_CHART).w}
-              chosenHeight={rowHeight + (at(TOKEN_WEIGHTS_AREA_CHART).h - 1) * interval - cardUnchartable}
+              chosenHeightPx={rowHeight + (at(TOKEN_WEIGHTS_AREA_CHART).h - 1) * interval - cardUnchartable}
             />
           </AnalyticsCard>
         </div>
@@ -232,7 +236,7 @@ export function AnalyticsContent(): JSX.Element {
           >
             <PremiumsPaidByPeriodChart
               chosenWidth={at(PREMIUMS_LINE_CHART).w}
-              chosenHeight={rowHeight + (at(PREMIUMS_LINE_CHART).h - 1) * interval - cardUnchartable}
+              chosenHeightPx={rowHeight + (at(PREMIUMS_LINE_CHART).h - 1) * interval - cardUnchartable}
             />
           </AnalyticsCard>
         </div>
@@ -243,7 +247,7 @@ export function AnalyticsContent(): JSX.Element {
             height={rowHeight + (at(SPI_EXPOSURES_TABLE_APPID).h - 1) * interval - cardPadding}
           >
             <SpiExposuresTableByAppId
-              chosenHeight={rowHeight + (at(SPI_EXPOSURES_TABLE_APPID).h - 1) * interval - cardUnchartable}
+              chosenHeightPx={rowHeight + (at(SPI_EXPOSURES_TABLE_APPID).h - 1) * interval - cardUnchartable}
             />
           </AnalyticsCard>
         </div>
@@ -254,7 +258,7 @@ export function AnalyticsContent(): JSX.Element {
             height={rowHeight + (at(SPI_EXPOSURES_TABLE_POLICY).h - 1) * interval - cardPadding}
           >
             <SpiExposuresTableByPolicy
-              chosenHeight={rowHeight + (at(SPI_EXPOSURES_TABLE_POLICY).h - 1) * interval - cardUnchartable}
+              chosenHeightPx={rowHeight + (at(SPI_EXPOSURES_TABLE_POLICY).h - 1) * interval - cardUnchartable}
             />
           </AnalyticsCard>
         </div>
@@ -266,7 +270,7 @@ export function AnalyticsContent(): JSX.Element {
           >
             <CoverLimitCategoryPieChart
               chosenWidth={at(COVER_LIMIT_PER_CATEGORY_PIE_CHART).w}
-              chosenHeight={rowHeight + (at(COVER_LIMIT_PER_CATEGORY_PIE_CHART).h - 1) * interval - cardUnchartable}
+              chosenHeightPx={rowHeight + (at(COVER_LIMIT_PER_CATEGORY_PIE_CHART).h - 1) * interval - cardUnchartable}
             />
           </AnalyticsCard>
         </div>
@@ -276,19 +280,63 @@ export function AnalyticsContent(): JSX.Element {
             height={rowHeight + (at(GAUGE_OVERVIEW_TABLE).h - 1) * interval - cardPadding}
           >
             <GaugeOverviewTable
-              chosenHeight={rowHeight + (at(GAUGE_OVERVIEW_TABLE).h - 1) * interval - cardUnchartable}
+              chosenHeightPx={rowHeight + (at(GAUGE_OVERVIEW_TABLE).h - 1) * interval - cardUnchartable}
             />
           </AnalyticsCard>
         </div>
-        <div key={STAKING_LOCK_BURNDOWN_AREA_CHART}>
+        <div key={STAKING_LOCK_BURNDOWN_AREA_CHART_ETHMAIN}>
           <AnalyticsCard
-            title="Staking Lock Burndown Chart"
-            height={rowHeight + (at(STAKING_LOCK_BURNDOWN_AREA_CHART).h - 1) * interval - cardPadding}
+            title="Staked Solace Burndown (Ethereum Mainnet)"
+            height={rowHeight + (at(STAKING_LOCK_BURNDOWN_AREA_CHART_ETHMAIN).h - 1) * interval - cardPadding}
           >
             <XsLockerAreaChart
-              chosenWidth={at(STAKING_LOCK_BURNDOWN_AREA_CHART).w}
-              chosenHeight={rowHeight + (at(STAKING_LOCK_BURNDOWN_AREA_CHART).h - 1) * interval - cardUnchartable}
+              chosenWidth={at(STAKING_LOCK_BURNDOWN_AREA_CHART_ETHMAIN).w}
+              chosenHeightPx={
+                rowHeight + (at(STAKING_LOCK_BURNDOWN_AREA_CHART_ETHMAIN).h - 1) * interval - cardUnchartable
+              }
               chainId={1}
+            />
+          </AnalyticsCard>
+        </div>
+        <div key={STAKING_LOCK_BURNDOWN_AREA_CHART_POLYGON}>
+          <AnalyticsCard
+            title="Staked Solace Burndown (Polygon)"
+            height={rowHeight + (at(STAKING_LOCK_BURNDOWN_AREA_CHART_POLYGON).h - 1) * interval - cardPadding}
+          >
+            <XsLockerAreaChart
+              chosenWidth={at(STAKING_LOCK_BURNDOWN_AREA_CHART_POLYGON).w}
+              chosenHeightPx={
+                rowHeight + (at(STAKING_LOCK_BURNDOWN_AREA_CHART_POLYGON).h - 1) * interval - cardUnchartable
+              }
+              chainId={137}
+            />
+          </AnalyticsCard>
+        </div>
+        <div key={STAKING_LOCK_BURNDOWN_AREA_CHART_FANTOM}>
+          <AnalyticsCard
+            title="Staked Solace Burndown (Fantom)"
+            height={rowHeight + (at(STAKING_LOCK_BURNDOWN_AREA_CHART_FANTOM).h - 1) * interval - cardPadding}
+          >
+            <XsLockerAreaChart
+              chosenWidth={at(STAKING_LOCK_BURNDOWN_AREA_CHART_FANTOM).w}
+              chosenHeightPx={
+                rowHeight + (at(STAKING_LOCK_BURNDOWN_AREA_CHART_FANTOM).h - 1) * interval - cardUnchartable
+              }
+              chainId={250}
+            />
+          </AnalyticsCard>
+        </div>
+        <div key={STAKING_LOCK_BURNDOWN_AREA_CHART_AURORA}>
+          <AnalyticsCard
+            title="Staked Solace Burndown (Aurora)"
+            height={rowHeight + (at(STAKING_LOCK_BURNDOWN_AREA_CHART_AURORA).h - 1) * interval - cardPadding}
+          >
+            <XsLockerAreaChart
+              chosenWidth={at(STAKING_LOCK_BURNDOWN_AREA_CHART_AURORA).w}
+              chosenHeightPx={
+                rowHeight + (at(STAKING_LOCK_BURNDOWN_AREA_CHART_AURORA).h - 1) * interval - cardUnchartable
+              }
+              chainId={1313161554}
             />
           </AnalyticsCard>
         </div>

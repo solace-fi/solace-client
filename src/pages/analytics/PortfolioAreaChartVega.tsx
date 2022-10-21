@@ -7,10 +7,10 @@ import { useGeneral } from '../../context/GeneralManager'
 
 export const PortfolioAreaChartVega = ({
   chosenWidth,
-  chosenHeight,
+  chosenHeightPx,
 }: {
   chosenWidth: number
-  chosenHeight: number
+  chosenHeightPx: number
 }): JSX.Element => {
   const { data } = useAnalyticsContext()
   const { priceHistory30D } = data
@@ -49,7 +49,7 @@ export const PortfolioAreaChartVega = ({
       },
       background: 'transparent',
       width: 'container',
-      height: chosenHeight,
+      height: chosenHeightPx,
       autosize: {
         type: 'fit',
         contains: 'padding',
@@ -91,7 +91,7 @@ export const PortfolioAreaChartVega = ({
   useEffect(() => {
     fetchVega(reformattedData, appTheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appTheme, chosenHeight, chosenWidth, reformattedData])
+  }, [appTheme, chosenHeightPx, chosenWidth, reformattedData])
 
   return (
     <Flex>
