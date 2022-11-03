@@ -386,7 +386,7 @@ export const PolicyContent = (): JSX.Element => {
       )
       setRefundableSOLACEAmount(refundableSOLACEAmount)
     } catch (e) {
-      console.log('PolicyContent Component getRefundableSOLACEAmount', e)
+      console.log('Error getRefundableSOLACEAmount ', e)
       setRefundableSOLACEAmount(ZERO)
     }
   }, [account, scpObj, signatureObj, activeNetwork])

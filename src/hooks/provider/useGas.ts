@@ -9,6 +9,7 @@ import { useWeb3React } from '@web3-react/core'
 import { SUPPORTED_WALLETS } from '../../wallet'
 import { formatUnits } from 'ethers/lib/utils'
 import { ZERO } from '../../constants'
+import axios from 'axios'
 
 export const useFetchGasData = (): GasData | undefined => {
   const { activeNetwork } = useNetwork()
@@ -19,6 +20,11 @@ export const useFetchGasData = (): GasData | undefined => {
   useEffect(() => {
     const fetchGasData = async () => {
       running.current = true
+      let data: { gasPrice: number; maxFeePerGas: number; maxPriorityFeePerGas: number } = {
+        gasPrice: 0,
+        maxFeePerGas: 0,
+        maxPriorityFeePerGas: 0,
+      }
       await provider.getFeeData().then((result) => {
         const gasPriceStr = formatUnits(result.gasPrice ?? ZERO, 'gwei')
         const gasPrice = activeNetwork.config.specialFeatures.hardcodedGasPrice ?? Math.ceil(parseFloat(gasPriceStr))
@@ -32,9 +38,17 @@ export const useFetchGasData = (): GasData | undefined => {
           activeNetwork.config.specialFeatures.hardcodedMaxPriorityFeePerGas ??
           Math.ceil(parseFloat(maxPriorityFeePerGasStr))
 
-        const data = { gasPrice, maxFeePerGas, maxPriorityFeePerGas }
-        setGasData(data)
+        data = { gasPrice, maxFeePerGas, maxPriorityFeePerGas }
       })
+      if (activeNetwork.chainId === 137) {
+        const maticGasData = await axios.get(`https://gasstation-mainnet.matic.network/v2`)
+        data = {
+          ...data,
+          maxFeePerGas: maticGasData.data.standard.maxFee,
+          maxPriorityFeePerGas: maticGasData.data.standard.maxPriorityFee,
+        }
+      }
+      setGasData(data)
       running.current = false
     }
     if (!latestBlock || running.current) return
