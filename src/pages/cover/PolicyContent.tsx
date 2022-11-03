@@ -377,13 +377,18 @@ export const PolicyContent = (): JSX.Element => {
       return
     }
     const tokenSignature: any = Object.values(signature)[0]
-    const refundableSOLACEAmount = await scpObj.getRefundableSOLACEAmount(
-      account,
-      tokenSignature.price,
-      tokenSignature.deadline,
-      tokenSignature.signature
-    )
-    setRefundableSOLACEAmount(refundableSOLACEAmount)
+    try {
+      const refundableSOLACEAmount = await scpObj.getRefundableSOLACEAmount(
+        account,
+        tokenSignature.price,
+        tokenSignature.deadline,
+        tokenSignature.signature
+      )
+      setRefundableSOLACEAmount(refundableSOLACEAmount)
+    } catch (e) {
+      console.log('Error getRefundableSOLACEAmount ', e)
+      setRefundableSOLACEAmount(ZERO)
+    }
   }, [account, scpObj, signatureObj, activeNetwork])
 
   useEffect(() => {
