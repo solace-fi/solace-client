@@ -29,8 +29,8 @@ import { Accordion } from '../../../../components/atoms/Accordion'
 import { useProvider } from '../../../../context/ProviderManager'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
+import { isAddress } from '../../../../utils'
 
 const NewSafeStyledForm = styled.div`
   display: flex;
@@ -43,10 +43,15 @@ const NewSafeStyledForm = styled.div`
   }
 `
 
-export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
+export default function NewSafe({
+  isOpen,
+  recipientAddress,
+}: {
+  isOpen: boolean
+  recipientAddress: string
+}): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
-  const { account } = useWeb3React()
   const { latestBlock } = useProvider()
   const solaceBalance = useSolaceBalance()
   const { isAppropriateAmount } = useInputAmount()
@@ -64,9 +69,9 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   )
 
   const callCreateLock = async () => {
-    if (!latestBlock || !account) return
+    if (!latestBlock || !isAddress(recipientAddress)) return
     const seconds = latestBlock.timestamp + parseInt(formatAmount(lockInputValue)) * 86400
-    await createLock(account, parseUnits(formatAmount(stakeInputValue), 18), BigNumber.from(seconds))
+    await createLock(recipientAddress, parseUnits(formatAmount(stakeInputValue), 18), BigNumber.from(seconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callCreateLock', err, FunctionName.CREATE_LOCK))
   }
@@ -217,7 +222,10 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 secondary
                 info
                 noborder
-                disabled={!isAppropriateAmount(formatAmount(stakeInputValue), 18, parseUnits(solaceBalance, 18))}
+                disabled={
+                  !isAppropriateAmount(formatAmount(stakeInputValue), 18, parseUnits(solaceBalance, 18)) ||
+                  !isAddress(recipientAddress)
+                }
                 onClick={callCreateLock}
               >
                 Stake

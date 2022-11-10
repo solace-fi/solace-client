@@ -35,7 +35,7 @@ import { Tab, StakingVersion } from '../../constants/enums'
 /* import components */
 import { Button, ButtonWrapper, GraySquareButton } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { StyledSlider, Checkbox } from '../../components/atoms/Input'
+import { StyledSlider, Checkbox, Input } from '../../components/atoms/Input'
 import { Content, Flex, Scrollable, VerticalSeparator, HeroContainer } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
 import { Text, TextSpan } from '../../components/atoms/Typography'
@@ -69,7 +69,7 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useProjectedBenefits, useStakingRewards } from '../../hooks/stake/useStakingRewards'
 
 /* import utils */
-import { accurateMultiply, floatUnits, formatAmount, truncateValue } from '../../utils/formatting'
+import { accurateMultiply, floatUnits, formatAmount, shortenAddress, truncateValue } from '../../utils/formatting'
 
 import updateLocksChecked from './utils/updateLocksChecked'
 import getCheckedLocks from './utils/getCheckedLocks'
@@ -88,6 +88,7 @@ import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
 import { useWeb3React } from '@web3-react/core'
 import { LockData, UserLocksData, UserLocksInfo } from '@solace-fi/sdk-nightly'
 import { useCheckIsCoverageActive } from '../../hooks/policy/useSolaceCoverProductV3'
+import { isAddress } from '../../utils'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -433,6 +434,17 @@ export default function Stake(): JSX.Element {
 
   const [openedLockId, setOpenedLockId] = useState<number | undefined>(undefined)
 
+  const [recipientAddress, setRecipientAddress] = useState<string>('')
+
+  const handleRecipientAddressChange = useCallback((address: string) => {
+    setRecipientAddress(address)
+  }, [])
+
+  useEffect(() => {
+    if (!account) return
+    handleRecipientAddressChange(account)
+  }, [account])
+
   useEffect(() => {
     const _getUserLocks = async () => {
       if (!account || fetchingLocks.current) return
@@ -494,13 +506,13 @@ export default function Stake(): JSX.Element {
   }
 
   const handleBatchWithdraw = async () => {
-    if (!account) return
+    if (!isAddress(recipientAddress)) return
     const selectedLocks = getCheckedLocks(locks, locksChecked)
     const eligibleLocks = selectedLocks.filter((lock) => lock.timeLeft.isZero())
     const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
     if (eligibleIds.length == 0) return
     const type = eligibleIds.length > 1 ? FunctionName.WITHDRAW_MANY_FROM_LOCK : FunctionName.WITHDRAW_FROM_LOCK
-    await withdrawFromLock(account, eligibleIds)
+    await withdrawFromLock(recipientAddress, eligibleIds)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('handleBatchWithdraw', err, type))
   }
@@ -693,6 +705,33 @@ export default function Stake(): JSX.Element {
                   </Flex>
                 )}
                 <AggregatedStakeData stakeData={userLockInfo} />
+                <Flex col itemsCenter>
+                  <Text t4s textAlignCenter>
+                    Recipient address for new safes and withdrawals
+                  </Text>
+                  <Input
+                    info={recipientAddress === String(account)}
+                    success={recipientAddress !== String(account)}
+                    error={!isAddress(recipientAddress)}
+                    bold
+                    type="string"
+                    value={recipientAddress}
+                    onChange={(e) => handleRecipientAddressChange(e.target.value)}
+                  />
+                  <Text
+                    bold
+                    info={recipientAddress === String(account)}
+                    success={recipientAddress !== String(account) && isAddress(recipientAddress) != false}
+                    error={!isAddress(recipientAddress)}
+                  >
+                    {recipientAddress === String(account) && 'This is your address.'}
+                    {recipientAddress !== String(account) &&
+                      isAddress(recipientAddress) &&
+                      `${shortenAddress(recipientAddress)}`}
+                    {!isAddress(recipientAddress) && 'This is not a valid address.'}
+                  </Text>
+                </Flex>
+
                 <Flex
                   between
                   mt={20}
@@ -800,7 +839,7 @@ export default function Stake(): JSX.Element {
                           pr={10}
                           py={navbarThreshold ? 20 : 0}
                           onClick={handleBatchWithdraw}
-                          disabled={withdrawalsAreZero}
+                          disabled={withdrawalsAreZero || !isAddress(recipientAddress)}
                         >
                           Withdraw
                         </Button>
@@ -826,7 +865,7 @@ export default function Stake(): JSX.Element {
                     </Button>
                   </Flex>
                 </Flex>
-                <NewSafe isOpen={newSafeIsOpen} />
+                <NewSafe isOpen={newSafeIsOpen} recipientAddress={recipientAddress} />
                 {loading && (
                   <Content>
                     <Loader />
@@ -844,6 +883,7 @@ export default function Stake(): JSX.Element {
                       index={i}
                       openedLockId={openedLockId}
                       handleOpenLock={handleOpenLock}
+                      recipientAddress={recipientAddress}
                     />
                   ))}
                 {!loading && numPages > 1 && (
