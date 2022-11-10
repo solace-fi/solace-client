@@ -38,6 +38,7 @@ export default function WithdrawForm({
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { withdrawFromLock } = useXSLocker()
   const { width } = useWindowDimensions()
+  const { isAppropriateAmount } = useInputAmount()
 
   const [inputValue, setInputValue] = React.useState('')
   const [rangeValue, setRangeValue] = React.useState('0')
@@ -160,11 +161,11 @@ export default function WithdrawForm({
           secondary
           info
           noborder
-          // disabled={
-          //   !isAppropriateAmount(formatAmount(inputValue), 18, lock.unboostedAmount) ||
-          //   lock.timeLeft.toNumber() > 0 ||
-          //   !isAddress(recipientAddress)
-          // }
+          disabled={
+            !isAppropriateAmount(formatAmount(inputValue), 18, lock.unboostedAmount) ||
+            lock.timeLeft.toNumber() > 0 ||
+            !isAddress(recipientAddress)
+          }
           onClick={callWithdrawFromLock}
         >
           Withdraw
