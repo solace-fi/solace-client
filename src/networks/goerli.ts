@@ -21,6 +21,7 @@ import underwritingLockVotingABI from '../constants/abi/UnderwritingLockVoting.j
 import bribeControllerABI from '../constants/abi/BribeController.json'
 
 import { xsLocker_ABI, StakingRewardsV2_ABI, CoverPaymentManager_ABI, SolaceCoverProductV3_ABI } from '../constants/abi'
+import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/goerli'
 
 import {
   COVER_PAYMENT_MANAGER_ADDRESS,
@@ -118,7 +119,7 @@ export const GoerliNetwork: NetworkConfig = {
     specialContracts: {},
   },
   cache: {
-    tellerToTokenMapping: {},
+    tellerToTokenMapping,
   },
   metamaskChain: {
     chainId: hexValue(chainId),

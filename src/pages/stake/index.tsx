@@ -705,7 +705,7 @@ export default function Stake(): JSX.Element {
                   </Flex>
                 )}
                 <AggregatedStakeData stakeData={userLockInfo} />
-                <Flex col itemsCenter>
+                <Flex col itemsCenter p={10}>
                   <Text t4s textAlignCenter>
                     Recipient address for withdrawals
                   </Text>

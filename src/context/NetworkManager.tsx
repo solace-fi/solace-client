@@ -24,7 +24,7 @@ This manager keeps track of the current network and other important information.
 
 export const networks: NetworkConfig[] = [
   MainNetwork,
-  // GoerliNetwork,
+  GoerliNetwork,
   PolygonNetwork,
   MumbaiNetwork,
   AuroraNetwork,
