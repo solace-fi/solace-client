@@ -707,7 +707,7 @@ export default function Stake(): JSX.Element {
                 <AggregatedStakeData stakeData={userLockInfo} />
                 <Flex col itemsCenter>
                   <Text t4s textAlignCenter>
-                    Recipient address for new safes and withdrawals
+                    Recipient address for withdrawals
                   </Text>
                   <Input
                     info={recipientAddress === String(account)}
@@ -865,7 +865,7 @@ export default function Stake(): JSX.Element {
                     </Button>
                   </Flex>
                 </Flex>
-                <NewSafe isOpen={newSafeIsOpen} recipientAddress={recipientAddress} />
+                <NewSafe isOpen={newSafeIsOpen} />
                 {loading && (
                   <Content>
                     <Loader />

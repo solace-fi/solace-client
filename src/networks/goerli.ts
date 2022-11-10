@@ -6,6 +6,8 @@ import { KEY_ADDRS, NATIVE_ADDRS } from '../constants/addresses/goerli'
 import { WETH9_TOKEN } from '../constants/mappings/token'
 
 import solaceABI from '../constants/abi/SOLACE.json'
+import xSolaceABI from '../constants/abi/xSOLACE.json'
+
 import { ALCHEMY_GOERLI_API_KEY, ETHERSCAN_API_KEY } from '../constants'
 
 import gaugeControllerABI from '../constants/abi/GaugeController.json'
@@ -17,7 +19,15 @@ import fluxMegaOracleABI from '../constants/abi/FluxMegaOracle.json'
 import solaceMegaOracleABI from '../constants/abi/SolaceMegaOracle.json'
 import underwritingLockVotingABI from '../constants/abi/UnderwritingLockVoting.json'
 import bribeControllerABI from '../constants/abi/BribeController.json'
-import { NETWORKS_MAPPING } from '@solace-fi/sdk-nightly'
+
+import { xsLocker_ABI, StakingRewardsV2_ABI, CoverPaymentManager_ABI, SolaceCoverProductV3_ABI } from '../constants/abi'
+
+import {
+  COVER_PAYMENT_MANAGER_ADDRESS,
+  NETWORKS_MAPPING,
+  SOLACE_COVER_PRODUCT_V3_ADDRESS,
+  STAKING_REWARDS_V2_ADDRESS,
+} from '@solace-fi/sdk-nightly'
 
 const chainId = 5
 
@@ -45,6 +55,26 @@ export const GoerliNetwork: NetworkConfig = {
       solace: {
         addr: KEY_ADDRS.SOLACE,
         abi: solaceABI,
+      },
+      xSolace: {
+        addr: KEY_ADDRS.XSOLACE,
+        abi: xSolaceABI.abi,
+      },
+      xsLocker: {
+        addr: KEY_ADDRS.XSLOCKER,
+        abi: xsLocker_ABI,
+      },
+      solaceCoverProductV3: {
+        addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],
+        abi: SolaceCoverProductV3_ABI,
+      },
+      coverPaymentManager: {
+        addr: COVER_PAYMENT_MANAGER_ADDRESS[chainId],
+        abi: CoverPaymentManager_ABI,
+      },
+      stakingRewardsV2: {
+        addr: STAKING_REWARDS_V2_ADDRESS[chainId],
+        abi: StakingRewardsV2_ABI,
       },
       depositHelper: {
         addr: NATIVE_ADDRS.DEPOSIT_HELPER,

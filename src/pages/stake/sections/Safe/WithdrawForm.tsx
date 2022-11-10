@@ -35,7 +35,6 @@ export default function WithdrawForm({
   recipientAddress: string
 }): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
-  const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { withdrawFromLock } = useXSLocker()
   const { width } = useWindowDimensions()
@@ -161,11 +160,11 @@ export default function WithdrawForm({
           secondary
           info
           noborder
-          disabled={
-            !isAppropriateAmount(formatAmount(inputValue), 18, lock.unboostedAmount) ||
-            lock.timeLeft.toNumber() > 0 ||
-            !isAddress(recipientAddress)
-          }
+          // disabled={
+          //   !isAppropriateAmount(formatAmount(inputValue), 18, lock.unboostedAmount) ||
+          //   lock.timeLeft.toNumber() > 0 ||
+          //   !isAddress(recipientAddress)
+          // }
           onClick={callWithdrawFromLock}
         >
           Withdraw

@@ -12,6 +12,7 @@ import { withBackoffRetries } from '../../utils/time'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { Lock, UserLocksData } from '@solace-fi/sdk-nightly'
 import { useProvider } from '../../context/ProviderManager'
+import { FunctionGasLimits } from '../../constants/mappings/gas'
 
 export const useXSLocker = () => {
   const { keyContracts } = useContracts()
@@ -137,29 +138,29 @@ export const useXSLocker = () => {
     let tx = null
     let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
     if (amount) {
-      const estGas = await xsLocker.estimateGas.withdrawInPart(xsLockIDs[0], recipient, amount)
-      console.log('xsLocker.estimateGas.withdrawInPart', estGas.toString())
+      // const estGas = await xsLocker.estimateGas.withdrawInPart(xsLockIDs[0], recipient, amount)
+      // console.log('xsLocker.estimateGas.withdrawInPart', estGas.toString())
       tx = await xsLocker.withdrawInPart(xsLockIDs[0], recipient, amount, {
         ...gasConfig,
-        // gasLimit: FunctionGasLimits['xsLocker.withdrawInPart'],
-        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        gasLimit: FunctionGasLimits['xsLocker.withdrawInPart'],
+        // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
     } else if (xsLockIDs.length > 1) {
-      const estGas = await xsLocker.estimateGas.withdrawMany(xsLockIDs, recipient)
-      console.log('xsLocker.estimateGas.withdrawMany', estGas.toString())
+      // const estGas = await xsLocker.estimateGas.withdrawMany(xsLockIDs, recipient)
+      // console.log('xsLocker.estimateGas.withdrawMany', estGas.toString())
       tx = await xsLocker.withdrawMany(xsLockIDs, recipient, {
         ...gasConfig,
-        // gasLimit: FunctionGasLimits['xsLocker.withdrawMany'],
-        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        gasLimit: FunctionGasLimits['xsLocker.withdrawMany'],
+        // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.WITHDRAW_MANY_FROM_LOCK
     } else {
-      const estGas = await xsLocker.estimateGas.withdraw(xsLockIDs[0], recipient)
-      console.log('xsLocker.estimateGas.withdraw', estGas.toString())
+      // const estGas = await xsLocker.estimateGas.withdraw(xsLockIDs[0], recipient)
+      // console.log('xsLocker.estimateGas.withdraw', estGas.toString())
       tx = await xsLocker.withdraw(xsLockIDs[0], recipient, {
         ...gasConfig,
-        // gasLimit: FunctionGasLimits['xsLocker.withdraw'],
-        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        gasLimit: FunctionGasLimits['xsLocker.withdraw'],
+        // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.WITHDRAW_FROM_LOCK
     }
