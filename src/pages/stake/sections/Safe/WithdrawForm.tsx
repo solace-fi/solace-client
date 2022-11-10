@@ -25,15 +25,20 @@ import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { BKPT_7, BKPT_5 } from '../../../../constants'
 import { Text } from '../../../../components/atoms/Typography'
-import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
+import { isAddress } from '../../../../utils'
 
-export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element {
+export default function WithdrawForm({
+  lock,
+  recipientAddress,
+}: {
+  lock: LockData
+  recipientAddress: string
+}): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { withdrawFromLock } = useXSLocker()
-  const { account } = useWeb3React()
   const { width } = useWindowDimensions()
 
   const [inputValue, setInputValue] = React.useState('')
@@ -44,13 +49,17 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
   )
 
   const callWithdrawFromLock = async () => {
-    if (!account) return
+    if (!isAddress(recipientAddress)) return
     let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
     const isMax = parseUnits(formatAmount(inputValue), 18).eq(lock.unboostedAmount)
     if (isMax) {
       type = FunctionName.WITHDRAW_FROM_LOCK
     }
-    await withdrawFromLock(account, [lock.xsLockID], isMax ? undefined : parseUnits(formatAmount(inputValue), 18))
+    await withdrawFromLock(
+      recipientAddress,
+      [lock.xsLockID],
+      isMax ? undefined : parseUnits(formatAmount(inputValue), 18)
+    )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callWithdrawFromLock', err, type))
   }
@@ -154,7 +163,9 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
           info
           noborder
           disabled={
-            !isAppropriateAmount(formatAmount(inputValue), 18, lock.unboostedAmount) || lock.timeLeft.toNumber() > 0
+            !isAppropriateAmount(formatAmount(inputValue), 18, lock.unboostedAmount) ||
+            lock.timeLeft.toNumber() > 0 ||
+            !isAddress(recipientAddress)
           }
           onClick={callWithdrawFromLock}
         >

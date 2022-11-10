@@ -30,6 +30,7 @@ export default function Safe({
   handleOpenLock,
   onCheck,
   index,
+  recipientAddress,
 }: {
   lock: LockData
   batchActionsIsEnabled: boolean
@@ -38,6 +39,7 @@ export default function Safe({
   handleOpenLock: (openedId: number | undefined) => void
   onCheck: (index: number) => void
   index: number
+  recipientAddress: string
 }): JSX.Element {
   const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
@@ -206,7 +208,7 @@ export default function Safe({
               {/* depending on the tab, use <DepositForm />, or LockForm, RewardsForm or WithdrawForm */}
               {activeTab === Tab.DEPOSIT && isOpen && <DepositForm lock={lock} />}
               {activeTab === Tab.LOCK && isOpen && <LockForm lock={lock} />}
-              {activeTab === Tab.WITHDRAW && isOpen && <WithdrawForm lock={lock} />}
+              {activeTab === Tab.WITHDRAW && isOpen && <WithdrawForm lock={lock} recipientAddress={recipientAddress} />}
               {activeTab === Tab.REWARDS && isOpen && <RewardsForm lock={lock} />}
             </Flex>
           </div>
