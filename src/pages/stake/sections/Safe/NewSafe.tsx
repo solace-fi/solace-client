@@ -31,6 +31,7 @@ import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { useGeneral } from '../../../../context/GeneralManager'
 import { isAddress } from '../../../../utils'
+import { useWeb3React } from '@web3-react/core'
 
 const StyledForm = styled.div`
   display: flex;
@@ -43,14 +44,9 @@ const StyledForm = styled.div`
   }
 `
 
-export default function NewSafe({
-  isOpen,
-  recipientAddress,
-}: {
-  isOpen: boolean
-  recipientAddress: string
-}): JSX.Element {
+export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
+  const { account } = useWeb3React()
   const { width } = useWindowDimensions()
   const { latestBlock } = useProvider()
   const solaceBalance = useSolaceBalance()
@@ -69,9 +65,9 @@ export default function NewSafe({
   )
 
   const callCreateLock = async () => {
-    if (!latestBlock || !isAddress(recipientAddress)) return
+    if (!latestBlock || !account) return
     const seconds = latestBlock.timestamp + parseInt(formatAmount(lockInputValue)) * 86400
-    await createLock(recipientAddress, parseUnits(formatAmount(stakeInputValue), 18), BigNumber.from(seconds))
+    await createLock(account, parseUnits(formatAmount(stakeInputValue), 18), BigNumber.from(seconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callCreateLock', err, FunctionName.CREATE_LOCK))
   }
@@ -222,10 +218,7 @@ export default function NewSafe({
                 secondary
                 info
                 noborder
-                disabled={
-                  !isAppropriateAmount(formatAmount(stakeInputValue), 18, parseUnits(solaceBalance, 18)) ||
-                  !isAddress(recipientAddress)
-                }
+                disabled={!isAppropriateAmount(formatAmount(stakeInputValue), 18, parseUnits(solaceBalance, 18))}
                 onClick={callCreateLock}
               >
                 Stake

@@ -865,7 +865,7 @@ export default function Stake(): JSX.Element {
                     </Button>
                   </Flex>
                 </Flex>
-                <NewSafe isOpen={newSafeIsOpen} recipientAddress={recipientAddress} />
+                <NewSafe isOpen={newSafeIsOpen} />
                 {loading && (
                   <Content>
                     <Loader />
