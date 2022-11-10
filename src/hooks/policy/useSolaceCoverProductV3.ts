@@ -505,7 +505,7 @@ export const useRiskSeries = () => {
 export const useCheckIsCoverageActive = () => {
   const { account } = useWeb3React()
   const { policyOf, getPolicyStatus, coverLimitOf } = useCoverageFunctions()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const { latestBlock } = useProvider()
   const [policyId, setPolicyId] = useState<BigNumber | undefined>(undefined)
   const [status, setStatus] = useState<boolean>(false)
@@ -538,14 +538,13 @@ export const useCheckIsCoverageActive = () => {
     }
     getStatus()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, latestBlock, activeNetwork, version])
+  }, [account, latestBlock, activeNetwork, positiveVersion])
 
   return { policyId, status, coverageLimit, mounting }
 }
 
-export const useExistingPolicy = () => {
-  const { account } = useWeb3React()
-  const { latestBlock } = useProvider()
+export const useExistingPolicy = (account: string | null | undefined) => {
+  const { minute } = useCachedData()
   const { activeNetwork } = useNetwork()
   const [loading, setLoading] = useState(true)
   const [policyId, setPolicyId] = useState<BigNumber>(ZERO)
@@ -573,10 +572,11 @@ export const useExistingPolicy = () => {
 
       const data = await policy.getExistingPolicy(account, rpcUrlMapping, false)
       if (data.length > 0) {
-        const network = networks.find((n) => n.chainId === data[0].chainId)
+        const policyWithHighestCoverLimit = data.reduce((a, b) => (a.coverLimit.gt(b.coverLimit) ? a : b))
+        const network = networks.find((n) => n.chainId === policyWithHighestCoverLimit.chainId)
         if (network) {
           setNetwork(network)
-          setPolicyId(data[0].policyId)
+          setPolicyId(policyWithHighestCoverLimit.policyId)
         } else {
           setPolicyId(ZERO)
           setNetwork(networks[0])
@@ -589,8 +589,7 @@ export const useExistingPolicy = () => {
       fetching.current = false
     }
     getExistingPolicy()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, latestBlock])
+  }, [account, activeNetwork, minute])
 
   useEffect(() => {
     setLoading(true)

@@ -26,7 +26,7 @@ export default function ShareModal() {
 
   return (
     <Flex col stretch style={{ overflow: 'hidden' }}>
-      <Flex shadow stretch col px={20} pb={20}>
+      <Flex shadow stretch col px={20} pb={20} bgLightGray>
         <Flex py={18} itemsCenter between bgSecondary>
           <Text t1s mont semibold>
             Invite friends

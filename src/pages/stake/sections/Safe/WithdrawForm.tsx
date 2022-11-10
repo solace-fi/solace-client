@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button } from '../../../../components/atoms/Button'
-import { StyledSlider } from '../../../../components/atoms/Input'
+import { StyledForm, StyledSlider } from '../../../../components/atoms/Input'
 import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { LockData } from '@solace-fi/sdk-nightly'
@@ -16,11 +16,10 @@ import { BigNumber } from 'ethers'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 import { FunctionName, InfoBoxType } from '../../../../constants/enums'
-import InformationBox from '../../components/InformationBox'
-import { StyledForm } from '../../atoms/StyledForm'
+import InformationBox from '../../../../components/molecules/stake-and-lock/InformationBox'
 import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { Label } from '../../molecules/InfoPair'
+import { Label } from '../../../../components/molecules/stake-and-lock/InfoPair'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { BKPT_7, BKPT_5 } from '../../../../constants'
@@ -36,7 +35,6 @@ export default function WithdrawForm({
   recipientAddress: string
 }): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
-  const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { withdrawFromLock } = useXSLocker()
   const { width } = useWindowDimensions()
@@ -162,11 +160,11 @@ export default function WithdrawForm({
           secondary
           info
           noborder
-          disabled={
-            !isAppropriateAmount(formatAmount(inputValue), 18, lock.unboostedAmount) ||
-            lock.timeLeft.toNumber() > 0 ||
-            !isAddress(recipientAddress)
-          }
+          // disabled={
+          //   !isAppropriateAmount(formatAmount(inputValue), 18, lock.unboostedAmount) ||
+          //   lock.timeLeft.toNumber() > 0 ||
+          //   !isAddress(recipientAddress)
+          // }
           onClick={callWithdrawFromLock}
         >
           Withdraw

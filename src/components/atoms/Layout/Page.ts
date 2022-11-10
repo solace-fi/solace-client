@@ -74,6 +74,7 @@ export const Flex = styled.div<FlexProps & ButtonProps & GeneralElementProps>`
   ${({ stretch })       => stretch                     ? css`align-items: stretch;`                          : ""}
   ${({ wrapped })          => wrapped                  ? css`flex-wrap: wrap;`                               : ""}
   ${({ marginAuto })    => marginAuto                  ? css`margin: auto;`                                  : ""}
+
   ${({ gap })           => gap           !== undefined ? css`gap: ${gap}px;`                                 : ""}
   
   ${({ hidden })        => hidden                      ? css`display: none;`                                              : ""}

@@ -6,7 +6,7 @@ import { LoaderText } from '../../components/molecules/LoaderText'
 import { ModalCloseButton } from '../../components/molecules/Modal'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { useGeneral } from '../../context/GeneralManager'
-import { useTierColors } from '../../hooks/internal/useTierColors'
+import { useDistributedColors } from '../../hooks/internal/useDistributedColors'
 import { truncateValue } from '../../utils/formatting'
 import { mapUniqueRiskProtocols } from '../../utils/mapProtocols'
 import { useCoverageContext } from './CoverageContext'
@@ -26,7 +26,7 @@ export const Portfolio = (): JSX.Element => {
     return mapUniqueRiskProtocols(curPortfolio.protocols)
   }, [curPortfolio])
 
-  const tierColors = useTierColors()
+  const tierColors = useDistributedColors(5)
 
   const getColorByTier = (tier: number) => {
     const index = tier - 1

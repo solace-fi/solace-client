@@ -1,7 +1,8 @@
 import styled, { css } from 'styled-components'
+import { GeneralElementCss, GeneralElementProps } from '../../generalInterfaces'
 import { ThinScrollbarCss } from '../Scrollbar/ThinScrollbar'
 
-type AccordionProps = {
+type AccordionProps = GeneralElementProps & {
   isOpen: boolean
   noScroll?: boolean
   noBackgroundColor?: boolean
@@ -13,6 +14,7 @@ type AccordionProps = {
 }
 
 export const Accordion = styled.div<AccordionProps>`
+  ${GeneralElementCss}
   max-height: ${(props) => (props.isOpen ? props.customHeight ?? '70vh' : '0vh')};
   transition: max-height
     ${(props) => {

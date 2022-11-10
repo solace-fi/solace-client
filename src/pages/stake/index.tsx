@@ -52,8 +52,8 @@ import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
 import DifferenceBoxes from './sections/DifferenceBoxes'
-import CardSectionValue from './components/CardSectionValue'
-import { Label } from './molecules/InfoPair'
+import CardSectionValue from '../../components/molecules/stake-and-lock/CardSectionValue'
+import { Label } from '../../components/molecules/stake-and-lock/InfoPair'
 import { InputSection } from '../../components/molecules/InputSection'
 import { SmallBox, Box } from '../../components/atoms/Box'
 import { Accordion } from '../../components/atoms/Accordion'
@@ -377,7 +377,7 @@ export default function Stake(): JSX.Element {
 
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
-  const { version, coverage, minute } = useCachedData()
+  const { positiveVersion, coverage, minute } = useCachedData()
   const [stakingVersion, setStakingVersion] = useState<StakingVersion>(StakingVersion.v2 as StakingVersion)
   const [locks, setLocks] = useState<LockData[]>([])
   const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
@@ -465,7 +465,7 @@ export default function Stake(): JSX.Element {
     }
     _getUserLocks()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, activeNetwork, minute, version])
+  }, [account, activeNetwork, minute, positiveVersion])
 
   useEffect(() => {
     setLoading(true)
@@ -707,7 +707,7 @@ export default function Stake(): JSX.Element {
                 <AggregatedStakeData stakeData={userLockInfo} />
                 <Flex col itemsCenter>
                   <Text t4s textAlignCenter>
-                    Recipient address for new safes and withdrawals
+                    Recipient address for withdrawals
                   </Text>
                   <Input
                     info={recipientAddress === String(account)}

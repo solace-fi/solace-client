@@ -13,6 +13,12 @@ import ProviderManager from './context/ProviderManager'
 import CachedDataManager from './context/CachedDataManager'
 import NetworkManager from './context/NetworkManager'
 import GeneralManager from './context/GeneralManager'
+import AnalyticsManager from './pages/analytics/AnalyticsContext'
+import BribeManager from './pages/bribe/BribeContext'
+import VoteManager from './pages/vote/VoteContext'
+
+import '../node_modules/react-grid-layout/css/styles.css'
+import './styles/index.css'
 
 /*
 
@@ -41,9 +47,15 @@ ReactDOM.render(
               <ContractsManager>
                 <CachedDataManager>
                   <NotificationsManager>
+                    {/* <VoteManager>
+                      <BribeManager>
+                        <AnalyticsManager> */}
                     <BrowserRouter>
                       <App />
                     </BrowserRouter>
+                    {/* </AnalyticsManager>
+                      </BribeManager>
+                    </VoteManager> */}
                   </NotificationsManager>
                 </CachedDataManager>
               </ContractsManager>

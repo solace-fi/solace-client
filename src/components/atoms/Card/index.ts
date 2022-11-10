@@ -3,6 +3,7 @@ import { GeneralElementCss, GeneralElementProps } from '../../generalInterfaces'
 import { ClickProps } from '../Button'
 import { BKPT_3, BKPT_4 } from '../../../constants'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
+import Theme from '../../../styles/themes'
 
 interface CardProps extends ClickProps, GeneralElementProps {
   transparent?: boolean
@@ -10,8 +11,14 @@ interface CardProps extends ClickProps, GeneralElementProps {
   fade?: boolean
   color1?: boolean
   color2?: boolean
+  success?: boolean
+  warning?: boolean
+  error?: boolean
+  info?: boolean
   glow?: boolean
+  matchBg?: boolean
   isHighlight?: boolean
+  shadow?: boolean
 }
 
 interface CardContainerProps extends GeneralElementProps {
@@ -19,19 +26,26 @@ interface CardContainerProps extends GeneralElementProps {
 }
 
 const CardCss = css<CardProps>`
-  border-radius: 10px;
-  padding: 24px;
-  background: ${({ theme }) => theme.card.bg_color_0};
-  ${(props) => props.color1 && `background: ${props.theme.card.bg_color_1};`}
-  ${(props) => props.color2 && `background: ${props.theme.card.bg_color_2};`}
-  ${(props) => props.isHighlight && `background: ${props.theme.table.highlight_bg_color};`}
-
+  border-radius: 12px;
+  padding: 16px;
+  background: ${({ theme }) => (theme as Theme).card.bg_color_0};
+  ${(props) => props.color1 && `background: ${(props.theme as Theme).card.bg_color_1};`}
+  ${(props) => props.color2 && `background: ${(props.theme as Theme).card.bg_color_2};`}
+  ${(props) => props.isHighlight && `background: ${(props.theme as Theme).table.highlight_bg_color};`}
+  ${(props) => props.success && `background: ${(props.theme as Theme).typography.successText};`}
+  ${(props) => props.info && `background: ${(props.theme as Theme).box.info};`}
+  ${(props) => props.warning && `background: ${(props.theme as Theme).box.warning};`}
+  ${(props) => props.error && `background: ${(props.theme as Theme).box.error};`}
   ${(props) => props.transparent && `background: rgba(255, 255, 255, 0);`}
-  ${(props) => props.fade && `background: ${props.theme.card.fade};`}
+  ${(props) => props.fade && `background: ${(props.theme as Theme).card.fade};`}
+  ${(props) => props.matchBg && `background: ${(props.theme as Theme).body.bg_color};`}
   ${(props) =>
     props.canHover &&
-    `cursor: pointer; &:hover { background-color: ${props.theme.card.hover_color}; transition: background-color 200ms linear; }`}
-  ${(props) => props.glow && `box-shadow: ${props.theme.card.glow};`}
+    `cursor: pointer; &:hover { background-color: ${
+      (props.theme as Theme).card.hover_color
+    }; transition: background-color 200ms linear; }`}
+  ${(props) => props.glow && `box-shadow: ${(props.theme as Theme).card.glow};`}
+  ${({ shadow }) => (shadow ? `box-shadow: 0px 0px 30px -10px rgba(138, 138, 138, 0.15);` : '')}
   ${GeneralElementCss}
 `
 

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { isAddress } from '../../utils'
 import { Contract } from '@ethersproject/contracts'
-import { ContractSources, TellerTokenMetadata } from '../../constants/types'
+import { ContractSources, NetworkConfig, TellerTokenMetadata } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { AddressZero } from '@ethersproject/constants'
@@ -62,14 +62,12 @@ export function useGetBondTellerContracts(): (BondTellerContractData & {
   }, [provider, signer, activeNetwork])
 }
 
-export function useContractArray(): ContractSources[] {
-  const { activeNetwork } = useNetwork()
-
+export function useContractArray(_activeNetwork: NetworkConfig): ContractSources[] {
   return useMemo(() => {
-    const config = activeNetwork.config
-    const cache = activeNetwork.cache
+    const config = _activeNetwork.config
+    const cache = _activeNetwork.cache
     const contractSources: ContractSources[] = []
-    const excludedContractAddrs = activeNetwork.explorer.excludedContractAddrs
+    const excludedContractAddrs = _activeNetwork.explorer.excludedContractAddrs
 
     Object.keys(config.keyContracts).forEach((key) => {
       if (!excludedContractAddrs.includes(config.keyContracts[key].addr)) {
@@ -97,5 +95,5 @@ export function useContractArray(): ContractSources[] {
       }
     })
     return contractSources
-  }, [activeNetwork])
+  }, [_activeNetwork])
 }

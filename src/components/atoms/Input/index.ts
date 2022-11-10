@@ -78,6 +78,7 @@ export const Search = styled.input`
     cursor: pointer;
   }
   border-radius: 30px;
+  border-color: ${({ theme }) => theme.input.border_color};
   padding: 10px 20px;
   font-family: 'Open Sans', sans-serif;
 `
@@ -168,5 +169,23 @@ export const Checkbox = styled.input`
     font-size: 6px;
     color: blue;
     /* animate with ease-in-out duration 200ms */
+  }
+`
+
+export const StyledForm = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 30px;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: auto;
+  width: 300px;
+  /* for screens bigger than BKPT_5 */
+  @media (min-width: ${BKPT_5}px) {
+    width: 521px;
+    margin: 0;
   }
 `

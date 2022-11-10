@@ -33,3 +33,9 @@ export const decimals = (d: number): string => {
 export const bnCmp = (x: BigNumber, y: BigNumber): number => {
   return x.eq(y) ? 0 : x.lt(y) ? 1 : -1
 }
+
+export const range = (start: number, stop: number, step = 1): number[] => {
+  const arr = []
+  for (let i = start; i < stop; i += step) arr.push(i)
+  return arr
+}

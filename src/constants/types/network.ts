@@ -36,6 +36,7 @@ export type NetworkConfig = {
       stakingRewardsV2?: boolean
       stakingV1?: boolean
       stakingV2?: boolean
+      native?: boolean
     }
     specialFeatures: {
       solaceBuyLink?: string

@@ -1,0 +1,63 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "uwe_", "type": "address" },
+      { "internalType": "address", "name": "locker_", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "depositToken", "type": "address" },
+      { "internalType": "uint256", "name": "depositAmount", "type": "uint256" }
+    ],
+    "name": "calculateDeposit",
+    "outputs": [{ "internalType": "uint256", "name": "uweAmount", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "depositToken", "type": "address" },
+      { "internalType": "uint256", "name": "depositAmount", "type": "uint256" },
+      { "internalType": "uint256", "name": "lockExpiry", "type": "uint256" }
+    ],
+    "name": "depositAndLock",
+    "outputs": [{ "internalType": "uint256", "name": "lockID", "type": "uint256" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "depositToken", "type": "address" },
+      { "internalType": "uint256", "name": "depositAmount", "type": "uint256" },
+      { "internalType": "uint256", "name": "lockID", "type": "uint256" }
+    ],
+    "name": "depositIntoLock",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "underwritingEquity",
+    "outputs": [{ "internalType": "address", "name": "uwe", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "underwritingLocker",
+    "outputs": [{ "internalType": "address", "name": "locker", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "underwritingPool",
+    "outputs": [{ "internalType": "address", "name": "uwp", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

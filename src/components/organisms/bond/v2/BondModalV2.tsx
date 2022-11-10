@@ -81,7 +81,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   */
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
-  const { reload, version } = useCachedData()
+  const { positiveReload, positiveVersion } = useCachedData()
   const { makeTxToast } = useNotifications()
   const { appTheme } = useGeneral()
 
@@ -161,7 +161,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
       await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, txHash)
-        reload()
+        positiveReload()
       })
       setCanCloseOnLoading(false)
       setModalLoading(false)
@@ -296,7 +296,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
       setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
     }
     getUserBonds()
-  }, [account, selectedBondDetail, version])
+  }, [account, selectedBondDetail, positiveVersion])
 
   useEffect(() => {
     const getTellerType = async () => {

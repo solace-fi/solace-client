@@ -22,6 +22,7 @@ import { useCheckIsCoverageActive, usePortfolio, useRiskSeries } from '../hooks/
 import { useScpBalance } from '../hooks/balance/useBalance'
 import { usePortfolioAnalysis } from '../hooks/policy/usePortfolioAnalysis'
 import { ZERO } from '../constants'
+import axios from 'axios'
 
 /*
 
@@ -36,12 +37,15 @@ should be called manually, such as when the user sends a transaction.
 type CachedData = {
   localTransactions: LocalTx[]
   tokenPriceMapping: TokenToPriceMapping
-  version: number
   minute: number
+  positiveVersion: number // primary timekeeper, triggers updates in components that read this
+  negativeVersion: number // secondary timekeeper, triggers updates in components that read this  minute: number
   gasData: GasData | undefined
+  statsCache: any
   addLocalTransactions: (txToAdd: LocalTx) => void
-  deleteLocalTransactions: (txsToDelete: []) => void
-  reload: () => void
+  deleteLocalTransactions: (txsToDelete: { hash: string }[]) => void
+  positiveReload: () => void // primary timekeeper intended for reloading UI and data
+  negativeReload: () => void // secondary timekeeper intended for reloading UI but not data
   coverage: {
     portfolio?: SolaceRiskScore
     fetchStatus: number
@@ -72,12 +76,15 @@ type CachedData = {
 const CachedDataContext = createContext<CachedData>({
   localTransactions: [],
   tokenPriceMapping: {},
-  version: 0,
+  positiveVersion: 0,
+  negativeVersion: 0,
   minute: 0,
   gasData: undefined,
+  statsCache: undefined,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
-  reload: () => undefined,
+  positiveReload: () => undefined,
+  negativeReload: () => undefined,
   coverage: {
     portfolio: undefined,
     fetchStatus: 0,
@@ -117,7 +124,8 @@ const CachedDataProvider: React.FC = (props) => {
   const { disconnect } = useWallet()
   const { activeNetwork } = useNetwork()
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
-  const [reload, version] = useReload()
+  const [positiveReload, positiveVersion] = useReload()
+  const [negativeReload, negativeVersion] = useReload()
   const [minReload, minute] = useReload()
   const { tokenPriceMapping } = useGetCrossTokenPricesFromCoingecko(minute)
   const gasData = useFetchGasData()
@@ -125,6 +133,7 @@ const CachedDataProvider: React.FC = (props) => {
   const { policyId, status, coverageLimit, mounting: coverageLoading } = useCheckIsCoverageActive()
   const scpBalance = useScpBalance()
   const { series, loading: seriesLoading } = useRiskSeries()
+  const [statsCache, setStatsCache] = useState<any>(undefined)
 
   const seriesLogos = useMemo(() => {
     return series
@@ -172,7 +181,7 @@ const CachedDataProvider: React.FC = (props) => {
   )
 
   const deleteLocalTransactions = useCallback(
-    (txsToDelete: LocalTx[]) => {
+    (txsToDelete: { hash: string }[]) => {
       if (txsToDelete.length == 0) return
       const formattedTxsToDelete = txsToDelete.map((tx) => tx.hash.toLowerCase())
       const passedLocalTxs = localTxs.filter(
@@ -201,16 +210,29 @@ const CachedDataProvider: React.FC = (props) => {
     clearLocalTransactions()
   }, [disconnect, account, activeNetwork.chainId])
 
+  useEffect(() => {
+    const getStatsCache = async () => {
+      const _statsCache = await axios.get('https://stats-cache.solace.fi/analytics-stats.json')
+      if (_statsCache.data) {
+        setStatsCache(_statsCache.data)
+      }
+    }
+    getStatsCache()
+  }, [])
+
   const value = useMemo<CachedData>(
     () => ({
       localTransactions: localTxs,
       tokenPriceMapping,
-      version,
+      positiveReload,
+      negativeReload,
+      positiveVersion,
+      negativeVersion,
       minute,
       gasData,
+      statsCache,
       addLocalTransactions,
       deleteLocalTransactions,
-      reload,
       coverage: {
         portfolio,
         fetchStatus,
@@ -243,9 +265,12 @@ const CachedDataProvider: React.FC = (props) => {
       tokenPriceMapping,
       addLocalTransactions,
       deleteLocalTransactions,
-      reload,
-      version,
+      positiveReload,
+      negativeReload,
+      positiveVersion,
+      negativeVersion,
       gasData,
+      statsCache,
       portfolio,
       fetchStatus,
       policyId,

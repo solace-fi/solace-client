@@ -17,18 +17,22 @@ export const useFetchTxHistoryByAddress = (): any => {
 
   const fetchTxHistoryByAddress = async (account: string) => {
     running.current = true
-    await fetchExplorerTxHistoryByAddress(activeNetwork, account)
-      .then((result) => {
-        if (result.status == '1') {
-          const contractAddrs = contractSources.map((contract) => contract.addr)
-          const txList = result.result.filter((tx: any) => contractAddrs.includes(tx.to.toLowerCase()))
-          deleteLocalTransactions(txList)
-          setTxHistory(txList.slice(0, 30))
-        } else {
-          setTxHistory([])
-        }
-      })
-      .catch((err) => console.log(err))
+    try {
+      await fetchExplorerTxHistoryByAddress(activeNetwork, account)
+        .then((result) => {
+          if (result.status == '1') {
+            const contractAddrs = contractSources.map((contract) => contract.addr)
+            const txList: any[] = result.result.filter((tx: any) => contractAddrs.includes(tx.to.toLowerCase()))
+            deleteLocalTransactions(txList)
+            setTxHistory(txList.slice(0, 30))
+          } else {
+            setTxHistory([])
+          }
+        })
+        .catch((err) => console.log('useFetchTxHistoryByAddress', err))
+    } catch (err) {
+      console.log('useFetchTxHistoryByAddress try block', err)
+    }
     running.current = false
   }
 

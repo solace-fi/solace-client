@@ -2,7 +2,7 @@ import { Unit } from '../constants/enums'
 import { NetworkConfig } from '../constants/types'
 import AuroraLogo from '../resources/svg/networks/aurora-logo.svg'
 import { hexValue } from 'ethers/lib/utils'
-import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/auroraTestnet'
+import { KEY_ADDRS, NATIVE_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/auroraTestnet'
 
 import solaceABI from '../constants/abi/SOLACE.json'
 import xSolaceABI from '../constants/abi/xSOLACE.json'
@@ -74,8 +74,44 @@ export const AuroraTestnetNetwork: NetworkConfig = {
         addr: STAKING_REWARDS_V2_ADDRESS[chainId],
         abi: StakingRewardsV2_ABI,
       },
+      depositHelper: {
+        addr: NATIVE_ADDRS.DEPOSIT_HELPER,
+        abi: null,
+      },
+      gaugeController: {
+        addr: NATIVE_ADDRS.GAUGE_CONTROLLER,
+        abi: null,
+      },
+      uwLockVoting: {
+        addr: NATIVE_ADDRS.UW_LOCK_VOTING,
+        abi: null,
+      },
+      uwLocker: {
+        addr: NATIVE_ADDRS.UW_LOCKER,
+        abi: null,
+      },
+      uwp: {
+        addr: NATIVE_ADDRS.UWP,
+        abi: null,
+      },
+      uwe: {
+        addr: NATIVE_ADDRS.UWE,
+        abi: null,
+      },
+      fluxMegaOracle: {
+        addr: NATIVE_ADDRS.FLUX_MEGA_ORACLE,
+        abi: null,
+      },
+      solaceMegaOracle: {
+        addr: NATIVE_ADDRS.SOLACE_MEGA_ORACLE,
+        abi: null,
+      },
+      bribeController: {
+        addr: NATIVE_ADDRS.BRIBE_CONTROLLER,
+        abi: null,
+      },
     },
-    generalFeatures: NETWORKS_MAPPING[chainId].features.general,
+    generalFeatures: { ...NETWORKS_MAPPING[chainId].features.general, native: false },
     specialFeatures: {
       solaceBuyLink: `https://www.trisolaris.io/#/swap?inputCurrency=${NEAR_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
       unwrapBridgedSolace: true,
