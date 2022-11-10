@@ -69,10 +69,10 @@ export default function App(): any {
       to: '/stake',
       component: Stake,
     },
-    // { name: 'Governance', title: 'Native Governance', to: '/vote', component: Gauge },
-    // { name: 'Underwriting', title: 'Native Underwriting', to: '/lock', component: Lock },
-    // { name: 'Marketplace', title: 'Native Marketplace', to: '/bribe', component: Bribe },
-    // { name: 'Analytics', title: 'Analytics', to: '/analytics', component: Analytics },
+    { name: 'Governance', title: 'Native Governance', to: '/vote', component: Gauge },
+    { name: 'Underwriting', title: 'Native Underwriting', to: '/lock', component: Lock },
+    { name: 'Marketplace', title: 'Native Marketplace', to: '/bribe', component: Bribe },
+    { name: 'Analytics', title: 'Analytics', to: '/analytics', component: Analytics },
   ]
 
   return (
