@@ -528,8 +528,7 @@ export const useCheckIsCoverageActive = () => {
         setStatus(false)
         setCoverageLimit(ZERO)
       } else {
-        const status = await getPolicyStatus(policyId)
-        const coverLimit = await coverLimitOf(policyId)
+        const [status, coverLimit] = await Promise.all([getPolicyStatus(policyId), coverLimitOf(policyId)])
         setPolicyId(policyId)
         setStatus(status)
         setCoverageLimit(coverLimit)
