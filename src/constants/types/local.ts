@@ -56,3 +56,5 @@ export type MassUwpDataPortfolio = {
   weight: number
   simulation: number[]
 }
+
+export type BlockData = { blockNumber?: number; blockTimestamp?: number }

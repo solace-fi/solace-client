@@ -193,19 +193,21 @@ const LockManager: React.FC = (props) => {
     }
     getUserLockData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeNetwork, account, latestBlock, positiveVersion])
+  }, [activeNetwork, account, latestBlock.blockNumber, positiveVersion])
 
   useEffect(() => {
     const getLockerConstants = async () => {
-      const _minLockDuration = await getMinLockDuration()
-      const _maxLockDuration = await getMaxLockDuration()
-      const _maxNumLocks = await getMaxNumLocks()
+      const [_minLockDuration, _maxLockDuration, _maxNumLocks] = await Promise.all([
+        getMinLockDuration(),
+        getMaxLockDuration(),
+        getMaxNumLocks(),
+      ])
       setMinLockDuration(_minLockDuration)
       setMaxLockDuration(_maxLockDuration)
       setMaxNumLocks(_maxNumLocks)
     }
     getLockerConstants()
-  }, [activeNetwork, latestBlock, getMinLockDuration, getMaxLockDuration, getMaxNumLocks])
+  }, [activeNetwork, getMinLockDuration, getMaxLockDuration, getMaxNumLocks])
 
   useEffect(() => {
     setLocksLoading(true)

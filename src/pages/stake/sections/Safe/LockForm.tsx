@@ -30,9 +30,15 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   const { width } = useWindowDimensions()
   const [maxSelected, setMaxSelected] = useState(false)
 
-  const lockEnd = useMemo(() => Math.max(lock.end.toNumber(), latestBlock?.timestamp ?? 0), [lock.end, latestBlock])
+  const lockEnd = useMemo(() => Math.max(lock.end.toNumber(), latestBlock.blockTimestamp ?? 0), [
+    lock.end,
+    latestBlock.blockTimestamp,
+  ])
 
-  const lockTimeInSeconds = useMemo(() => (latestBlock ? lockEnd - latestBlock.timestamp : 0), [latestBlock, lockEnd])
+  const lockTimeInSeconds = useMemo(() => (latestBlock.blockTimestamp ? lockEnd - latestBlock.blockTimestamp : 0), [
+    latestBlock.blockTimestamp,
+    lockEnd,
+  ])
 
   const extendableDays = useMemo(() => Math.floor(DAYS_PER_YEAR * 4 - lockTimeInSeconds / 86400), [lockTimeInSeconds])
 
@@ -43,7 +49,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   )
 
   const callExtendLock = async () => {
-    if (!latestBlock || parseInt(formatAmount(inputValue)) == 0) return
+    if (!latestBlock.blockTimestamp || parseInt(formatAmount(inputValue)) == 0) return
     const newEndDateInSeconds =
       lockEnd +
       (maxSelected ? DAYS_PER_YEAR * 4 * 86400 - lockTimeInSeconds : parseInt(formatAmount(inputValue)) * 86400)

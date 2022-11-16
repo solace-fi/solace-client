@@ -69,9 +69,9 @@ export const OwnedBondListV2: React.FC<OwnedBondListV2Props> = ({
   
   */
   useEffect(() => {
-    if (!latestBlock) return
-    setTimestamp(latestBlock.timestamp)
-  }, [latestBlock])
+    if (!latestBlock.blockTimestamp) return
+    setTimestamp(latestBlock.blockTimestamp)
+  }, [latestBlock.blockTimestamp])
 
   return (
     <>

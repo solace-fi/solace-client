@@ -36,7 +36,7 @@ export const useTokenAllowance = (
 
   useEffect(() => {
     checkAllowance()
-  }, [tokenContract, spender, parsedAmount, account, positiveVersion, latestBlock])
+  }, [tokenContract, spender, parsedAmount, account, positiveVersion, latestBlock.blockNumber])
 
   return approval
 }

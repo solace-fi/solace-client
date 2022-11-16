@@ -141,7 +141,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
 
   useEffect(() => {
     _getBridgeLiquidity()
-  }, [latestBlock])
+  }, [latestBlock.blockNumber])
 
   useEffect(() => {
     if (!bSolace || !bridgeWrapper || !solace) return

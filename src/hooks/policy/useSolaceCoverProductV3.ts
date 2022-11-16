@@ -516,7 +516,7 @@ export const useCheckIsCoverageActive = () => {
 
   useEffect(() => {
     const getStatus = async () => {
-      if (!account || !latestBlock || !activeNetwork.config.generalFeatures.coverageV3) {
+      if (!account || !latestBlock.blockNumber || !activeNetwork.config.generalFeatures.coverageV3) {
         setPolicyId(undefined)
         setStatus(false)
         setCoverageLimit(ZERO)
@@ -537,7 +537,7 @@ export const useCheckIsCoverageActive = () => {
     }
     getStatus()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, latestBlock, activeNetwork, positiveVersion])
+  }, [account, latestBlock.blockNumber, activeNetwork, positiveVersion])
 
   return { policyId, status, coverageLimit, mounting }
 }

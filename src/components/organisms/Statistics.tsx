@@ -109,16 +109,16 @@ export const Statistics: React.FC = () => {
       setUserLockInfo(userLockData.user)
     }
     _getUserLocks()
-  }, [account, latestBlock])
+  }, [account, latestBlock.blockNumber])
 
   useEffect(() => {
-    if (!latestBlock) return
+    if (!latestBlock.blockNumber) return
     const _getGlobalLockStats = async () => {
       const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
       setGlobalLockStats(globalLockStats)
     }
     _getGlobalLockStats()
-  }, [latestBlock])
+  }, [latestBlock.blockNumber])
 
   const GlobalBox: React.FC = () => (
     <Box color2>

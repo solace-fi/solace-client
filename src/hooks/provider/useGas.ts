@@ -13,7 +13,8 @@ import axios from 'axios'
 
 export const useFetchGasData = (): GasData | undefined => {
   const { activeNetwork } = useNetwork()
-  const { latestBlock, provider } = useProvider()
+  const { minute } = useCachedData()
+  const { provider } = useProvider()
   const running = useRef(false)
   const [gasData, setGasData] = useState<GasData | undefined>(undefined)
 
@@ -51,10 +52,10 @@ export const useFetchGasData = (): GasData | undefined => {
       setGasData(data)
       running.current = false
     }
-    if (!latestBlock || running.current) return
+    if (running.current) return
 
     fetchGasData()
-  }, [activeNetwork.chainId, latestBlock, provider])
+  }, [activeNetwork, minute, provider])
 
   return gasData
 }
