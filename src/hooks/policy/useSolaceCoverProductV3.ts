@@ -485,7 +485,7 @@ export const useRiskSeries = () => {
       fetching.current = true
       const risk = new Risk()
       const series: any = await risk.getSolaceRiskSeries()
-      if (series.data.protocolMap) {
+      if (series?.data?.protocolMap) {
         setSeries(series as SolaceRiskSeries)
         console.log('useRiskSeries: series fetched successfully')
         setLoading(false)
