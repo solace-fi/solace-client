@@ -14,7 +14,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import { Route, Switch, useLocation } from 'react-router-dom'
 /* import managers */
 
@@ -46,7 +46,7 @@ import Gauge from './vote'
 import Analytics from './analytics'
 
 export default function App(): any {
-  const { leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar } = useGeneral()
+  const { leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar, handlePathNameChange } = useGeneral()
   const location = useLocation()
   const { width } = useWindowDimensions()
 
@@ -74,6 +74,10 @@ export default function App(): any {
     { name: 'Marketplace', title: 'Native Marketplace', to: '/bribe', component: Bribe },
     { name: 'Analytics', title: 'Analytics', to: '/analytics', component: Analytics },
   ]
+
+  useEffect(() => {
+    handlePathNameChange(location.pathname)
+  }, [location, handlePathNameChange])
 
   return (
     <Fragment>

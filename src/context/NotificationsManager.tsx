@@ -20,7 +20,7 @@ they can also be used elsewhere in the app for other purposes, such as disabling
 if an error occurs.
 */
 
-type ToastSystem = {
+type ToastSystemContextType = {
   makeTxToast: (txType: string, condition: TransactionCondition, txHash?: string, errObj?: any) => void
   makeAppToast: (
     parsedData: SystemNoticeData | ErrorData,
@@ -37,7 +37,7 @@ type ToastSystem = {
   }
 }
 
-const ToastsContext = createContext<ToastSystem>({
+const ToastsContext = createContext<ToastSystemContextType>({
   makeTxToast: () => undefined,
   makeAppToast: () => undefined,
   toastSettings: {
@@ -290,7 +290,7 @@ const ToastsProvider: React.FC = (props) => {
     }
   }, [errors])
 
-  const value = useMemo<ToastSystem>(
+  const value = useMemo<ToastSystemContextType>(
     () => ({
       makeTxToast,
       makeAppToast,
@@ -313,7 +313,7 @@ const ToastsProvider: React.FC = (props) => {
 }
 
 // To get access to this Manager, import this into your component or hook
-export function useNotifications(): ToastSystem {
+export function useNotifications(): ToastSystemContextType {
   return useContext(ToastsContext)
 }
 

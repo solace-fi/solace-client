@@ -13,7 +13,7 @@ the web application mainly reads the contracts.
 
 */
 
-type Contracts = {
+type ContractsContextType = {
   keyContracts: {
     solace?: Contract | null
     xSolace?: Contract | null
@@ -37,7 +37,7 @@ type Contracts = {
   contractSources: ContractSources[]
 }
 
-const ContractsContext = createContext<Contracts>({
+const ContractsContext = createContext<ContractsContextType>({
   keyContracts: {
     solace: undefined,
     xSolace: undefined,
@@ -81,7 +81,7 @@ const ContractsProvider: React.FC = (props) => {
   const solaceMegaOracle = useGetContract(keyContracts.solaceMegaOracle)
   const bribeController = useGetContract(keyContracts.bribeController)
 
-  const value = useMemo<Contracts>(
+  const value = useMemo<ContractsContextType>(
     () => ({
       keyContracts: {
         solace,
@@ -128,7 +128,7 @@ const ContractsProvider: React.FC = (props) => {
 }
 
 // To get access to this Manager, import this into your component or hook
-export function useContracts(): Contracts {
+export function useContracts(): ContractsContextType {
   return useContext(ContractsContext)
 }
 
