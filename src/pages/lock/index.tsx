@@ -106,7 +106,6 @@ const LockContent = () => {
   locksCheckedRef.current = locksChecked
 
   const { account } = useWeb3React()
-  const { latestBlock } = useProvider()
   const selectedLocks = useMemo(
     () =>
       locks.filter((lock) =>

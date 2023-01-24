@@ -228,10 +228,11 @@ export const useProjectedBenefits = (
   }, [bnBalance, canFetchGlobalStatsFlag, globalLockStats])
 
   useEffect(() => {
-    if (!latestBlock) return
+    if (!latestBlock.blockTimestamp) return
 
     let rewardMultiplier = 1.0
-    if (lockEnd > latestBlock.timestamp) rewardMultiplier += (1.5 * (lockEnd - latestBlock.timestamp)) / (31536000 * 4)
+    if (lockEnd > latestBlock.blockTimestamp)
+      rewardMultiplier += (1.5 * (lockEnd - latestBlock.blockTimestamp)) / (31536000 * 4)
     const preciseMultiplier = convertSciNotaToPrecise(`${Math.floor(rewardMultiplier * parseFloat(bnBalance))}`)
     const boostedValue = BigNumber.from(preciseMultiplier)
 
@@ -247,9 +248,7 @@ export const useProjectedBenefits = (
     setProjectedMultiplier(strRewardMultiplier)
     setProjectedApr(projectedApr)
     setProjectedYearlyReturns(projectedYearlyReturns)
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [globalLockStats, lockEnd, bnBalance])
+  }, [globalLockStats, lockEnd, bnBalance, latestBlock.blockTimestamp])
 
   return { projectedMultiplier, projectedApr, projectedYearlyReturns }
 }

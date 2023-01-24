@@ -50,14 +50,17 @@ export default function Safe({
   const amount = useMemo(() => formatUnits(lock.amount, 18), [lock.amount])
 
   const lockTimeLeft = useMemo(
-    () => getTimeFromMillis((latestBlock ? Math.max(lock.end.toNumber() - latestBlock.timestamp, 0) : 0) * 1000),
-    [lock.end, latestBlock]
+    () =>
+      getTimeFromMillis(
+        (latestBlock.blockNumber ? Math.max(lock.end.toNumber() - latestBlock.blockNumber, 0) : 0) * 1000
+      ),
+    [lock.end, latestBlock.blockNumber]
   )
   const safeStatus = useMemo(() => {
-    if (latestBlock ? lock.end.toNumber() > latestBlock.timestamp : 0) return lockTimeLeft
+    if (latestBlock.blockNumber ? lock.end.toNumber() > latestBlock.blockNumber : 0) return lockTimeLeft
     if (parseFloat(amount) > 0) return 'Unlocked'
     return 'Empty'
-  }, [latestBlock, amount, lock.end, lockTimeLeft])
+  }, [latestBlock.blockNumber, amount, lock.end, lockTimeLeft])
 
   const [activeTab, setActiveTab] = useState(Tab.DEPOSIT)
   return (

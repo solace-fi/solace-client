@@ -11,7 +11,7 @@ import { BlockData, FetchedUWPData } from './types/UWPData'
 import { useUwp } from '../../hooks/lock/useUnderwritingHelper'
 import { validateTokenArrays } from '../../utils'
 import { ProtocolExposureType } from './constants'
-import { useSpiExposures } from '../../hooks/policy/useSpiExposures'
+import { useSpiExposures } from '../../hooks/analytics/useSpiExposures'
 import { reformatDataForAreaChart } from './utils/reformatDataForAreaChart'
 import { getPortfolioVolatility } from './utils/getPortfolioVolatility'
 import { getPortfolioDetailData } from './utils/getPortfolioDetailData'
@@ -71,12 +71,13 @@ export const getWeightsFromBalances = (balances: number[]): number[] => {
 const AnalyticsManager: React.FC = ({ children }) => {
   const { activeNetwork } = useNetwork()
   const { valueOfPool } = useUwp()
-  const protocolExposureData = useSpiExposures()
   const [uwpValueUSD, setUwpValueUSD] = useState<BigNumber>(ZERO)
 
   const [fetchedUwpData, setFetchedUwpData] = useState<FetchedUWPData | undefined>(undefined)
   const [fetchedSipMathLib, setFetchedSipMathLib] = useState<FetchedSipMathLib | undefined>(undefined)
   const [fetchedPremiums, setFetchedPremiums] = useState<FetchedPremiums | undefined>(undefined)
+
+  const protocolExposureData = useSpiExposures()
 
   const premiumsUSD = useMemo(() => {
     if (!fetchedPremiums || !fetchedPremiums?.[activeNetwork.chainId]) return 0
@@ -131,7 +132,7 @@ const AnalyticsManager: React.FC = ({ children }) => {
         protocolExposureData,
       },
     }),
-    [analyticsData, fetchedUwpData, fetchedSipMathLib, fetchedPremiums, uwpValueUSD, protocolExposureData]
+    [analyticsData, fetchedUwpData, fetchedSipMathLib, fetchedPremiums, uwpValueUSD, protocolExposureData, premiumsUSD]
   )
   return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>
 }

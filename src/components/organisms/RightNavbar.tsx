@@ -110,7 +110,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
   useEffect(() => {
     if (userLockInfo.successfulFetch) return
     _getUserLocks()
-  }, [latestBlock, userLockInfo.successfulFetch, _getUserLocks])
+  }, [latestBlock.blockNumber, userLockInfo.successfulFetch, _getUserLocks])
 
   return (
     <>

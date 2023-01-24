@@ -224,7 +224,7 @@ export const MultiWithdrawModal = ({
 
   useEffect(() => {
     getConversion()
-  }, [totalAmountToWithdraw, latestBlock])
+  }, [totalAmountToWithdraw, latestBlock.blockNumber])
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Withdraw'}>

@@ -106,7 +106,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
 
   useEffect(() => {
     getConversion()
-  }, [inputValue, latestBlock])
+  }, [inputValue, latestBlock.blockNumber])
 
   return (
     <div

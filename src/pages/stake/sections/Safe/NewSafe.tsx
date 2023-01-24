@@ -60,12 +60,12 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const [lockInputValue, setLockInputValue] = React.useState('')
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     stakeRangeValue,
-    latestBlock ? latestBlock.timestamp + parseInt(formatAmount(lockInputValue)) * 86400 : 0
+    latestBlock.blockTimestamp ? latestBlock.blockTimestamp + parseInt(formatAmount(lockInputValue)) * 86400 : 0
   )
 
   const callCreateLock = async () => {
-    if (!latestBlock || !account) return
-    const seconds = latestBlock.timestamp + parseInt(formatAmount(lockInputValue)) * 86400
+    if (!latestBlock.blockTimestamp || !account) return
+    const seconds = latestBlock.blockTimestamp + parseInt(formatAmount(lockInputValue)) * 86400
     await createLock(account, parseUnits(formatAmount(stakeInputValue), 18), BigNumber.from(seconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callCreateLock', err, FunctionName.CREATE_LOCK))

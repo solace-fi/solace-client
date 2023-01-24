@@ -15,6 +15,7 @@ not just to all parts of the app, but for all the other Managers as well.
 
 type GeneralContextType = {
   appTheme: 'light' | 'dark'
+  pathname: string
   termsAccepted: boolean
   toggleTheme: () => void
   notices: string[]
@@ -23,6 +24,7 @@ type GeneralContextType = {
   leftSidebar: boolean
   rightSidebar: boolean
   referralCode: string | undefined
+  handlePathNameChange: (pathname: string) => void
   addNotices: (noticesToAdd: SystemNoticeData[]) => void
   removeNotices: (noticesToRemove: SystemNotice[]) => void
   addErrors: (errorsToAdd: ErrorData[]) => void
@@ -34,6 +36,7 @@ type GeneralContextType = {
 
 const GeneralContext = createContext<GeneralContextType>({
   appTheme: 'light',
+  pathname: '/',
   termsAccepted: true,
   toggleTheme: () => undefined,
   notices: [],
@@ -42,6 +45,7 @@ const GeneralContext = createContext<GeneralContextType>({
   leftSidebar: false,
   rightSidebar: false,
   referralCode: undefined,
+  handlePathNameChange: () => undefined,
   addNotices: () => undefined,
   removeNotices: () => undefined,
   addErrors: () => undefined,
@@ -74,6 +78,7 @@ const GeneralProvider: React.FC = (props) => {
   const [rightSidebar, setRightSidebar] = useState(false)
   const [leftSidebar, setLeftSidebar] = useState(false)
   const [termsModalOpen, setTermsModalOpen] = useState(true)
+  const [pathname, setPathname] = useState('/')
 
   const addNotices = useCallback((noticesToAdd: SystemNoticeData[]) => {
     if (noticesToAdd.length == 0) return
@@ -131,6 +136,10 @@ const GeneralProvider: React.FC = (props) => {
     setSpiTermsAccepted(true)
   }
 
+  const handlePathNameChange = useCallback((pathname: string) => {
+    setPathname(pathname)
+  }, [])
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const referralCodeFromUrl = params.get('rc')
@@ -143,6 +152,7 @@ const GeneralProvider: React.FC = (props) => {
 
   const value: GeneralContextType = {
     appTheme,
+    pathname,
     termsAccepted,
     notices,
     errors,
@@ -150,6 +160,7 @@ const GeneralProvider: React.FC = (props) => {
     leftSidebar,
     rightSidebar,
     referralCode,
+    handlePathNameChange,
     addNotices,
     removeNotices,
     addErrors,

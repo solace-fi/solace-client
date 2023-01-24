@@ -34,7 +34,7 @@ should be called manually, such as when the user sends a transaction.
 
 */
 
-type CachedData = {
+type CachedDataContextType = {
   localTransactions: LocalTx[]
   tokenPriceMapping: TokenToPriceMapping
   minute: number
@@ -73,7 +73,7 @@ type CachedData = {
   }
 }
 
-const CachedDataContext = createContext<CachedData>({
+const CachedDataContext = createContext<CachedDataContextType>({
   localTransactions: [],
   tokenPriceMapping: {},
   positiveVersion: 0,
@@ -220,7 +220,7 @@ const CachedDataProvider: React.FC = (props) => {
     getStatsCache()
   }, [])
 
-  const value = useMemo<CachedData>(
+  const value = useMemo<CachedDataContextType>(
     () => ({
       localTransactions: localTxs,
       tokenPriceMapping,
@@ -296,7 +296,7 @@ const CachedDataProvider: React.FC = (props) => {
   return <CachedDataContext.Provider value={value}>{props.children}</CachedDataContext.Provider>
 }
 
-export function useCachedData(): CachedData {
+export function useCachedData(): CachedDataContextType {
   return useContext(CachedDataContext)
 }
 

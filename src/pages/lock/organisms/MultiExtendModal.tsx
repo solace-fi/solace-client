@@ -44,15 +44,15 @@ export const MultiExtendModal = ({
   const MAX_DAYS = DAYS_PER_YEAR * 4
   const [commonDays, setCommonDays] = useState<string>('')
 
-  const callExtendLockMultiple = async () => {
-    if (!latestBlock) return
+  const callExtendLockMultiple = useCallback(async () => {
+    if (!latestBlock.blockTimestamp) return
     const chosenlocks = durationTracker.filter((lock) => parseInt(formatAmount(lock.extraDays)) > 0)
 
     if (chosenlocks.length === 0) return
     if (chosenlocks.length === 1) {
       const l = chosenlocks[0]
-      const lockEnd = Math.max(l.currEnd, latestBlock.timestamp)
-      const lockTimeInSeconds = lockEnd - latestBlock.timestamp
+      const lockEnd = Math.max(l.currEnd, latestBlock.blockTimestamp)
+      const lockTimeInSeconds = lockEnd - latestBlock.blockTimestamp
       const extendableSeconds = maxSelected
         ? MAX_DAYS * 86400 - lockTimeInSeconds
         : parseInt(formatAmount(l.extraDays)) * 86400
@@ -61,9 +61,10 @@ export const MultiExtendModal = ({
         .then((res) => handleToast(res.tx, res.localTx))
         .catch((err) => handleContractCallError('callExtendLock', err, FunctionName.EXTEND_LOCK))
     } else {
+      const timestamp = latestBlock.blockTimestamp
       const newEndDatesInSeconds = chosenlocks.map((lock) => {
-        const lockEnd = Math.max(lock.currEnd, latestBlock.timestamp)
-        const lockTimeInSeconds = lockEnd - latestBlock.timestamp
+        const lockEnd = Math.max(lock.currEnd, timestamp)
+        const lockTimeInSeconds = lockEnd - timestamp
         const extendableSeconds = maxSelected
           ? MAX_DAYS * 86400 - lockTimeInSeconds
           : parseInt(formatAmount(lock.extraDays)) * 86400
@@ -76,7 +77,16 @@ export const MultiExtendModal = ({
         .then((res) => handleToast(res.tx, res.localTx))
         .catch((err) => handleContractCallError('callExtendLockMultiple', err, FunctionName.EXTEND_LOCK_MULTIPLE))
     }
-  }
+  }, [
+    durationTracker,
+    latestBlock.blockTimestamp,
+    maxSelected,
+    MAX_DAYS,
+    extendLock,
+    extendLockMultiple,
+    handleToast,
+    handleContractCallError,
+  ])
 
   const handleMax = useCallback(() => {
     setMaxSelected(true)
@@ -141,8 +151,8 @@ export const MultiExtendModal = ({
     if (isOpen) {
       setDurationTracker(
         selectedLocks.map((lock) => {
-          const lockEnd = Math.max(lock.end.toNumber(), latestBlock?.timestamp ?? 0)
-          const lockTimeInSeconds = latestBlock ? lockEnd - latestBlock.timestamp : 0
+          const lockEnd = Math.max(lock.end.toNumber(), latestBlock.blockTimestamp ?? 0)
+          const lockTimeInSeconds = latestBlock.blockTimestamp ? lockEnd - latestBlock.blockTimestamp : 0
           const extendableDays = Math.floor(MAX_DAYS - lockTimeInSeconds / 86400)
           const updatedCurrDays = (MAX_DAYS - extendableDays).toString()
           return {
@@ -166,8 +176,8 @@ export const MultiExtendModal = ({
       console.log('updated curr days')
       setDurationTracker((prevState) =>
         selectedLocks.map((lock, i) => {
-          const lockEnd = Math.max(lock.end.toNumber(), latestBlock?.timestamp ?? 0)
-          const lockTimeInSeconds = latestBlock ? lockEnd - latestBlock.timestamp : 0
+          const lockEnd = Math.max(lock.end.toNumber(), latestBlock.blockTimestamp ?? 0)
+          const lockTimeInSeconds = latestBlock.blockTimestamp ? lockEnd - latestBlock.blockTimestamp : 0
           const extendableDays = Math.floor(MAX_DAYS - lockTimeInSeconds / 86400)
           const updatedCurrDays = (MAX_DAYS - extendableDays).toString()
           return {
@@ -184,7 +194,7 @@ export const MultiExtendModal = ({
       )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [latestBlock])
+  }, [latestBlock.blockTimestamp])
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Extend'}>
@@ -221,7 +231,7 @@ export const MultiExtendModal = ({
                 <Text autoAlign>
                   {getDateStringWithMonthName(
                     new Date(
-                      (Math.max(lock.currEnd, latestBlock?.timestamp ?? 0) +
+                      (Math.max(lock.currEnd, latestBlock.blockTimestamp ?? 0) +
                         parseInt(formatAmount(lock.extraDays)) * 86400) *
                         1000
                     )

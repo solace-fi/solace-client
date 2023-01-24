@@ -485,7 +485,7 @@ export const useRiskSeries = () => {
       fetching.current = true
       const risk = new Risk()
       const series: any = await risk.getSolaceRiskSeries()
-      if (series.data.protocolMap) {
+      if (series?.data?.protocolMap) {
         setSeries(series as SolaceRiskSeries)
         console.log('useRiskSeries: series fetched successfully')
         setLoading(false)
@@ -516,7 +516,7 @@ export const useCheckIsCoverageActive = () => {
 
   useEffect(() => {
     const getStatus = async () => {
-      if (!account || !latestBlock || !activeNetwork.config.generalFeatures.coverageV3) {
+      if (!account || !latestBlock.blockNumber || !activeNetwork.config.generalFeatures.coverageV3) {
         setPolicyId(undefined)
         setStatus(false)
         setCoverageLimit(ZERO)
@@ -528,8 +528,7 @@ export const useCheckIsCoverageActive = () => {
         setStatus(false)
         setCoverageLimit(ZERO)
       } else {
-        const status = await getPolicyStatus(policyId)
-        const coverLimit = await coverLimitOf(policyId)
+        const [status, coverLimit] = await Promise.all([getPolicyStatus(policyId), coverLimitOf(policyId)])
         setPolicyId(policyId)
         setStatus(status)
         setCoverageLimit(coverLimit)
@@ -538,7 +537,7 @@ export const useCheckIsCoverageActive = () => {
     }
     getStatus()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, latestBlock, activeNetwork, positiveVersion])
+  }, [account, latestBlock.blockNumber, activeNetwork, positiveVersion])
 
   return { policyId, status, coverageLimit, mounting }
 }

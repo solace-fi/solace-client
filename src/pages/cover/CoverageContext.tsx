@@ -536,7 +536,7 @@ const CoverageManager: React.FC = (props) => {
       setSignatureObj(priceInfo)
     }
     getSignatureObj()
-  }, [activeNetwork.chainId, latestBlock])
+  }, [activeNetwork.chainId, latestBlock.blockNumber])
 
   const value = useMemo<CoverageContextType>(
     () => ({

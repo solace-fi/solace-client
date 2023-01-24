@@ -120,7 +120,7 @@ function Stake1(): any {
   ])
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     accurateMultiply(formatAmount(amount), 18),
-    latestBlock ? latestBlock.timestamp + parseInt(lockInputValue) * 86400 : 0
+    latestBlock.blockTimestamp ? latestBlock.blockTimestamp + parseInt(lockInputValue) * 86400 : 0
   )
 
   const callUnstake = async () => {
@@ -131,9 +131,9 @@ function Stake1(): any {
   }
 
   const callMigrateSigned = async () => {
-    if (!latestBlock || !account) return
+    if (!latestBlock.blockTimestamp || !account) return
     const xSolaceToMigrate: BigNumber = await withBackoffRetries(async () => getXSolaceFromSolace())
-    const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
+    const seconds = latestBlock.blockTimestamp + parseInt(lockInputValue) * 86400
     await migrate(account, BigNumber.from(seconds), xSolaceToMigrate)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callMigrateSigned', err, FunctionName.STAKING_MIGRATE))

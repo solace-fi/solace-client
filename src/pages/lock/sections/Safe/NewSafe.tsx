@@ -101,8 +101,8 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   }, [batchBalanceData, stakeInputValue, selectedCoin])
 
   const callDepositAndLock = async () => {
-    if (!latestBlock || !account || !selectedCoinContract) return
-    const endInSeconds = latestBlock.timestamp + parseInt(formatAmount(lockInputValue)) * 86400
+    if (!latestBlock.blockTimestamp || !account || !selectedCoinContract) return
+    const endInSeconds = latestBlock.blockTimestamp + parseInt(formatAmount(lockInputValue)) * 86400
     await depositAndLock(
       selectedCoinContract.address,
       parseUnits(formatAmount(stakeInputValue), selectedCoin?.decimals ?? 18),

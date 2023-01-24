@@ -15,6 +15,7 @@ import ToggleSwitch from '../components/atoms/ToggleSwitch'
 import { JsonRpcProvider, JsonRpcSigner } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
 import { getSigner } from '../utils'
+import { BlockData } from '../constants/types'
 
 /*
 
@@ -37,14 +38,17 @@ type ProviderContextType = {
   provider: JsonRpcProvider
   signer?: JsonRpcSigner
   openNetworkModal: () => void
-  latestBlock?: Block
+  latestBlock: BlockData
 }
 
 const ProviderContext = createContext<ProviderContextType>({
   provider: new JsonRpcProvider(networks[0].rpc.httpsUrl),
   signer: undefined,
   openNetworkModal: () => undefined,
-  latestBlock: undefined,
+  latestBlock: {
+    blockNumber: undefined,
+    blockTimestamp: undefined,
+  },
 })
 
 const ProviderManager: React.FC = (props) => {
@@ -52,7 +56,7 @@ const ProviderManager: React.FC = (props) => {
   const { activeNetwork, changeNetwork } = useNetwork()
   const provider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork.rpc.httpsUrl])
   const signer = useMemo(() => (account ? getSigner(library, account) : undefined), [library, account])
-  const latestBlock = useGetLatestBlock(provider)
+  const { blockNumber, blockTimestamp } = useGetLatestBlock(provider)
 
   const [networkModal, setNetworkModal] = useState<boolean>(false)
   const [showTestnets, setShowTestnets] = useState<boolean>(false)
@@ -87,9 +91,12 @@ const ProviderManager: React.FC = (props) => {
       provider,
       signer,
       openNetworkModal: openModal,
-      latestBlock,
+      latestBlock: {
+        blockNumber,
+        blockTimestamp,
+      },
     }),
-    [openModal, latestBlock, provider, signer]
+    [openModal, blockNumber, blockTimestamp, provider, signer]
   )
 
   return (

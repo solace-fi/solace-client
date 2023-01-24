@@ -24,16 +24,22 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   const [maxSelected, setMaxSelected] = useState(false)
   const MAX_DAYS = DAYS_PER_YEAR * 4
 
-  const lockEnd = useMemo(() => Math.max(lock.end.toNumber(), latestBlock?.timestamp ?? 0), [lock.end, latestBlock])
+  const lockEnd = useMemo(() => Math.max(lock.end.toNumber(), latestBlock?.blockTimestamp ?? 0), [
+    lock.end,
+    latestBlock.blockTimestamp,
+  ])
 
-  const lockTimeInSeconds = useMemo(() => (latestBlock ? lockEnd - latestBlock.timestamp : 0), [latestBlock, lockEnd])
+  const lockTimeInSeconds = useMemo(() => (latestBlock.blockTimestamp ? lockEnd - latestBlock.blockTimestamp : 0), [
+    latestBlock.blockTimestamp,
+    lockEnd,
+  ])
 
   const extendableDays = useMemo(() => Math.floor(MAX_DAYS - lockTimeInSeconds / 86400), [lockTimeInSeconds, MAX_DAYS])
 
   const [inputValue, setInputValue] = React.useState('0')
 
   const callExtendLock = async () => {
-    if (!latestBlock || !inputValue || inputValue == '0') return
+    if (!latestBlock.blockNumber || !inputValue || inputValue == '0') return
     const newEndDateInSeconds =
       lockEnd + (maxSelected ? MAX_DAYS * 86400 - lockTimeInSeconds : parseInt(inputValue) * 86400)
     await extendLock(lock.lockID, BigNumber.from(newEndDateInSeconds))

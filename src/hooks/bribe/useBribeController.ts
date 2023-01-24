@@ -491,7 +491,7 @@ export const useBribeControllerHelper = () => {
       setClaimableBribes(_claimableBribes)
     }
     _getClaimableBribes()
-  }, [account, bribeController, latestBlock, getClaimableBribes])
+  }, [account, bribeController, latestBlock.blockNumber, getClaimableBribes])
 
   useEffect(() => {
     const _getAvailableVotePowerBPS = async () => {

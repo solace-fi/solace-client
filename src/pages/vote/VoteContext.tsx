@@ -126,7 +126,7 @@ const VoteManager: React.FC = (props) => {
   const { isVotingOpen: checkIfVotingIsOpen, delegateOf, getVotingDelegatorsOf: getDelegators } = useUwLockVoting()
   const { getVoteInformation } = useUwLockVotingHelper()
   const { remainingTime, epochEndTimestamp } = useEpochTimer()
-  const { positiveVersion } = useCachedData()
+  const { positiveVersion, minute } = useCachedData()
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const {
@@ -451,7 +451,7 @@ const VoteManager: React.FC = (props) => {
     }
     if (currentGaugesData.length == 0) return
     updateActivenessOnEdit()
-  }, [latestBlock])
+  }, [latestBlock.blockNumber])
 
   useEffect(() => {
     const callVotingOpen = async () => {
@@ -459,7 +459,7 @@ const VoteManager: React.FC = (props) => {
       setIsVotingOpen(res)
     }
     callVotingOpen()
-  }, [activeNetwork, latestBlock])
+  }, [activeNetwork, minute])
 
   useEffect(() => {
     const getMyDelegate = async () => {

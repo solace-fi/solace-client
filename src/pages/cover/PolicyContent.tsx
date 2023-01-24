@@ -394,7 +394,7 @@ export const PolicyContent = (): JSX.Element => {
   useEffect(() => {
     getRefundableSOLACEAmount()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [positiveVersion, latestBlock])
+  }, [positiveVersion, latestBlock.blockNumber])
 
   useEffect(() => {
     if (!policyId || policyId?.eq(ZERO)) {
@@ -404,7 +404,7 @@ export const PolicyContent = (): JSX.Element => {
     } else {
       handleUserState(InterfaceState.CURRENT_USER)
     }
-  }, [policyId, status, handleUserState, positiveVersion, latestBlock])
+  }, [policyId, status, handleUserState, positiveVersion, latestBlock.blockNumber])
 
   useEffect(() => {
     setShowExistingPolicyMessage(true)
