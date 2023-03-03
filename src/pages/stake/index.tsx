@@ -827,7 +827,7 @@ export default function Stake(): JSX.Element {
                           pr={10}
                           py={navbarThreshold ? 20 : 0}
                           onClick={() => setIsCompoundModalOpen(true)}
-                          disabled={rewardsAreZero}
+                          disabled
                         >
                           Compound Rewards
                         </Button>

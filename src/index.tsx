@@ -47,15 +47,15 @@ ReactDOM.render(
               <ContractsManager>
                 <CachedDataManager>
                   <NotificationsManager>
-                    <VoteManager>
+                    {/* <VoteManager>
                       <BribeManager>
-                        <AnalyticsManager>
-                          <BrowserRouter>
-                            <App />
-                          </BrowserRouter>
-                        </AnalyticsManager>
+                        <AnalyticsManager> */}
+                    <BrowserRouter>
+                      <App />
+                    </BrowserRouter>
+                    {/* </AnalyticsManager>
                       </BribeManager>
-                    </VoteManager>
+                    </VoteManager> */}
                   </NotificationsManager>
                 </CachedDataManager>
               </ContractsManager>
