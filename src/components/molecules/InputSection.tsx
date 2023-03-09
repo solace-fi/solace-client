@@ -71,7 +71,7 @@ export const GenericInputSection = ({
   icon?: JSX.Element
   text?: string
   value: string | undefined
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
   buttonDisabled?: boolean
   disabled?: boolean
   w?: number
@@ -106,7 +106,7 @@ export const GenericInputSection = ({
         className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
         placeholder={placeholder ?? '0'}
         value={value ?? ''}
-        onChange={onChange}
+        onChange={onChange ?? undefined}
         style={{
           backgroundColor: 'inherit',
           color: 'inherit',

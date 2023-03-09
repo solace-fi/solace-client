@@ -38,6 +38,7 @@ import { useGeneral } from '../context/GeneralManager'
 
 /* import pages */
 import Stake from './stake'
+import Migrate from './migrate'
 import Bond from './bond'
 import Cover from './cover'
 import Bribe from './bribe'
@@ -68,6 +69,12 @@ export default function App(): any {
       title: 'My Staking',
       to: '/stake',
       component: Stake,
+    },
+    {
+      name: 'Migrate',
+      title: 'Migration',
+      to: '/migrate',
+      component: Migrate,
     },
     // { name: 'Governance', title: 'Native Governance', to: '/vote', component: Gauge },
     // { name: 'Underwriting', title: 'Native Underwriting', to: '/lock', component: Lock },
