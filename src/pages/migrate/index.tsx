@@ -6,9 +6,11 @@ import { Text } from '../../components/atoms/Typography'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 import { TileCard } from '../../components/molecules/TileCard'
 import { WalletList } from '../../components/molecules/WalletList'
+import { useGeneral } from '../../context/GeneralManager'
 
 function Migrate(): JSX.Element {
   const { account } = useWeb3React()
+  const { appTheme } = useGeneral()
   const value = '90'
 
   // 'eligible', 'ineligible', 'failed', 'successful'
@@ -65,7 +67,14 @@ function Migrate(): JSX.Element {
                         The above amount is not eligible for migration
                       </Text>
                     )}
-                    <Button techygradient secondary py={16} noborder disabled={pageState == 1}>
+                    <Button
+                      techygradient={appTheme == 'light'}
+                      warmgradient={appTheme == 'dark'}
+                      secondary
+                      py={16}
+                      noborder
+                      disabled={pageState == 1}
+                    >
                       Migrate
                     </Button>
                   </>
