@@ -19,6 +19,7 @@ import fluxMegaOracleABI from '../constants/abi/FluxMegaOracle.json'
 import solaceMegaOracleABI from '../constants/abi/SolaceMegaOracle.json'
 import underwritingLockVotingABI from '../constants/abi/UnderwritingLockVoting.json'
 import bribeControllerABI from '../constants/abi/BribeController.json'
+import migration_ABI from '../constants/abi/Migration.json'
 
 import { xsLocker_ABI, StakingRewardsV2_ABI, CoverPaymentManager_ABI, SolaceCoverProductV3_ABI } from '../constants/abi'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/goerli'
@@ -64,6 +65,10 @@ export const GoerliNetwork: NetworkConfig = {
       xsLocker: {
         addr: KEY_ADDRS.XSLOCKER,
         abi: xsLocker_ABI,
+      },
+      migration: {
+        addr: KEY_ADDRS.MIGRATION,
+        abi: migration_ABI,
       },
       solaceCoverProductV3: {
         addr: SOLACE_COVER_PRODUCT_V3_ADDRESS[chainId],

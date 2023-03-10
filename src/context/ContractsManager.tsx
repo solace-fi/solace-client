@@ -30,6 +30,7 @@ type ContractsContextType = {
     fluxMegaOracle?: Contract | null
     solaceMegaOracle?: Contract | null
     bribeController?: Contract | null
+    migration?: Contract | null
   }
   tellers: (BondTellerContractData & {
     metadata: TellerTokenMetadata
@@ -54,6 +55,7 @@ const ContractsContext = createContext<ContractsContextType>({
     fluxMegaOracle: undefined,
     solaceMegaOracle: undefined,
     bribeController: undefined,
+    migration: undefined,
   },
   tellers: [],
   contractSources: [],
@@ -80,6 +82,7 @@ const ContractsProvider: React.FC = (props) => {
   const fluxMegaOracle = useGetContract(keyContracts.fluxMegaOracle)
   const solaceMegaOracle = useGetContract(keyContracts.solaceMegaOracle)
   const bribeController = useGetContract(keyContracts.bribeController)
+  const migration = useGetContract(keyContracts.migration)
 
   const value = useMemo<ContractsContextType>(
     () => ({
@@ -99,6 +102,7 @@ const ContractsProvider: React.FC = (props) => {
         fluxMegaOracle,
         solaceMegaOracle,
         bribeController,
+        migration,
       },
       tellers,
       contractSources,
@@ -121,6 +125,7 @@ const ContractsProvider: React.FC = (props) => {
       bribeController,
       solaceMegaOracle,
       contractSources,
+      migration,
     ]
   )
 
