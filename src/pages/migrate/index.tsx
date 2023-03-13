@@ -91,7 +91,7 @@ function Migrate(): JSX.Element {
               {account && (
                 <TileCard>
                   <Text textAlignCenter semibold t5s>
-                    Migratable SOLACE-V1 Amount
+                    {pageState == 3 ? 'Successfully migrated' : 'Migratable SOLACE-V1 Amount'}
                   </Text>
                   <Text textAlignCenter bold t1>
                     {formatUnits(migratableAmount, SOLACE_TOKEN.constants.decimals)}

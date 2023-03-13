@@ -117,7 +117,7 @@ export const TransactionToast: React.FC<TransactionToastProps> = ({ txType, cond
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button light>Check on {activeNetwork.explorer.name}</Button>
+            <Button light>{activeNetwork.explorer.name}</Button>
           </HyperLink>
         )}
         {errObj && (
