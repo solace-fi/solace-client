@@ -11,21 +11,24 @@ export const useMigrate = () => {
   const { migration } = keyContracts
   const { gasConfig } = useGetFunctionGas()
 
-  const migrate = useCallback(async () => {
-    if (!migration) return { tx: null, localTx: null }
-    const tx = await migration.migrate({ ...gasConfig, gasLimit: 800000 })
-    const localTx: LocalTx = {
-      hash: tx.hash,
-      type: FunctionName.MIGRATE,
-      status: TransactionCondition.PENDING,
-    }
-    return { tx, localTx }
-  }, [migration])
+  const migrate = useCallback(
+    async (account: string, amount: BigNumber, proof: string[]) => {
+      if (!migration) return { tx: null, localTx: null }
+      const tx = await migration.migrate(account, amount, proof, { ...gasConfig, gasLimit: 800000 })
+      const localTx: LocalTx = {
+        hash: tx.hash,
+        type: FunctionName.MIGRATE,
+        status: TransactionCondition.PENDING,
+      }
+      return { tx, localTx }
+    },
+    [migration]
+  )
 
-  const balanceOf = useCallback(
-    async (address: string): Promise<BigNumber> => {
-      if (!migration) return ZERO
-      const balance = await migration.balanceOf(address)
+  const migrated = useCallback(
+    async (address: string): Promise<boolean> => {
+      if (!migration) return false
+      const balance = await migration.migrated(address)
       return balance
     },
     [migration]
@@ -33,6 +36,6 @@ export const useMigrate = () => {
 
   return {
     migrate,
-    balanceOf,
+    migrated,
   }
 }
