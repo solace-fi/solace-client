@@ -56,7 +56,7 @@ const Notification = styled.div<GeneralElementProps>`
   margin-bottom: 40px;
 `
 
-const Tip = styled.div<GeneralElementProps>`
+const CoverageTip = styled.div<GeneralElementProps>`
   background: hsla(129, 78%, 21%, 1);
 
   background: linear-gradient(
@@ -191,7 +191,7 @@ export function CoverageNotification(): JSX.Element {
   const { width } = useWindowDimensions()
 
   return (
-    <Tip style={{ flexDirection: width > (rightSidebar ? BKPT_5 : BKPT_4) ? 'row' : 'column' }}>
+    <CoverageTip style={{ flexDirection: width > (rightSidebar ? BKPT_5 : BKPT_4) ? 'row' : 'column' }}>
       <Flex col>
         <Typography.Hero>Get Covered with Solace Portfolio Insurance</Typography.Hero>
         <Typography.Sidekick>
@@ -211,7 +211,7 @@ export function CoverageNotification(): JSX.Element {
           </NavLink>
         </div>
       </div>
-    </Tip>
+    </CoverageTip>
   )
 }
 

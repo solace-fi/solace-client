@@ -208,6 +208,17 @@ export const SOLACE_TOKEN: ReadTokenData = {
   },
 }
 
+export const SOLACE_TOKEN_V2: ReadTokenData = {
+  constants: {
+    name: 'solace',
+    symbol: 'SOLACE',
+    decimals: 18,
+  },
+  address: {
+    [5]: '0x501ACEF3B7e8711620B8cB48c5204791267B74Cf',
+  },
+}
+
 export const XSOLACE_TOKEN: ReadTokenData = {
   constants: {
     name: 'xsolace',

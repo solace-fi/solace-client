@@ -12,7 +12,7 @@ import { Text, TextSpan } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
 import { WalletList } from '../../components/molecules/WalletList'
 import { FunctionName } from '../../constants/enums'
-import { SOLACE_TOKEN } from '../../constants/mappings/token'
+import { SOLACE_TOKEN, SOLACE_TOKEN_V2 } from '../../constants/mappings/token'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useGeneral } from '../../context/GeneralManager'
@@ -20,7 +20,7 @@ import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useMigrate } from '../../hooks/migrate/useMigrate'
 
 function Migrate(): JSX.Element {
-  const { account, chainId } = useWeb3React()
+  const { account, chainId, library } = useWeb3React()
   const { appTheme } = useGeneral()
   const { migrated, migrate } = useMigrate()
   const { handleContractCallError, handleToast } = useTransactionExecution()
@@ -32,7 +32,7 @@ function Migrate(): JSX.Element {
   const [failedDataQuery, setFailedDataQuery] = useState<boolean>(false)
   const [canMigrate, setCanMigrate] = useState<boolean>(true)
   const [pageLoading, setPageLoading] = useState<boolean>(false)
-  const [successfulTx, setSuccessfulTx] = useState<boolean | undefined>(true)
+  const [successfulTx, setSuccessfulTx] = useState<boolean | undefined>(undefined)
 
   const eligiblePageStartState = useMemo(
     () => successfulTx == undefined && canMigrate && !pageLoading && migratableAmount != '0',
@@ -77,6 +77,20 @@ function Migrate(): JSX.Element {
       .catch((err) => _handleContractCallError('callMigrate', err, FunctionName.MIGRATE))
   }, [chainId, account])
 
+  const addToken = useCallback(async () => {
+    await library.provider.request({
+      method: 'wallet_watchAsset',
+      params: {
+        type: 'ERC20',
+        options: {
+          address: SOLACE_TOKEN_V2.address[5],
+          symbol: 'SOLACE',
+          decimals: 18,
+        },
+      },
+    })
+  }, [library])
+
   const _handleToast = async (tx: any, localTx: any) => {
     const res = await handleToast(tx, localTx)
     setPageLoading(false)
@@ -114,6 +128,7 @@ function Migrate(): JSX.Element {
         <Content>
           <Flex justifyCenter>
             <Flex col gap={30}>
+              {/* <Button onClick={addToken}>get token</Button> */}
               {failedDataQuery && (
                 <Box error pt={10} pb={10} pl={15} pr={15}>
                   <TextSpan light textAlignLeft>
