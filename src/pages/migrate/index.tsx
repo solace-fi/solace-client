@@ -12,8 +12,7 @@ import { Text, TextSpan } from '../../components/atoms/Typography'
 import { TileCard } from '../../components/molecules/TileCard'
 import { WalletList } from '../../components/molecules/WalletList'
 import { FunctionName } from '../../constants/enums'
-import { SOLACE_TOKEN, SOLACE_TOKEN_V2 } from '../../constants/mappings/token'
-import { useCachedData } from '../../context/CachedDataManager'
+import { SOLACE_TOKEN, SGT } from '../../constants/mappings/token'
 import { useContracts } from '../../context/ContractsManager'
 import { useGeneral } from '../../context/GeneralManager'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
@@ -83,9 +82,9 @@ function Migrate(): JSX.Element {
       params: {
         type: 'ERC20',
         options: {
-          address: SOLACE_TOKEN_V2.address[5],
-          symbol: 'SOLACE',
-          decimals: 18,
+          address: SGT.address[5],
+          symbol: SGT.constants.symbol,
+          decimals: SGT.constants.decimals,
         },
       },
     })

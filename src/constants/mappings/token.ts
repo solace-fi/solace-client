@@ -208,14 +208,14 @@ export const SOLACE_TOKEN: ReadTokenData = {
   },
 }
 
-export const SOLACE_TOKEN_V2: ReadTokenData = {
+export const SGT: ReadTokenData = {
   constants: {
-    name: 'solace',
-    symbol: 'SOLACE',
+    name: 'Solace Governance Token',
+    symbol: 'SGT',
     decimals: 18,
   },
   address: {
-    [5]: '0x501ACEF3B7e8711620B8cB48c5204791267B74Cf',
+    [5]: '0x501aCE70b926C3946bB7F60b96B3180ADF1d18C8',
   },
 }
 
