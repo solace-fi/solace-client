@@ -99,6 +99,27 @@ const CoverageTip = styled.div<GeneralElementProps>`
   margin-bottom: 40px;
 `
 
+const SGTMigrationTip = styled.div<GeneralElementProps>`
+  background: rgb(207, 189, 5);
+  background: linear-gradient(
+    101deg,
+    rgba(207, 189, 5, 1) 1%,
+    rgba(242, 94, 251, 1) 27%,
+    rgba(80, 80, 251, 1) 75%,
+    rgba(240, 26, 60, 1) 100%
+  );
+  color: #fafafa;
+  padding: 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  box-shadow: 0 0 7px #fff;
+`
+
 const baseButtonStyle = css`
   border-radius: 0.5rem;
   font-size: 0.875rem;
@@ -138,9 +159,14 @@ const whiteNotificationButtonStyle = css`
   color: #f04d42;
 `
 
-const whiteTipButtonStyle = css`
+const whiteTipButtonSuccessStyle = css`
   background-color: white;
   color: ${(props) => props.theme.box.success};
+`
+
+const whiteTipButtonInfoStyle = css`
+  background-color: white;
+  color: ${(props) => props.theme.box.info};
 `
 
 const NotificationButton = styled.div<{ active?: boolean }>`
@@ -155,9 +181,18 @@ const NotificationButton = styled.div<{ active?: boolean }>`
   font-size: 14px;
 `
 
-const TipButton = styled.div<{ active?: boolean }>`
+const SuccessTipButton = styled.div<{ active?: boolean }>`
   ${baseButtonStyle}
-  ${({ active }) => (active ? whiteTipButtonStyle : greenButtonStyle)}
+  ${({ active }) => (active ? whiteTipButtonSuccessStyle : greenButtonStyle)}
+  height: 40px;
+  width: 170px;
+  border-radius: 10px;
+  font-size: 16px;
+`
+
+const InfoTipButton = styled.div`
+  ${baseButtonStyle}
+  ${whiteTipButtonInfoStyle}
   height: 40px;
   width: 170px;
   border-radius: 10px;
@@ -207,11 +242,49 @@ export function CoverageNotification(): JSX.Element {
       >
         <div style={{ display: 'flex', padding: '10px' }}>
           <NavLink to={'/cover'}>
-            <TipButton active>Buy Policy Now</TipButton>
+            <SuccessTipButton active>Buy Policy Now</SuccessTipButton>
           </NavLink>
         </div>
       </div>
     </CoverageTip>
+  )
+}
+
+export function SGTMigrationNotification(): JSX.Element {
+  const { rightSidebar } = useGeneral()
+  const { width } = useWindowDimensions()
+
+  return (
+    <SGTMigrationTip style={{ flexDirection: width > (rightSidebar ? BKPT_5 : BKPT_4) ? 'row' : 'column' }}>
+      <Flex col>
+        <Typography.Hero>Migrate to SGT</Typography.Hero>
+        <Typography.Sidekick>
+          Solace is now using <Typography.Emphasis>$SGT</Typography.Emphasis> (Solace Governance Token) instead of
+          $SOLACE.
+        </Typography.Sidekick>
+        <Typography.Sidekick>
+          If you are eligible, please migrate your <Typography.Emphasis>$SOLACE</Typography.Emphasis> tokens for{' '}
+          <Typography.Emphasis>$SGT</Typography.Emphasis> tokens.
+        </Typography.Sidekick>
+        <Typography.Sidekick>
+          Your amount in <Typography.Emphasis>$SGT</Typography.Emphasis> will account for your staked and unstaked
+          balances of <Typography.Emphasis>$SOLACE</Typography.Emphasis>.
+        </Typography.Sidekick>
+      </Flex>
+
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <div style={{ display: 'flex', padding: '10px' }}>
+          <NavLink to={'/migrate'}>
+            <InfoTipButton>Migrate Now</InfoTipButton>
+          </NavLink>
+        </div>
+      </div>
+    </SGTMigrationTip>
   )
 }
 

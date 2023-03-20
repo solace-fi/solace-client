@@ -58,12 +58,12 @@ export default function App(): any {
       to: '/cover',
       component: Cover,
     },
-    {
-      name: 'Buy $SOLACE',
-      title: 'Buy $SOLACE',
-      to: '/bond',
-      component: Bond,
-    },
+    // {
+    //   name: 'Buy $SOLACE',
+    //   title: 'Buy $SOLACE',
+    //   to: '/bond',
+    //   component: Bond,
+    // },
     {
       name: 'Stake',
       title: 'My Staking',

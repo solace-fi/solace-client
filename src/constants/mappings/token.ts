@@ -215,6 +215,7 @@ export const SGT: ReadTokenData = {
     decimals: 18,
   },
   address: {
+    [1]: '0x501ace1Cae9d535511fE78332741b21Cdddb3b26',
     [5]: '0x501aCE70b926C3946bB7F60b96B3180ADF1d18C8',
   },
 }

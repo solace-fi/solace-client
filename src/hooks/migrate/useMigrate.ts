@@ -34,8 +34,18 @@ export const useMigrate = () => {
     [migration]
   )
 
+  const verify = useCallback(
+    async (account: string, amount: BigNumber, proof: string[]): Promise<boolean> => {
+      if (!migration) return false
+      const verification = await migration.verify(account, amount, proof)
+      return verification
+    },
+    [migration]
+  )
+
   return {
     migrate,
     migrated,
+    verify,
   }
 }

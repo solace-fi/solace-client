@@ -21,7 +21,7 @@ import { useMigrate } from '../../hooks/migrate/useMigrate'
 function Migrate(): JSX.Element {
   const { account, chainId, library } = useWeb3React()
   const { appTheme } = useGeneral()
-  const { migrated, migrate } = useMigrate()
+  const { migrated, migrate, verify } = useMigrate()
   const { handleContractCallError, handleToast } = useTransactionExecution()
   const { keyContracts } = useContracts()
   const { migration } = keyContracts
@@ -30,16 +30,17 @@ function Migrate(): JSX.Element {
   const [data, setData] = useState<any>(undefined)
   const [failedDataQuery, setFailedDataQuery] = useState<boolean>(false)
   const [canMigrate, setCanMigrate] = useState<boolean>(true)
+  const [isVerified, setIsVerified] = useState<boolean>(true)
   const [pageLoading, setPageLoading] = useState<boolean>(false)
   const [successfulTx, setSuccessfulTx] = useState<boolean | undefined>(undefined)
 
   const eligiblePageStartState = useMemo(
-    () => successfulTx == undefined && canMigrate && !pageLoading && migratableAmount != '0',
+    () => successfulTx == undefined && canMigrate && !pageLoading && migratableAmount != '0' && isVerified,
     [successfulTx, canMigrate, pageLoading, migratableAmount]
   )
 
   const ineligiblePageStartState = useMemo(
-    () => successfulTx == undefined && (!canMigrate || migratableAmount == '0') && !pageLoading,
+    () => successfulTx == undefined && (!canMigrate || migratableAmount == '0' || !isVerified) && !pageLoading,
     [successfulTx, canMigrate, pageLoading, migratableAmount]
   )
 
@@ -54,15 +55,20 @@ function Migrate(): JSX.Element {
 
   const setupMigration = useCallback(async () => {
     if (!chainId || !account || !data) return
+    setSuccessfulTx(undefined)
     const accountData = data.find((x: any) => x.account.toLowerCase() == account.toLowerCase())
     if (!accountData) {
-      setSuccessfulTx(undefined)
       setCanMigrate(false)
+      setIsVerified(false)
       setMigratableAmount('0')
       return
     }
-    const res = await migrated(account)
-    setCanMigrate(!res)
+    const [hasMigrated, _isVerified] = await Promise.all([
+      migrated(account),
+      verify(accountData.account, BigNumber.from(accountData.amount), accountData.proof),
+    ])
+    setCanMigrate(!hasMigrated)
+    setIsVerified(_isVerified)
     setMigratableAmount(accountData.amount)
   }, [chainId, account, data])
 
@@ -127,7 +133,7 @@ function Migrate(): JSX.Element {
         <Content>
           <Flex justifyCenter>
             <Flex col gap={30}>
-              {/* <Button onClick={addToken}>get token</Button> */}
+              <Button onClick={addToken}>Add SGT token to wallet</Button>
               {failedDataQuery && (
                 <Box error pt={10} pb={10} pl={15} pr={15}>
                   <TextSpan light textAlignLeft>
@@ -138,26 +144,30 @@ function Migrate(): JSX.Element {
                   </Text>
                 </Box>
               )}
-              {eligiblePageStartState && (
+              {account && eligiblePageStartState && (
                 <Text textAlignCenter t3>
-                  This account contains SOLACE-V1 tokens. You can migrate those tokens from SOLACE-V1 to SOLACE-V2.
+                  This account contains SOLACE tokens. You can migrate those tokens from SOLACE to SGT.
                 </Text>
               )}
-              {ineligiblePageStartState && (
+              {account && ineligiblePageStartState && (
                 <Text textAlignCenter t3>
-                  This account is not eligible for migration{' '}
                   {!canMigrate
-                    ? 'because you already migrated'
+                    ? 'The tokens for this account have already migrated.'
                     : migratableAmount == '0'
-                    ? 'because you have no SOLACE-V1 tokens'
+                    ? 'This account has no tokens to migrate.'
+                    : !isVerified
+                    ? 'This account is not verified for migration.'
                     : ''}
-                  .
                 </Text>
               )}
               {account && (
                 <TileCard>
                   <Text textAlignCenter semibold t5s>
-                    {successfulPageStartState ? 'Successfully migrated' : 'Migratable SOLACE-V1 Amount'}
+                    {successfulPageStartState
+                      ? 'Successfully migrated'
+                      : !canMigrate
+                      ? 'Amount migrated'
+                      : 'Migratable SOLACE Amount'}
                   </Text>
                   <Text textAlignCenter bold t1>
                     {formatUnits(migratableAmount, SOLACE_TOKEN.constants.decimals)}
@@ -171,7 +181,7 @@ function Migrate(): JSX.Element {
                           Migration process completed
                         </Text>
                         <Text textAlignCenter t4>
-                          Check your wallet for the migrated SOLACE-V2 tokens
+                          Check your wallet for the migrated SGT tokens
                         </Text>
                       </>
                     ) : failedPageStartState ? (
@@ -192,7 +202,7 @@ function Migrate(): JSX.Element {
                           secondary
                           py={16}
                           noborder
-                          disabled={!canMigrate || migratableAmount == '0' || failedDataQuery}
+                          disabled={!canMigrate || migratableAmount == '0' || failedDataQuery || !isVerified}
                           onClick={callMigrate}
                         >
                           Try again
@@ -219,7 +229,7 @@ function Migrate(): JSX.Element {
               {!account && (
                 <>
                   <Text t2 textAlignCenter>
-                    Please connect your wallet to see if you can migrate SOLACE-V1 tokens.
+                    Please connect your wallet to see if you can migrate SOLACE tokens to SGT tokens.
                   </Text>
                   <WalletList />
                 </>
