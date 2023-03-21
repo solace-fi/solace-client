@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useCallback } from 'react'
 import styled, { css, keyframes } from 'styled-components'
 import { GeneralElementProps } from '../../../components/generalInterfaces'
 import { StakingVersion } from '../../../constants/enums'
@@ -8,6 +8,10 @@ import { BKPT_4, BKPT_5 } from '../../../constants'
 import { useGeneral } from '../../../context/GeneralManager'
 import { NavLink, useLocation } from 'react-router-dom'
 import { Flex } from '../../../components/atoms/Layout'
+import { Button } from '../../../components/atoms/Button'
+import { useWeb3React } from '@web3-react/core'
+import { SGT } from '../../../constants/mappings/token'
+import { StyledArrowRight } from '../../../components/atoms/Icon'
 // text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200
 const StyledText = styled.div`
   font-size: 0.875rem;
@@ -251,14 +255,29 @@ export function CoverageNotification(): JSX.Element {
 }
 
 export function SGTMigrationNotification(): JSX.Element {
+  const { library } = useWeb3React()
   const { rightSidebar } = useGeneral()
-  const { width } = useWindowDimensions()
+  const { width, isMobile } = useWindowDimensions()
   const location = useLocation()
+
+  const addToken = useCallback(async () => {
+    await library.provider.request({
+      method: 'wallet_watchAsset',
+      params: {
+        type: 'ERC20',
+        options: {
+          address: SGT.address[1],
+          symbol: SGT.constants.symbol,
+          decimals: SGT.constants.decimals,
+        },
+      },
+    })
+  }, [library])
 
   return (
     <SGTMigrationTip style={{ flexDirection: width > (rightSidebar ? BKPT_5 : BKPT_4) ? 'row' : 'column' }}>
       <Flex col>
-        <Typography.Hero>Migrate to SGT</Typography.Hero>
+        <Typography.Hero>Migrate to $SGT</Typography.Hero>
         <Typography.Sidekick>
           Solace is now using <Typography.Emphasis>$SGT</Typography.Emphasis> (Solace Governance Token) instead of{' '}
           <Typography.Emphasis>$SOLACE</Typography.Emphasis>.
@@ -269,24 +288,33 @@ export function SGTMigrationNotification(): JSX.Element {
         </Typography.Sidekick>
         <Typography.Sidekick>
           Your amount in <Typography.Emphasis>$SGT</Typography.Emphasis> will account for your staked and unstaked
-          balances of <Typography.Emphasis>$SOLACE</Typography.Emphasis>.
+          balances of <Typography.Emphasis>$SOLACE</Typography.Emphasis> across all networks.
         </Typography.Sidekick>
       </Flex>
 
-      {location.pathname != '/migrate' && (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <div style={{ display: 'flex', padding: '10px' }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: isMobile ? '100%' : 'unset',
+        }}
+      >
+        <Flex gap={10} p={10} rounded justifyCenter style={{ background: 'rgba(0, 0, 0, 0.4)' }}>
+          <img src={'https://assets.solace.fi/solace'} height={50} />
+          <StyledArrowRight size={50} />
+          <img src={`https://assets.solace.fi/${SGT.address[1].toUpperCase()}`} height={50} />
+        </Flex>
+        <div style={{ display: 'flex', padding: '10px', gap: '10px', flexDirection: 'column' }}>
+          <Button p={16} onClick={addToken} light>
+            Add $SGT to wallet
+          </Button>
+          {location.pathname != '/migrate' && (
             <NavLink to={'/migrate'}>
-              <InfoTipButton>Migrate Now</InfoTipButton>
+              <InfoTipButton style={{ width: '100%' }}>Migrate Now</InfoTipButton>
             </NavLink>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </SGTMigrationTip>
   )
 }

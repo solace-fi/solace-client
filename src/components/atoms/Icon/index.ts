@@ -3,6 +3,7 @@ import { ArrowDropDown } from '@styled-icons/material-rounded/ArrowDropDown'
 import { Close } from '@styled-icons/material-rounded/Close'
 import { Checkmark } from '@styled-icons/evaicons-solid/Checkmark'
 import { Clock } from '@styled-icons/bootstrap/Clock'
+import { ArrowRight } from '@styled-icons/bootstrap/ArrowRight'
 import { CoinStack } from '@styled-icons/boxicons-solid/CoinStack'
 import { ShareAlt } from '@styled-icons/boxicons-solid/ShareAlt'
 import { Copy } from '@styled-icons/boxicons-regular/Copy'
@@ -184,3 +185,5 @@ export const StyledAnalytics = styled(Analytics)``
 export const StyledDownload = styled(ArrowDownload)``
 
 export const StyledWindowRestore = styled(WindowRestore)``
+
+export const StyledArrowRight = styled(ArrowRight)``

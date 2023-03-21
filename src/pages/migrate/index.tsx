@@ -5,7 +5,7 @@ import { formatUnits } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Box } from '../../components/atoms/Box'
 import { Button } from '../../components/atoms/Button'
-import { StyledInfo } from '../../components/atoms/Icon'
+import { StyledArrowRight, StyledInfo } from '../../components/atoms/Icon'
 import { Content, Flex } from '../../components/atoms/Layout'
 import { Loader } from '../../components/atoms/Loader'
 import { Text, TextSpan } from '../../components/atoms/Typography'
@@ -20,7 +20,7 @@ import { useMigrate } from '../../hooks/migrate/useMigrate'
 import { SGTMigrationNotification } from '../stake/organisms/NotificationBox'
 
 function Migrate(): JSX.Element {
-  const { account, chainId, library } = useWeb3React()
+  const { account, chainId } = useWeb3React()
   const { appTheme } = useGeneral()
   const { migrated, migrate, verify } = useMigrate()
   const { handleContractCallError, handleToast } = useTransactionExecution()
@@ -83,20 +83,6 @@ function Migrate(): JSX.Element {
       .catch((err) => _handleContractCallError('callMigrate', err, FunctionName.MIGRATE))
   }, [chainId, account])
 
-  const addToken = useCallback(async () => {
-    await library.provider.request({
-      method: 'wallet_watchAsset',
-      params: {
-        type: 'ERC20',
-        options: {
-          address: SGT.address[1],
-          symbol: SGT.constants.symbol,
-          decimals: SGT.constants.decimals,
-        },
-      },
-    })
-  }, [library])
-
   const _handleToast = async (tx: any, localTx: any) => {
     const res = await handleToast(tx, localTx)
     setPageLoading(false)
@@ -135,7 +121,6 @@ function Migrate(): JSX.Element {
           <SGTMigrationNotification />
           <Flex justifyCenter>
             <Flex col gap={30}>
-              <Button onClick={addToken}>Add SGT token to wallet</Button>
               {failedDataQuery && (
                 <Box error pt={10} pb={10} pl={15} pr={15}>
                   <TextSpan light textAlignLeft>
@@ -164,6 +149,11 @@ function Migrate(): JSX.Element {
               )}
               {account && (
                 <TileCard>
+                  <Flex gap={10} p={10} rounded justifyCenter>
+                    <img src={'https://assets.solace.fi/solace'} height={60} />
+                    <StyledArrowRight size={60} />
+                    <img src={`https://assets.solace.fi/${SGT.address[1].toUpperCase()}`} height={60} />
+                  </Flex>
                   <Text textAlignCenter semibold t5s>
                     {successfulPageStartState
                       ? 'Successfully migrated'
