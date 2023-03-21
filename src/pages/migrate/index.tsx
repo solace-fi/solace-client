@@ -17,6 +17,7 @@ import { useContracts } from '../../context/ContractsManager'
 import { useGeneral } from '../../context/GeneralManager'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { useMigrate } from '../../hooks/migrate/useMigrate'
+import { SGTMigrationNotification } from '../stake/organisms/NotificationBox'
 
 function Migrate(): JSX.Element {
   const { account, chainId, library } = useWeb3React()
@@ -88,7 +89,7 @@ function Migrate(): JSX.Element {
       params: {
         type: 'ERC20',
         options: {
-          address: SGT.address[5],
+          address: SGT.address[1],
           symbol: SGT.constants.symbol,
           decimals: SGT.constants.decimals,
         },
@@ -131,6 +132,7 @@ function Migrate(): JSX.Element {
     <>
       {migration ? (
         <Content>
+          <SGTMigrationNotification />
           <Flex justifyCenter>
             <Flex col gap={30}>
               <Button onClick={addToken}>Add SGT token to wallet</Button>

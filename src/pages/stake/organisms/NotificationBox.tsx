@@ -6,7 +6,7 @@ import React from 'react'
 import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 import { BKPT_4, BKPT_5 } from '../../../constants'
 import { useGeneral } from '../../../context/GeneralManager'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { Flex } from '../../../components/atoms/Layout'
 // text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200
 const StyledText = styled.div`
@@ -253,18 +253,19 @@ export function CoverageNotification(): JSX.Element {
 export function SGTMigrationNotification(): JSX.Element {
   const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
+  const location = useLocation()
 
   return (
     <SGTMigrationTip style={{ flexDirection: width > (rightSidebar ? BKPT_5 : BKPT_4) ? 'row' : 'column' }}>
       <Flex col>
         <Typography.Hero>Migrate to SGT</Typography.Hero>
         <Typography.Sidekick>
-          Solace is now using <Typography.Emphasis>$SGT</Typography.Emphasis> (Solace Governance Token) instead of
-          $SOLACE.
+          Solace is now using <Typography.Emphasis>$SGT</Typography.Emphasis> (Solace Governance Token) instead of{' '}
+          <Typography.Emphasis>$SOLACE</Typography.Emphasis>.
         </Typography.Sidekick>
         <Typography.Sidekick>
           If you are eligible, please migrate your <Typography.Emphasis>$SOLACE</Typography.Emphasis> tokens for{' '}
-          <Typography.Emphasis>$SGT</Typography.Emphasis> tokens.
+          <Typography.Emphasis>$SGT</Typography.Emphasis> tokens on Ethereum Mainnet.
         </Typography.Sidekick>
         <Typography.Sidekick>
           Your amount in <Typography.Emphasis>$SGT</Typography.Emphasis> will account for your staked and unstaked
@@ -272,18 +273,20 @@ export function SGTMigrationNotification(): JSX.Element {
         </Typography.Sidekick>
       </Flex>
 
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <div style={{ display: 'flex', padding: '10px' }}>
-          <NavLink to={'/migrate'}>
-            <InfoTipButton>Migrate Now</InfoTipButton>
-          </NavLink>
+      {location.pathname != '/migrate' && (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div style={{ display: 'flex', padding: '10px' }}>
+            <NavLink to={'/migrate'}>
+              <InfoTipButton>Migrate Now</InfoTipButton>
+            </NavLink>
+          </div>
         </div>
-      </div>
+      )}
     </SGTMigrationTip>
   )
 }
