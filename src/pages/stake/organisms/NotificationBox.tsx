@@ -283,12 +283,20 @@ export function SGTMigrationNotification(): JSX.Element {
           <Typography.Emphasis>$SOLACE</Typography.Emphasis>.
         </Typography.Sidekick>
         <Typography.Sidekick>
-          If you are eligible, please migrate your <Typography.Emphasis>$SOLACE</Typography.Emphasis> tokens for{' '}
-          <Typography.Emphasis>$SGT</Typography.Emphasis> tokens on Ethereum Mainnet.
+          If you are eligible, please receive your <Typography.Emphasis>$SGT</Typography.Emphasis> tokens on Ethereum
+          Mainnet, and leave your <Typography.Emphasis>$SOLACE</Typography.Emphasis> tokens where they are.
         </Typography.Sidekick>
         <Typography.Sidekick>
           Your amount in <Typography.Emphasis>$SGT</Typography.Emphasis> will account for your staked and unstaked
           balances of <Typography.Emphasis>$SOLACE</Typography.Emphasis> across all networks.
+        </Typography.Sidekick>
+        <Typography.Sidekick>
+          If your <Typography.Emphasis>$SOLACE</Typography.Emphasis> tokens were not in your personal wallet or in our
+          managed contracts for our snapshot on March 20th, you may not see the exact amount during migration.
+        </Typography.Sidekick>
+        <Typography.Sidekick>
+          To ensure a smooth migration, please transfer your <Typography.Emphasis>$SOLACE</Typography.Emphasis> tokens
+          from any third-party locations to your own account before April for the next snapshot.
         </Typography.Sidekick>
       </Flex>
 

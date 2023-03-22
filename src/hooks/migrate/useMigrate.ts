@@ -1,4 +1,3 @@
-import { ZERO } from '@solace-fi/sdk-nightly'
 import { BigNumber } from 'ethers'
 import { useCallback } from 'react'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
@@ -14,7 +13,7 @@ export const useMigrate = () => {
   const migrate = useCallback(
     async (account: string, amount: BigNumber, proof: string[]) => {
       if (!migration) return { tx: null, localTx: null }
-      const tx = await migration.migrate(account, amount, proof, { ...gasConfig, gasLimit: 800000 })
+      const tx = await migration.migrate(account, amount, proof, { ...gasConfig, gasLimit: 144000 })
       const localTx: LocalTx = {
         hash: tx.hash,
         type: FunctionName.MIGRATE,
@@ -22,7 +21,7 @@ export const useMigrate = () => {
       }
       return { tx, localTx }
     },
-    [migration]
+    [migration, gasConfig]
   )
 
   const migrated = useCallback(

@@ -37,12 +37,12 @@ function Migrate(): JSX.Element {
 
   const eligiblePageStartState = useMemo(
     () => successfulTx == undefined && canMigrate && !pageLoading && migratableAmount != '0' && isVerified,
-    [successfulTx, canMigrate, pageLoading, migratableAmount]
+    [successfulTx, canMigrate, pageLoading, migratableAmount, isVerified]
   )
 
   const ineligiblePageStartState = useMemo(
     () => successfulTx == undefined && (!canMigrate || migratableAmount == '0' || !isVerified) && !pageLoading,
-    [successfulTx, canMigrate, pageLoading, migratableAmount]
+    [successfulTx, canMigrate, pageLoading, migratableAmount, isVerified]
   )
 
   const failedPageStartState = useMemo(() => successfulTx == false && !pageLoading, [successfulTx, pageLoading])
@@ -81,7 +81,7 @@ function Migrate(): JSX.Element {
     await migrate(accountData.account, BigNumber.from(accountData.amount), accountData.proof)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callMigrate', err, FunctionName.MIGRATE))
-  }, [chainId, account])
+  }, [chainId, account, data])
 
   const _handleToast = async (tx: any, localTx: any) => {
     const res = await handleToast(tx, localTx)
