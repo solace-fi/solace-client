@@ -104,14 +104,7 @@ const CoverageTip = styled.div<GeneralElementProps>`
 `
 
 const SGTMigrationTip = styled.div<GeneralElementProps>`
-  background: rgb(207, 189, 5);
-  background: linear-gradient(
-    101deg,
-    rgba(207, 189, 5, 1) 1%,
-    rgba(242, 94, 251, 1) 27%,
-    rgba(80, 80, 251, 1) 75%,
-    rgba(240, 26, 60, 1) 100%
-  );
+  background: rgba(80, 80, 251, 1);
   color: #fafafa;
   padding: 1.5rem;
   font-size: 0.875rem;
@@ -283,20 +276,19 @@ export function SGTMigrationNotification(): JSX.Element {
           <Typography.Emphasis>$SOLACE</Typography.Emphasis>.
         </Typography.Sidekick>
         <Typography.Sidekick>
-          If you are eligible, please receive your <Typography.Emphasis>$SGT</Typography.Emphasis> tokens on Ethereum
-          Mainnet, and leave your <Typography.Emphasis>$SOLACE</Typography.Emphasis> tokens where they are.
+          You can claim your <Typography.Emphasis>$SGT</Typography.Emphasis> tokens on the Ethereum Mainnet. Your amount
+          in <Typography.Emphasis>$SGT</Typography.Emphasis> accounts for your staked and unstaked balances of{' '}
+          <Typography.Emphasis>$SOLACE</Typography.Emphasis> across all networks.
         </Typography.Sidekick>
         <Typography.Sidekick>
-          Your amount in <Typography.Emphasis>$SGT</Typography.Emphasis> will account for your staked and unstaked
-          balances of <Typography.Emphasis>$SOLACE</Typography.Emphasis> across all networks.
+          If your amount of <Typography.Emphasis>$SGT</Typography.Emphasis> is lower than expected, your{' '}
+          <Typography.Emphasis>$SOLACE</Typography.Emphasis> tokens may not have been stored in your personal wallet or
+          within our contracts during the snapshot on March 20th.
         </Typography.Sidekick>
         <Typography.Sidekick>
-          If your <Typography.Emphasis>$SOLACE</Typography.Emphasis> tokens were not in your personal wallet or in our
-          managed contracts for our snapshot on March 20th, you may not see the exact amount during migration.
-        </Typography.Sidekick>
-        <Typography.Sidekick>
-          To ensure a smooth migration, please transfer your <Typography.Emphasis>$SOLACE</Typography.Emphasis> tokens
-          from any third-party locations to your own account before April for the next snapshot.
+          To ensure that you receive all of your <Typography.Emphasis>$SGT</Typography.Emphasis> tokens, transfer your{' '}
+          <Typography.Emphasis>$SOLACE</Typography.Emphasis> from any third-party locations to your own wallet before
+          the next snapshot in April.
         </Typography.Sidekick>
       </Flex>
 
