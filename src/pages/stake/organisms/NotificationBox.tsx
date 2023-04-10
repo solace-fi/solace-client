@@ -283,12 +283,7 @@ export function SGTMigrationNotification(): JSX.Element {
         <Typography.Sidekick>
           If your amount of <Typography.Emphasis>$SGT</Typography.Emphasis> is lower than expected, your{' '}
           <Typography.Emphasis>$SOLACE</Typography.Emphasis> tokens may not have been stored in your personal wallet or
-          within our contracts during the snapshot on March 20th.
-        </Typography.Sidekick>
-        <Typography.Sidekick>
-          To ensure that you receive all of your <Typography.Emphasis>$SGT</Typography.Emphasis> tokens, transfer your{' '}
-          <Typography.Emphasis>$SOLACE</Typography.Emphasis> from any third-party locations to your own wallet before
-          the next snapshot in April.
+          within our contracts during the snapshots on March 20th and April 10th.
         </Typography.Sidekick>
       </Flex>
 

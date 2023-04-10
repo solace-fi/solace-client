@@ -71,6 +71,10 @@ export const MainNetwork: NetworkConfig = {
         addr: KEY_ADDRS.MIGRATION,
         abi: migration_ABI,
       },
+      migrationV2: {
+        addr: KEY_ADDRS.MIGRATION_V2,
+        abi: migration_ABI,
+      },
       xSolaceMigrator: {
         addr: KEY_ADDRS.XSOLACE_MIGRATOR,
         abi: xSolaceMigratorABI.abi,

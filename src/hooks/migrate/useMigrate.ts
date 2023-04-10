@@ -7,13 +7,13 @@ import { useGetFunctionGas } from '../provider/useGas'
 
 export const useMigrate = () => {
   const { keyContracts } = useContracts()
-  const { migration } = keyContracts
+  const { migration, migrationV2 } = keyContracts
   const { gasConfig } = useGetFunctionGas()
 
   const migrate = useCallback(
     async (account: string, amount: BigNumber, proof: string[]) => {
-      if (!migration) return { tx: null, localTx: null }
-      const tx = await migration.migrate(account, amount, proof, { ...gasConfig, gasLimit: 144000 })
+      if (!migrationV2) return { tx: null, localTx: null }
+      const tx = await migrationV2.migrate(account, amount, proof, { ...gasConfig, gasLimit: 144000 })
       const localTx: LocalTx = {
         hash: tx.hash,
         type: FunctionName.MIGRATE,
@@ -21,25 +21,25 @@ export const useMigrate = () => {
       }
       return { tx, localTx }
     },
-    [migration, gasConfig]
+    [migrationV2, gasConfig]
   )
 
   const migrated = useCallback(
     async (address: string): Promise<boolean> => {
-      if (!migration) return false
-      const balance = await migration.migrated(address)
+      if (!migrationV2) return false
+      const balance = await migrationV2.migrated(address)
       return balance
     },
-    [migration]
+    [migrationV2]
   )
 
   const verify = useCallback(
     async (account: string, amount: BigNumber, proof: string[]): Promise<boolean> => {
-      if (!migration) return false
-      const verification = await migration.verify(account, amount, proof)
+      if (!migrationV2) return false
+      const verification = await migrationV2.verify(account, amount, proof)
       return verification
     },
-    [migration]
+    [migrationV2]
   )
 
   return {
