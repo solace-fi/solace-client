@@ -77,4 +77,7 @@ export enum FunctionName {
   BRIBE_REMOVE_VOTES_MULTIPLE_BRIBES = 'RemoveVotesForMultipleBribes',
   BRIBE_REMOVE_VOTES_MULTIPLE_VOTERS = 'RemoveVotesForBribeForMultipleVoters',
   BRIBE_CLAIM = 'ClaimBribes',
+
+  // Migration
+  MIGRATE = 'Migrate',
 }

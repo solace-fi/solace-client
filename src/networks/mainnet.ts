@@ -9,6 +9,7 @@ import solaceABI from '../constants/abi/SOLACE.json'
 import xSolaceABI from '../constants/abi/xSOLACE.json'
 import xSolaceV1ABI from '../constants/abi/xSOLACEV1.json'
 import xSolaceMigratorABI from '../constants/abi/xSolaceMigrator.json'
+import migration_ABI from '../constants/abi/Migration.json'
 
 import { KEY_ADDRS, NATIVE_ADDRS } from '../constants/addresses/mainnet'
 import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
@@ -65,6 +66,14 @@ export const MainNetwork: NetworkConfig = {
       xsLocker: {
         addr: KEY_ADDRS.XSLOCKER,
         abi: xsLocker_ABI,
+      },
+      migration: {
+        addr: KEY_ADDRS.MIGRATION,
+        abi: migration_ABI,
+      },
+      migrationV2: {
+        addr: KEY_ADDRS.MIGRATION_V2,
+        abi: migration_ABI,
       },
       xSolaceMigrator: {
         addr: KEY_ADDRS.XSOLACE_MIGRATOR,

@@ -47,7 +47,7 @@ import {
   StyledArrowIosBackOutline,
   StyledArrowIosForwardOutline,
 } from '../../components/atoms/Icon'
-import { DifferenceNotification, CoverageNotification } from './organisms/NotificationBox'
+import { DifferenceNotification, CoverageNotification, SGTMigrationNotification } from './organisms/NotificationBox'
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
@@ -92,7 +92,7 @@ import { isAddress } from '../../utils'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function Stake1(): any {
+function StakeV1(): any {
   /*************************************************************************************
 
     custom hooks
@@ -559,7 +559,8 @@ export default function Stake(): JSX.Element {
           {parseUnits(xSolaceV1Balance, XSOLACE_V1_TOKEN.constants.decimals).gt(ZERO) && (
             <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
           )}
-          {locks.length > 0 && coverage.policyId?.isZero() && <CoverageNotification />}
+          {/* {locks.length > 0 && coverage.policyId?.isZero() && <CoverageNotification />} */}
+          <SGTMigrationNotification />
           {StakingVersion.v2 === stakingVersion &&
             (canStakeV2 ? (
               <>
@@ -924,7 +925,7 @@ export default function Stake(): JSX.Element {
               </Content>
             ))}
           {/* only show the following if staking is v1 and the tab is not `difference` */}
-          {stakingVersion === StakingVersion.v1 && <Stake1 />}
+          {stakingVersion === StakingVersion.v1 && <StakeV1 />}
           {/* only show the following if staking is v1 and the tab is 'difference' */}
           {stakingVersion === StakingVersion.difference && <DifferenceBoxes setStakingVersion={setStakingVersion} />}
         </Content>

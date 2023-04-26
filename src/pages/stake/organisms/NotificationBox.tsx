@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useCallback } from 'react'
 import styled, { css, keyframes } from 'styled-components'
 import { GeneralElementProps } from '../../../components/generalInterfaces'
 import { StakingVersion } from '../../../constants/enums'
@@ -6,8 +6,12 @@ import React from 'react'
 import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 import { BKPT_4, BKPT_5 } from '../../../constants'
 import { useGeneral } from '../../../context/GeneralManager'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { Flex } from '../../../components/atoms/Layout'
+import { Button } from '../../../components/atoms/Button'
+import { useWeb3React } from '@web3-react/core'
+import { SGT } from '../../../constants/mappings/token'
+import { StyledArrowRight } from '../../../components/atoms/Icon'
 // text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200
 const StyledText = styled.div`
   font-size: 0.875rem;
@@ -56,7 +60,7 @@ const Notification = styled.div<GeneralElementProps>`
   margin-bottom: 40px;
 `
 
-const Tip = styled.div<GeneralElementProps>`
+const CoverageTip = styled.div<GeneralElementProps>`
   background: hsla(129, 78%, 21%, 1);
 
   background: linear-gradient(
@@ -99,6 +103,20 @@ const Tip = styled.div<GeneralElementProps>`
   margin-bottom: 40px;
 `
 
+const SGTMigrationTip = styled.div<GeneralElementProps>`
+  background: rgba(80, 80, 251, 1);
+  color: #fafafa;
+  padding: 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  box-shadow: 0 0 7px #fff;
+`
+
 const baseButtonStyle = css`
   border-radius: 0.5rem;
   font-size: 0.875rem;
@@ -138,9 +156,14 @@ const whiteNotificationButtonStyle = css`
   color: #f04d42;
 `
 
-const whiteTipButtonStyle = css`
+const whiteTipButtonSuccessStyle = css`
   background-color: white;
   color: ${(props) => props.theme.box.success};
+`
+
+const whiteTipButtonInfoStyle = css`
+  background-color: white;
+  color: ${(props) => props.theme.box.info};
 `
 
 const NotificationButton = styled.div<{ active?: boolean }>`
@@ -155,9 +178,18 @@ const NotificationButton = styled.div<{ active?: boolean }>`
   font-size: 14px;
 `
 
-const TipButton = styled.div<{ active?: boolean }>`
+const SuccessTipButton = styled.div<{ active?: boolean }>`
   ${baseButtonStyle}
-  ${({ active }) => (active ? whiteTipButtonStyle : greenButtonStyle)}
+  ${({ active }) => (active ? whiteTipButtonSuccessStyle : greenButtonStyle)}
+  height: 40px;
+  width: 170px;
+  border-radius: 10px;
+  font-size: 16px;
+`
+
+const InfoTipButton = styled.div`
+  ${baseButtonStyle}
+  ${whiteTipButtonInfoStyle}
   height: 40px;
   width: 170px;
   border-radius: 10px;
@@ -191,7 +223,7 @@ export function CoverageNotification(): JSX.Element {
   const { width } = useWindowDimensions()
 
   return (
-    <Tip style={{ flexDirection: width > (rightSidebar ? BKPT_5 : BKPT_4) ? 'row' : 'column' }}>
+    <CoverageTip style={{ flexDirection: width > (rightSidebar ? BKPT_5 : BKPT_4) ? 'row' : 'column' }}>
       <Flex col>
         <Typography.Hero>Get Covered with Solace Portfolio Insurance</Typography.Hero>
         <Typography.Sidekick>
@@ -207,11 +239,78 @@ export function CoverageNotification(): JSX.Element {
       >
         <div style={{ display: 'flex', padding: '10px' }}>
           <NavLink to={'/cover'}>
-            <TipButton active>Buy Policy Now</TipButton>
+            <SuccessTipButton active>Buy Policy Now</SuccessTipButton>
           </NavLink>
         </div>
       </div>
-    </Tip>
+    </CoverageTip>
+  )
+}
+
+export function SGTMigrationNotification(): JSX.Element {
+  const { library } = useWeb3React()
+  const { rightSidebar } = useGeneral()
+  const { width, isMobile } = useWindowDimensions()
+  const location = useLocation()
+
+  const addToken = useCallback(async () => {
+    await library.provider.request({
+      method: 'wallet_watchAsset',
+      params: {
+        type: 'ERC20',
+        options: {
+          address: SGT.address[1],
+          symbol: SGT.constants.symbol,
+          decimals: SGT.constants.decimals,
+        },
+      },
+    })
+  }, [library])
+
+  return (
+    <SGTMigrationTip style={{ flexDirection: width > (rightSidebar ? BKPT_5 : BKPT_4) ? 'row' : 'column' }}>
+      <Flex col>
+        <Typography.Hero>Migrate to $SGT</Typography.Hero>
+        <Typography.Sidekick>
+          Solace is now using <Typography.Emphasis>$SGT</Typography.Emphasis> (Solace Governance Token) instead of{' '}
+          <Typography.Emphasis>$SOLACE</Typography.Emphasis>.
+        </Typography.Sidekick>
+        <Typography.Sidekick>
+          You can claim your <Typography.Emphasis>$SGT</Typography.Emphasis> tokens on the Ethereum Mainnet. Your amount
+          in <Typography.Emphasis>$SGT</Typography.Emphasis> accounts for your staked and unstaked balances of{' '}
+          <Typography.Emphasis>$SOLACE</Typography.Emphasis> across all networks.
+        </Typography.Sidekick>
+        <Typography.Sidekick>
+          If your amount of <Typography.Emphasis>$SGT</Typography.Emphasis> is lower than expected, your{' '}
+          <Typography.Emphasis>$SOLACE</Typography.Emphasis> tokens may not have been stored in your personal wallet or
+          within our contracts during the snapshots on March 20th and April 10th.
+        </Typography.Sidekick>
+      </Flex>
+
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: isMobile ? '100%' : 'unset',
+        }}
+      >
+        <Flex gap={10} p={10} rounded justifyCenter style={{ background: 'rgba(0, 0, 0, 0.4)' }}>
+          <img src={'https://assets.solace.fi/solace'} height={50} />
+          <StyledArrowRight size={50} />
+          <img src={`https://assets.solace.fi/${SGT.address[1].toUpperCase()}`} height={50} />
+        </Flex>
+        <div style={{ display: 'flex', padding: '10px', gap: '10px', flexDirection: 'column' }}>
+          <Button p={16} onClick={addToken} light>
+            Add $SGT to wallet
+          </Button>
+          {location.pathname != '/migrate' && (
+            <NavLink to={'/migrate'}>
+              <InfoTipButton style={{ width: '100%' }}>Migrate Now</InfoTipButton>
+            </NavLink>
+          )}
+        </div>
+      </div>
+    </SGTMigrationTip>
   )
 }
 

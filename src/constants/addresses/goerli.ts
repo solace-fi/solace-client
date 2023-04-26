@@ -1,9 +1,11 @@
-import { SOLACE_TOKEN, XSOLACE_TOKEN } from '../mappings/token'
+import { SOLACE_TOKEN, SGT, XSOLACE_TOKEN } from '../mappings/token'
 
 export const KEY_ADDRS = {
   SOLACE: SOLACE_TOKEN.address[5],
+  SGT: SGT.address[5],
   XSLOCKER: '0x501Ace47c5b0C2099C4464f681c3fa2ECD3146C1',
   XSOLACE: XSOLACE_TOKEN.address[5],
+  MIGRATION: '0x501ace8cBBDea468Cf029DF44fB394dC9db5C151',
 }
 
 export const NATIVE_ADDRS = {

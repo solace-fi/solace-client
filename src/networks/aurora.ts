@@ -40,8 +40,8 @@ export const AuroraNetwork: NetworkConfig = {
   },
   explorer: {
     name: 'Aurorascan',
-    url: 'https://aurorascan.dev',
-    apiUrl: 'https://api.aurorascan.dev',
+    url: 'https://explorer.mainnet.aurora.dev',
+    apiUrl: 'https://explorer.mainnet.aurora.dev',
     excludedContractAddrs: [KEY_ADDRS.SOLACE, SPECIAL_ADDRS.BSOLACE],
     key: String(AURORASCAN_API_KEY),
   },
@@ -134,7 +134,7 @@ export const AuroraNetwork: NetworkConfig = {
     chainName: 'Aurora Mainnet',
     nativeCurrency: { name: 'ETH', symbol: Unit.ETH, decimals: 18 },
     rpcUrls: ['https://mainnet.aurora.dev'],
-    blockExplorerUrls: ['https://aurorascan.dev'],
+    blockExplorerUrls: ['https://explorer.mainnet.aurora.dev'],
   },
   walletConfig: {
     portisId: String(process.env.REACT_APP_PORTIS_ID),

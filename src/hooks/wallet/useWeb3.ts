@@ -33,7 +33,7 @@ export const useEagerConnect = (
     if (!active && triedLocallyStored && (window as any).ethereum && !manuallyDisconnected) {
       connect(MetaMaskConnector).catch(() => setTried(true))
     }
-  }, [connect, active, isMobile, triedLocallyStored, manuallyDisconnected])
+  }, [connect, active, triedLocallyStored, manuallyDisconnected])
 
   // wait until we get confirmation of a connection to flip the flag
   useEffect(() => {
@@ -94,7 +94,6 @@ export const useInactiveListener = (
           ethereum.removeListener('networkChanged', handleNetworkChanged)
         }
       }
-    } else {
     }
 
     return undefined

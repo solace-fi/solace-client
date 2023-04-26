@@ -16,6 +16,7 @@ import { Portfolio } from './Portfolio'
 import ReferralModal from './ReferralModal'
 import ShareModal from './ShareModal'
 import { CodeNoticeModal } from './CodeNoticeModal'
+import { SGTMigrationNotification } from '../stake/organisms/NotificationBox'
 
 const CoverageContent = () => {
   const { account } = useWeb3React()
@@ -87,6 +88,7 @@ const CoverageContent = () => {
       {canShowCoverageV3 && account ? (
         <>
           <CodeNoticeModal />
+          <SGTMigrationNotification />
           <Flex justifyCenter>
             <Flex col width={450}>
               {_showCldModal && <CldModal />}
