@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { useContracts } from '../../context/ContractsManager'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
@@ -13,8 +13,8 @@ import { withBackoffRetries } from '../../utils/time'
 import { useNetwork } from '../../context/NetworkManager'
 
 import { Lock, Staker, GlobalLockInfo, Price } from '@solace-fi/sdk-nightly'
-import { useCachedData } from '../../context/CachedDataManager'
 import { FunctionGasLimits } from '../../constants/mappings/gas'
+import { useCachedData } from '../../context/CachedDataManager'
 
 export const useStakingRewards = () => {
   const { provider, signer } = useProvider()
@@ -202,35 +202,37 @@ export const useProjectedBenefits = (
 } => {
   const { getGlobalLockStats } = useStakingRewards()
   const { latestBlock } = useProvider()
-  const { minute } = useCachedData()
+  const { staking } = useCachedData()
+  const { globalLockStats, handleGlobalLockStats, canFetchGlobalStatsFlag, handleCanFetchGlobalStatsFlag } = staking
+  const running = useRef<boolean>(false)
 
   const [projectedMultiplier, setProjectedMultiplier] = useState<string>('0')
   const [projectedApr, setProjectedApr] = useState<BigNumber>(ZERO)
   const [projectedYearlyReturns, setProjectedYearlyReturns] = useState<BigNumber>(ZERO)
-  const [globalLockStats, setGlobalLockStats] = useState<GlobalLockInfo>({
-    solaceStaked: '0',
-    valueStaked: '0',
-    numLocks: '0',
-    rewardPerSecond: '0',
-    apr: '0',
-    successfulFetch: false,
-  })
 
   useEffect(() => {
     const _getGlobalLockStats = async () => {
-      const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
-      setGlobalLockStats(globalLockStats)
+      running.current = true
+      const _globalLockStats: GlobalLockInfo = await getGlobalLockStats()
+      handleGlobalLockStats(_globalLockStats)
+      handleCanFetchGlobalStatsFlag(false)
+      running.current = false
     }
-    _getGlobalLockStats()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [minute])
+    if (!running.current) {
+      if (formatAmount(bnBalance) !== '0') {
+        if (!globalLockStats.successfulFetch || canFetchGlobalStatsFlag) {
+          _getGlobalLockStats()
+        }
+      }
+    }
+  }, [bnBalance, canFetchGlobalStatsFlag, globalLockStats])
 
   useEffect(() => {
-    if (!latestBlock) return
+    if (!latestBlock.blockTimestamp) return
 
     let rewardMultiplier = 1.0
-    if (lockEnd > latestBlock.timestamp) rewardMultiplier += (1.5 * (lockEnd - latestBlock.timestamp)) / (31536000 * 4)
+    if (lockEnd > latestBlock.blockTimestamp)
+      rewardMultiplier += (1.5 * (lockEnd - latestBlock.blockTimestamp)) / (31536000 * 4)
     const preciseMultiplier = convertSciNotaToPrecise(`${Math.floor(rewardMultiplier * parseFloat(bnBalance))}`)
     const boostedValue = BigNumber.from(preciseMultiplier)
 
@@ -246,9 +248,7 @@ export const useProjectedBenefits = (
     setProjectedMultiplier(strRewardMultiplier)
     setProjectedApr(projectedApr)
     setProjectedYearlyReturns(projectedYearlyReturns)
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [globalLockStats, lockEnd, bnBalance])
+  }, [globalLockStats, lockEnd, bnBalance, latestBlock.blockTimestamp])
 
   return { projectedMultiplier, projectedApr, projectedYearlyReturns }
 }

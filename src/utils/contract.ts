@@ -1,10 +1,13 @@
-import { BigNumber, utils } from 'ethers'
+import { BigNumber, utils, providers } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 import { rangeFrom0, numberify } from './numeric'
 import { equalsIgnoreCase, getContract } from '.'
 import { withBackoffRetries } from './time'
 import ierc20Alt from '../constants/abi/IERC20MetadataAlt.json'
 import { ZERO } from '../constants'
+import { ContractCall } from 'ethers-multicall'
+import { multicallAddresses } from '@solace-fi/sdk-nightly'
+import { all } from 'ethers-multicall/dist/call'
 
 const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
@@ -78,4 +81,42 @@ export const listTokensOfOwner = async (token: Contract, account: string): Promi
     return []
   })
   return tokenIds
+}
+
+export class MulticallProvider {
+  _provider: providers.Provider
+  _multicallAddress: string
+
+  constructor(provider: providers.Provider, chainId: number) {
+    this._provider = provider
+    this._multicallAddress = multicallAddresses[chainId]
+  }
+  public async all<T extends any[] = any[]>(calls: ContractCall[]) {
+    if (!this._provider) {
+      throw new Error('Provider should be initialized before use.')
+    }
+    return all<T>(calls, this._multicallAddress, this._provider)
+  }
+}
+
+export const multicallChunked = async (mcProvider: MulticallProvider, calls: ContractCall[], chunkSize = 25) => {
+  // break into chunks
+  const chunks: ContractCall[][] = []
+  for (let i = 0; i < calls.length; i += chunkSize) {
+    const _chunk: ContractCall[] = []
+    for (let j = 0; j < chunkSize && i + j < calls.length; ++j) {
+      _chunk.push(calls[i + j])
+    }
+    chunks.push(_chunk)
+  }
+  // parallel call each chunk
+  const res1: any[][] = await Promise.all(chunks.map((chunk) => withBackoffRetries(() => mcProvider.all(chunk))))
+  // reassemble
+  const res2: any[] = []
+  for (let i = 0; i < res1.length; ++i) {
+    for (let j = 0; j < res1[i].length; ++j) {
+      res2.push(res1[i][j])
+    }
+  }
+  return res2
 }

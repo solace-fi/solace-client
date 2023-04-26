@@ -22,17 +22,17 @@ import { Text } from '../../../../components/atoms/Typography'
 import { BKPT_7, BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
 import { RaisedBox } from '../../../../components/atoms/Box'
-import { Label } from '../../molecules/InfoPair'
+import { Label } from '../../../../components/molecules/stake-and-lock/InfoPair'
 import { Flex, ShadowDiv, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { Accordion } from '../../../../components/atoms/Accordion'
 import { useProvider } from '../../../../context/ProviderManager'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
+import { useWeb3React } from '@web3-react/core'
 
-const StyledForm = styled.div`
+const NewSafeStyledForm = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -45,8 +45,8 @@ const StyledForm = styled.div`
 
 export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
-  const { width } = useWindowDimensions()
   const { account } = useWeb3React()
+  const { width } = useWindowDimensions()
   const { latestBlock } = useProvider()
   const solaceBalance = useSolaceBalance()
   const { isAppropriateAmount } = useInputAmount()
@@ -60,12 +60,12 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const [lockInputValue, setLockInputValue] = React.useState('')
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     stakeRangeValue,
-    latestBlock ? latestBlock.timestamp + parseInt(formatAmount(lockInputValue)) * 86400 : 0
+    latestBlock.blockTimestamp ? latestBlock.blockTimestamp + parseInt(formatAmount(lockInputValue)) * 86400 : 0
   )
 
   const callCreateLock = async () => {
-    if (!latestBlock || !account) return
-    const seconds = latestBlock.timestamp + parseInt(formatAmount(lockInputValue)) * 86400
+    if (!latestBlock.blockTimestamp || !account) return
+    const seconds = latestBlock.blockTimestamp + parseInt(formatAmount(lockInputValue)) * 86400
     await createLock(account, parseUnits(formatAmount(stakeInputValue), 18), BigNumber.from(seconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callCreateLock', err, FunctionName.CREATE_LOCK))
@@ -110,7 +110,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
     >
       <ShadowDiv ref={accordionRef} style={{ marginBottom: '20px' }}>
         <RaisedBox>
-          <StyledForm>
+          <NewSafeStyledForm>
             <Flex column p={24} gap={30}>
               <Flex column={(rightSidebar ? BKPT_7 : BKPT_5) > width} gap={24}>
                 <Flex column gap={24}>
@@ -132,7 +132,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     max={parseUnits(solaceBalance, 18).toString()}
                   />
                 </Flex>
-                <Flex column stretch w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
+                <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
                   <Label importance="quaternary" style={{ marginBottom: '8px' }}>
                     Projected benefits
                   </Label>
@@ -212,7 +212,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 </Flex>
               </Flex>
             </Flex>
-            <Flex pb={24} pl={24} w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 333 : undefined}>
+            <Flex pb={24} pl={24} width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 333 : undefined}>
               <Button
                 secondary
                 info
@@ -223,7 +223,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 Stake
               </Button>
             </Flex>
-          </StyledForm>
+          </NewSafeStyledForm>
         </RaisedBox>
       </ShadowDiv>
     </Accordion>

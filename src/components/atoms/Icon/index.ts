@@ -3,6 +3,7 @@ import { ArrowDropDown } from '@styled-icons/material-rounded/ArrowDropDown'
 import { Close } from '@styled-icons/material-rounded/Close'
 import { Checkmark } from '@styled-icons/evaicons-solid/Checkmark'
 import { Clock } from '@styled-icons/bootstrap/Clock'
+import { ArrowRight } from '@styled-icons/bootstrap/ArrowRight'
 import { CoinStack } from '@styled-icons/boxicons-solid/CoinStack'
 import { ShareAlt } from '@styled-icons/boxicons-solid/ShareAlt'
 import { Copy } from '@styled-icons/boxicons-regular/Copy'
@@ -13,6 +14,7 @@ import { Dashboard } from '@styled-icons/material/Dashboard'
 import { Discord } from '@styled-icons/simple-icons/Discord'
 import { DocumentText } from '@styled-icons/typicons/DocumentText'
 import { Documents } from '@styled-icons/ionicons-sharp/Documents'
+import { Analytics } from '@styled-icons/ionicons-sharp/Analytics'
 import { DotsHorizontalRounded } from '@styled-icons/boxicons-regular/DotsHorizontalRounded'
 import { HelpCircle } from '@styled-icons/boxicons-regular/HelpCircle'
 import { FileEarmarkLock2Fill } from '@styled-icons/bootstrap/FileEarmarkLock2Fill'
@@ -23,6 +25,7 @@ import { GraphDown } from '@styled-icons/bootstrap/GraphDown'
 import { History } from '@styled-icons/boxicons-regular/History'
 import { Info } from '@styled-icons/fluentui-system-regular/Info'
 import { Options } from '@styled-icons/fluentui-system-regular/Options'
+import { ArrowDownload } from '@styled-icons/fluentui-system-regular/ArrowDownload'
 import { Calculator } from '@styled-icons/fluentui-system-regular/Calculator'
 import { Expand } from '@styled-icons/boxicons-regular/Expand'
 import { LinkExternal } from '@styled-icons/boxicons-regular/LinkExternal'
@@ -39,10 +42,13 @@ import { Twitter } from '@styled-icons/boxicons-logos/Twitter'
 import { Wallet } from '@styled-icons/boxicons-solid/Wallet'
 import { Warning } from '@styled-icons/fluentui-system-regular/Warning'
 import { Work } from '@styled-icons/material/Work'
+import { LocalFireDepartment } from '@styled-icons/material/LocalFireDepartment'
 import { Multiselect } from '@styled-icons/fluentui-system-regular/Multiselect'
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosForwardOutline'
 import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline'
+import { Vote } from '@styled-icons/fluentui-system-regular/Vote'
 import { Tractor } from '@styled-icons/fa-solid/Tractor'
+import { WindowRestore } from '@styled-icons/fa-solid/WindowRestore'
 import { FolderHistory } from '@styled-icons/remix-fill/FolderHistory'
 import { Export } from '@styled-icons/boxicons-regular/Export'
 
@@ -167,3 +173,17 @@ export const StyledAdd = styled(Add)``
 export const StyledExpand = styled(Expand)``
 
 export const StyledExport = styled(Export)``
+
+export const StyledVote = styled(Vote)``
+
+export const StyledFire = styled(LocalFireDepartment)`
+  ${StyledIconCss}
+`
+
+export const StyledAnalytics = styled(Analytics)``
+
+export const StyledDownload = styled(ArrowDownload)``
+
+export const StyledWindowRestore = styled(WindowRestore)``
+
+export const StyledArrowRight = styled(ArrowRight)``

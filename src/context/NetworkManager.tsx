@@ -3,7 +3,6 @@ import { NetworkConfig } from '../constants/types'
 
 /* networks */
 import { MainNetwork } from '../networks/mainnet'
-import { RinkebyNetwork } from '../networks/rinkeby'
 import { PolygonNetwork } from '../networks/polygon'
 import { MumbaiNetwork } from '../networks/mumbai'
 import { AuroraNetwork } from '../networks/aurora'
@@ -15,6 +14,7 @@ import { hexStripZeros } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import { useGeneral } from './GeneralManager'
 import { Error } from '../constants/enums'
+import { GoerliNetwork } from '../networks/goerli'
 
 /*
 
@@ -24,7 +24,7 @@ This manager keeps track of the current network and other important information.
 
 export const networks: NetworkConfig[] = [
   MainNetwork,
-  RinkebyNetwork,
+  GoerliNetwork,
   PolygonNetwork,
   MumbaiNetwork,
   AuroraNetwork,

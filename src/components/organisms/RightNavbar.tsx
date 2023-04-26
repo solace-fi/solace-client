@@ -1,35 +1,36 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react'
-import styled from 'styled-components'
-import { Z_NAV } from '../../constants'
-import { Text, TextSpan } from '../atoms/Typography'
-import { Flex, ShadowDiv, VerticalSeparator } from '../atoms/Layout'
-import makeBlockie from 'ethereum-blockies-base64'
-import { UserImage } from '../atoms/User'
-import { StyledMoon, StyledSun } from '../atoms/Icon'
-import { useWallet } from '../../context/WalletManager'
-import { useNetwork } from '../../context/NetworkManager'
-import { useCachedData } from '../../context/CachedDataManager'
-import { shortenAddress, truncateValue } from '../../utils/formatting'
-import { useGeneral } from '../../context/GeneralManager'
-import { Button } from '../atoms/Button'
-import { useProvider } from '../../context/ProviderManager'
-import { TransactionHistoryModal } from './TransactionHistoryModal'
-import { HyperLink } from '../atoms/Link'
-import { getExplorerItemUrl } from '../../utils/explorer'
-import { ExplorerscanApi } from '../../constants/enums'
-import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
-import { useSolaceBalance } from '../../hooks/balance/useBalance'
-import { useXSLocker } from '../../hooks/stake/useXSLocker'
-import { useContracts } from '../../context/ContractsManager'
-import { useFetchTxHistoryByAddress } from '../../hooks/api/useTransactionHistory'
-import { decodeInput } from '../../utils/decoder'
-import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
-import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
 import UserWhite from '../../resources/svg/user_white.svg'
+import makeBlockie from 'ethereum-blockies-base64'
+import styled from 'styled-components'
+import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
+import { Button } from '../atoms/Button'
+import { ExplorerscanApi } from '../../constants/enums'
+import { Flex, ShadowDiv, VerticalSeparator } from '../atoms/Layout'
+import { HyperLink } from '../atoms/Link'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
-import { useWeb3React } from '@web3-react/core'
-import { useENS } from '../../hooks/wallet/useENS'
+import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
+import { StyledMoon, StyledSun } from '../atoms/Icon'
+import { Text, TextSpan } from '../atoms/Typography'
 import { ThinScrollbarCss } from '../atoms/Scrollbar/ThinScrollbar'
+import { TransactionHistoryModal } from './TransactionHistoryModal'
+import { UserImage } from '../atoms/User'
+import { ZERO, Z_NAV } from '../../constants'
+import { decodeInput } from '../../utils/decoder'
+import { getExplorerItemUrl } from '../../utils/explorer'
+import { capitalizeFirstLetter, shortenAddress, truncateValue } from '../../utils/formatting'
+import { useCachedData } from '../../context/CachedDataManager'
+import { useContracts } from '../../context/ContractsManager'
+import { useENS } from '../../hooks/wallet/useENS'
+import { useFetchTxHistoryByAddress } from '../../hooks/api/useTransactionHistory'
+import { useGeneral } from '../../context/GeneralManager'
+import { useNetwork } from '../../context/NetworkManager'
+import { useProvider } from '../../context/ProviderManager'
+import { useSolaceBalance } from '../../hooks/balance/useBalance'
+import { useWallet } from '../../context/WalletManager'
+import { useWeb3React } from '@web3-react/core'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
+import { useXSLocker } from '../../hooks/stake/useXSLocker'
+import { useUwLocker } from '../../hooks/lock/useUwLocker'
 
 const RightAppNav = styled.div<{ shouldShow: boolean }>`
   background-color: ${({ theme }) => theme.modal.base_color};
@@ -54,7 +55,7 @@ const AppButton = styled(Button)`
 
 export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: boolean) => void }) => {
   const { appTheme, toggleTheme } = useGeneral()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const { width, isMobile } = useWindowDimensions()
   const { openNetworkModal, latestBlock } = useProvider()
   const { account } = useWeb3React()
@@ -70,6 +71,9 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
 
   const solaceBalance = useSolaceBalance()
   const { getUserLockerBalances } = useXSLocker()
+
+  const { totalStakedBalance } = useUwLocker()
+  const [stakedNativeBalance, setStakedNativeBalance] = useState(ZERO)
   const [userLockInfo, setUserLockInfo] = useState({
     stakedBalance: '0',
     lockedBalance: '0',
@@ -83,16 +87,30 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
     const userLockData = await getUserLockerBalances(account)
     setUserLockInfo(userLockData)
     fetching.current = false
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, activeNetwork])
+
+  const _getUserNativeStake = useCallback(async () => {
+    if (!account || fetching.current) return
+    fetching.current = true
+    const staked = await totalStakedBalance(account)
+    setStakedNativeBalance(staked)
+    fetching.current = false
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, activeNetwork])
 
   useEffect(() => {
+    _getUserNativeStake()
+  }, [account, positiveVersion, _getUserNativeStake])
+
+  useEffect(() => {
     _getUserLocks()
-  }, [account, version, _getUserLocks])
+  }, [account, positiveVersion, _getUserLocks])
 
   useEffect(() => {
     if (userLockInfo.successfulFetch) return
     _getUserLocks()
-  }, [latestBlock, userLockInfo.successfulFetch, _getUserLocks])
+  }, [latestBlock.blockNumber, userLockInfo.successfulFetch, _getUserLocks])
 
   return (
     <>
@@ -235,7 +253,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                       </Flex>
                       {txHistory.slice(0, 5).map((tx: any) => (
                         <Flex stretch between pl={40} pr={40} pb={12} key={tx.hash}>
-                          <Text t4>{decodeInput(tx, contractSources)}</Text>
+                          <Text t4>{capitalizeFirstLetter(decodeInput(tx, contractSources)?.name ?? '?')}</Text>
                           <HyperLink
                             href={getExplorerItemUrl(activeNetwork.explorer.url, tx.hash, ExplorerscanApi.TX)}
                             target="_blank"

@@ -1,5 +1,5 @@
 import { CheckboxData } from '../../../constants/types'
-import { LockData } from '@solace-fi/sdk-nightly'
+import { LockData as StakeLockData } from '@solace-fi/sdk-nightly'
 
 /**
  * @name updateLocksChecked
@@ -9,7 +9,7 @@ import { LockData } from '@solace-fi/sdk-nightly'
  * @returns The updated array of locks
  * @example updateLocksChecked(locks, oldArray)
  */
-const updateLocksChecked = (locks: LockData[], oldArray: CheckboxData[]): CheckboxData[] => {
+const updateLocksChecked = (locks: StakeLockData[], oldArray: CheckboxData[]): CheckboxData[] => {
   // if oldArray is empty (component was just rendered), return the new locks, all unchecked
   if (oldArray.length === 0) return locks.map((lock) => ({ id: lock.xsLockID.toString(), checked: false }))
   // we check which locks have already been loaded (they may be checked)

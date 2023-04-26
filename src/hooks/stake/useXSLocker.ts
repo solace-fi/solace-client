@@ -12,6 +12,7 @@ import { withBackoffRetries } from '../../utils/time'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { Lock, UserLocksData } from '@solace-fi/sdk-nightly'
 import { useProvider } from '../../context/ProviderManager'
+import { FunctionGasLimits } from '../../constants/mappings/gas'
 
 export const useXSLocker = () => {
   const { keyContracts } = useContracts()
@@ -137,29 +138,29 @@ export const useXSLocker = () => {
     let tx = null
     let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
     if (amount) {
-      const estGas = await xsLocker.estimateGas.withdrawInPart(xsLockIDs[0], recipient, amount)
-      console.log('xsLocker.estimateGas.withdrawInPart', estGas.toString())
+      // const estGas = await xsLocker.estimateGas.withdrawInPart(xsLockIDs[0], recipient, amount)
+      // console.log('xsLocker.estimateGas.withdrawInPart', estGas.toString())
       tx = await xsLocker.withdrawInPart(xsLockIDs[0], recipient, amount, {
         ...gasConfig,
-        // gasLimit: FunctionGasLimits['xsLocker.withdrawInPart'],
-        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        gasLimit: FunctionGasLimits['xsLocker.withdrawInPart'],
+        // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
     } else if (xsLockIDs.length > 1) {
-      const estGas = await xsLocker.estimateGas.withdrawMany(xsLockIDs, recipient)
-      console.log('xsLocker.estimateGas.withdrawMany', estGas.toString())
+      // const estGas = await xsLocker.estimateGas.withdrawMany(xsLockIDs, recipient)
+      // console.log('xsLocker.estimateGas.withdrawMany', estGas.toString())
       tx = await xsLocker.withdrawMany(xsLockIDs, recipient, {
         ...gasConfig,
-        // gasLimit: FunctionGasLimits['xsLocker.withdrawMany'],
-        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        gasLimit: FunctionGasLimits['xsLocker.withdrawMany'],
+        // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.WITHDRAW_MANY_FROM_LOCK
     } else {
-      const estGas = await xsLocker.estimateGas.withdraw(xsLockIDs[0], recipient)
-      console.log('xsLocker.estimateGas.withdraw', estGas.toString())
+      // const estGas = await xsLocker.estimateGas.withdraw(xsLockIDs[0], recipient)
+      // console.log('xsLocker.estimateGas.withdraw', estGas.toString())
       tx = await xsLocker.withdraw(xsLockIDs[0], recipient, {
         ...gasConfig,
-        // gasLimit: FunctionGasLimits['xsLocker.withdraw'],
-        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        gasLimit: FunctionGasLimits['xsLocker.withdraw'],
+        // gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.WITHDRAW_FROM_LOCK
     }
@@ -179,23 +180,28 @@ export const useXSLocker = () => {
       unlockedBalance: '0',
       successfulFetch: false,
     }
-    if (provider) {
-      const lock = new Lock(activeNetwork.chainId, provider)
-      const userLockerBalances = await lock
-        .getUserLockerBalances(account)
-        .then((balances) => {
-          return {
-            ...balances,
-            successfulFetch: true,
-          }
-        })
-        .catch((err) => {
-          console.log('getUserLockerBalances', err)
-          return errorRes
-        })
-      return userLockerBalances
+    try {
+      if (provider) {
+        const lock = new Lock(activeNetwork.chainId, provider)
+        const userLockerBalances = await lock
+          .getUserLockerBalances(account)
+          .then((balances) => {
+            return {
+              ...balances,
+              successfulFetch: true,
+            }
+          })
+          .catch((err) => {
+            console.log('getUserLockerBalances', err)
+            return errorRes
+          })
+        return userLockerBalances
+      }
+      return errorRes
+    } catch (e) {
+      console.log('getUserLockerBalances', e)
+      return errorRes
     }
-    return errorRes
   }
 
   return {
@@ -216,12 +222,7 @@ export const useUserLockData = () => {
   const { provider } = useProvider()
 
   const getUserLocks = async (user: string): Promise<UserLocksData> => {
-    if (provider) {
-      const lock = new Lock(activeNetwork.chainId, provider)
-      const userLocks = await lock.getUserLocks(user)
-      return userLocks
-    }
-    return {
+    const errorRes = {
       user: {
         pendingRewards: BigNumber.from(0),
         stakedBalance: BigNumber.from(0),
@@ -232,6 +233,17 @@ export const useUserLockData = () => {
       },
       locks: [],
       successfulFetch: false,
+    }
+    try {
+      if (provider) {
+        const lock = new Lock(activeNetwork.chainId, provider)
+        const userLocks = await lock.getUserLocks(user)
+        return userLocks
+      }
+      return errorRes
+    } catch (err) {
+      console.log('getUserLocks', err)
+      return errorRes
     }
   }
 

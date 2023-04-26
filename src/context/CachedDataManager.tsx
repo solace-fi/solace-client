@@ -1,4 +1,4 @@
-import React, { useMemo, useContext, createContext, useEffect, useCallback } from 'react'
+import React, { useMemo, useContext, createContext, useEffect, useCallback, useState } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
@@ -12,6 +12,7 @@ import { useGetCrossTokenPricesFromCoingecko } from '../hooks/api/usePrice'
 import { useWeb3React } from '@web3-react/core'
 import {
   BigNumber,
+  GlobalLockInfo,
   SolaceRiskProtocol,
   SolaceRiskScore,
   SolaceRiskSeries,
@@ -21,6 +22,7 @@ import { useCheckIsCoverageActive, usePortfolio, useRiskSeries } from '../hooks/
 import { useScpBalance } from '../hooks/balance/useBalance'
 import { usePortfolioAnalysis } from '../hooks/policy/usePortfolioAnalysis'
 import { ZERO } from '../constants'
+import axios from 'axios'
 
 /*
 
@@ -32,15 +34,18 @@ should be called manually, such as when the user sends a transaction.
 
 */
 
-type CachedData = {
+type CachedDataContextType = {
   localTransactions: LocalTx[]
   tokenPriceMapping: TokenToPriceMapping
-  version: number
   minute: number
+  positiveVersion: number // primary timekeeper, triggers updates in components that read this
+  negativeVersion: number // secondary timekeeper, triggers updates in components that read this  minute: number
   gasData: GasData | undefined
+  statsCache: any
   addLocalTransactions: (txToAdd: LocalTx) => void
-  deleteLocalTransactions: (txsToDelete: []) => void
-  reload: () => void
+  deleteLocalTransactions: (txsToDelete: { hash: string }[]) => void
+  positiveReload: () => void // primary timekeeper intended for reloading UI and data
+  negativeReload: () => void // secondary timekeeper intended for reloading UI but not data
   coverage: {
     portfolio?: SolaceRiskScore
     fetchStatus: number
@@ -57,20 +62,29 @@ type CachedData = {
   }
   seriesKit: {
     series?: SolaceRiskSeries
-    seriesLogos: { label: string; value: string; icon: JSX.Element }[]
+    seriesLogos: { label: string; value: string; iconUrl?: string }[]
     seriesLoading: boolean
+  }
+  staking: {
+    globalLockStats: GlobalLockInfo
+    handleGlobalLockStats: (_stats: GlobalLockInfo) => void
+    canFetchGlobalStatsFlag: boolean
+    handleCanFetchGlobalStatsFlag: (_flag: boolean) => void
   }
 }
 
-const CachedDataContext = createContext<CachedData>({
+const CachedDataContext = createContext<CachedDataContextType>({
   localTransactions: [],
   tokenPriceMapping: {},
-  version: 0,
+  positiveVersion: 0,
+  negativeVersion: 0,
   minute: 0,
   gasData: undefined,
+  statsCache: undefined,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
-  reload: () => undefined,
+  positiveReload: () => undefined,
+  negativeReload: () => undefined,
   coverage: {
     portfolio: undefined,
     fetchStatus: 0,
@@ -90,6 +104,19 @@ const CachedDataContext = createContext<CachedData>({
     seriesLogos: [],
     seriesLoading: true,
   },
+  staking: {
+    globalLockStats: {
+      solaceStaked: '0',
+      valueStaked: '0',
+      numLocks: '0',
+      rewardPerSecond: '0',
+      apr: '0',
+      successfulFetch: false,
+    },
+    handleGlobalLockStats: () => undefined,
+    canFetchGlobalStatsFlag: true,
+    handleCanFetchGlobalStatsFlag: () => undefined,
+  },
 })
 
 const CachedDataProvider: React.FC = (props) => {
@@ -97,7 +124,8 @@ const CachedDataProvider: React.FC = (props) => {
   const { disconnect } = useWallet()
   const { activeNetwork } = useNetwork()
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
-  const [reload, version] = useReload()
+  const [positiveReload, positiveVersion] = useReload()
+  const [negativeReload, negativeVersion] = useReload()
   const [minReload, minute] = useReload()
   const { tokenPriceMapping } = useGetCrossTokenPricesFromCoingecko(minute)
   const gasData = useFetchGasData()
@@ -105,6 +133,7 @@ const CachedDataProvider: React.FC = (props) => {
   const { policyId, status, coverageLimit, mounting: coverageLoading } = useCheckIsCoverageActive()
   const scpBalance = useScpBalance()
   const { series, loading: seriesLoading } = useRiskSeries()
+  const [statsCache, setStatsCache] = useState<any>(undefined)
 
   const seriesLogos = useMemo(() => {
     return series
@@ -112,7 +141,7 @@ const CachedDataProvider: React.FC = (props) => {
           return {
             label: s.appId,
             value: s.appId,
-            icon: <img src={`https://assets.solace.fi/zapperLogos/${s.appId}`} height={24} />,
+            iconUrl: `https://assets.solace.fi/zapperLogos/${s.appId}`,
           }
         })
       : []
@@ -125,6 +154,25 @@ const CachedDataProvider: React.FC = (props) => {
     dailyCost: curDailyCost,
   } = usePortfolioAnalysis(portfolio, coverageLimit)
 
+  const [globalLockStats, setGlobalLockStats] = useState<GlobalLockInfo>({
+    solaceStaked: '0',
+    valueStaked: '0',
+    numLocks: '0',
+    rewardPerSecond: '0',
+    apr: '0',
+    successfulFetch: false,
+  })
+
+  const [canFetchGlobalStatsFlag, setCanFetchGlobalStatsFlag] = useState<boolean>(true)
+
+  const handleCanFetchGlobalStatsFlag = useCallback((_flag: boolean) => {
+    setCanFetchGlobalStatsFlag(_flag)
+  }, [])
+
+  const handleGlobalLockStats = useCallback((_stats: GlobalLockInfo) => {
+    setGlobalLockStats(_stats)
+  }, [])
+
   const addLocalTransactions = useCallback(
     (txToAdd: LocalTx) => {
       setLocalTxs([txToAdd, ...localTxs])
@@ -133,7 +181,7 @@ const CachedDataProvider: React.FC = (props) => {
   )
 
   const deleteLocalTransactions = useCallback(
-    (txsToDelete: LocalTx[]) => {
+    (txsToDelete: { hash: string }[]) => {
       if (txsToDelete.length == 0) return
       const formattedTxsToDelete = txsToDelete.map((tx) => tx.hash.toLowerCase())
       const passedLocalTxs = localTxs.filter(
@@ -152,22 +200,39 @@ const CachedDataProvider: React.FC = (props) => {
   }, [])
 
   useEffect(() => {
+    handleCanFetchGlobalStatsFlag(true)
+  }, [activeNetwork])
+
+  useEffect(() => {
     const clearLocalTransactions = () => {
       setLocalTxs([])
     }
     clearLocalTransactions()
   }, [disconnect, account, activeNetwork.chainId])
 
-  const value = useMemo<CachedData>(
+  useEffect(() => {
+    const getStatsCache = async () => {
+      const _statsCache = await axios.get('https://stats-cache.solace.fi/analytics-stats.json')
+      if (_statsCache.data) {
+        setStatsCache(_statsCache.data)
+      }
+    }
+    getStatsCache()
+  }, [])
+
+  const value = useMemo<CachedDataContextType>(
     () => ({
       localTransactions: localTxs,
       tokenPriceMapping,
-      version,
+      positiveReload,
+      negativeReload,
+      positiveVersion,
+      negativeVersion,
       minute,
       gasData,
+      statsCache,
       addLocalTransactions,
       deleteLocalTransactions,
-      reload,
       coverage: {
         portfolio,
         fetchStatus,
@@ -187,6 +252,12 @@ const CachedDataProvider: React.FC = (props) => {
         seriesLogos,
         seriesLoading,
       },
+      staking: {
+        globalLockStats,
+        handleGlobalLockStats,
+        canFetchGlobalStatsFlag,
+        handleCanFetchGlobalStatsFlag,
+      },
     }),
     [
       minute,
@@ -194,9 +265,12 @@ const CachedDataProvider: React.FC = (props) => {
       tokenPriceMapping,
       addLocalTransactions,
       deleteLocalTransactions,
-      reload,
-      version,
+      positiveReload,
+      negativeReload,
+      positiveVersion,
+      negativeVersion,
       gasData,
+      statsCache,
       portfolio,
       fetchStatus,
       policyId,
@@ -212,13 +286,17 @@ const CachedDataProvider: React.FC = (props) => {
       series,
       seriesLogos,
       seriesLoading,
+      globalLockStats,
+      handleGlobalLockStats,
+      canFetchGlobalStatsFlag,
+      handleCanFetchGlobalStatsFlag,
     ]
   )
 
   return <CachedDataContext.Provider value={value}>{props.children}</CachedDataContext.Provider>
 }
 
-export function useCachedData(): CachedData {
+export function useCachedData(): CachedDataContextType {
   return useContext(CachedDataContext)
 }
 

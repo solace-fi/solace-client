@@ -4,6 +4,7 @@ export const lightTheme = {
     analogicalText: 'rgb(250, 250, 250)', // text color that is relatively the same as the general theme
     lightText: 'rgb(250, 250, 250)',
     darkText: 'rgb(125, 125, 125)',
+    secondary: 'rgb(94, 94, 94)',
     infoText: 'rgb(95, 93, 249)',
     errorText: 'rgb(255, 12, 28)',
     warningText: 'rgb(187, 136, 0)',
@@ -15,9 +16,11 @@ export const lightTheme = {
     lightGray: 'rgb(244, 245, 247)',
     separator: '#E3E4E6',
     lightNeutral: '#F2CAD6',
+    opposite: 'rgb(250, 250, 250)',
   },
   body: {
     bg_color: '#fafafa',
+    layout_bg_color: '#f4f5f7',
   },
   accordion: {
     color: 'auto',
@@ -43,7 +46,7 @@ export const lightTheme = {
     glow: '0 0 7px #fff',
   },
   card: {
-    bg_color_0: 'rgb(242, 242, 242)',
+    bg_color_0: 'rgb(250, 250, 250)',
     bg_color_1: 'linear-gradient(145.04deg, #F3D37E 0%, #F04D42 100%)',
     bg_color_2: 'linear-gradient(145.04deg, #D478D8 0%, #5F5DF9 100%)',
     fade: 'rgb(64, 80, 128)',
@@ -57,7 +60,7 @@ export const lightTheme = {
   },
   input: {
     color: 'rgb(94, 94, 94)',
-    border_color: 'rgb(94, 94, 94)',
+    border_color: '#E3E4E6',
     bg_color: 'rgba(0, 0, 0, 0)',
     slider_color: 'rgb(95, 93, 249)',
     slider_node_color: 'rgb(95, 93, 249)',
@@ -76,8 +79,8 @@ export const lightTheme = {
   table: {
     highlight_bg_color: 'rgb(95, 93, 249)',
     hover_color: 'rgb(231, 231, 231)',
-    cell_bg_color: 'rgb(242, 242, 242)',
-    head_bg_color: 'rgb(227, 227, 227)',
+    cell_bg_color: '#ffffff',
+    head_bg_color: '#fafafa',
   },
   progress: {
     step_color: 'rgb(94, 94, 94)',
@@ -108,6 +111,7 @@ export const darkTheme = {
     analogicalText: 'rgb(125, 125, 125)', // text color that is relatively the same as the general theme
     lightText: 'rgb(250, 250, 250)',
     darkText: 'rgb(125, 125, 125)',
+    secondary: 'rgb(250, 250, 250)',
     infoText: '#6ec3ff',
     errorText: 'rgb(240, 77, 66)',
     warningText: 'rgb(245, 221, 83)',
@@ -119,9 +123,11 @@ export const darkTheme = {
     lightGray: 'rgba(255, 255, 255, 0.02)',
     separator: '#828282',
     lightNeutral: '#F2CAD6',
+    opposite: 'rgba(0,0,0,0.75)',
   },
   body: {
     bg_color: '#242933',
+    layout_bg_color: '#1f242b',
   },
   accordion: {
     color: 'auto',
@@ -147,7 +153,7 @@ export const darkTheme = {
     glow: '0 0 7px #00ffd1',
   },
   card: {
-    bg_color_0: 'rgba(255, 255, 255, 0.05)',
+    bg_color_0: 'rgb(59, 62, 73)',
     bg_color_1: 'linear-gradient(145.04deg, #F3D37E 0%, #F04D42 100%)',
     bg_color_2: 'linear-gradient(145.04deg, #D478D8 0%, #5F5DF9 100%)',
     fade: 'rgb(64, 80, 128)',
@@ -180,7 +186,7 @@ export const darkTheme = {
   table: {
     highlight_bg_color: 'rgba(76, 87, 133)',
     hover_color: 'rgba(255, 255, 255, 0.2)',
-    cell_bg_color: 'rgba(255, 255, 255, 0.05)',
+    cell_bg_color: 'rgb(59, 62, 73)',
     head_bg_color: '#2E3440',
   },
   progress: {

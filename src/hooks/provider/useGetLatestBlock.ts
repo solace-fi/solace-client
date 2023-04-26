@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { Block } from '@ethersproject/abstract-provider'
+import { BlockData } from '../../constants/types'
 
-export const useGetLatestBlock = (library?: any): Block | undefined => {
-  const [latestBlock, setLatestBlock] = useState<Block | undefined>(undefined)
+export const useGetLatestBlock = (library?: any): BlockData => {
+  const [blockNumber, setBlockNumber] = useState<number | undefined>(undefined)
+  const [blockTimestamp, setBlockTimestamp] = useState<number | undefined>(undefined)
   const running = useRef(false)
 
   useEffect(() => {
@@ -10,8 +11,8 @@ export const useGetLatestBlock = (library?: any): Block | undefined => {
     library.on('block', async (res: number) => {
       if (running.current) return
       running.current = true
-      const block = await library.getBlock(res)
-      setLatestBlock(block)
+      setBlockNumber(res)
+      setBlockTimestamp(Date.now() / 1000)
       running.current = false
     })
 
@@ -20,5 +21,5 @@ export const useGetLatestBlock = (library?: any): Block | undefined => {
     }
   }, [library])
 
-  return latestBlock
+  return { blockNumber, blockTimestamp }
 }

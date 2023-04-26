@@ -19,7 +19,7 @@ export const useNativeTokenBalance = (): string => {
   const { provider } = useProvider()
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const [balance, setBalance] = useState<string>('0')
   const running = useRef(false)
 
@@ -37,7 +37,7 @@ export const useNativeTokenBalance = (): string => {
       }
     }
     getNativeTokenBalance()
-  }, [activeNetwork, account, version])
+  }, [activeNetwork, account, positiveVersion])
 
   return balance
 }
@@ -46,7 +46,7 @@ export const useScpBalance = (): string => {
   const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { provider } = useProvider()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const [scpBalance, setScpBalance] = useState<string>('0')
   const scpObj = useMemo(
     () => (activeNetwork.config.generalFeatures.coverageV3 ? new SCP(activeNetwork.chainId, provider) : undefined),
@@ -76,7 +76,7 @@ export const useScpBalance = (): string => {
     return () => {
       scpObj?.scp.removeAllListeners()
     }
-  }, [account, scpObj, version])
+  }, [account, scpObj, positiveVersion])
 
   return scpBalance
 }
@@ -85,7 +85,7 @@ export const useSolaceBalance = (): string => {
   const { keyContracts } = useContracts()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWeb3React()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const [solaceBalance, setSolaceBalance] = useState<string>('0')
 
   const getSolaceBalance = useCallback(async () => {
@@ -111,7 +111,7 @@ export const useSolaceBalance = (): string => {
     return () => {
       solace.removeAllListeners()
     }
-  }, [account, solace, getSolaceBalance, version])
+  }, [account, solace, getSolaceBalance, positiveVersion])
 
   return solaceBalance
 }
@@ -120,7 +120,7 @@ export const useXSolaceBalance = (): string => {
   const { keyContracts } = useContracts()
   const { xSolace } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWeb3React()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const [xSolaceBalance, setXSolaceBalance] = useState<string>('0')
 
   const getXSolaceBalance = useCallback(async () => {
@@ -146,7 +146,7 @@ export const useXSolaceBalance = (): string => {
     return () => {
       xSolace.removeAllListeners()
     }
-  }, [account, xSolace, getXSolaceBalance, version])
+  }, [account, xSolace, getXSolaceBalance, positiveVersion])
 
   return xSolaceBalance
 }
@@ -154,7 +154,7 @@ export const useXSolaceBalance = (): string => {
 export const useBridgeBalance = (): string => {
   const { bSolace, getUserBridgeBalance } = useBridge()
   const { account } = useWeb3React()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const [bridgeBalance, setBridgeBalance] = useState<string>('0')
 
   useEffect(() => {
@@ -176,7 +176,7 @@ export const useBridgeBalance = (): string => {
     return () => {
       bSolace.removeAllListeners()
     }
-  }, [account, bSolace, getUserBridgeBalance, version])
+  }, [account, bSolace, getUserBridgeBalance, positiveVersion])
 
   return bridgeBalance
 }
@@ -185,7 +185,7 @@ export const useXSolaceV1Balance = (): { xSolaceV1Balance: string; v1StakedSolac
   const { keyContracts } = useContracts()
   const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWeb3React()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const [xSolaceV1Balance, setXSolaceV1Balance] = useState<string>('0')
   const [v1StakedSolaceBalance, setV1StakedSolaceBalance] = useState<string>('0')
 
@@ -215,7 +215,7 @@ export const useXSolaceV1Balance = (): { xSolaceV1Balance: string; v1StakedSolac
     return () => {
       xSolaceV1.removeAllListeners()
     }
-  }, [account, xSolaceV1, getXSolaceV1Balance, version])
+  }, [account, xSolaceV1, getXSolaceV1Balance, positiveVersion])
 
   return { xSolaceV1Balance, v1StakedSolaceBalance }
 }
@@ -259,7 +259,7 @@ export const useBatchBalances = (
 } => {
   const { account } = useWeb3React()
   const { provider } = useProvider()
-  const { version } = useCachedData()
+  const { positiveVersion } = useCachedData()
   const { activeNetwork } = useNetwork()
   const [loading, setLoading] = useState(false)
   const [batchBalances, setBatchBalances] = useState<{ addr: string; balance: BigNumber }[]>([])
@@ -279,7 +279,45 @@ export const useBatchBalances = (
       setLoading(false)
     }
     getBalances()
-  }, [account, coinOptions, provider, version])
+  }, [account, coinOptions, provider, positiveVersion])
+
+  return { loading, batchBalances }
+}
+
+export const useBatchBalancesNative = (
+  coinOptions: {
+    address: string
+    name: string
+    symbol: string
+    decimals: number
+  }[]
+): {
+  batchBalances: { addr: string; balance: BigNumber }[]
+  loading: boolean
+} => {
+  const { account } = useWeb3React()
+  const { provider } = useProvider()
+  const { positiveVersion } = useCachedData()
+  const { activeNetwork } = useNetwork()
+  const [loading, setLoading] = useState(false)
+  const [batchBalances, setBatchBalances] = useState<{ addr: string; balance: BigNumber }[]>([])
+
+  useEffect(() => {
+    const getBalances = async () => {
+      if (!activeNetwork.config.generalFeatures.native || !account || loading) return
+      setLoading(true)
+      const batchBalances = await Promise.all(
+        coinOptions.map((o) => queryBalance(new Contract(o.address, ERC20_ABI, provider), account))
+      )
+      setBatchBalances(
+        coinOptions.map((o, i) => {
+          return { addr: o.address, balance: batchBalances[i] }
+        })
+      )
+      setLoading(false)
+    }
+    getBalances()
+  }, [account, coinOptions, provider, positiveVersion])
 
   return { loading, batchBalances }
 }

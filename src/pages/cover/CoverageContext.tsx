@@ -9,12 +9,7 @@ import { networks, useNetwork } from '../../context/NetworkManager'
 import { useBatchBalances } from '../../hooks/balance/useBalance'
 import { useInputAmount } from '../../hooks/internal/useInputAmount'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
-import {
-  usePortfolio,
-  useRiskSeries,
-  useExistingPolicy,
-  useCoverageFunctions,
-} from '../../hooks/policy/useSolaceCoverProductV3'
+import { usePortfolio, useExistingPolicy, useCoverageFunctions } from '../../hooks/policy/useSolaceCoverProductV3'
 import { BigNumber, Contract } from 'ethers'
 import { SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { useCachedData } from '../../context/CachedDataManager'
@@ -28,6 +23,7 @@ import { useTokenAllowance, useTokenApprove } from '../../hooks/contract/useToke
 import SOLACE from '../../constants/abi/SOLACE.json'
 import useReferralApi from '../../hooks/api/useReferralApi'
 import { isAddress } from '../../utils'
+import { useWeb3React } from '@web3-react/core'
 
 type CoverageContextType = {
   intrface: {
@@ -52,7 +48,6 @@ type CoverageContextType = {
     handleCtaState: (state: InterfaceState | undefined) => void
     handleTransactionLoading: (setLoading: boolean) => void
     portfolioLoading: boolean
-    seriesLoading: boolean
     balancesLoading: boolean
     coverageLoading: boolean
     existingPolicyLoading: boolean
@@ -106,10 +101,6 @@ type CoverageContextType = {
     handleSimCounter: () => void
     handleSimChosenLimit: (limit: ChosenLimit) => void
   }
-  seriesKit: {
-    series?: SolaceRiskSeries
-    seriesLogos: { label: string; value: string; icon: JSX.Element }[]
-  }
   policy: {
     policyId?: BigNumber
     status: boolean
@@ -159,7 +150,6 @@ const CoverageContext = createContext<CoverageContextType>({
     handleUserState: () => undefined,
     handleCtaState: () => undefined,
     portfolioLoading: true,
-    seriesLoading: true,
     balancesLoading: true,
     coverageLoading: true,
     existingPolicyLoading: true,
@@ -214,10 +204,6 @@ const CoverageContext = createContext<CoverageContextType>({
     handleSimChosenLimit: () => undefined,
     handleSimPortfolio: () => undefined,
   },
-  seriesKit: {
-    series: undefined,
-    seriesLogos: [],
-  },
   policy: {
     policyId: undefined,
     status: false,
@@ -247,8 +233,9 @@ const CoverageContext = createContext<CoverageContextType>({
 
 const CoverageManager: React.FC = (props) => {
   const { appTheme, rightSidebar } = useGeneral()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
-  const { tokenPriceMapping, minute, coverage, seriesKit } = useCachedData()
+  const { tokenPriceMapping, minute, coverage } = useCachedData()
   const {
     portfolio: curPortfolio,
     portfolioLoading,
@@ -268,7 +255,6 @@ const CoverageManager: React.FC = (props) => {
   const { width } = useWindowDimensions()
   const { riskScores } = usePortfolio()
   const [simPortfolio, setSimPortfolio] = useState<SolaceRiskScore | undefined>(undefined)
-  const { series, seriesLoading } = seriesKit
   const [transactionLoading, setTransactionLoading] = useState<boolean>(false)
   const {
     amount: enteredDeposit,
@@ -322,7 +308,7 @@ const CoverageManager: React.FC = (props) => {
     policyId: existingPolicyId,
     network: existingPolicyNetwork,
     loading: existingPolicyLoading,
-  } = useExistingPolicy()
+  } = useExistingPolicy(account)
 
   const coinOptions = useMemo(
     () => [
@@ -343,17 +329,6 @@ const CoverageManager: React.FC = (props) => {
   const [ctaState, setCtaState] = useState<InterfaceState | undefined>(undefined)
   const interfaceState = useMemo(() => ctaState ?? userState, [userState, ctaState])
   const navbarThreshold = useMemo(() => width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR), [rightSidebar, width])
-  const seriesLogos = useMemo(() => {
-    return series
-      ? series.data.protocolMap.map((s) => {
-          return {
-            label: s.appId,
-            value: s.appId,
-            icon: <img src={`https://assets.solace.fi/zapperLogos/${s.appId}`} height={24} />,
-          }
-        })
-      : []
-  }, [series])
 
   const [selectedCoin, setSelectedCoin] = useState<ReadToken & { stablecoin: boolean }>(coinOptions[0])
   const [selectedCoinPrice, setSelectedCoinPrice] = useState<number>(0)
@@ -561,7 +536,7 @@ const CoverageManager: React.FC = (props) => {
       setSignatureObj(priceInfo)
     }
     getSignatureObj()
-  }, [activeNetwork.chainId, latestBlock])
+  }, [activeNetwork.chainId, latestBlock.blockNumber])
 
   const value = useMemo<CoverageContextType>(
     () => ({
@@ -577,7 +552,6 @@ const CoverageManager: React.FC = (props) => {
         interfaceState, // current interface state controlling page components
         userState, // different users see different things on the interface
         portfolioLoading,
-        seriesLoading,
         balancesLoading,
         coverageLoading,
         transactionLoading,
@@ -641,10 +615,6 @@ const CoverageManager: React.FC = (props) => {
         handleSimCounter,
         handleSimChosenLimit,
       },
-      seriesKit: {
-        series,
-        seriesLogos,
-      },
       policy: {
         policyId, // id of policy (a user is a first-timer if id is 0)
         status, // active or inactive policy
@@ -679,10 +649,7 @@ const CoverageManager: React.FC = (props) => {
       gradientStyle,
       interfaceState,
       portfolioLoading,
-      seriesLoading,
       balancesLoading,
-      series,
-      seriesLogos,
       showPortfolioModal,
       userState,
       selectedCoin,

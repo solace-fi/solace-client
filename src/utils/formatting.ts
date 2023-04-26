@@ -1,7 +1,6 @@
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { FunctionName, Unit } from '../constants/enums'
-import { NetworkConfig, TokenInfo } from '../constants/types'
+import { TokenInfo } from '../constants/types'
 import { rangeFrom0 } from './numeric'
 
 // truncate numbers without rounding
@@ -202,3 +201,63 @@ export function encodeAddresses(addresses: string[]): string {
 
 export const trim0x = (address: string): string =>
   address.startsWith('0x') ? address.slice(2).toLowerCase() : address.toLowerCase()
+
+export function leftPad(s: any, l: number, f = ' ') {
+  let s2 = `${s}`
+  while (s2.length < l) s2 = `${f}${s2}`
+  return s2
+}
+
+export function rightPad(s: any, l: number, f = ' ') {
+  let s2 = `${s}`
+  while (s2.length < l) s2 = `${s2}${f}`
+  return s2
+}
+
+export function formatTimestamp(timestamp: number) {
+  const d = new Date(timestamp * 1000)
+  return `${d.getUTCMonth() + 1}/${d.getUTCDate()}/${d.getUTCFullYear()} ${leftPad(d.getUTCHours(), 2, '0')}:${leftPad(
+    d.getUTCMinutes(),
+    2,
+    '0'
+  )}:${leftPad(d.getUTCSeconds(), 2, '0')}`
+}
+
+export function formatNumber(params: any) {
+  function f(n: string) {
+    if (typeof n == 'number') n = `${n}`
+    let str = `${parseInt(n).toLocaleString()}`
+    if (!params || !params.decimals || params.decimals <= 0) return str
+    const i = n.indexOf('.')
+    let str2 = i == -1 ? '' : n.substring(i + 1)
+    str2 = rightPad(str2.substring(0, params.decimals), params.decimals, '0')
+    str = `${str}.${str2}`
+    return str
+  }
+  return f
+}
+
+export function tooltipFormatterNumber(params: any) {
+  const f2 = formatNumber(params)
+  function f(props: any) {
+    let num = f2(props)
+    if (params.prefix) num = `${params.prefix}${num}`
+    return num
+  }
+  return f
+}
+
+export function formatCurrency(params: any) {
+  function f(n: any) {
+    if (typeof n == 'number') n = `${n}`
+    let str = `\$${parseInt(n).toLocaleString()}`
+    if (!params || !params.decimals || params.decimals <= 0) return str
+    const i = n.indexOf('.')
+    if (i == -1) return str
+    let str2 = n.substring(i + 1)
+    str2 = rightPad(str2.substring(0, params.decimals), params.decimals, '0')
+    str = `${str}.${str2}`
+    return str
+  }
+  return f
+}

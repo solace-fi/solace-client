@@ -48,7 +48,7 @@ import { useStakingRewards } from '../../hooks/stake/useStakingRewards'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
-import { useTotalActivePolicies } from '../../hooks/policy/usePolicy'
+import { useTotalActivePolicies } from '../../hooks/_legacy/usePolicy'
 import { useWeb3React } from '@web3-react/core'
 
 export const Statistics: React.FC = () => {
@@ -109,16 +109,16 @@ export const Statistics: React.FC = () => {
       setUserLockInfo(userLockData.user)
     }
     _getUserLocks()
-  }, [account, latestBlock])
+  }, [account, latestBlock.blockNumber])
 
   useEffect(() => {
-    if (!latestBlock) return
+    if (!latestBlock.blockNumber) return
     const _getGlobalLockStats = async () => {
       const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
       setGlobalLockStats(globalLockStats)
     }
     _getGlobalLockStats()
-  }, [latestBlock])
+  }, [latestBlock.blockNumber])
 
   const GlobalBox: React.FC = () => (
     <Box color2>

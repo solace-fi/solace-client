@@ -197,6 +197,7 @@ export const SOLACE_TOKEN: ReadTokenData = {
   address: {
     [1]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
     [4]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
+    [5]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
     [42]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
     [137]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
     [250]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
@@ -204,6 +205,18 @@ export const SOLACE_TOKEN: ReadTokenData = {
     [80001]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
     [1313161554]: '0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
     [1313161555]: '0x501ACE0C6DeA16206bb2D120484a257B9F393891',
+  },
+}
+
+export const SGT: ReadTokenData = {
+  constants: {
+    name: 'Solace Governance Token',
+    symbol: 'SGT',
+    decimals: 18,
+  },
+  address: {
+    [1]: '0x501ace1Cae9d535511fE78332741b21Cdddb3b26',
+    [5]: '0x501aCE70b926C3946bB7F60b96B3180ADF1d18C8',
   },
 }
 
@@ -216,6 +229,7 @@ export const XSOLACE_TOKEN: ReadTokenData = {
   address: {
     [1]: '0x501ACe802447B1Ed4Aae36EA830BFBde19afbbF9',
     [4]: '0x501ACe802447B1Ed4Aae36EA830BFBde19afbbF9',
+    [5]: '0x501ACe802447B1Ed4Aae36EA830BFBde19afbbF9',
     [42]: '0x501ACe802447B1Ed4Aae36EA830BFBde19afbbF9',
     [137]: '0x501ACe802447B1Ed4Aae36EA830BFBde19afbbF9',
     [250]: '0x501ACe802447B1Ed4Aae36EA830BFBde19afbbF9',

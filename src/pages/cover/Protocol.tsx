@@ -4,25 +4,15 @@ import { Text } from '../../components/atoms/Typography'
 import { Button, GraySquareButton, ThinButton } from '../../components/atoms/Button'
 import { capitalizeFirstLetter, filterAmount, truncateValue } from '../../utils/formatting'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
-import { useCoverageContext } from './CoverageContext'
 import { TileCard } from '../../components/molecules/TileCard'
-import { DropdownOptionsUnique, processProtocolName } from './Dropdown'
+import { DropdownOptions, processProtocolName } from '../../components/organisms/Dropdown'
 import { StyledArrowDropDown, StyledClose, StyledHelpCircle } from '../../components/atoms/Icon'
 import { SmallerInputSection } from '../../components/molecules/InputSection'
 import { networks } from '../../context/NetworkManager'
 import commaNumber from '../../utils/commaNumber'
 import { Modal } from '../../components/molecules/Modal'
-
-function mapNumberToLetter(number: number): string {
-  const grade = {
-    1: 'A',
-    2: 'B',
-    3: 'C',
-    4: 'D',
-  }[number]
-  if (grade) return grade
-  return 'F'
-}
+import { mapNumberToLetter } from '../../utils/mapProtocols'
+import { useCachedData } from '../../context/CachedDataManager'
 
 export const ReadOnlyProtocol: React.FC<{
   protocol: LocalSolaceRiskProtocol
@@ -113,7 +103,7 @@ export const Protocol: React.FC<{
   saveEditedItem,
   handleEditingItem,
 }): JSX.Element => {
-  const { seriesKit } = useCoverageContext()
+  const { seriesKit } = useCachedData()
   const { series, seriesLogos } = seriesKit
 
   const [isEditing, setIsEditing] = useState(false)
@@ -144,7 +134,7 @@ export const Protocol: React.FC<{
 
   const cachedDropdownOptions = useMemo(
     () => (
-      <DropdownOptionsUnique
+      <DropdownOptions
         comparingList={editableProtocolAppIds}
         isOpen={true}
         searchedList={activeList}

@@ -263,12 +263,16 @@ export const GraySquareButton = styled(Button)<{
   theme: Theme
   darkText?: boolean
   actuallyWhite?: boolean
+  size?: number
+  shadow?: boolean
+  radius?: number
 }>`
-  border-radius: 10px;
+  border-radius: ${({ radius }) => (radius ? radius + 'px' : '10px')};
   background-color: ${({ theme, actuallyWhite }: { theme: Theme; actuallyWhite?: boolean }) =>
     actuallyWhite ? theme.v2.raised : theme.body.bg_color};
   box-sizing: border-box;
   ${({ noborder, theme }) => (noborder ? `border: none;` : `border: 1px solid ${theme.separator.bg_color};`)}
+  ${({ shadow }) => shadow && `box-shadow: 0px 0px 10px -10px rgba(0, 0, 0, 1);`}
   color: ${(props) => (props.darkText ? props.theme.typography.darkText : props.theme.typography.darkText)};
   &:hover {
     background-color: ${(props) => props.theme.typography.separator};

@@ -4,7 +4,7 @@ import { useCoverageContext } from './CoverageContext'
 import { LocalSolaceRiskProtocol } from '../../constants/types'
 import { Button } from '../../components/atoms/Button'
 import { formatAmount } from '../../utils/formatting'
-import { useTierColors } from '../../hooks/internal/useTierColors'
+import { useDistributedColors } from '../../hooks/internal/useDistributedColors'
 import { Protocol } from './Protocol'
 import { ProtocolMap, SolaceRiskBalance, SolaceRiskScore } from '@solace-fi/sdk-nightly'
 import { LoaderText } from '../../components/molecules/LoaderText'
@@ -16,12 +16,14 @@ import { useGeneral } from '../../context/GeneralManager'
 import AddProtocolForm from './AddProtocolForm'
 import { mapEditableProtocols, mapUniqueRiskProtocols } from '../../utils/mapProtocols'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { useCachedData } from '../../context/CachedDataManager'
 
 export const PortfolioSimulator = (): JSX.Element => {
   const { appTheme } = useGeneral()
+  const { seriesKit } = useCachedData()
 
   const { active, account } = useWeb3React()
-  const { portfolioKit, simulator, input, styles, seriesKit, intrface } = useCoverageContext()
+  const { portfolioKit, simulator, input, styles, intrface } = useCoverageContext()
   const { series } = seriesKit
   const { simCoverLimit } = input
   const { portfolioLoading, handleShowSimulatorModal } = intrface
@@ -48,7 +50,7 @@ export const PortfolioSimulator = (): JSX.Element => {
     return mapEditableProtocols(editableProtocols)
   }, [editableProtocols])
 
-  const tierColors = useTierColors()
+  const tierColors = useDistributedColors(5)
 
   const getColorByTier = (tier: number) => {
     const index = tier - 1
@@ -255,7 +257,7 @@ export const PortfolioSimulator = (): JSX.Element => {
         </Flex>
       </Flex>
       <Flex
-        shadow
+        bgSecondary
         col
         gap={12}
         px={20}
@@ -278,7 +280,6 @@ export const PortfolioSimulator = (): JSX.Element => {
         }}
         p={20}
         bgSecondary
-        shadow
       >
         <Button
           secondary

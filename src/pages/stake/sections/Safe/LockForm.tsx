@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { Button } from '../../../../components/atoms/Button'
-import { StyledSlider } from '../../../../components/atoms/Input'
-import InformationBox from '../../components/InformationBox'
+import { StyledForm, StyledSlider } from '../../../../components/atoms/Input'
+import InformationBox from '../../../../components/molecules/stake-and-lock/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { LockData } from '@solace-fi/sdk-nightly'
@@ -13,11 +13,10 @@ import { BigNumber } from 'ethers'
 import { useProvider } from '../../../../context/ProviderManager'
 import { Text } from '../../../../components/atoms/Typography'
 import { getDateStringWithMonthName } from '../../../../utils/time'
-import { StyledForm } from '../../atoms/StyledForm'
 import { formatAmount, truncateValue } from '../../../../utils/formatting'
 import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { Label } from '../../molecules/InfoPair'
+import { Label } from '../../../../components/molecules/stake-and-lock/InfoPair'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { formatUnits } from 'ethers/lib/utils'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
@@ -31,9 +30,15 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   const { width } = useWindowDimensions()
   const [maxSelected, setMaxSelected] = useState(false)
 
-  const lockEnd = useMemo(() => Math.max(lock.end.toNumber(), latestBlock?.timestamp ?? 0), [lock.end, latestBlock])
+  const lockEnd = useMemo(() => Math.max(lock.end.toNumber(), latestBlock.blockTimestamp ?? 0), [
+    lock.end,
+    latestBlock.blockTimestamp,
+  ])
 
-  const lockTimeInSeconds = useMemo(() => (latestBlock ? lockEnd - latestBlock.timestamp : 0), [latestBlock, lockEnd])
+  const lockTimeInSeconds = useMemo(() => (latestBlock.blockTimestamp ? lockEnd - latestBlock.blockTimestamp : 0), [
+    latestBlock.blockTimestamp,
+    lockEnd,
+  ])
 
   const extendableDays = useMemo(() => Math.floor(DAYS_PER_YEAR * 4 - lockTimeInSeconds / 86400), [lockTimeInSeconds])
 
@@ -44,7 +49,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   )
 
   const callExtendLock = async () => {
-    if (!latestBlock || parseInt(formatAmount(inputValue)) == 0) return
+    if (!latestBlock.blockTimestamp || parseInt(formatAmount(inputValue)) == 0) return
     const newEndDateInSeconds =
       lockEnd +
       (maxSelected ? DAYS_PER_YEAR * 4 * 86400 - lockTimeInSeconds : parseInt(formatAmount(inputValue)) * 86400)
@@ -98,7 +103,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
               max={extendableDays}
             />
           </Flex>
-          <Flex column stretch w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
+          <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
             <Label importance="quaternary" style={{ marginBottom: '8px' }}>
               Projected benefits
             </Label>

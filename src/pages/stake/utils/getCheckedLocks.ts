@@ -1,5 +1,5 @@
 import { CheckboxData } from '../../../constants/types'
-import { LockData } from '@solace-fi/sdk-nightly'
+import { LockData as StakeLockData } from '@solace-fi/sdk-nightly'
 
 /**
  * @name getCheckedLocks
@@ -8,7 +8,7 @@ import { LockData } from '@solace-fi/sdk-nightly'
  * @param checkboxArray The array of checkboxes
  * @returns The array of locks with all locks checked
  */
-const getCheckedLocks = (lockArray: LockData[], checkboxArray: CheckboxData[]): LockData[] => {
+const getCheckedLocks = (lockArray: StakeLockData[], checkboxArray: CheckboxData[]): StakeLockData[] => {
   // find all xsLockIDs in the checkbox array, and return the corresponding locks
   return lockArray.filter((lock) => {
     return checkboxArray.find((checkbox) => {

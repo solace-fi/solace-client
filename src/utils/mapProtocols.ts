@@ -25,3 +25,14 @@ export function mapUniqueRiskProtocols(protocols: SolaceRiskProtocol[]): { [key:
   })
   return protocolsByName
 }
+
+export const mapNumberToLetter = (number: number): string => {
+  const grade = {
+    1: 'A',
+    2: 'B',
+    3: 'C',
+    4: 'D',
+  }[number]
+  if (grade) return grade
+  return 'F'
+}

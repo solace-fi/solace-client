@@ -35,7 +35,7 @@ import { Tab, StakingVersion } from '../../constants/enums'
 /* import components */
 import { Button, ButtonWrapper, GraySquareButton } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { StyledSlider, Checkbox } from '../../components/atoms/Input'
+import { StyledSlider, Checkbox, Input } from '../../components/atoms/Input'
 import { Content, Flex, Scrollable, VerticalSeparator, HeroContainer } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
 import { Text, TextSpan } from '../../components/atoms/Typography'
@@ -47,13 +47,13 @@ import {
   StyledArrowIosBackOutline,
   StyledArrowIosForwardOutline,
 } from '../../components/atoms/Icon'
-import { DifferenceNotification, CoverageNotification } from './organisms/NotificationBox'
+import { DifferenceNotification, CoverageNotification, SGTMigrationNotification } from './organisms/NotificationBox'
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
 import DifferenceBoxes from './sections/DifferenceBoxes'
-import CardSectionValue from './components/CardSectionValue'
-import { Label } from './molecules/InfoPair'
+import CardSectionValue from '../../components/molecules/stake-and-lock/CardSectionValue'
+import { Label } from '../../components/molecules/stake-and-lock/InfoPair'
 import { InputSection } from '../../components/molecules/InputSection'
 import { SmallBox, Box } from '../../components/atoms/Box'
 import { Accordion } from '../../components/atoms/Accordion'
@@ -69,7 +69,7 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useProjectedBenefits, useStakingRewards } from '../../hooks/stake/useStakingRewards'
 
 /* import utils */
-import { accurateMultiply, floatUnits, formatAmount, truncateValue } from '../../utils/formatting'
+import { accurateMultiply, floatUnits, formatAmount, shortenAddress, truncateValue } from '../../utils/formatting'
 
 import updateLocksChecked from './utils/updateLocksChecked'
 import getCheckedLocks from './utils/getCheckedLocks'
@@ -88,10 +88,11 @@ import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
 import { useWeb3React } from '@web3-react/core'
 import { LockData, UserLocksData, UserLocksInfo } from '@solace-fi/sdk-nightly'
 import { useCheckIsCoverageActive } from '../../hooks/policy/useSolaceCoverProductV3'
+import { isAddress } from '../../utils'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function Stake1(): any {
+function StakeV1(): any {
   /*************************************************************************************
 
     custom hooks
@@ -119,7 +120,7 @@ function Stake1(): any {
   ])
   const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     accurateMultiply(formatAmount(amount), 18),
-    latestBlock ? latestBlock.timestamp + parseInt(lockInputValue) * 86400 : 0
+    latestBlock.blockTimestamp ? latestBlock.blockTimestamp + parseInt(lockInputValue) * 86400 : 0
   )
 
   const callUnstake = async () => {
@@ -130,9 +131,9 @@ function Stake1(): any {
   }
 
   const callMigrateSigned = async () => {
-    if (!latestBlock || !account) return
+    if (!latestBlock.blockTimestamp || !account) return
     const xSolaceToMigrate: BigNumber = await withBackoffRetries(async () => getXSolaceFromSolace())
-    const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
+    const seconds = latestBlock.blockTimestamp + parseInt(lockInputValue) * 86400
     await migrate(account, BigNumber.from(seconds), xSolaceToMigrate)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callMigrateSigned', err, FunctionName.STAKING_MIGRATE))
@@ -262,7 +263,7 @@ function Stake1(): any {
                     </SmallBox>
                   }
                 </Flex>
-                <Flex column stretch w={(rightSidebar ? BKPT_6 : BKPT_5) > width ? 300 : 521}>
+                <Flex column stretch width={(rightSidebar ? BKPT_6 : BKPT_5) > width ? 300 : 521}>
                   <Label importance="quaternary" style={{ marginBottom: '8px' }}>
                     Projected benefits when migrated
                   </Label>
@@ -375,9 +376,8 @@ export default function Stake(): JSX.Element {
   locksCheckedRef.current = locksChecked
 
   const { account } = useWeb3React()
-  const { latestBlock } = useProvider()
   const { activeNetwork } = useNetwork()
-  const { version, coverage } = useCachedData()
+  const { positiveVersion, coverage, minute } = useCachedData()
   const [stakingVersion, setStakingVersion] = useState<StakingVersion>(StakingVersion.v2 as StakingVersion)
   const [locks, setLocks] = useState<LockData[]>([])
   const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
@@ -434,6 +434,17 @@ export default function Stake(): JSX.Element {
 
   const [openedLockId, setOpenedLockId] = useState<number | undefined>(undefined)
 
+  const [recipientAddress, setRecipientAddress] = useState<string>('')
+
+  const handleRecipientAddressChange = useCallback((address: string) => {
+    setRecipientAddress(address)
+  }, [])
+
+  useEffect(() => {
+    if (!account) return
+    handleRecipientAddressChange(account)
+  }, [account])
+
   useEffect(() => {
     const _getUserLocks = async () => {
       if (!account || fetchingLocks.current) return
@@ -454,7 +465,7 @@ export default function Stake(): JSX.Element {
     }
     _getUserLocks()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, activeNetwork, latestBlock, version])
+  }, [account, activeNetwork, minute, positiveVersion])
 
   useEffect(() => {
     setLoading(true)
@@ -495,13 +506,13 @@ export default function Stake(): JSX.Element {
   }
 
   const handleBatchWithdraw = async () => {
-    if (!account) return
+    if (!isAddress(recipientAddress)) return
     const selectedLocks = getCheckedLocks(locks, locksChecked)
     const eligibleLocks = selectedLocks.filter((lock) => lock.timeLeft.isZero())
     const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
     if (eligibleIds.length == 0) return
     const type = eligibleIds.length > 1 ? FunctionName.WITHDRAW_MANY_FROM_LOCK : FunctionName.WITHDRAW_FROM_LOCK
-    await withdrawFromLock(account, eligibleIds)
+    await withdrawFromLock(recipientAddress, eligibleIds)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('handleBatchWithdraw', err, type))
   }
@@ -548,7 +559,8 @@ export default function Stake(): JSX.Element {
           {parseUnits(xSolaceV1Balance, XSOLACE_V1_TOKEN.constants.decimals).gt(ZERO) && (
             <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
           )}
-          {locks.length > 0 && coverage.policyId?.isZero() && <CoverageNotification />}
+          {/* {locks.length > 0 && coverage.policyId?.isZero() && <CoverageNotification />} */}
+          <SGTMigrationNotification />
           {StakingVersion.v2 === stakingVersion &&
             (canStakeV2 ? (
               <>
@@ -694,6 +706,33 @@ export default function Stake(): JSX.Element {
                   </Flex>
                 )}
                 <AggregatedStakeData stakeData={userLockInfo} />
+                <Flex col itemsCenter p={10}>
+                  <Text t4s textAlignCenter>
+                    Recipient address for withdrawals
+                  </Text>
+                  <Input
+                    info={recipientAddress === String(account)}
+                    success={recipientAddress !== String(account)}
+                    error={!isAddress(recipientAddress)}
+                    bold
+                    type="string"
+                    value={recipientAddress}
+                    onChange={(e) => handleRecipientAddressChange(e.target.value)}
+                  />
+                  <Text
+                    bold
+                    info={recipientAddress === String(account)}
+                    success={recipientAddress !== String(account) && isAddress(recipientAddress) != false}
+                    error={!isAddress(recipientAddress)}
+                  >
+                    {recipientAddress === String(account) && 'This is your address.'}
+                    {recipientAddress !== String(account) &&
+                      isAddress(recipientAddress) &&
+                      `${shortenAddress(recipientAddress)}`}
+                    {!isAddress(recipientAddress) && 'This is not a valid address.'}
+                  </Text>
+                </Flex>
+
                 <Flex
                   between
                   mt={20}
@@ -789,7 +828,7 @@ export default function Stake(): JSX.Element {
                           pr={10}
                           py={navbarThreshold ? 20 : 0}
                           onClick={() => setIsCompoundModalOpen(true)}
-                          disabled={rewardsAreZero}
+                          disabled
                         >
                           Compound Rewards
                         </Button>
@@ -801,7 +840,7 @@ export default function Stake(): JSX.Element {
                           pr={10}
                           py={navbarThreshold ? 20 : 0}
                           onClick={handleBatchWithdraw}
-                          disabled={withdrawalsAreZero}
+                          disabled={withdrawalsAreZero || !isAddress(recipientAddress)}
                         >
                           Withdraw
                         </Button>
@@ -845,6 +884,7 @@ export default function Stake(): JSX.Element {
                       index={i}
                       openedLockId={openedLockId}
                       handleOpenLock={handleOpenLock}
+                      recipientAddress={recipientAddress}
                     />
                   ))}
                 {!loading && numPages > 1 && (
@@ -885,7 +925,7 @@ export default function Stake(): JSX.Element {
               </Content>
             ))}
           {/* only show the following if staking is v1 and the tab is not `difference` */}
-          {stakingVersion === StakingVersion.v1 && <Stake1 />}
+          {stakingVersion === StakingVersion.v1 && <StakeV1 />}
           {/* only show the following if staking is v1 and the tab is 'difference' */}
           {stakingVersion === StakingVersion.difference && <DifferenceBoxes setStakingVersion={setStakingVersion} />}
         </Content>

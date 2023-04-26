@@ -42,7 +42,7 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { getExplorerItemUrl } from '../../utils/explorer'
-import { shortenAddress } from '../../utils/formatting'
+import { capitalizeFirstLetter, shortenAddress } from '../../utils/formatting'
 import { timeAgo } from '../../utils/time'
 import { decodeInput } from '../../utils/decoder'
 import { useWeb3React } from '@web3-react/core'
@@ -139,7 +139,9 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                         pr={width <= BKPT_3 ? 0 : undefined}
                       >
                         {txHistory.length > 0 ? (
-                          <Text error={tx.txreceipt_status != '1'}>{decodeInput(tx, contractSources)}</Text>
+                          <Text error={tx.txreceipt_status != '1'}>
+                            {capitalizeFirstLetter(decodeInput(tx, contractSources)?.name ?? '?')}
+                          </Text>
                         ) : (
                           <Loader width={10} height={10} />
                         )}

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button } from '../../../../components/atoms/Button'
-import { StyledSlider } from '../../../../components/atoms/Input'
+import { StyledForm, StyledSlider } from '../../../../components/atoms/Input'
 import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { LockData } from '@solace-fi/sdk-nightly'
@@ -16,25 +16,29 @@ import { BigNumber } from 'ethers'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 import { FunctionName, InfoBoxType } from '../../../../constants/enums'
-import InformationBox from '../../components/InformationBox'
-import { StyledForm } from '../../atoms/StyledForm'
+import InformationBox from '../../../../components/molecules/stake-and-lock/InformationBox'
 import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { Label } from '../../molecules/InfoPair'
+import { Label } from '../../../../components/molecules/stake-and-lock/InfoPair'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { BKPT_7, BKPT_5 } from '../../../../constants'
 import { Text } from '../../../../components/atoms/Typography'
-import { useWeb3React } from '@web3-react/core'
 import { useGeneral } from '../../../../context/GeneralManager'
+import { isAddress } from '../../../../utils'
 
-export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element {
+export default function WithdrawForm({
+  lock,
+  recipientAddress,
+}: {
+  lock: LockData
+  recipientAddress: string
+}): JSX.Element {
   const { appTheme, rightSidebar } = useGeneral()
-  const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { withdrawFromLock } = useXSLocker()
-  const { account } = useWeb3React()
   const { width } = useWindowDimensions()
+  const { isAppropriateAmount } = useInputAmount()
 
   const [inputValue, setInputValue] = React.useState('')
   const [rangeValue, setRangeValue] = React.useState('0')
@@ -44,13 +48,17 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
   )
 
   const callWithdrawFromLock = async () => {
-    if (!account) return
+    if (!isAddress(recipientAddress)) return
     let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
     const isMax = parseUnits(formatAmount(inputValue), 18).eq(lock.unboostedAmount)
     if (isMax) {
       type = FunctionName.WITHDRAW_FROM_LOCK
     }
-    await withdrawFromLock(account, [lock.xsLockID], isMax ? undefined : parseUnits(formatAmount(inputValue), 18))
+    await withdrawFromLock(
+      recipientAddress,
+      [lock.xsLockID],
+      isMax ? undefined : parseUnits(formatAmount(inputValue), 18)
+    )
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callWithdrawFromLock', err, type))
   }
@@ -101,7 +109,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
               max={lock.unboostedAmount.toString()}
             />
           </Flex>
-          <Flex column stretch w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
+          <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
             <Label importance="quaternary" style={{ marginBottom: '8px' }}>
               Projected benefits
             </Label>
@@ -154,7 +162,9 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
           info
           noborder
           disabled={
-            !isAppropriateAmount(formatAmount(inputValue), 18, lock.unboostedAmount) || lock.timeLeft.toNumber() > 0
+            !isAppropriateAmount(formatAmount(inputValue), 18, lock.unboostedAmount) ||
+            lock.timeLeft.toNumber() > 0 ||
+            !isAddress(recipientAddress)
           }
           onClick={callWithdrawFromLock}
         >

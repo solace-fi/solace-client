@@ -49,7 +49,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
   const { solace } = useMemo(() => keyContracts, [keyContracts])
   const { amount, setMax, handleInputChange, isAppropriateAmount, resetAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const { reload } = useCachedData()
+  const { positiveReload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const { haveErrors } = useGeneral()
   const [buttonLoading, setButtonLoading] = useState<boolean>(false)
@@ -74,7 +74,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
       await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, txHash)
-        reload()
+        positiveReload()
       })
       setButtonLoading(false)
     } catch (err) {
@@ -141,7 +141,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
 
   useEffect(() => {
     _getBridgeLiquidity()
-  }, [latestBlock])
+  }, [latestBlock.blockNumber])
 
   useEffect(() => {
     if (!bSolace || !bridgeWrapper || !solace) return

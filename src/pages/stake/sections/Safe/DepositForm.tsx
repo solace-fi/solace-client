@@ -2,7 +2,7 @@ import React from 'react'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { Button } from '../../../../components/atoms/Button'
-import { StyledSlider } from '../../../../components/atoms/Input'
+import { StyledForm, StyledSlider } from '../../../../components/atoms/Input'
 import { useSolaceBalance } from '../../../../hooks/balance/useBalance'
 import {
   accurateMultiply,
@@ -11,7 +11,7 @@ import {
   formatAmount,
   truncateValue,
 } from '../../../../utils/formatting'
-import InformationBox from '../../components/InformationBox'
+import InformationBox from '../../../../components/molecules/stake-and-lock/InformationBox'
 import { Tab, InfoBoxType } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
@@ -19,10 +19,9 @@ import { LockData } from '@solace-fi/sdk-nightly'
 import { FunctionName } from '../../../../constants/enums'
 import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 
-import { StyledForm } from '../../atoms/StyledForm'
 import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
-import { Label } from '../../molecules/InfoPair'
+import { Label } from '../../../../components/molecules/stake-and-lock/InfoPair'
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { BKPT_5, BKPT_7 } from '../../../../constants'
@@ -106,7 +105,7 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
               disabled={disabled}
             />
           </Flex>
-          <Flex column stretch w={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
+          <Flex column stretch width={(rightSidebar ? BKPT_7 : BKPT_5) > width ? 300 : 521}>
             <Label importance="quaternary" style={{ marginBottom: '8px' }}>
               Projected benefits
             </Label>

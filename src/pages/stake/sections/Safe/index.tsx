@@ -4,8 +4,8 @@ import { Button } from '../../../../components/atoms/Button'
 import { Flex, ShadowDiv, HorizontalSeparator, GridOrRow } from '../../../../components/atoms/Layout'
 
 import { RaisedBox } from '../../../../components/atoms/Box'
-import CardSectionValue from '../../components/CardSectionValue'
-import InfoPair, { Label } from '../../molecules/InfoPair'
+import CardSectionValue from '../../../../components/molecules/stake-and-lock/CardSectionValue'
+import InfoPair, { Label } from '../../../../components/molecules/stake-and-lock/InfoPair'
 import DepositForm from './DepositForm'
 import LockForm from './LockForm'
 import RewardsForm from './RewardsForm'
@@ -30,6 +30,7 @@ export default function Safe({
   handleOpenLock,
   onCheck,
   index,
+  recipientAddress,
 }: {
   lock: LockData
   batchActionsIsEnabled: boolean
@@ -38,6 +39,7 @@ export default function Safe({
   handleOpenLock: (openedId: number | undefined) => void
   onCheck: (index: number) => void
   index: number
+  recipientAddress: string
 }): JSX.Element {
   const { rightSidebar } = useGeneral()
   const { width } = useWindowDimensions()
@@ -204,10 +206,10 @@ export default function Safe({
                 </Flex>
               </Flex>
               {/* depending on the tab, use <DepositForm />, or LockForm, RewardsForm or WithdrawForm */}
-              {activeTab === Tab.DEPOSIT && <DepositForm lock={lock} />}
-              {activeTab === Tab.LOCK && <LockForm lock={lock} />}
-              {activeTab === Tab.WITHDRAW && <WithdrawForm lock={lock} />}
-              {activeTab === Tab.REWARDS && <RewardsForm lock={lock} />}
+              {activeTab === Tab.DEPOSIT && isOpen && <DepositForm lock={lock} />}
+              {activeTab === Tab.LOCK && isOpen && <LockForm lock={lock} />}
+              {activeTab === Tab.WITHDRAW && isOpen && <WithdrawForm lock={lock} recipientAddress={recipientAddress} />}
+              {activeTab === Tab.REWARDS && isOpen && <RewardsForm lock={lock} />}
             </Flex>
           </div>
         </Accordion>

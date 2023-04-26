@@ -8,6 +8,7 @@ export type WindowDimensions = {
   height: number
   isDesktop: boolean
   isMobile: boolean
+  isSmallerMobile: boolean
   ifDesktop: <T, V>(desktopArg: T, mobileArg?: V | undefined) => T | V | undefined
   ifMobile: <T, V>(mobileArg: T, desktopArg?: V | undefined) => T | V | undefined
 }
@@ -39,7 +40,6 @@ export type PageInfo = {
   name: string
   title: string
   to: string
-  icon: JSX.Element
   component: () => any
 }
 
@@ -47,3 +47,14 @@ export type LocalSolaceRiskProtocol = SolaceRiskProtocol & {
   index: number
   networks: string[]
 }
+
+export type MassUwpDataPortfolio = {
+  symbol: string
+  balance: number
+  price: number
+  usdBalance: number
+  weight: number
+  simulation: number[]
+}
+
+export type BlockData = { blockNumber?: number; blockTimestamp?: number }
