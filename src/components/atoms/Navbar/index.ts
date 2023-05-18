@@ -1,73 +1,45 @@
-import { NavLink } from 'react-router-dom'
-import styled, { css } from 'styled-components'
-import { BKPT_NAVBAR, BKPT_3, Z_NAV } from '../../../constants'
+import styled from 'styled-components'
+import { Z_NAV, BKPT_TABLET_END, BKPT_MOBILE_END } from '../../../constants'
+import { ThinScrollbarCss } from '../Scrollbar/ThinScrollbar'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 interface TopNavProps {
   isOpen?: boolean
 }
 
+export const MobileNavPanelComponent = styled.div<{ shouldShow: boolean }>`
+  background-color: ${({ theme }) => theme.body.bg_color};
+  display: 'flex';
+  width: 100%;
+  overflow-y: auto;
+  position: fixed;
+  top: 0;
+  z-index: ${Z_NAV};
+  ${(props) => (props.shouldShow ? `left: 0%; transition: 350ms;` : `left: -100%; transition: 350ms;`)};
+`
+
+export const MobileNavMenu = styled.div`
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  ${ThinScrollbarCss}
+`
+
 export const TopNav = styled.div<TopNavProps>`
   position: fixed;
   overflow: hidden;
-  background-color: rgba(0, 0, 0, 0.92);
-  display: none;
-  padding: 10px 0;
-  transition: 200ms ease;
-
-  @media screen and (max-width: ${BKPT_NAVBAR}px) {
-    display: block;
-    width: 100%;
-    z-index: ${Z_NAV};
-  }
-
-  @media screen and (max-width: ${BKPT_3}px) {
-    ${(props) => (props.isOpen == false ? 'max-height: 2.5rem;' : 'max-height: calc(100vh - 20px);')}
-    text-align: center;
-  }
-`
-
-export const NewTopNav = styled.div<TopNavProps>`
-  position: fixed;
-  overflow: hidden;
   background-color: ${(props) => props.theme.body.bg_color};
-  display: none;
   padding: 10px 0;
   transition: 200ms ease;
+  display: block;
+  width: 100%;
+  z-index: ${Z_NAV};
 
-  @media screen and (max-width: ${BKPT_NAVBAR}px) {
-    display: block;
-    width: 100%;
-    z-index: ${Z_NAV};
-  }
-
-  @media screen and (max-width: ${BKPT_3}px) {
+  @media screen and (max-width: ${BKPT_MOBILE_END}px) {
     ${(props) => (props.isOpen == false ? 'max-height: 2.5rem;' : 'max-height: calc(100vh - 20px);')}
     text-align: center;
   }
-`
-
-export const SidebarTextCss = css<GeneralTextProps>`
-  font-weight: 400;
-  font-size: 14px;
-  color: ${({ theme }) => `${theme.typography.contrastText}`};
-  text-decoration: none;
-  transition: all 0.2s ease;
-  &:hover,
-  &.is-active {
-    opacity: 1 !important;
-    font-weight: 600;
-  }
-
-  ${GeneralTextCss}
-`
-
-export const SidebarText = styled.div<GeneralTextProps>`
-  ${SidebarTextCss}
-`
-
-export const SidebarItem = styled(NavLink)<GeneralTextProps>`
-  ${SidebarTextCss}
 `
 
 export const ItemText = styled.li<GeneralTextProps>`
@@ -85,12 +57,12 @@ export const ItemList = styled.ul`
   padding: 0;
   margin: 0;
 
-  @media screen and (max-width: ${BKPT_NAVBAR}px) {
+  @media screen and (max-width: ${BKPT_TABLET_END}px) {
     display: flex;
     justify-content: space-evenly;
   }
 
-  @media screen and (max-width: ${BKPT_3}px) {
+  @media screen and (max-width: ${BKPT_MOBILE_END}px) {
     flex-direction: column;
   }
 `

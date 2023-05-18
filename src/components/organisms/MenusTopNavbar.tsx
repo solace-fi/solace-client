@@ -1,7 +1,7 @@
 import React from 'react'
 import { useLocation } from 'react-router'
 
-import { NewTopNav } from '../atoms/Navbar'
+// import { NewTopNav } from '../atoms/Navbar'
 import { Button } from '../atoms/Button'
 import { StyledMenu } from '../atoms/Icon'
 import { Flex } from '../atoms/Layout'
@@ -20,23 +20,24 @@ export const MenusTopNavBar: React.FC<{
   const { account } = useWeb3React()
 
   return (
-    <NewTopNav style={{ backgroundColor: location.pathname == '/' ? 'transparent' : undefined }}>
-      <Flex between>
-        <Button light={location.pathname == '/'} nohover noborder onClick={() => setShowLeft(true)}>
-          <StyledMenu size={40} />
-        </Button>
-        <Button nohover noborder onClick={() => setShowRight(true)}>
-          {account ? (
-            <SolaceGradientCircle>
-              <UserImage style={{ width: '24px', height: '24px', margin: 'auto' }}>
-                <img src={makeBlockie(account)} alt={'account'} />
-              </UserImage>
-            </SolaceGradientCircle>
-          ) : (
-            <img src={UserGradient} />
-          )}
-        </Button>
-      </Flex>
-    </NewTopNav>
+    // <NewTopNav style={{ backgroundColor: location.pathname == '/' ? 'transparent' : undefined }}>
+    //   <Flex between>
+    //     <Button light={location.pathname == '/'} nohover noborder onClick={() => setShowLeft(true)}>
+    //       <StyledMenu size={40} />
+    //     </Button>
+    //     <Button nohover noborder onClick={() => setShowRight(true)}>
+    //       {account ? (
+    //         <SolaceGradientCircle>
+    //           <UserImage style={{ width: '24px', height: '24px', margin: 'auto' }}>
+    //             <img src={makeBlockie(account)} alt={'account'} />
+    //           </UserImage>
+    //         </SolaceGradientCircle>
+    //       ) : (
+    //         <img src={UserGradient} />
+    //       )}
+    //     </Button>
+    //   </Flex>
+    // </NewTopNav>
+    <></>
   )
 }

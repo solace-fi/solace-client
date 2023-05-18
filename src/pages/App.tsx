@@ -46,6 +46,8 @@ import Lock from './lock'
 import Gauge from './vote'
 import Analytics from './analytics'
 
+import { Navbar } from '../components/organisms/Navbar'
+
 export default function App(): any {
   const { leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar, handlePathNameChange } = useGeneral()
   const location = useLocation()
@@ -90,21 +92,22 @@ export default function App(): any {
     <Fragment>
       <AnalyticsReporter />
       <GlobalStyle location={location} />
-      <MenusTopNavBar setShowLeft={setLeftSidebar} setShowRight={setRightSidebar} />
+      <Navbar routeInfoArr={pages} />
+      {/* <MenusTopNavBar setShowLeft={setLeftSidebar} setShowRight={setRightSidebar} />
       <InfoSideNavbar pages={pages} show={width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR)} />
-      <AppMenu show={rightSidebar} setShow={setRightSidebar} />
+      <AppMenu show={rightSidebar} setShow={setRightSidebar} /> */}
       <Layout>
         <ContentContainer>
-          <SideNavContent mobileWidth={6}></SideNavContent>
+          {/* <SideNavContent mobileWidth={6}></SideNavContent>
           <MobileInfoSideNavbar
             pages={pages}
             show={leftSidebar && width < (rightSidebar ? BKPT_2 : BKPT_NAVBAR)}
             setShow={setLeftSidebar}
-          />
+          /> */}
           <LayoutContent>
-            {width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR) && (
+            {/* {width >= (rightSidebar ? BKPT_2 : BKPT_NAVBAR) && (
               <AppMenuHeader pages={pages} setShow={setRightSidebar} />
-            )}
+            )} */}
             <Flex>
               <div style={{ transition: '350ms', width: rightSidebar ? 'calc(100% - 375px)' : '100%' }}>
                 <Switch>
@@ -157,7 +160,7 @@ export default function App(): any {
                   />
                 </Switch>
               </div>
-              <SideNavContent desktopWidth={8}></SideNavContent>
+              {/* <SideNavContent desktopWidth={8}></SideNavContent> */}
             </Flex>
           </LayoutContent>
         </ContentContainer>

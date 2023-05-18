@@ -71,6 +71,10 @@ type CachedDataContextType = {
     canFetchGlobalStatsFlag: boolean
     handleCanFetchGlobalStatsFlag: (_flag: boolean) => void
   }
+  accountModal: boolean
+  toggleAccountModal: (value: boolean) => void
+  networkModal: boolean
+  toggleNetworkModal: (value: boolean) => void
 }
 
 const CachedDataContext = createContext<CachedDataContextType>({
@@ -117,6 +121,10 @@ const CachedDataContext = createContext<CachedDataContextType>({
     canFetchGlobalStatsFlag: true,
     handleCanFetchGlobalStatsFlag: () => undefined,
   },
+  accountModal: false,
+  toggleAccountModal: () => undefined,
+  networkModal: false,
+  toggleNetworkModal: () => undefined,
 })
 
 const CachedDataProvider: React.FC = (props) => {
@@ -134,6 +142,8 @@ const CachedDataProvider: React.FC = (props) => {
   const scpBalance = useScpBalance()
   const { series, loading: seriesLoading } = useRiskSeries()
   const [statsCache, setStatsCache] = useState<any>(undefined)
+  const [accountModal, setAccountModal] = useState<boolean>(false)
+  const [networkModal, setNetworkModal] = useState<boolean>(false)
 
   const seriesLogos = useMemo(() => {
     return series
@@ -220,6 +230,20 @@ const CachedDataProvider: React.FC = (props) => {
     getStatsCache()
   }, [])
 
+  const toggleAccountModal = useCallback(
+    (value: boolean) => {
+      setAccountModal(value)
+    },
+    [accountModal]
+  )
+
+  const toggleNetworkModal = useCallback(
+    (value: boolean) => {
+      setNetworkModal(value)
+    },
+    [networkModal]
+  )
+
   const value = useMemo<CachedDataContextType>(
     () => ({
       localTransactions: localTxs,
@@ -258,6 +282,10 @@ const CachedDataProvider: React.FC = (props) => {
         canFetchGlobalStatsFlag,
         handleCanFetchGlobalStatsFlag,
       },
+      accountModal,
+      toggleAccountModal,
+      networkModal,
+      toggleNetworkModal,
     }),
     [
       minute,
@@ -290,6 +318,10 @@ const CachedDataProvider: React.FC = (props) => {
       handleGlobalLockStats,
       canFetchGlobalStatsFlag,
       handleCanFetchGlobalStatsFlag,
+      accountModal,
+      toggleAccountModal,
+      networkModal,
+      toggleNetworkModal,
     ]
   )
 

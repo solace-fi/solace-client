@@ -12,7 +12,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React from 'react'
+import React, { DOMAttributes } from 'react'
 
 /* import components */
 import { Button, ButtonProps } from '../atoms/Button'
@@ -21,10 +21,11 @@ import { GeneralElementProps } from '../generalInterfaces'
 
 /* import hooks */
 import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
+import { Text } from '../atoms/Typography'
 
-interface CopyProps {
+interface CopyProps extends DOMAttributes<HTMLButtonElement> {
   toCopy: string
-  objectName: string
+  objectName?: string
 }
 
 export const CopyButton: React.FC<CopyProps & ButtonProps & GeneralElementProps> = (props) => {
@@ -38,16 +39,16 @@ export const CopyButton: React.FC<CopyProps & ButtonProps & GeneralElementProps>
   return (
     <Button onClick={() => setCopied(props.toCopy)} {...props}>
       {isCopied ? (
-        <>
+        <Text>
           <StyledCheckmark size={20} style={{ margin: 'inherit' }} />
-          Copied!
-        </>
+        </Text>
       ) : (
-        <>
+        <Text>
           <StyledCopy size={20} />
-          Copy {props.objectName}
-        </>
+          {props.objectName && `Copy ${props.objectName}`}
+        </Text>
       )}
+      {props.children}
     </Button>
   )
 }
