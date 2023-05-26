@@ -331,17 +331,34 @@ export const TextSpan = styled.span<GeneralTextProps & GeneralElementProps>`
   ${GeneralElementCss}
 `
 
-/**
- * @name TTTest
- * @description Test component for typography
- * @param {string} testprop - test prop
- */
-export const TTTest = styled.div<{
-  testprop: string
-}>`
-  ${(props) =>
-    props.testprop &&
-    css`
-      color: 'blue';
-    `}
+export const TabLabelLink = styled(Text)<GeneralTextProps & GeneralElementProps & { selected?: boolean }>`
+  a {
+    transition: color 300ms;
+    overflow: hidden;
+    display: block;
+    position: relative;
+    padding: 0.2em 0;
+    color: ${({ selected, theme }) => {
+      if (selected) return theme.accentAction
+      return theme.textPrimary
+    }};
+  }
+  a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0.1em;
+    background-color: ${({ theme }) => theme.accentAction};
+    opacity: ${({ selected }) => (selected ? 1 : 0)};
+    transition: opacity 300ms, transform 300ms;
+    transform: translate3d(-100%, 0, 0);
+  }
+  a:hover::after {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  ${GeneralElementCss}
+  ${GeneralTextCss}
 `

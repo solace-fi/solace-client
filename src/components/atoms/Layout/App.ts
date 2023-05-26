@@ -45,13 +45,13 @@ export const GlobalStyle = createGlobalStyle<LayoutProps>`
 `
 
 export const Layout = styled.div`
-  display: flex;
+  /* display: flex; */
   /* min-height: 100vh; */
-  padding: 30px;
+  /* padding: 30px;
 
-  @media screen and (max-width: ${BKPT_NAVBAR}px) {
-    padding: 60px 0 60px 0;
-  }
+  @media screen and (max-width: ${BKPT_NAVBAR}px) { */
+  padding: 90px 30px 60px 30px;
+  /* } */
 `
 
 export const ContentContainer = styled.div`
