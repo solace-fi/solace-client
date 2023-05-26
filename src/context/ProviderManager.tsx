@@ -15,7 +15,7 @@ import ToggleSwitch from '../components/atoms/ToggleSwitch'
 import { JsonRpcProvider, JsonRpcSigner } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
 import { getSigner } from '../utils'
-import { BlockData } from '../constants/types'
+import { BlockData, NetworkConfig } from '../constants/types'
 
 /*
 
@@ -39,6 +39,9 @@ type ProviderContextType = {
   signer?: JsonRpcSigner
   openNetworkModal: () => void
   latestBlock: BlockData
+  adjustedNetworks: NetworkConfig[]
+  showTestnets: boolean
+  handleShowTestnets: (showTestnets: boolean) => void
 }
 
 const ProviderContext = createContext<ProviderContextType>({
@@ -49,6 +52,9 @@ const ProviderContext = createContext<ProviderContextType>({
     blockNumber: undefined,
     blockTimestamp: undefined,
   },
+  adjustedNetworks: [],
+  showTestnets: false,
+  handleShowTestnets: () => undefined,
 })
 
 const ProviderManager: React.FC = (props) => {
@@ -78,6 +84,13 @@ const ProviderManager: React.FC = (props) => {
     setNetworkModal(false)
   }, [])
 
+  const handleShowTestnets = useCallback(
+    (showTestnets: boolean) => {
+      setShowTestnets(showTestnets)
+    },
+    [closeModal]
+  )
+
   useEffect(() => {
     setShowTestnets(activeNetwork.isTestnet)
   }, [activeNetwork])
@@ -95,6 +108,9 @@ const ProviderManager: React.FC = (props) => {
         blockNumber,
         blockTimestamp,
       },
+      adjustedNetworks,
+      showTestnets,
+      handleShowTestnets,
     }),
     [openModal, blockNumber, blockTimestamp, provider, signer]
   )
